@@ -2,14 +2,33 @@
 
 62쪽 「세종문화회관 웹사이트 분석」을 바탕으로 만든 전체 프런트엔드 리뉴얼입니다. HTML, CSS, 네이티브 JavaScript만 사용하며 프레임워크·런타임 패키지·빌드 과정이 없습니다.
 
-## 실행
+## 서버 열기
 
-```bash
-cd /workspace/renewsejongpac
+명령은 프로젝트 루트(`index.html`이 있는 폴더)에서 실행합니다. Windows PowerShell에서는 현재 저장소로 이동한 뒤 Python 서버를 시작하세요.
+
+```powershell
+cd C:\Users\hi\renewsejongpac
+py -m http.server 8000
+```
+
+`py` 명령이 없으면 설치된 Python 명령에 맞춰 아래 중 하나를 사용합니다.
+
+```powershell
+python -m http.server 8000
 python3 -m http.server 8000
 ```
 
-브라우저에서 `http://localhost:8000`을 엽니다. 다른 환경에서는 저장소 폴더에서 같은 명령을 실행하면 됩니다. ES 모듈을 사용하므로 파일을 직접 더블클릭하기보다 정적 HTTP 서버를 사용하세요. GitHub Pages 등 일반 정적 호스팅에서도 작동합니다. 모든 페이지는 `#/programs/carmen`과 같은 해시 주소로 직접 접근할 수 있으며, 새로고침과 뒤로 가기를 지원합니다.
+macOS/Linux에서는 프로젝트 폴더에서 실행합니다.
+
+```bash
+python3 -m http.server 8000
+```
+
+서버가 실행 중인 동안 브라우저에서 `http://localhost:8000`을 엽니다. 종료는 터미널에서 `Ctrl+C`를 누릅니다. 포트 8000을 사용 중이면 명령의 `8000`을 `8080` 등으로 바꾸고 해당 포트 주소로 접속하세요. ES 모듈을 사용하므로 파일을 직접 더블클릭하지 말고 HTTP 서버를 사용하세요. 페이지 경로는 `#/programs/carmen` 같은 해시 라우트를 사용해 새로고침과 뒤로 가기를 지원합니다.
+
+## Vercel 배포
+
+가능합니다. 이 프로젝트는 루트에 `index.html`이 있는 정적 사이트이며 빌드 단계나 서버 런타임이 필요하지 않습니다. Git 저장소를 Vercel에 연결하고 프로젝트 루트를 저장소 루트로 지정하세요. 프레임워크를 사용하지 않는 정적 사이트로 설정하고 별도 Build Command와 Output Directory를 지정하지 않으면 파일을 그대로 배포할 수 있습니다. 또는 Vercel Drop에 프로젝트 폴더를 올릴 수 있습니다. 해시 라우트를 사용하므로 `vercel.json`의 rewrite 규칙은 필요하지 않습니다. [Vercel의 정적 사이트 안내](https://vercel.com/changelog/vercel-drop)
 
 ## 구현 범위
 
