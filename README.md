@@ -119,6 +119,20 @@ assets/images/            로컬 이미지·포스터·공간 일러스트
 
 ## 구버전 검증 도구
 
+신버전의 경로 보존·정적 리소스·윤년 달력·버전별 저장소 분리 검사는 다음 명령으로 실행합니다.
+
+```bash
+node --test v2/tests/routes.test.mjs
+```
+
+구버전과 신버전의 전체 Node 테스트를 함께 실행하려면 아래 명령을 사용하세요.
+
+```bash
+node --test tests/core.test.mjs tests/routes.test.mjs v2/tests/routes.test.mjs
+```
+
+화면·사용 흐름·HTML/CSS 검수 결과와 제한 사항은 [신버전 검수 기록](v2/docs/verification.md)에 있습니다.
+
 ```bash
 node --test tests/*.test.mjs
 ```
