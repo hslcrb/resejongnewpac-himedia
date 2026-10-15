@@ -1,15 +1,14 @@
 # 세종문화회관 - 예술로 열리는 당신의 일상  
 
-세종문화회관의 비공식 프런트엔드 리뉴얼 프로젝트입니다. 시작 화면에서 **구버전**, **신버전(v2)**, **v3(상호 참고 버전)**을 선택할 수 있습니다. 세 버전 모두 HTML, CSS, 네이티브 JavaScript로 동작하며 앱 실행에 패키지 설치나 빌드 과정이 필요하지 않습니다.
+세종문화회관의 비공식 프런트엔드 리뉴얼 프로젝트입니다. 시작 화면에서 **구버전**과 **신버전**을 선택할 수 있습니다. 두 버전 모두 HTML, CSS, 네이티브 JavaScript로 동작하며 앱 실행에 패키지 설치나 빌드 과정이 필요하지 않습니다.
 
 ## 버전 선택
 
 | 화면 | 주소 | 내용 |
 | --- | --- | --- |
-| 버전 선택 | `http://localhost:8000/` | 구버전·v2·v3로 이동 |
+| 버전 선택 | `http://localhost:8000/` | 구버전·신버전으로 이동 |
 | 구버전 | `http://localhost:8000/legacy.html` | 기존 디자인과 모든 탐색·예매 체험 유지 |
 | 신버전 | `http://localhost:8000/v2/index.html` | 새 디자인 지침을 적용한 폴더 구조 |
-| v3 · 상호 참고 버전 | `http://localhost:8000/v3/` | 기존의 간결함에 비교본의 정보 위계·정렬·혜택 구성을 반영 |
 
 구버전은 기존 `index.html`을 `legacy.html`로 보존했습니다. 기존 `css/`, `js/`, `assets/images/` 경로를 함께 사용하며, 예전 `/#/programs/carmen` 같은 북마크는 같은 해시를 유지한 구버전 주소로 이동합니다. 버전 선택 링크는 JavaScript 없이도 작동합니다.
 
@@ -37,7 +36,7 @@ macOS/Linux에서는 프로젝트 폴더에서 실행합니다.
 python3 -m http.server 8000
 ```
 
-서버가 실행 중인 동안 브라우저에서 `http://localhost:8000`을 엽니다. 종료는 터미널에서 `Ctrl+C`를 누릅니다. 포트 8000을 사용 중이면 명령의 `8000`을 `8080` 등으로 바꾸고 해당 포트 주소로 접속하세요. ES 모듈을 사용하므로 파일을 직접 더블클릭하지 말고 HTTP 서버를 사용하세요. **세 버전 모두 프로젝트 루트에서 같은 서버로 실행**합니다. 구버전의 페이지 경로는 `legacy.html#/programs/carmen` 같은 해시 라우트를 사용해 새로고침과 뒤로 가기를 지원합니다.
+서버가 실행 중인 동안 브라우저에서 `http://localhost:8000`을 엽니다. 종료는 터미널에서 `Ctrl+C`를 누릅니다. 포트 8000을 사용 중이면 명령의 `8000`을 `8080` 등으로 바꾸고 해당 포트 주소로 접속하세요. ES 모듈을 사용하므로 파일을 직접 더블클릭하지 말고 HTTP 서버를 사용하세요. **구버전과 신버전 모두 프로젝트 루트에서 같은 서버로 실행**합니다. 구버전의 페이지 경로는 `legacy.html#/programs/carmen` 같은 해시 라우트를 사용해 새로고침과 뒤로 가기를 지원합니다.
 
 ## Vercel 배포
 
@@ -100,15 +99,10 @@ python3 -m http.server 8000
 ## 파일 구조
 
 ```text
-index.html                구버전·v2·v3 선택 화면
+index.html                구버전·신버전 선택 화면
 legacy.html               기존 단일 정적 진입점 보존
 assets/entry.css           버전 선택 화면 스타일
 assets/entry.js            비공식 안내·기존 해시 주소 연결
-v3/index.html             상호 참고 버전 진입점
-v3/src/                   v3 독립 실행 모듈·저장소
-v3/styles/                v3 스타일·refinements.css
-v3/assets/                v3 자체 이미지·아이콘·로컬 폰트
-v3/v2/ 등        요청에 따라 복사 보존한 원본 자료
 v2/index.html             신버전 진입점
 v2/assets/fonts/          로컬 웹폰트·라이선스·출처
 v2/src/app.js             신버전 라우터·공통 이벤트
@@ -170,25 +164,3 @@ node tests/admission.cjs
 기존 브라우저 테스트는 구버전을 대상으로 합니다. 실행 전에 `SEJONG_TEST_URL`을 `http://127.0.0.1:8000/legacy.html`로 지정하세요. 도구의 기본 Chromium 경로는 `/usr/bin/chromium`이며, 필요하면 `CHROMIUM_PATH` 환경변수로 변경합니다. 별도 환경에서는 Playwright 및 Chromium을 개발 도구로 설치한 뒤 실행하세요. 위 명령은 검증 도구 안내이며 이번 변경에서 모두 실행했다는 의미는 아닙니다.
 
 키보드 탐색·포커스 표시·건너뛰기·이미지 대체 텍스트와 모션 감소 설정을 지원합니다. 신버전의 실제 검증 범위와 관찰 결과는 `v2/docs/verification.md`를 참고하세요.
-
-
-## v3 · 상호 참고 버전
-
-기존 `renewsejongpac`의 미니멀한 인상과 132개 경로를 유지하면서,
-`renewsejongpac-philosophized`의 제목·설명·행동 위계와 소식·혜택의 관계를 참고했습니다.
-히어로와 프로그램의 노란 UI 강조, 넓은 시즌 배너는 중성색으로 정돈하고 작품의 색은 유지합니다.
-소식 옆에는 기존 멤버십 화면으로 이어지는 안내를 추가했습니다.
-
-요청에 따라 기존 추적 파일 10,181개를 먼저 `v3/`로 복사했습니다. 실제 v3 실행 파일은
-`v3/index.html`, `v3/src/`, `v3/styles/`, `v3/assets/`이고, 나머지는 보존된 비교 자료입니다.
-기존 구버전·v2 파일은 그대로이며 v3 체험 데이터는 `sejong-v3:` 저장소로 분리합니다.
-[변경한 내용과 이유](docs/v3-design-decisions.md), [검증 결과](docs/v3-verification.md),
-[v3 실행 안내](v3/README.md)를 참고하세요.
-
-```bash
-node --test tests/*.test.mjs v2/tests/*.test.mjs
-node tests/v3-browser.cjs
-```
-
-v3 브라우저 검사는 저장소 루트의 HTTP 서버를 사용합니다. Playwright와 Chromium은
-검증 도구이며 앱 런타임 의존성이 아닙니다. 결과·캡처는 Git 제외 경로 `.local-reports/v3/`에 저장합니다.
