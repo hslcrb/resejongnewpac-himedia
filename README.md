@@ -51,7 +51,11 @@ python3 -m http.server 8000
 신버전의 글자 크기·행간·조작 영역·상태 피드백·불필요한 문구 제거 기준은
 [디자인 기본값](v2/docs/design-system.md)에 정리했습니다.
 `v2/styles/defaults.css`를 공통 기준으로 사용하며, 본문은 18px,
-보조 정보는 최소 16px, 빠른 메뉴는 22px(모바일 20px)입니다.
+보조 정보는 최소 16px, 카드·안내 항목 제목은 20px/650, 빠른 메뉴는 22px(모바일 20px)입니다.
+카드-히어로·카드-포스터·카드-배너는 `v2/src/components/cards.js`에서 관리합니다.
+히어로는 2.7초마다 왼쪽으로 전환하며 마우스·터치의 양방향 드래그를 지원합니다.
+추가 검사는 `node v2/tests/cards-carousel.cjs`와
+`node scripts/check-decoration.cjs`로 실행합니다.
 
 프로젝트 디자인 지침과 Toss/세종문화회관 참고 자료를 사용합니다. 검정과 흰색을 바탕으로 천·지·인의 세 채널을 CSS 변수로 분리해 색상을 바꿀 수 있도록 구성합니다.
 
