@@ -192,3 +192,8 @@ node tests/v3-browser.cjs
 
 v3 브라우저 검사는 저장소 루트의 HTTP 서버를 사용합니다. Playwright와 Chromium은
 검증 도구이며 앱 런타임 의존성이 아닙니다. 결과·캡처는 Git 제외 경로 `.local-reports/v3/`에 저장합니다.
+# v4 · 예술로 이어지는 하루
+
+v3 전체를 복사한 독립 v4를 추가했습니다. 기존 경로를 보존하며 빠른 예매, 방문 계획, 대관 공간 비교, 소개 스토리와 통합검색을 확장했습니다. 루트 버전 선택 또는 `v4/index.html`에서 시작할 수 있습니다.
+
+실행·구조는 [v4 README](v4/README.md), 원본 보존과 140개 경로 검증은 [검증 기록](v4/docs/verification-2026-10-16.md), 스킬·kordoc·REA 연결은 [도구 설정](docs/agent-tools-2026-10-16.md)에 정리했습니다.
