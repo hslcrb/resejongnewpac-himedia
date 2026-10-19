@@ -693,7 +693,7 @@ export default function HomePage() {
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
                             key={guide.id}
-                            src={`/assets/images/${guide.image}`}
+                            src={`/v5/assets/images/${guide.image}`}
                             alt={guide.alt}
                             width={guide.width}
                             height={guide.height}
@@ -745,7 +745,7 @@ export default function HomePage() {
                                     /* eslint-disable-next-line @next/next/no-img-element */
                                     <img
                                         key={guide.id}
-                                        src={`/assets/images/${guide.image}`}
+                                        src={`/v5/assets/images/${guide.image}`}
                                         alt=""
                                         width={guide.width}
                                         height={guide.height}

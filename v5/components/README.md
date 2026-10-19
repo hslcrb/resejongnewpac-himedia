@@ -9,7 +9,10 @@
 - Scoped presentation: `VioletQuickMenu.module.css`
 - Decorative canvas: `VioletFur.tsx`
 - Reference: [사용자의 Figma 시안](https://www.figma.com/design/EufUvqqxgphtoLRX6bcdV6/Untitled?node-id=1-6)
-- Verification: [25개 동작 검증 결과 및 PC·모바일 화면](../../docs/v5-violet-quick-menu/README.md)
+- Full guide: [디자인 근거, 재사용 API, 접근성 및 검증 절차](../docs/components/violet-quick-menu.md)
+- Live example: [디자인 가이드의 컴포넌트 갤러리](../app/design-rules/page.tsx) - `/v5/design-rules/#violet-quick-menu`
+- Verification: [기존 여섯 항목 구현의 25개 동작 검증 기록 및 PC·모바일 화면](../../docs/v5-violet-quick-menu/README.md)
+- Integration verification: [갤러리를 포함한 36개 프로덕션 검사와 대표 화면](../docs/violet-quick-menu-verification.md)
 
 ```tsx
 "use client";
@@ -36,11 +39,30 @@ export default function Hero() {
 
 | Prop | Default | Purpose |
 | --- | --- | --- |
-| `heroId` | `"featured-season"` | 표시 범위를 결정할 기존 히어로 요소의 ID. 히어로가 화면에서 사라지면 메뉴와 장식을 숨깁니다. |
+| `placement` | `"hero"` | `"hero"`는 히어로와 연결한 화면 하단 배치, `"inline"`은 문서 흐름 안의 독립 예시 배치입니다. |
+| `heroId` | `"featured-season"` | `placement="hero"`에서 표시 범위를 결정할 기존 히어로 요소의 ID. 히어로가 화면에서 사라지면 메뉴와 장식을 숨깁니다. |
 | `items` | `SEJONG_QUICK_MENU_ITEMS` | `id`, `label`, `href`, `icon`을 가진 여섯 항목의 readonly tuple. Next.js 경로에는 `/v5`를 직접 붙이지 않습니다. |
 | `onOpenChange` | 없음 | 메뉴가 열리거나 닫힐 때 호출합니다. 부모의 자동 재생 등을 제어할 때 사용합니다. |
 
-컴포넌트를 사용하는 페이지에는 `heroId`에 대응하는 요소가 있어야 합니다. 같은 페이지의 `#anchor` 항목은 실제 섹션 ID를 가리켜야 합니다. 기본 빠른 예매 항목은 `#quick-booking` 섹션으로 이동하고 그 제목으로 키보드 포커스를 옮깁니다.
+기본 `hero` 배치에서는 `heroId`에 대응하는 요소가 있어야 합니다. `inline` 배치는 히어로 없이 자신의 화면 표시 여부를 관찰하며, 화면 밖에서도 문서상의 공간을 유지하고 반복 장식을 멈춥니다. 같은 페이지의 `#anchor` 항목은 실제 섹션 ID를 가리켜야 합니다. 홈의 기본 빠른 예매 항목은 `#quick-booking` 섹션으로 이동하고 그 제목으로 키보드 포커스를 옮깁니다.
+
+홈 이외의 갤러리에서는 빠른 예매를 `/#quick-booking`으로 바꿔 홈 예매 영역에 연결합니다. 나머지 다섯 항목과 메뉴 조작은 그대로 재사용합니다.
+
+```tsx
+import {
+    VioletQuickMenu,
+    SEJONG_QUICK_MENU_ITEMS,
+    type VioletQuickMenuItems,
+} from "../components";
+
+const [quickBooking, ...otherItems] = SEJONG_QUICK_MENU_ITEMS;
+const galleryItems: VioletQuickMenuItems = [
+    { ...quickBooking, href: "/#quick-booking" },
+    ...otherItems,
+];
+
+<VioletQuickMenu placement="inline" items={galleryItems} />
+```
 
 ### Registered destinations
 
@@ -71,15 +93,15 @@ npm --prefix v5 ci
 npm --prefix v5 run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
-The page is `http://127.0.0.1:3000/v5/`. Run the focused browser script in an environment with `playwright/test` installed:
+The home page is `http://127.0.0.1:3000/v5/`; the [live component gallery](http://127.0.0.1:3000/v5/design-rules/#violet-quick-menu) demonstrates the inline placement. Install the browser once, then run the home and gallery checks while the dev server is running:
 
 ```bash
-SEJONG_TEST_URL=http://127.0.0.1:3000/v5/ \
-CHROMIUM_PATH=/path/to/chromium \
-node v5/tests/violet-quick-menu.cjs
+npm --prefix v5 exec -- playwright install chromium
+SEJONG_TEST_URL=http://127.0.0.1:3000/v5/ npm --prefix v5 run test:orb
+SEJONG_TEST_URL=http://127.0.0.1:3000/v5/ npm --prefix v5 run test:orb:gallery
 ```
 
-If Playwright is installed in a separate tooling directory, point `NODE_PATH` to its `node_modules`. `SEJONG_VIOLET_REPORT_DIR` can place the JSON report and screenshots outside the repository; by default the existing ignored `.local-reports` evidence directory is used. The script checks actual mouse/touch navigation, drag wraparound, no accidental navigation, keyboard focus, viewport bounds, reduced motion and browser errors.
+To use an existing Chromium executable, set `CHROMIUM_PATH` to its absolute path. If Playwright is installed in a separate tooling directory, point `NODE_PATH` to its `node_modules`. `SEJONG_VIOLET_REPORT_DIR` can place the JSON report and screenshots outside the repository; the default is the ignored `v5/.local-reports/violet-quick-menu/` directory. The home script checks actual mouse/touch navigation, drag wraparound, no accidental navigation, keyboard focus, viewport bounds, reduced motion and browser errors. The gallery script checks the inline integration and writes `gallery-results.json` with `gallery-*.png` captures. These commands are reproduction steps; consult the results from the corresponding run for verification status.
 
 ```bash
 cd v5

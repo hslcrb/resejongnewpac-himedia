@@ -22,6 +22,10 @@ function copyRecursive(src, dest) {
 }
 
 if (fs.existsSync(outDir)) {
+    const staticDir = path.join(outDir, "_next", "static");
+    if (["development", "webpack"].some((name) => fs.existsSync(path.join(staticDir, name)))) {
+        throw new Error("Development assets found in the export. Stop the dev server, remove v5/.next and v5/out, then run the production build again.");
+    }
     console.log("Syncing out/ to v5 root for direct static hosting...");
     copyRecursive(outDir, v5Root);
     console.log("Sync completed successfully!");

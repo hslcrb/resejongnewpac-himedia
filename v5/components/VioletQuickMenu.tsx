@@ -28,6 +28,8 @@ export const SEJONG_QUICK_MENU_ITEMS: VioletQuickMenuItems = [
 ];
 
 export interface VioletQuickMenuProps {
+    /** Keep the default fixed hero control, or contain the same menu in page content. */
+    placement?: "hero" | "inline";
     /** Only show the fixed horizon and menu while this hero is in view. */
     heroId?: string;
     items?: VioletQuickMenuItems;
@@ -65,8 +67,8 @@ function LiquidSurface() {
     return <span className={styles.art} aria-hidden="true"><span className={styles.flow} /><span className={styles.luster} /><span className={styles.light} /></span>;
 }
 
-/** Hero-scoped, non-modal radial navigation. All destinations are real links. */
-function VioletQuickMenu({ heroId = "featured-season", items = SEJONG_QUICK_MENU_ITEMS, onOpenChange }: VioletQuickMenuProps) {
+/** Non-modal radial navigation for a hero or an inline preview. All destinations are real links. */
+function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items = SEJONG_QUICK_MENU_ITEMS, onOpenChange }: VioletQuickMenuProps) {
     const menuId = useId();
     const hintId = useId();
     const [visible, setVisible] = useState(false);
@@ -138,11 +140,12 @@ function VioletQuickMenu({ heroId = "featured-season", items = SEJONG_QUICK_MENU
     };
 
     useEffect(() => {
-        const hero = document.getElementById(heroId);
-        if (!hero) return;
+        const observed = placement === "inline" ? rootRef.current : document.getElementById(heroId);
+        if (!observed) return;
+        const topInset = placement === "hero" ? 96 : 0;
         const update = () => {
-            const rect = hero.getBoundingClientRect();
-            setVisible(rect.bottom > 96 && rect.top < window.innerHeight);
+            const rect = observed.getBoundingClientRect();
+            setVisible(rect.bottom > topInset && rect.top < window.innerHeight);
         };
         update();
         if (typeof IntersectionObserver === "undefined") {
@@ -150,10 +153,21 @@ function VioletQuickMenu({ heroId = "featured-season", items = SEJONG_QUICK_MENU
             window.addEventListener("resize", update);
             return () => { window.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
         }
-        const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { rootMargin: "-96px 0px 0px 0px", threshold: 0 });
-        observer.observe(hero);
+        const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { rootMargin: `-${topInset}px 0px 0px 0px`, threshold: 0 });
+        observer.observe(observed);
         return () => observer.disconnect();
-    }, [heroId]);
+    }, [heroId, placement]);
+
+    useEffect(() => {
+        // A lost window or changed wheel geometry must not leave a captured drag active.
+        const cancel = () => finishGesture(true);
+        window.addEventListener("blur", cancel);
+        window.addEventListener("resize", cancel);
+        return () => {
+            window.removeEventListener("blur", cancel);
+            window.removeEventListener("resize", cancel);
+        };
+    }, [finishGesture]);
 
     useEffect(() => {
         const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -290,7 +304,7 @@ function VioletQuickMenu({ heroId = "featured-season", items = SEJONG_QUICK_MENU
         ><span className={styles.menuLabel}><Icon name={item.icon} size={24} /><span>{item.label}</span></span></Link>;
     };
 
-    return <div ref={rootRef} className={styles.experience} data-violet-menu data-state={open ? "open" : "closed"} data-sleeping={sleeping} hidden={!visible}>
+    return <div ref={rootRef} className={styles.experience} data-violet-menu data-placement={placement} data-state={open ? "open" : "closed"} data-sleeping={sleeping || !visible} hidden={placement === "hero" && !visible}>
         <div className={styles.horizon} aria-hidden="true"><span className={styles.ribbon} /></div>
         <div
             ref={dockRef}

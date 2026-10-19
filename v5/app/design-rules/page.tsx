@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { showToast } from "../../components/Toast";
+import { VioletQuickMenu, SEJONG_QUICK_MENU_ITEMS, type VioletQuickMenuItems } from "../../components";
 
 // 01. Primitives Data Definition (sejong-color-guide.html 기준 정확한 8개)
 const PRIMITIVES = [
@@ -121,6 +122,21 @@ const CONTRASTS = [
     { label: "그레이 600 / 흰색", bg: "#FFFFFF", ink: "#626262", ratio: "6.10 : 1", pass: "일반 본문 AA 기준 충족" },
 ];
 
+const [quickBookingItem, ...otherQuickMenuItems] = SEJONG_QUICK_MENU_ITEMS;
+const INLINE_QUICK_MENU_ITEMS: VioletQuickMenuItems = [
+    { ...quickBookingItem, href: "/#quick-booking" },
+    ...otherQuickMenuItems,
+];
+
+const QUICK_MENU_BEHAVIORS = [
+    { label: "대기", description: "보라색 빛이 천천히 흐르며 탐색의 시작점을 알립니다." },
+    { label: "호버", description: "마우스를 원 위에 잠깐 두면 보송한 질감의 메뉴가 펼쳐집니다." },
+    { label: "열기", description: "터치와 클릭으로도 열 수 있습니다. 여섯 메뉴와 가운데 바로가기에서 원하는 곳으로 이동하세요." },
+    { label: "회전 · 선택", description: "원을 양방향으로 돌리고 놓으면 60도 간격으로 정렬됩니다. 놓기만 해서는 페이지가 이동하지 않습니다." },
+    { label: "키보드", description: "Tab으로 이동하고 방향키로 선택합니다. Enter로 실행하고 Esc로 닫습니다." },
+    { label: "동작 줄이기", description: "기기의 동작 줄이기 설정에서는 장식 움직임을 멈추고 메뉴 탐색은 유지합니다." },
+];
+
 export default function DesignRulesPage() {
     const [selectedOrigin, setSelectedOrigin] = useState<string>("all");
     const [copiedToken, setCopiedToken] = useState<string | null>(null);
@@ -156,7 +172,7 @@ export default function DesignRulesPage() {
     return (
         <div className="design-rules-page wrap" style={{ maxWidth: "1240px", margin: "0 auto", padding: "2.5rem 1.5rem 6rem", color: "var(--text-primary)" }}>
             {/* 상단 브레드크럼 */}
-            <nav className="breadcrumbs" aria-label="현재 위치" style={{ marginBottom: "1.5rem", display: "flex", gap: "0.5rem", color: "var(--text-secondary)", fontSize: "0.875rem" }}>
+            <nav className="breadcrumbs guide-wrap" aria-label="현재 위치" style={{ marginBottom: "1.5rem", display: "flex", gap: "0.5rem", color: "var(--text-secondary)", fontSize: "0.875rem" }}>
                 <Link href="/" style={{ textDecoration: "none", color: "inherit" }}>홈</Link>
                 <span>/</span>
                 <span aria-current="page" style={{ fontWeight: 700, color: "var(--text-primary)" }}>웹 컬러 &amp; Figma Variables 가이드</span>
@@ -167,7 +183,7 @@ export default function DesignRulesPage() {
                 <p style={{ fontSize: "12px", fontWeight: 700, letterSpacing: ".13em", color: "var(--text-secondary)", margin: "0 0 10px 0" }}>
                     SEJONG CENTER · COLOR &amp; VARIABLES
                 </p>
-                <div style={{ display: "grid", gridTemplateColumns: "1.7fr 1fr", gap: "3rem", alignItems: "end" }}>
+                <div className="guide-stack" style={{ display: "grid", gridTemplateColumns: "1.7fr 1fr", gap: "3rem", alignItems: "end" }}>
                     <div>
                         <h1 style={{ fontSize: "clamp(34px, 4vw, 54px)", fontWeight: 800, letterSpacing: "-.06em", lineHeight: 1.18, margin: "0 0 1rem 0" }}>
                             색은 그대로.<br />
@@ -183,15 +199,15 @@ export default function DesignRulesPage() {
                             RENEWAL GUIDE / 2026.10.19
                         </p>
                         <dl style={{ margin: 0 }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border-default)" }}>
+                            <div className="guide-wrap" style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border-default)" }}>
                                 <dt style={{ fontSize: "14px", color: "var(--text-secondary)" }}>컬러 구성</dt>
                                 <dd style={{ margin: 0, fontSize: "18px", fontWeight: 700 }}>기존 5 + 신규 3</dd>
                             </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border-default)" }}>
+                            <div className="guide-wrap" style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border-default)" }}>
                                 <dt style={{ fontSize: "14px", color: "var(--text-secondary)" }}>Figma Variables</dt>
                                 <dd style={{ margin: 0, fontSize: "18px", fontWeight: 700 }}>8 Primitives / 20 Aliases</dd>
                             </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0" }}>
+                            <div className="guide-wrap" style={{ display: "flex", justifyContent: "space-between", padding: "8px 0" }}>
                                 <dt style={{ fontSize: "14px", color: "var(--text-secondary)" }}>서체 및 모드</dt>
                                 <dd style={{ margin: 0, fontSize: "18px", fontWeight: 700 }}>Pretendard · Light</dd>
                             </div>
@@ -211,17 +227,17 @@ export default function DesignRulesPage() {
 
             {/* A. 브랜드 분석 및 디자인 해석 */}
             <section style={{ marginBottom: "4rem", borderBottom: "1px solid var(--border-default)", paddingBottom: "3rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.75rem" }}>
+                <div className="guide-wrap" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.75rem" }}>
                     <div>
                         <span style={{ fontSize: "12px", fontWeight: 700, letterSpacing: ".13em", color: "var(--text-secondary)" }}>A / IDENTITY</span>
                         <h2 style={{ fontSize: "28px", fontWeight: 800, margin: "6px 0 0 0", letterSpacing: "-.04em" }}>브랜드에서 UI로.</h2>
                     </div>
-                    <p style={{ fontSize: "14px", color: "var(--text-secondary)", margin: 0, textAlign: "right" }}>
+                    <p className="guide-summary" style={{ fontSize: "14px", color: "var(--text-secondary)", margin: 0, textAlign: "right" }}>
                         확인된 브랜드 정보와 디자인 해석,<br />이번 리뉴얼의 제안을 구분했습니다.
                     </p>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "2rem" }}>
+                <div className="guide-stack" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "2rem" }}>
                     <div style={{ borderTop: "2px solid var(--text-primary)", paddingTop: "1rem" }}>
                         <span style={{ fontSize: "12px", color: "var(--text-secondary)" }}>01 / 첨부 관찰 · 공식 설명</span>
                         <h3 style={{ fontSize: "20px", fontWeight: 700, margin: "8px 0 10px 0" }}>보와 기둥, 천·지·인</h3>
@@ -255,7 +271,7 @@ export default function DesignRulesPage() {
                         <span style={{ fontSize: "12px", fontWeight: 700, letterSpacing: ".13em", color: "var(--text-secondary)" }}>B / COLOR PALETTE</span>
                         <h2 style={{ fontSize: "28px", fontWeight: 800, margin: "6px 0 0 0", letterSpacing: "-.04em" }}>8개의 색, 분명한 역할.</h2>
                     </div>
-                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                    <div className="guide-wrap" style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
                         <button
                             type="button"
                             onClick={() => setSelectedOrigin("all")}
@@ -304,7 +320,7 @@ export default function DesignRulesPage() {
                     </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "18px" }}>
+                <div className="guide-stack" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "18px" }}>
                     {filteredPrimitives.map((p, idx) => {
                         const isCopied = copiedToken === p.hex;
                         return (
@@ -337,7 +353,7 @@ export default function DesignRulesPage() {
                                     </span>
                                 </div>
                                 <div style={{ padding: "18px" }}>
-                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                                    <div className="guide-wrap" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                                         <span style={{ fontSize: "11px", fontWeight: 700 }}>{p.role}</span>
                                         <span style={{ fontSize: "10px", padding: "2px 6px", border: p.origin === "신규 제안" ? "1px dashed var(--border-strong)" : "1px solid var(--border-strong)" }}>
                                             {p.origin}
@@ -389,11 +405,11 @@ export default function DesignRulesPage() {
 
                 {/* 01. Primitives Table */}
                 <div style={{ marginBottom: "2.5rem" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "12px" }}>
+                    <div className="guide-wrap" style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "12px" }}>
                         <h3 style={{ fontSize: "22px", fontWeight: 800, margin: 0 }}>01. Primitives</h3>
                         <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--text-secondary)" }}>TYPE: COLOR · MODE: light (8개)</span>
                     </div>
-                    <div style={{ overflowX: "auto", border: "1px solid var(--border-default)" }}>
+                    <div className="guide-table-scroll" role="region" aria-label="원본 색상 변수 표" tabIndex={0} style={{ overflowX: "auto", border: "1px solid var(--border-default)" }}>
                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", textAlign: "left" }}>
                             <thead>
                                 <tr style={{ background: "var(--surface-subtle)", borderBottom: "1px solid var(--border-default)" }}>
@@ -435,11 +451,11 @@ export default function DesignRulesPage() {
 
                 {/* 02. Semantic Table */}
                 <div style={{ marginBottom: "2.5rem" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "12px" }}>
+                    <div className="guide-wrap" style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "12px" }}>
                         <h3 style={{ fontSize: "22px", fontWeight: 800, margin: 0 }}>02. Semantic</h3>
                         <span style={{ fontSize: "11px", fontWeight: 600, color: "var(--text-secondary)" }}>TYPE: COLOR · MODE: light (20개 역할)</span>
                     </div>
-                    <div style={{ overflowX: "auto", border: "1px solid var(--border-default)" }}>
+                    <div className="guide-table-scroll" role="region" aria-label="의미별 색상 변수 표" tabIndex={0} style={{ overflowX: "auto", border: "1px solid var(--border-default)" }}>
                         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px", textAlign: "left" }}>
                             <thead>
                                 <tr style={{ background: "var(--surface-subtle)", borderBottom: "1px solid var(--border-default)" }}>
@@ -481,7 +497,7 @@ export default function DesignRulesPage() {
                 {/* Figma 등록 가이드 3단계 */}
                 <div style={{ background: "var(--surface-subtle)", borderLeft: "4px solid var(--text-primary)", padding: "1.5rem" }}>
                     <h4 style={{ fontSize: "16px", fontWeight: 700, margin: "0 0 12px 0" }}>Figma 등록 순서</h4>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.5rem", fontSize: "13px" }}>
+                    <div className="guide-stack" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "1.5rem", fontSize: "13px" }}>
                         <div>
                             <strong>1. 원본값 등록</strong>
                             <p style={{ margin: "4px 0 0 0", color: "var(--text-secondary)" }}>
@@ -516,7 +532,7 @@ export default function DesignRulesPage() {
                     </p>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "14px", marginBottom: "2rem" }}>
+                <div className="guide-stack" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "14px", marginBottom: "2rem" }}>
                     {CONTRASTS.map((c) => (
                         <div key={c.label} style={{ border: "1px solid var(--border-default)", background: "var(--surface-default)" }}>
                             <div style={{ height: "94px", display: "flex", alignItems: "center", justifyContent: "center", background: c.bg, color: c.ink, fontSize: "36px", fontWeight: 700 }}>
@@ -531,7 +547,7 @@ export default function DesignRulesPage() {
                     ))}
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.8 }}>
+                <div className="guide-stack" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.8 }}>
                     <div>
                         <strong style={{ display: "block", color: "var(--text-primary)", fontSize: "14px", marginBottom: "4px" }}>
                             유채색 위 작은 흰색 글자는 피하기
@@ -561,19 +577,19 @@ export default function DesignRulesPage() {
 
                 {/* 실제 데모 윈도우 */}
                 <div style={{ border: "1px solid var(--border-strong)", background: "var(--background-page)" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 24px", background: "var(--surface-default)", borderBottom: "1px solid var(--border-default)" }}>
+                    <div className="guide-wrap" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 24px", background: "var(--surface-default)", borderBottom: "1px solid var(--border-default)" }}>
                         <strong style={{ fontSize: "18px", fontWeight: 800 }}>세종문화회관</strong>
-                        <div style={{ display: "flex", gap: "20px", fontSize: "12px" }}>
+                        <div className="guide-wrap" style={{ display: "flex", gap: "20px", fontSize: "12px" }}>
                             <span style={{ fontWeight: 700, borderBottom: "2px solid var(--text-primary)" }}>공연·전시</span>
                             <span>이용안내</span>
                             <span>소식</span>
                         </div>
                     </div>
 
-                    <div style={{ padding: "32px" }}>
-                        <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1fr", gap: "24px" }}>
+                    <div className="guide-demo-body" style={{ padding: "32px" }}>
+                        <div className="guide-stack" style={{ display: "grid", gridTemplateColumns: "1.8fr 1fr", gap: "24px" }}>
                             {/* 프로그램 카드 예시 */}
-                            <div style={{ background: "var(--surface-default)", border: "1px solid var(--border-default)", display: "grid", gridTemplateColumns: "200px 1fr" }}>
+                            <div className="guide-stack" style={{ background: "var(--surface-default)", border: "1px solid var(--border-default)", display: "grid", gridTemplateColumns: "200px 1fr" }}>
                                 <div style={{ background: "var(--surface-inverse)", color: "var(--text-inverse)", padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                                     <span style={{ fontSize: "10px", letterSpacing: ".15em" }}>SEJONG / SAMPLE</span>
                                     <div style={{ fontSize: "36px", fontWeight: 800, lineHeight: 1.15 }}>새로운<br />울림</div>
@@ -593,7 +609,7 @@ export default function DesignRulesPage() {
                                             포스터가 시선을 끌고, 정보는 흰색 카드 안에서 읽힙니다. 가장 중요한 행동은 검정으로.
                                         </p>
                                     </div>
-                                    <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+                                    <div className="guide-wrap" style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
                                         <button
                                             type="button"
                                             onClick={() => showToast("예매하기: 배경 action/primary (#000000) / 글자 text/inverse (#FFFFFF)")}
@@ -655,7 +671,7 @@ export default function DesignRulesPage() {
                                     </button>
                                 </div>
 
-                                <div style={{ background: "var(--accent-heritage)", color: "var(--text-on-brand)", padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <div className="guide-wrap" style={{ background: "var(--accent-heritage)", color: "var(--text-on-brand)", padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                     <strong>문화 이야기</strong>
                                     <span style={{ fontSize: "11px" }}>황토색의 작은 강조 면</span>
                                 </div>
@@ -663,7 +679,7 @@ export default function DesignRulesPage() {
                         </div>
 
                         {/* 입력창 및 상태 데모 */}
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginTop: "24px", borderTop: "1px solid var(--border-default)", paddingTop: "20px" }}>
+                        <div className="guide-stack" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginTop: "24px", borderTop: "1px solid var(--border-default)", paddingTop: "20px" }}>
                             <div>
                                 <label htmlFor="sample-search" style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "6px" }}>
                                     입력창 예시
@@ -690,7 +706,7 @@ export default function DesignRulesPage() {
                                 <span style={{ display: "block", fontSize: "12px", fontWeight: 600, marginBottom: "6px" }}>
                                     버튼 상태 예시
                                 </span>
-                                <div style={{ display: "flex", gap: "10px" }}>
+                                <div className="guide-wrap" style={{ display: "flex", gap: "10px" }}>
                                     <button
                                         type="button"
                                         style={{
@@ -725,6 +741,56 @@ export default function DesignRulesPage() {
                     </div>
                 </div>
             </section>
+
+            {/* F. 재사용 가능한 인터랙션 컴포넌트 */}
+            <section id="violet-quick-menu" aria-labelledby="violet-quick-menu-heading" style={{ marginTop: "4rem", borderTop: "1px solid var(--border-default)", paddingTop: "3rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "1rem", marginBottom: "1.75rem" }}>
+                    <div>
+                        <span style={{ fontSize: "12px", fontWeight: 700, letterSpacing: ".13em", color: "var(--text-secondary)" }}>F / INTERACTION COMPONENT</span>
+                        <h2 id="violet-quick-menu-heading" style={{ fontSize: "28px", fontWeight: 800, margin: "6px 0 8px 0", letterSpacing: "-.04em" }}>보라빛 퀵메뉴</h2>
+                        <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0, maxWidth: "620px" }}>
+                            예매, 공연·전시, 방문과 대관 안내로 이어지는 원형 탐색 도구입니다. 원을 돌리거나 여섯 메뉴 이름을 눌러 필요한 항목을 찾아보세요.
+                        </p>
+                    </div>
+                    <a href="https://github.com/hslcrb/renewsejongpac/blob/main/v5/docs/components/violet-quick-menu.md" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", minHeight: "44px", color: "var(--text-primary)", fontSize: "14px", fontWeight: 600, textUnderlineOffset: "4px" }}>
+                        컴포넌트 사용 문서 ↗<span className="sr-only"> (새 창)</span>
+                    </a>
+                </div>
+
+                <div className="violet-quick-menu-preview" style={{ minWidth: 0, paddingBlock: "clamp(16px, 4vw, 40px)", paddingInline: "var(--violet-preview-inset, clamp(16px, 4vw, 40px))", border: "1px solid var(--border-default)", background: "var(--surface-subtle)", marginBottom: "1.5rem" }}>
+                    <VioletQuickMenu placement="inline" items={INLINE_QUICK_MENU_ITEMS} />
+                </div>
+
+                <dl style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.5rem", margin: 0 }}>
+                    {QUICK_MENU_BEHAVIORS.map((behavior) => (
+                        <div key={behavior.label} style={{ borderTop: "1px solid var(--border-default)", paddingTop: "1rem", minWidth: 0 }}>
+                            <dt style={{ fontSize: "14px", fontWeight: 700, marginBottom: "6px" }}>{behavior.label}</dt>
+                            <dd style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: 1.7, margin: 0 }}>{behavior.description}</dd>
+                        </div>
+                    ))}
+                </dl>
+                <p style={{ fontSize: "12px", color: "var(--text-secondary)", lineHeight: 1.7, margin: "1.75rem 0 0" }}>
+                    보라색은 이 컴포넌트 안에서만 사용하며, 기존 Wanted Sans 서체와 브랜드 컬러 체계를 그대로 이어갑니다.
+                </p>
+            </section>
+            <style jsx>{`
+                    @media (max-width: 700px) {
+                        .guide-stack { grid-template-columns: minmax(0, 1fr) !important; }
+                        .guide-stack > *, .guide-wrap > * { min-width: 0; }
+                        .guide-wrap { flex-wrap: wrap; row-gap: .75rem; }
+                        .guide-summary { text-align: left !important; }
+                        .guide-demo-body { padding: 1rem !important; }
+                        .guide-table-scroll { max-width: 100%; min-width: 0; overflow: auto; }
+                        .guide-table-scroll table { min-width: 40rem; }
+                        .design-rules-page code { overflow-wrap: anywhere; }
+                    }
+                    @media (max-width: 600px) {
+                        .violet-quick-menu-preview {
+                            --violet-preview-inset: 0px;
+                            margin-inline: -1.5rem;
+                        }
+                    }
+            `}</style>
         </div>
     );
 }

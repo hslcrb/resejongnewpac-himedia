@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/clean-build.js",
     "build": "next build",
     "postbuild": "node scripts/sync-out.js",
-    "start": "next start"
+    "start": "next start",
+    "test:orb": "node tests/violet-quick-menu.cjs",
+    "test:orb:gallery": "node tests/violet-quick-menu-gallery.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
@@ -20,6 +23,7 @@
     "@types/node": "^20.17.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "playwright": "1.62.1",
     "typescript": "^5.6.3"
   }
 }

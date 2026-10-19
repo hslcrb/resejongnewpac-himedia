@@ -81,6 +81,7 @@
 .experience[data-state="open"] .panel {
     opacity: 1;
     visibility: visible;
+    transition-property: transform, opacity;
     transform: translateY(0) scale(1) rotate(0);
     pointer-events: auto;
 }
@@ -255,6 +256,23 @@
 .experience[data-state="open"] .toggle .art, .experience[data-state="open"] .toggle .fur, .experience[data-state="open"] .closedHint { opacity: 0; }
 .experience[data-state="open"] .toggle { bottom: 6px; }
 
+/* Inline previews stay in document flow so their own visibility can be observed. */
+.experience[data-placement="inline"] {
+    position: relative;
+    inset: auto;
+    z-index: 0;
+    min-height: 34rem;
+    container-type: inline-size;
+    overflow: hidden;
+    border-radius: 24px;
+    background: #f7f1ff;
+}
+
+.experience[data-placement="inline"] .dock { --menu-size: min(370px, calc(100cqi - 38px)); bottom: 24px; }
+.experience[data-placement="inline"] .instruction { max-width: calc(100cqi - 32px); }
+.experience[data-placement="inline"] .horizon { height: 180px; }
+.experience[data-placement="inline"][data-state="open"] .horizon { height: min(460px, 75%); }
+
 @keyframes horizonFlow { from { transform: translate3d(-6%, 4%, 0) rotate(-3deg) scaleX(.94); } to { transform: translate3d(7%, -6%, 0) rotate(4deg) scaleX(1.08); } }
 @keyframes violetFlow { to { transform: rotate(360deg); } }
 @keyframes violetLuster { from { transform: translate(-6%, 3%) rotate(-12deg) scale(1); } to { transform: translate(8%, -5%) rotate(28deg) scale(1.15); } }
@@ -271,18 +289,34 @@
     .current strong { font-size: 13px; }
     .current small { font-size: 8px; }
     .instruction { font-size: 11px; bottom: calc(100% + 16px); }
+    .experience[data-placement="inline"] { min-height: 32rem; }
+    .experience[data-placement="inline"] .dock { --menu-size: min(332px, calc(100cqi - 38px)); }
 }
 
 @media (max-height: 550px) and (min-width: 601px) {
-    .experience { --menu-size: min(280px, calc(100svh - 116px)); z-index: 60; }
-    .dock { bottom: max(14px, env(safe-area-inset-bottom)); height: calc(var(--menu-size) + 60px); }
-    .instruction { display: none; }
-    .current { width: 84px; height: 84px; gap: 3px; }
-    .current strong { font-size: 12px; }
-    .menuLink { width: 70px; height: 50px; margin: -25px 0 0 -35px; }
-    .menuLabel { font-size: 11px; gap: 2px; }
-    .menuLabel svg { width: 20px; height: 20px; }
-    .toggle { width: 68px; height: 68px; }
+    .experience[data-placement="hero"] { --menu-size: min(280px, calc(100svh - 116px)); z-index: 60; }
+    .experience[data-placement="hero"] .dock { bottom: max(14px, env(safe-area-inset-bottom)); height: calc(var(--menu-size) + 60px); }
+    .experience[data-placement="hero"] .instruction { display: none; }
+    .experience[data-placement="hero"] .current { width: 84px; height: 84px; gap: 3px; }
+    .experience[data-placement="hero"] .current strong { font-size: 12px; }
+    .experience[data-placement="hero"] .menuLink { width: 70px; height: 50px; margin: -25px 0 0 -35px; }
+    .experience[data-placement="hero"] .menuLabel { font-size: 11px; gap: 2px; }
+    .experience[data-placement="hero"] .menuLabel svg { width: 20px; height: 20px; }
+    .experience[data-placement="hero"] .toggle { width: 68px; height: 68px; }
+}
+
+/* A narrow embedding needs the same target sizes as a narrow viewport. */
+@container (max-width: 370px) {
+    .experience[data-placement="inline"] .dock { --menu-size: min(332px, calc(100cqi - 38px)); height: calc(var(--menu-size) + 76px); }
+    .experience[data-placement="inline"] .toggle { width: 76px; height: 76px; }
+    .experience[data-placement="inline"][data-state="open"] .toggle { width: 44px; height: 44px; }
+    .experience[data-placement="inline"] .menuLink { width: 76px; height: 56px; margin: -28px 0 0 -38px; }
+    .experience[data-placement="inline"] .menuLabel { font-size: 12px; gap: 4px; }
+    .experience[data-placement="inline"] .menuLabel svg { width: 21px; height: 21px; }
+    .experience[data-placement="inline"] .current { width: 94px; height: 94px; }
+    .experience[data-placement="inline"] .current strong { font-size: 13px; }
+    .experience[data-placement="inline"] .current small { font-size: 8px; }
+    .experience[data-placement="inline"] .instruction { font-size: 11px; bottom: calc(100% + 16px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
