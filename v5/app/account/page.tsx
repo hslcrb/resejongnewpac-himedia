@@ -39,7 +39,7 @@ export default function AccountPage() {
         try {
             localStorage.setItem("sejong-v4:session", JSON.stringify({ active: false }));
             setIsLoggedIn(false);
-            showToast("체험 로그아웃되었습니다.");
+            showToast("로그아웃되었습니다.");
         } catch {
             showToast("로그아웃 처리 중 오류가 발생했습니다.");
         }
@@ -60,7 +60,7 @@ export default function AccountPage() {
 
     return (
         <div className="flow-page account-page">
-            {/* 상단 페이지 헤딩 (v4 표준 page-heading) */}
+            {/* 상단 페이지 헤딩 */}
             <section className="page-heading" id="page-heading">
                 <div className="container">
                     <nav className="breadcrumbs" aria-label="현재 위치">
@@ -79,17 +79,6 @@ export default function AccountPage() {
             </section>
 
             <div className="container page-content flow-content">
-                {/* 이용 안내 (v4 표준 flow-demo) */}
-                <div className="flow-demo">
-                    <svg className="material-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M22 10V6c0-1.11-.9-2-2-2H4c-1.1 0-1.99.89-1.99 2v4c1.1 0 1.99.9 1.99 2s-.89 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2s.9-2 2-2zm-2-1.46c-1.19.69-2 1.99-2 3.46s.81 2.77 2 3.46V18H4v-2.54c1.19-.69 2-1.99 2-3.46 0-1.48-.8-2.77-1.99-3.46L4 6h16v2.54z" />
-                    </svg>
-                    <p>
-                        <strong>이용 안내</strong>
-                        <span>현재 브라우저에서 사용하는 체험 서비스입니다. 실제 회원정보나 기관의 예매·신청 내역과 연결되지 않습니다.</span>
-                    </p>
-                </div>
-
                 {/* 계정 네비게이션 */}
                 <nav className="account-nav" aria-label="계정 메뉴">
                     <button
@@ -126,7 +115,7 @@ export default function AccountPage() {
                         <p>
                             {isLoggedIn
                                 ? "나의 문화생활을 한곳에서 만나보세요."
-                                : "체험 프로필을 만들고 나만의 문화생활을 모아보세요."}
+                                : "로그인하고 나만의 문화생활을 모아보세요."}
                         </p>
                     </div>
                     {isLoggedIn ? (
@@ -135,16 +124,16 @@ export default function AccountPage() {
                             className="button button--outline"
                             onClick={handleLogout}
                         >
-                            체험 로그아웃
+                            로그아웃
                         </button>
                     ) : (
                         <Link href="/account/login" className="button button--dark">
-                            체험 로그인
+                            로그인
                         </Link>
                     )}
                 </section>
 
-                {/* 통계 카드 (예매내역, 관심 프로그램, 신청내역) */}
+                {/* 통계 카드 */}
                 <div className="account-stats">
                     <button
                         type="button"

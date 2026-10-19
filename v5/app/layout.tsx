@@ -31,7 +31,7 @@ import "../styles/journeys.css";
 
 export const metadata = {
     title: "세종문화회관 - v5 예술로 이어지는 하루 (Next.js & TypeScript)",
-    description: "세종문화회관 리뉴얼 디자인 체험. 공연과 전시, 예술이 있는 일상을 만나보세요. 순수 Next.js App Router & TypeScript로 구동되는 비공식 프로젝트입니다.",
+    description: "세종문화회관 리뉴얼. 공연과 전시, 예술이 있는 일상을 만나보세요. Next.js App Router & TypeScript 기반 웹입니다.",
 };
 
 export default function RootLayout({
@@ -46,6 +46,7 @@ export default function RootLayout({
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="theme-color" content="#ffffff" />
                 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+                <link rel="preload" href="/v5/assets/fonts/woff2/WantedSansVariable.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
             </head>
             <body>
                 <a className="skip-link" href="#main">

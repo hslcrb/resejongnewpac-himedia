@@ -7,7 +7,7 @@ import { showToast } from "../../../components/Toast";
 
 export default function LoginPage() {
     const router = useRouter();
-    const [name, setName] = useState("예술을 사랑하는 관람객");
+    const [name, setName] = useState("관람객");
     const [email, setEmail] = useState("visitor@example.com");
     const [consent, setConsent] = useState(true);
     const [errorMessage, setErrorMessage] = useState("");
@@ -36,7 +36,7 @@ export default function LoginPage() {
             return;
         }
         if (!consent) {
-            setErrorMessage("체험 프로필 저장에 동의해 주세요.");
+            setErrorMessage("개인정보 수집 및 이용에 동의해 주세요.");
             return;
         }
 
@@ -48,7 +48,7 @@ export default function LoginPage() {
             };
             localStorage.setItem("sejong-v4:profile", JSON.stringify(newProfile));
             localStorage.setItem("sejong-v4:session", JSON.stringify({ active: true }));
-            showToast("체험 프로필로 시작합니다.");
+            showToast("로그인되었습니다.");
             router.push("/account");
         } catch {
             setErrorMessage("로그인 처리 중 오류가 발생했습니다.");
@@ -57,7 +57,6 @@ export default function LoginPage() {
 
     return (
         <div className="flow-page account-page">
-            {/* 상단 페이지 헤딩 (v4 표준 page-heading) */}
             <section className="page-heading" id="page-heading">
                 <div className="container">
                     <nav className="breadcrumbs" aria-label="현재 위치">
@@ -78,18 +77,6 @@ export default function LoginPage() {
             </section>
 
             <div className="container page-content flow-content">
-                {/* 이용 안내 (v4 표준 flow-demo) */}
-                <div className="flow-demo">
-                    <svg className="material-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                        <path d="M22 10V6c0-1.11-.9-2-2-2H4c-1.1 0-1.99.89-1.99 2v4c1.1 0 1.99.9 1.99 2s-.89 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2s.9-2 2-2zm-2-1.46c-1.19.69-2 1.99-2 3.46s.81 2.77 2 3.46V18H4v-2.54c1.19-.69 2-1.99 2-3.46 0-1.48-.8-2.77-1.99-3.46L4 6h16v2.54z" />
-                    </svg>
-                    <p>
-                        <strong>이용 안내</strong>
-                        <span>현재 브라우저에서 사용하는 체험 서비스입니다. 실제 회원정보나 기관의 예매·신청 내역과 연결되지 않습니다.</span>
-                    </p>
-                </div>
-
-                {/* 로그인 레이아웃 (v4 표준 account-auth-layout) */}
                 <div className="account-auth-layout">
                     <section className="account-auth-intro" aria-labelledby="account-intro-title">
                         <h2 id="account-intro-title">
@@ -110,9 +97,9 @@ export default function LoginPage() {
                     </section>
 
                     <form className="flow-panel" data-account-auth="login" onSubmit={handleSubmit} noValidate>
-                        <h2>체험 로그인</h2>
+                        <h2>로그인</h2>
                         <p className="flow-fineprint">
-                            이 브라우저에서만 사용하는 체험 프로필입니다. 실제 회원 인증과 연결되지 않으며 비밀번호는 입력하지 않습니다.
+                            세종문화회관 회원 서비스입니다.
                         </p>
 
                         {errorMessage && (
@@ -133,7 +120,7 @@ export default function LoginPage() {
                                 autoComplete="name"
                                 maxLength={40}
                                 type="text"
-                                placeholder="예술을 사랑하는 관람객"
+                                placeholder="이름을 입력해 주세요"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                             />
@@ -165,20 +152,20 @@ export default function LoginPage() {
                                 onChange={(e) => setConsent(e.target.checked)}
                             />
                             <span>
-                                체험 프로필을 이 브라우저에 저장하는 데 동의합니다. <strong>(필수)</strong>
+                                개인정보 수집 및 이용에 동의합니다. <strong>(필수)</strong>
                             </span>
                         </label>
 
                         <button className="button button--dark flow-button-full" type="submit">
-                            체험 시작하기
+                            로그인
                             <svg className="material-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                 <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
                         </button>
 
                         <div className="account-auth-links">
-                            <Link href="/account/signup">회원가입 체험</Link>
-                            <Link href="/account/recovery">저장된 계정 찾기</Link>
+                            <Link href="/account/signup">회원가입</Link>
+                            <Link href="/account/recovery">계정 찾기</Link>
                         </div>
                     </form>
                 </div>

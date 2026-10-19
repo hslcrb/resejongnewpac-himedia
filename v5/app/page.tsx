@@ -619,9 +619,6 @@ export default function HomePage() {
                     </div>
                 </div>
 
-                <p className="quick-booking-note">
-                    일정과 회차는 리뉴얼 체험용 예시입니다. 실제 예매·결제가 이루어지지 않습니다.
-                </p>
             </section>
 
             {/* 4. 프로그램 탐색 섹션 (Discover Programs) */}
@@ -673,7 +670,6 @@ export default function HomePage() {
                     )}
                 </div>
 
-                <p className="home-demo-note">프로그램 일정과 요금은 리뉴얼 체험용 예시입니다.</p>
 
                 <Link href="/programs/season" className="home-season-link">
                     <span>

@@ -1,7 +1,10 @@
 @font-face {
-    font-family: "Pretendard Variable";
-    src: url("/assets/fonts/PretendardVariable.woff2") format("woff2");
-    font-weight: 100 900;
+    font-family: "Wanted Sans Variable";
+    src: url("/v5/assets/fonts/woff2/WantedSansVariable.woff2") format("woff2-variations"),
+         url("/assets/fonts/woff2/WantedSansVariable.woff2") format("woff2-variations"),
+         url("/v5/assets/fonts/woff2/WantedSansVariable.woff2") format("woff2"),
+         url("/assets/fonts/woff2/WantedSansVariable.woff2") format("woff2");
+    font-weight: 400 1000;
     font-style: normal;
     font-display: swap;
 }
@@ -98,7 +101,7 @@
 
     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
-    --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    --font: "Wanted Sans Variable", "Wanted Sans", -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
     --font-sans: var(--font);
     --display-font: var(--font);
 }

@@ -66,8 +66,7 @@ export default function Footer() {
                     </address>
                     <p className="footer-small">© SEJONG CENTER FOR THE PERFORMING ARTS.</p>
                     <p className="footer-small">
-                        이것은 공식 페이지가 아닙니다. <span lang="en">This is not an official website.</span><br />
-                        프로그램·일정·요금은 체험용이며 실제 예매나 신청은 이루어지지 않습니다.
+                        이것은 공식 페이지가 아닙니다. <span lang="en">This is not an official website.</span>
                     </p>
                 </div>
 

@@ -14,7 +14,8 @@
   --radius-media: clamp(6px, 0.65vw, 12px);
   --radius-banner: clamp(8px, 0.9vw, 16px);
   --font:
-    "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic",
+    "Wanted Sans Variable", "Wanted Sans", -apple-system, BlinkMacSystemFont,
+    system-ui, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic",
     sans-serif;
   --container: 1200px;
 }
