@@ -11,6 +11,7 @@ import { renderUtilities, bindUtilities } from "./features/utilities.js";
 import { renderGoods, bindGoods } from "./features/goods.js";
 import { renderStory, bindStory } from "./features/story.js";
 import { renderJourneys, bindJourneys } from "./features/journeys.js";
+import { renderDesignRules, bindDesignRules } from "./features/design-rules.js";
 import { onAuthStateChange } from "./lib/supabase.js";
 
 export function initSejongApp() {
@@ -121,6 +122,9 @@ export function initSejongApp() {
             if (path === "/") {
                 html = renderHome();
                 bind = bindHome;
+            } else if (path === "/design-rules") {
+                html = renderDesignRules();
+                bind = bindDesignRules;
             } else {
                 for (const [renderer, binder] of [[renderJourneys, bindJourneys], [renderStory, bindStory], [renderFlows, bindFlows], [renderPrograms, bindPrograms], [renderGoods, bindGoods], [renderPages, bindPages], [renderUtilities, bindUtilities]]) {
                     html = renderer(path, query);

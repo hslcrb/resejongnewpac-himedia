@@ -584,4 +584,5 @@ for (const [path, title, group, description] of [
 PAGES.push(
     { path: "/visit/plan", title: "나의 방문 계획", description: "프로그램과 이동 방법에 맞춰 나의 관람 일정을 계획하세요.", group: "visit", eyebrow: "방문 준비" },
     { path: "/rental/compare", title: "대관 공간 비교", description: "규모와 무대, 장비를 비교하고 맞는 공간으로 이어가세요.", group: "rental", eyebrow: "대관 준비" },
+    { path: "/design-rules", title: "디자인 시스템 & 규칙", description: "세종문화회관 v5 브랜드 컬러 시스템 및 Figma Variables 가이드", group: "rules", eyebrow: "디자인 설계" },
 );
