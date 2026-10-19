@@ -683,7 +683,7 @@ input[type="radio"] {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 36px;
-  align-items: start;
+  align-items: flex-start;
 }
 .footer-brand {
   display: inline-flex;
@@ -1249,8 +1249,8 @@ input[type="radio"] {
     font-size: 28px;
   }
   .footer-services {
-    align-items: start;
-    justify-content: start;
+    align-items: flex-start;
+    justify-content: flex-start;
     gap: 18px;
     margin-top: 24px;
     padding-bottom: 24px;
@@ -1267,7 +1267,7 @@ input[type="radio"] {
     width: 100%;
   }
   .footer-links {
-    align-items: start;
+    align-items: flex-start;
     gap: 12px;
     padding: 18px 0;
   }

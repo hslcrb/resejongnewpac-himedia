@@ -46,7 +46,7 @@ export default function Header() {
                     <span lang="en">· Pure App Router</span>
                 </span>
                 <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                    <Link href="/design-rules" style={{ color: "#38bdf8", fontWeight: 600 }}>
+                    <Link href="/design-rules" style={{ color: "var(--color-sky)", fontWeight: 600 }}>
                         🎨 디자인 규칙 (Design Rules)
                     </Link>
                     <a href="/" style={{ opacity: 0.8 }}>
@@ -196,7 +196,7 @@ export default function Header() {
                             <strong>대관 공간 비교 →</strong>
                         </Link>
                         <Link href="/design-rules">
-                            <span style={{ color: "#38bdf8" }}>v5 시스템</span>
+                            <span style={{ color: "var(--color-sky)" }}>v5 시스템</span>
                             <strong>디자인 규칙 & 토큰 →</strong>
                         </Link>
                     </div>

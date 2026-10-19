@@ -63,7 +63,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: clamp(2rem, 5vw, 5rem);
-    align-items: start;
+    align-items: flex-start;
 }
 
 .goods-detail-information h2 {
@@ -377,7 +377,7 @@
 
     .goods-cart-row {
         grid-template-columns: 5rem minmax(0, 1fr);
-        align-items: start;
+        align-items: flex-start;
         gap: 1rem;
     }
 

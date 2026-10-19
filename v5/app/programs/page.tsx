@@ -20,17 +20,17 @@ export default function ProgramsPage() {
 
     return (
         <div className="container" style={{ padding: "3rem 1.5rem 6rem", maxWidth: "1200px", margin: "0 auto" }}>
-            <nav className="breadcrumbs" aria-label="현재 위치" style={{ marginBottom: "1.5rem", display: "flex", gap: "0.5rem", color: "#64748b", fontSize: "0.875rem" }}>
+            <nav className="breadcrumbs" aria-label="현재 위치" style={{ marginBottom: "1.5rem", display: "flex", gap: "0.5rem", color: "var(--text-secondary)", fontSize: "0.875rem" }}>
                 <Link href="/" style={{ textDecoration: "none", color: "inherit" }}>홈</Link>
                 <span>/</span>
-                <span aria-current="page" style={{ fontWeight: 600, color: "#0f172a" }}>프로그램 전체보기</span>
+                <span aria-current="page" style={{ fontWeight: 600, color: "var(--text-primary)" }}>프로그램 전체보기</span>
             </nav>
 
             <header style={{ marginBottom: "2.5rem" }}>
-                <h1 style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0f172a", margin: "0 0 0.5rem 0" }}>
+                <h1 style={{ fontSize: "2.2rem", fontWeight: 800, color: "var(--text-primary)", margin: "0 0 0.5rem 0", letterSpacing: "-0.03em" }}>
                     세종의 프로그램
                 </h1>
-                <p style={{ fontSize: "1.05rem", color: "#64748b", margin: 0 }}>
+                <p style={{ fontSize: "1.05rem", color: "var(--text-secondary)", margin: 0 }}>
                     서울시향, 서울시무용단, 서울시극단의 정기공연부터 기획전시와 예술아카데미까지.
                 </p>
             </header>
@@ -48,9 +48,9 @@ export default function ProgramsPage() {
                                 borderRadius: "9999px",
                                 fontSize: "0.875rem",
                                 fontWeight: 600,
-                                border: category === cat ? "1px solid #0f172a" : "1px solid #e2e8f0",
-                                background: category === cat ? "#0f172a" : "#ffffff",
-                                color: category === cat ? "#ffffff" : "#475569",
+                                border: category === cat ? "1px solid var(--border-focus)" : "1px solid var(--border-default)",
+                                background: category === cat ? "var(--action-primary)" : "var(--surface-default)",
+                                color: category === cat ? "var(--text-inverse)" : "var(--text-secondary)",
                                 cursor: "pointer",
                             }}
                         >
@@ -69,7 +69,9 @@ export default function ProgramsPage() {
                             width: "100%",
                             padding: "0.55rem 1rem",
                             borderRadius: "8px",
-                            border: "1px solid #cbd5e1",
+                            border: "1px solid var(--border-strong)",
+                            background: "var(--surface-default)",
+                            color: "var(--text-primary)",
                             fontSize: "0.9rem",
                             outline: "none",
                         }}
@@ -85,11 +87,11 @@ export default function ProgramsPage() {
                     ))}
                 </div>
             ) : (
-                <div style={{ textAlign: "center", padding: "5rem 1rem", background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
-                    <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#1e293b", margin: "0 0 0.5rem 0" }}>
+                <div style={{ textAlign: "center", padding: "5rem 1rem", background: "var(--surface-subtle)", borderRadius: "12px", border: "1px solid var(--border-default)" }}>
+                    <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--text-primary)", margin: "0 0 0.5rem 0" }}>
                         검색 결과가 없습니다
                     </p>
-                    <p style={{ fontSize: "0.9rem", color: "#64748b", margin: 0 }}>
+                    <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", margin: 0 }}>
                         다른 검색어를 입력하시거나 카테고리 필터를 변경해 보세요.
                     </p>
                 </div>

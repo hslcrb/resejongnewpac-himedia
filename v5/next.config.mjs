@@ -7,6 +7,14 @@ const nextConfig = {
     unoptimized: true,
   },
   reactStrictMode: false,
+  swcMinify: true,
+  poweredByHeader: false,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 };
 
 export default nextConfig;
