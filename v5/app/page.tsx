@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { PROGRAMS, NOTICES } from "../src/data/catalog.js";
+import { PROGRAMS, NOTICES } from "../src/data/catalog";
 import ProgramCard from "../components/ProgramCard";
 import Icon from "../components/Icon";
 import {
@@ -12,7 +12,7 @@ import {
     programsForDate,
     canSelectProgram,
     discoverPrograms,
-} from "../src/features/home-domain.js";
+} from "../src/features/home-domain";
 import { Program } from "../types/sejong";
 
 // 히어로 캐러셀 슬라이드 데이터

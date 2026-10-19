@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { PAGES, NAV, VENUES, NOTICES } from "../../src/data/catalog.js";
+import { PAGES, NAV, VENUES, NOTICES } from "../../src/data/catalog";
 import { PageMeta } from "../../types/sejong";
 
 export function generateStaticParams() {

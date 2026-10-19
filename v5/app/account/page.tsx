@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { showToast } from "../../components/Toast";
-import { signInWithOAuthProvider, signOut } from "../../src/lib/supabase.js";
+import { signInWithOAuthProvider, signOut } from "../../src/lib/supabase";
 import { UserProfile, BookingRecord } from "../../types/sejong";
 
 export default function AccountPage() {

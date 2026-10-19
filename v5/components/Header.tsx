@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { NAV } from "../src/data/catalog.js";
+import { NAV } from "../src/data/catalog";
 
 export default function Header() {
     const pathname = usePathname();

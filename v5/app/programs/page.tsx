@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { PROGRAMS } from "../../src/data/catalog.js";
+import { PROGRAMS } from "../../src/data/catalog";
 import ProgramCard from "../../components/ProgramCard";
 import { Program } from "../../types/sejong";
 

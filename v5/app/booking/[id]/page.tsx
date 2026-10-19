@@ -1,6 +1,6 @@
 import React from "react";
 import { notFound } from "next/navigation";
-import { PROGRAMS } from "../../../src/data/catalog.js";
+import { PROGRAMS } from "../../../src/data/catalog";
 import { Program } from "../../../types/sejong";
 import BookingClient from "./BookingClient";
 
