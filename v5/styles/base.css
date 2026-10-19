@@ -95,8 +95,8 @@ section[id], main[id] {
 }
 
 ::selection {
-    color: #000000;
-    background: var(--sky);
+    color: var(--ink, #000000);
+    background: var(--yellow, #f7d549);
 }
 
 .skip-link {

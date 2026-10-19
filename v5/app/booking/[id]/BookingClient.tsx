@@ -314,7 +314,7 @@ export default function BookingClient({ program }: BookingClientProps) {
                                         cursor: "pointer",
                                     }}
                                 >
-                                    예매 확정하기 (체험 완료) ✓
+                                    예매 확정하기 ✓
                                 </button>
                             </div>
                         </div>

@@ -58,14 +58,13 @@ export default function Footer() {
                         <Link href="/policy/privacy">개인정보처리방침</Link>
                         <Link href="/policy/terms">이용약관</Link>
                         <Link href="/visit/support">고객지원</Link>
-                        <Link href="/design-rules">디자인 규칙</Link>
                         <Link href="/sitemap">사이트맵</Link>
                     </nav>
                     <address>
                         서울특별시 종로구 세종대로 175<br />
                         재단법인 세종문화회관
                     </address>
-                    <p className="footer-small">© SEJONG CENTER FOR THE PERFORMING ARTS. (v5 Next.js 14 & TypeScript)</p>
+                    <p className="footer-small">© SEJONG CENTER FOR THE PERFORMING ARTS.</p>
                     <p className="footer-small">
                         이것은 공식 페이지가 아닙니다. <span lang="en">This is not an official website.</span><br />
                         프로그램·일정·요금은 체험용이며 실제 예매나 신청은 이루어지지 않습니다.

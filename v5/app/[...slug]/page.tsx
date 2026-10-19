@@ -166,37 +166,14 @@ export default function CatalogDynamicPage({
                             서비스 및 공간 안내
                         </h2>
                         <p style={{ color: "var(--text-secondary)", lineHeight: 1.7, fontSize: "0.95rem" }}>
-                            본 페이지는 세종문화회관 v5 Next.js 14 리뉴얼 프로젝트의 정적 카탈로그 페이지입니다.
-                            시민과 예술가가 함께 호흡하는 열린 문화 예술 공간의 모든 정보가 체계적으로 제공됩니다.
+                            시민과 예술가가 함께 호흡하는 열린 문화 예술 공간, 세종문화회관의 상세 안내입니다.
                         </p>
-                        <div style={{ marginTop: "1.5rem", display: "flex", gap: "1rem" }}>
+                        <div style={{ marginTop: "1.5rem" }}>
                             <Link
                                 href="/programs"
-                                style={{
-                                    display: "inline-block",
-                                    padding: "0.8rem 1.5rem",
-                                    background: "var(--action-primary)",
-                                    color: "var(--text-inverse)",
-                                    borderRadius: "6px",
-                                    textDecoration: "none",
-                                    fontWeight: 700,
-                                }}
+                                className="button button--dark"
                             >
                                 프로그램 보러가기 →
-                            </Link>
-                            <Link
-                                href="/design-rules"
-                                style={{
-                                    display: "inline-block",
-                                    padding: "0.8rem 1.25rem",
-                                    border: "1px solid var(--border-strong)",
-                                    borderRadius: "6px",
-                                    color: "var(--text-primary)",
-                                    textDecoration: "none",
-                                    fontWeight: 600,
-                                }}
-                            >
-                                v5 디자인 규칙 보기
                             </Link>
                         </div>
                     </div>

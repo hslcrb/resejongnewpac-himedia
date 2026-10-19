@@ -3,14 +3,16 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { showToast } from "../../components/Toast";
-import { signInWithOAuthProvider, signOut } from "../../src/lib/supabase";
 import { UserProfile, BookingRecord } from "../../types/sejong";
+import { PROGRAMS } from "../../src/data/catalog";
 
 export default function AccountPage() {
     const [profile, setProfile] = useState<UserProfile>({ name: "", email: "", phone: "" });
     const [bookings, setBookings] = useState<BookingRecord[]>([]);
+    const [favorites, setFavorites] = useState<string[]>([]);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-    const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
+    const [isSignup, setIsSignup] = useState<boolean>(false);
+    const [activeTab, setActiveTab] = useState<string>("dashboard");
 
     useEffect(() => {
         try {
@@ -27,55 +29,34 @@ export default function AccountPage() {
             if (rawBookings) {
                 setBookings(JSON.parse(rawBookings));
             }
+            const rawFavorites = localStorage.getItem("sejong-v4:favorites");
+            if (rawFavorites) {
+                setFavorites(JSON.parse(rawFavorites));
+            }
         } catch {}
     }, []);
 
-    const handleProfileSubmit = (e: React.FormEvent) => {
+    const handleLoginSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            localStorage.setItem("sejong-v4:profile", JSON.stringify(profile));
+            const newProfile: UserProfile = {
+                name: profile.name || "예술을 사랑하는 관람객",
+                email: profile.email || "visitor@example.com",
+                phone: profile.phone || "",
+            };
+            localStorage.setItem("sejong-v4:profile", JSON.stringify(newProfile));
             localStorage.setItem("sejong-v4:session", JSON.stringify({ active: true }));
+            setProfile(newProfile);
             setIsLoggedIn(true);
-            showToast("프로필이 저장되었습니다.");
+            showToast(isSignup ? "프로필이 생성되었습니다." : "로그인되었습니다.");
         } catch {
-            showToast("프로필 저장에 실패했습니다.");
+            showToast("처리에 실패했습니다.");
         }
     };
 
-    const handleGuestLogin = () => {
-        const guest: UserProfile = {
-            name: "세종 관람객",
-            email: "guest@sejongpac.or.kr",
-            phone: "010-1234-5678",
-        };
-        setProfile(guest);
-        try {
-            localStorage.setItem("sejong-v4:profile", JSON.stringify(guest));
-            localStorage.setItem("sejong-v4:session", JSON.stringify({ active: true }));
-            setIsLoggedIn(true);
-            showToast("게스트 계정으로 로그인되었습니다. 모든 기능을 체험하실 수 있습니다.");
-        } catch {
-            showToast("로그인 처리에 실패했습니다.");
-        }
-    };
-
-    const handleSocialLogin = async (provider: "google" | "kakao" | "github") => {
-        setLoadingProvider(provider);
-        try {
-            const callbackUrl = window.location.origin + "/v5/account/";
-            await signInWithOAuthProvider(provider, callbackUrl);
-        } catch (err: any) {
-            console.error("Social login error:", err);
-            showToast(err.message || `${provider} 로그인 오류: Supabase 콘솔에서 Provider 활성화가 필요합니다.`);
-        } finally {
-            setLoadingProvider(null);
-        }
-    };
-
-    const handleLogout = async () => {
+    const handleLogout = () => {
         try {
             localStorage.setItem("sejong-v4:session", JSON.stringify({ active: false }));
-            await signOut();
             setIsLoggedIn(false);
             showToast("로그아웃되었습니다.");
         } catch {
@@ -83,266 +64,306 @@ export default function AccountPage() {
         }
     };
 
+    const handleCancelBooking = (bookingId: string) => {
+        try {
+            const updated = bookings.map((b) =>
+                b.id === bookingId ? { ...b, status: "cancelled" } : b
+            );
+            setBookings(updated as any);
+            localStorage.setItem("sejong-v4:bookings", JSON.stringify(updated));
+            showToast("예매가 취소되었습니다.");
+        } catch {
+            showToast("취소 처리 중 오류가 발생했습니다.");
+        }
+    };
+
     return (
-        <div className="container" style={{ padding: "3rem 1.5rem 6rem", maxWidth: "800px", margin: "0 auto" }}>
-            <nav className="breadcrumbs" aria-label="현재 위치" style={{ marginBottom: "1.5rem", display: "flex", gap: "0.5rem", color: "var(--text-secondary)", fontSize: "0.875rem" }}>
-                <Link href="/" style={{ textDecoration: "none", color: "inherit" }}>홈</Link>
-                <span>/</span>
-                <span aria-current="page" style={{ fontWeight: 600, color: "var(--text-primary)" }}>마이페이지 (MY SEJONG)</span>
-            </nav>
+        <div className="flow-page account-page">
+            {/* 상단 페이지 헤딩 (v4 표준 page-heading) */}
+            <section className="page-heading" id="page-heading">
+                <div className="container">
+                    <nav className="breadcrumbs" aria-label="현재 위치">
+                        <Link href="/">홈</Link>
+                        <span aria-hidden="true">/</span>
+                        <span aria-current="page">마이페이지</span>
+                    </nav>
+                    <div className="page-title-row">
+                        <div>
+                            <p className="eyebrow">MY SEJONG</p>
+                            <h1>마이페이지</h1>
+                            <p className="page-description">예술로 채워지는 나의 일상, 나만의 세종.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-            <header style={{ marginBottom: "2.5rem" }}>
-                <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "var(--text-primary)", margin: "0 0 0.5rem 0", letterSpacing: "-0.03em" }}>
-                    마이페이지 & 인증 센터
-                </h1>
-                <p style={{ fontSize: "1rem", color: "var(--text-secondary)", margin: 0 }}>
-                    세종문화회관 예매 내역 확인 및 Google·소셜 계정 연동을 관리합니다.
-                </p>
-            </header>
-
-            {/* 로그인 상태 패널 */}
-            <div style={{ background: "var(--surface-default)", border: "1px solid var(--border-default)", borderRadius: "12px", padding: "2rem", marginBottom: "2.5rem" }}>
+            <div className="container page-content flow-content">
                 {isLoggedIn ? (
-                    <div>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+                    <>
+                        {/* 계정 네비게이션 */}
+                        <nav className="account-nav" aria-label="계정 메뉴">
+                            <button
+                                type="button"
+                                className={activeTab === "dashboard" ? "active" : ""}
+                                onClick={() => setActiveTab("dashboard")}
+                            >
+                                마이페이지
+                            </button>
+                            <button
+                                type="button"
+                                className={activeTab === "bookings" ? "active" : ""}
+                                onClick={() => setActiveTab("bookings")}
+                            >
+                                예매내역 ({bookings.length})
+                            </button>
+                            <button
+                                type="button"
+                                className={activeTab === "favorites" ? "active" : ""}
+                                onClick={() => setActiveTab("favorites")}
+                            >
+                                관심 프로그램 ({favorites.length})
+                            </button>
+                        </nav>
+
+                        {/* 대시보드 환영 영역 */}
+                        <section className="account-welcome">
                             <div>
-                                <span style={{ fontSize: "0.8rem", padding: "3px 10px", background: "var(--surface-subtle)", color: "var(--text-primary)", border: "1px solid var(--border-strong)", borderRadius: "9999px", fontWeight: 700 }}>
-                                    ● 로그인 상태
-                                </span>
-                                <h2 style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--text-primary)", margin: "0.75rem 0 0.25rem 0" }}>
-                                    {profile.name || "예술을 사랑하는 관람객"}님, 환영합니다!
+                                <h2>
+                                    {profile.name || "관람객"}님,
+                                    <br />
+                                    오늘도 예술 가까이.
                                 </h2>
-                                <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", margin: 0 }}>
-                                    {profile.email || "visitor@example.com"}
-                                </p>
+                                <p>나의 문화생활을 한곳에서 만나보세요.</p>
                             </div>
                             <button
                                 type="button"
-                                onClick={handleLogout}
                                 className="button button--outline"
-                                style={{
-                                    padding: "0.5rem 1rem",
-                                    fontSize: "0.875rem",
-                                    border: "1px solid var(--border-strong)",
-                                    background: "var(--surface-default)",
-                                    color: "var(--text-primary)",
-                                    cursor: "pointer",
-                                }}
+                                onClick={handleLogout}
                             >
                                 로그아웃
                             </button>
-                        </div>
-                    </div>
-                ) : (
-                    <div>
-                        <h2 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--text-primary)", margin: "0 0 0.5rem 0" }}>
-                            간편 로그인 & 체험 프로필
-                        </h2>
-                        <p style={{ fontSize: "0.875rem", color: "var(--text-secondary)", margin: "0 0 1.5rem 0" }}>
-                            Supabase Auth 연동 또는 1초 게스트 간편 시작으로 모든 예매 서비스를 체험할 수 있습니다.
-                        </p>
+                        </section>
 
-                        {/* 1초 게스트 간편 시작 버튼 */}
-                        <div style={{ marginBottom: "1.5rem", padding: "1.25rem", background: "var(--surface-subtle)", border: "1px solid var(--border-default)", borderRadius: "8px" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
-                                <div>
-                                    <strong style={{ display: "block", color: "var(--text-primary)", fontSize: "0.95rem" }}>설정 없이 바로 체험하기</strong>
-                                    <span style={{ fontSize: "0.825rem", color: "var(--text-secondary)" }}>별도 소셜 인증 없이 1초 만에 테스트 세션으로 로그인합니다.</span>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={handleGuestLogin}
-                                    style={{
-                                        padding: "0.65rem 1.25rem",
-                                        background: "var(--action-primary)",
-                                        color: "var(--text-inverse)",
-                                        border: "none",
-                                        borderRadius: "6px",
-                                        fontWeight: 700,
-                                        fontSize: "0.9rem",
-                                        cursor: "pointer",
-                                    }}
-                                >
-                                    게스트로 즉시 시작 →
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* 안내 문구 */}
-                        <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: 1.5 }}>
-                            ※ Google/카카오 로그인은 연동된 Supabase 프로젝트 대시보드(Authentication &gt; Providers)에서 해당 Provider 활성화가 필요합니다. 미설정 시 상단의 게스트 시작을 권장합니다.
-                        </div>
-
-                        {/* 소셜 로그인 버튼 그룹 */}
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", marginBottom: "1.75rem" }}>
+                        {/* 통계 카드 (예매내역, 관심 프로그램, 신청내역) */}
+                        <div className="account-stats">
                             <button
                                 type="button"
-                                onClick={() => handleSocialLogin("google")}
-                                disabled={loadingProvider !== null}
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    gap: "0.6rem",
-                                    padding: "0.75rem 1rem",
-                                    background: "var(--surface-default)",
-                                    color: "var(--text-primary)",
-                                    border: "1px solid var(--border-default)",
-                                    borderRadius: "8px",
-                                    fontWeight: 600,
-                                    fontSize: "0.925rem",
-                                    cursor: "pointer",
-                                }}
+                                className="account-stat-card"
+                                onClick={() => setActiveTab("bookings")}
                             >
-                                <svg width="18" height="18" viewBox="0 0 24 24">
-                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                                <svg className="material-icon" width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M22 10V6c0-1.11-.9-2-2-2H4c-1.1 0-1.99.89-1.99 2v4c1.1 0 1.99.9 1.99 2s-.89 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2s.9-2 2-2zm-2-1.46c-1.19.69-2 1.99-2 3.46s.81 2.77 2 3.46V18H4v-2.54c1.19-.69 2-1.99 2-3.46 0-1.48-.8-2.77-1.99-3.46L4 6h16v2.54z" />
                                 </svg>
-                                {loadingProvider === "google" ? "연결 중..." : "Google 계정으로 계속하기"}
+                                <span>예매내역</span>
+                                <strong>
+                                    {bookings.length}
+                                    <small>건</small>
+                                </strong>
+                                <span className="arrow-icon">→</span>
                             </button>
 
                             <button
                                 type="button"
-                                onClick={() => handleSocialLogin("kakao")}
-                                disabled={loadingProvider !== null}
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    gap: "0.6rem",
-                                    padding: "0.75rem 1rem",
-                                    background: "var(--accent-highlight)",
-                                    color: "var(--text-on-brand)",
-                                    border: "1px solid var(--border-default)",
-                                    borderRadius: "8px",
-                                    fontWeight: 600,
-                                    fontSize: "0.925rem",
-                                    cursor: "pointer",
-                                }}
+                                className="account-stat-card"
+                                onClick={() => setActiveTab("favorites")}
                             >
-                                <svg width="18" height="18" viewBox="0 0 24 24">
-                                    <path fill="currentColor" d="M12 3c-4.97 0-9 3.185-9 7.115 0 2.557 1.708 4.8 4.27 6.054l-1.085 3.98a.5.5 0 0 0 .73.538l4.743-3.14c.112.01.226.018.342.018 4.97 0 9-3.185 9-7.115S16.97 3 12 3z" />
+                                <svg className="material-icon" width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
                                 </svg>
-                                카카오 계정으로 계속하기
+                                <span>관심 프로그램</span>
+                                <strong>
+                                    {favorites.length}
+                                    <small>건</small>
+                                </strong>
+                                <span className="arrow-icon">→</span>
                             </button>
+
+                            <Link href="/programs/education" className="account-stat-card">
+                                <svg className="material-icon" width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
+                                </svg>
+                                <span>교육·신청</span>
+                                <strong>
+                                    0<small>건</small>
+                                </strong>
+                                <span className="arrow-icon">→</span>
+                            </Link>
                         </div>
 
-                        <div style={{ display: "flex", alignItems: "center", margin: "1.5rem 0", color: "var(--text-secondary)", fontSize: "0.85rem" }}>
-                            <span style={{ flex: 1, height: "1px", background: "var(--border-default)" }} />
-                            <span style={{ padding: "0 0.75rem" }}>또는 직접 체험 프로필 작성</span>
-                            <span style={{ flex: 1, height: "1px", background: "var(--border-default)" }} />
-                        </div>
-
-                        {/* 직접 프로필 입력 폼 */}
-                        <form onSubmit={handleProfileSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                        {/* 추천 피처 박스 */}
+                        <div className="account-feature">
                             <div>
-                                <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "0.3rem" }}>이름</label>
+                                <h3>다음 감동을 만나볼까요?</h3>
+                                <p>
+                                    공연부터 전시, 배움의 순간까지.
+                                    <br />
+                                    당신을 기다리는 프로그램을 찾아보세요.
+                                </p>
+                            </div>
+                            <Link className="button button--dark" href="/programs">
+                                프로그램 둘러보기 →
+                            </Link>
+                        </div>
+
+                        {/* 예매 내역 목록 */}
+                        {activeTab === "bookings" && (
+                            <section className="account-section" style={{ marginTop: "2rem" }}>
+                                <h3 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "1rem" }}>
+                                    예매내역 ({bookings.length}건)
+                                </h3>
+                                {bookings.length > 0 ? (
+                                    <div className="account-list">
+                                        {bookings.map((booking) => {
+                                            const program = PROGRAMS.find((p) => p.id === booking.programId);
+                                            const isCancelled = (booking as any).status === "cancelled";
+                                            return (
+                                                <article key={booking.id} className="account-booking">
+                                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                    <img
+                                                        src={`/v5/assets/images/${program?.image || "poster-carmen.png"}`}
+                                                        alt={booking.title}
+                                                    />
+                                                    <div className="account-booking__body">
+                                                        <div className="flow-record-top">
+                                                            <span className={`flow-tag ${isCancelled ? "is-muted" : ""}`}>
+                                                                {isCancelled ? "취소 완료" : "예매 완료"}
+                                                            </span>
+                                                            <small>{booking.id}</small>
+                                                        </div>
+                                                        <Link href={`/programs/${booking.programId}`}>
+                                                            <h3>{booking.title}</h3>
+                                                        </Link>
+                                                        <p>
+                                                            {booking.date} {booking.time} · {booking.venue}
+                                                        </p>
+                                                        <p>
+                                                            좌석: {booking.seats.join(", ")} · {booking.total.toLocaleString()}원
+                                                        </p>
+                                                        {!isCancelled && (
+                                                            <button
+                                                                type="button"
+                                                                className="flow-text-button"
+                                                                onClick={() => handleCancelBooking(booking.id)}
+                                                            >
+                                                                예매 취소
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </article>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className="empty-state">
+                                        <p>아직 예매한 프로그램이 없습니다.</p>
+                                        <Link className="button button--dark" href="/programs">
+                                            프로그램 둘러보기 →
+                                        </Link>
+                                    </div>
+                                )}
+                            </section>
+                        )}
+                    </>
+                ) : (
+                    /* 로그인 / 회원가입 폼 (v4 표준 account-auth-layout) */
+                    <div className="account-auth-layout">
+                        <section className="account-auth-intro" aria-labelledby="account-intro-title">
+                            <h2 id="account-intro-title">
+                                좋아하는 예술로
+                                <br />
+                                채우는 나의 일상.
+                            </h2>
+                            <p>
+                                {isSignup
+                                    ? "관심 가는 프로그램을 모으고, 다음 관람을 준비해 보세요."
+                                    : "나의 예매와 관심 프로그램을 한곳에서 만나보세요."}
+                            </p>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                className="account-auth-photo"
+                                src="/v5/assets/images/sejong-grand-auditorium.png"
+                                width={1160}
+                                height={680}
+                                alt="세종대극장의 객석"
+                            />
+                            <span className="account-auth-caption">예술과 가까워지는 나만의 공간.</span>
+                        </section>
+
+                        <form className="flow-panel" onSubmit={handleLoginSubmit}>
+                            <h2>{isSignup ? "프로필 만들기" : "로그인"}</h2>
+                            <p className="flow-fineprint">
+                                이 브라우저에서 사용하는 프로필입니다. 비밀번호는 입력하지 않습니다.
+                            </p>
+
+                            <div className="flow-field">
+                                <label htmlFor="login-name">이름</label>
                                 <input
+                                    id="login-name"
                                     type="text"
                                     required
-                                    placeholder="홍길동"
+                                    placeholder="예술을 사랑하는 관람객"
                                     value={profile.name}
                                     onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                                    style={{ width: "100%", padding: "0.6rem", border: "1px solid var(--border-strong)", borderRadius: "6px", background: "var(--surface-default)", color: "var(--text-primary)" }}
                                 />
                             </div>
-                            <div>
-                                <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "0.3rem" }}>이메일</label>
+
+                            <div className="flow-field">
+                                <label htmlFor="login-email">이메일</label>
                                 <input
+                                    id="login-email"
                                     type="email"
                                     required
                                     placeholder="visitor@example.com"
                                     value={profile.email}
                                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                                    style={{ width: "100%", padding: "0.6rem", border: "1px solid var(--border-strong)", borderRadius: "6px", background: "var(--surface-default)", color: "var(--text-primary)" }}
                                 />
                             </div>
-                            <div>
-                                <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "0.3rem" }}>휴대전화 (선택)</label>
-                                <input
-                                    type="tel"
-                                    placeholder="010-0000-0000"
-                                    value={profile.phone}
-                                    onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                                    style={{ width: "100%", padding: "0.6rem", border: "1px solid var(--border-strong)", borderRadius: "6px", background: "var(--surface-default)", color: "var(--text-primary)" }}
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                style={{
-                                    marginTop: "0.5rem",
-                                    padding: "0.75rem 1.5rem",
-                                    background: "var(--action-primary)",
-                                    color: "var(--text-inverse)",
-                                    border: "none",
-                                    borderRadius: "6px",
-                                    fontWeight: 700,
-                                    fontSize: "0.95rem",
-                                    cursor: "pointer",
-                                }}
-                            >
-                                직접 입력 프로필로 시작하기 →
+
+                            {isSignup && (
+                                <div className="flow-field">
+                                    <label htmlFor="login-phone">휴대전화 (선택)</label>
+                                    <input
+                                        id="login-phone"
+                                        type="tel"
+                                        placeholder="010-0000-0000"
+                                        value={profile.phone}
+                                        onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                                    />
+                                </div>
+                            )}
+
+                            <label className="flow-consent" style={{ display: "flex", gap: "8px", alignItems: "center", margin: "1rem 0" }}>
+                                <input type="checkbox" required defaultChecked />
+                                <span>프로필을 이 브라우저에 저장하는 데 동의합니다.</span>
+                            </label>
+
+                            <button className="button button--dark flow-button-full" type="submit">
+                                {isSignup ? "프로필 만들기" : "로그인"} →
                             </button>
+
+                            <div className="account-auth-links" style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem" }}>
+                                {isSignup ? (
+                                    <button
+                                        type="button"
+                                        className="flow-text-button"
+                                        onClick={() => setIsSignup(false)}
+                                    >
+                                        로그인으로 돌아가기
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        className="flow-text-button"
+                                        onClick={() => setIsSignup(true)}
+                                    >
+                                        새 프로필 만들기 (회원가입)
+                                    </button>
+                                )}
+                            </div>
                         </form>
                     </div>
                 )}
             </div>
-
-            {/* 나의 예매 내역 */}
-            <section style={{ background: "var(--surface-default)", border: "1px solid var(--border-default)", borderRadius: "12px", padding: "2rem" }}>
-                <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "var(--text-primary)", margin: "0 0 1rem 0" }}>
-                    나의 예매 내역 ({bookings.length}건)
-                </h3>
-                {bookings.length > 0 ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                        {bookings.map((b) => (
-                            <div
-                                key={b.id}
-                                style={{
-                                    border: "1px solid var(--border-default)",
-                                    borderRadius: "8px",
-                                    padding: "1rem",
-                                    background: "var(--surface-subtle)",
-                                }}
-                            >
-                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem" }}>
-                                    <strong style={{ fontSize: "1.05rem", color: "var(--text-primary)" }}>{b.title}</strong>
-                                    <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)", fontWeight: 700 }}>{b.id}</span>
-                                </div>
-                                <div style={{ fontSize: "0.875rem", color: "var(--text-secondary)" }}>
-                                    일시: {b.date} {b.time} | 장소: {b.venue} | 좌석: {b.seats.join(", ")}
-                                </div>
-                                <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--text-primary)", marginTop: "0.4rem" }}>
-                                    결제 금액: {b.total.toLocaleString()}원
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div style={{ textAlign: "center", padding: "3rem 1rem", color: "var(--text-secondary)" }}>
-                        예매된 내역이 없습니다.
-                        <div style={{ marginTop: "1rem" }}>
-                            <Link
-                                href="/programs"
-                                style={{
-                                    display: "inline-block",
-                                    padding: "0.5rem 1rem",
-                                    border: "1px solid var(--border-strong)",
-                                    borderRadius: "6px",
-                                    color: "var(--text-primary)",
-                                    textDecoration: "none",
-                                    fontSize: "0.875rem",
-                                    fontWeight: 600,
-                                }}
-                            >
-                                프로그램 둘러보기
-                            </Link>
-                        </div>
-                    </div>
-                )}
-            </section>
         </div>
     );
 }

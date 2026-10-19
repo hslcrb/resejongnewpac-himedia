@@ -42,17 +42,15 @@ export default function Header() {
         <header id="header" className="renewal-header">
             <div className="project-note">
                 <span>
-                    v5 · Next.js 14 & TypeScript{" "}
-                    <span lang="en">· Pure App Router</span>
+                    v5 · 예술로 이어지는 하루{" "}
+                    <span lang="en">· Unofficial design concept</span>
                 </span>
-                <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                    <Link href="/design-rules" style={{ color: "var(--color-sky)", fontWeight: 600 }}>
-                        🎨 디자인 규칙 (Design Rules)
-                    </Link>
-                    <a href="/" style={{ opacity: 0.8 }}>
-                        버전 선택 ↗
-                    </a>
-                </div>
+                <a href="/">
+                    버전 선택{" "}
+                    <svg className="material-icon" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 6v2h8.59L3.71 18.88l1.41 1.41L16 9.41V18h2V6z" />
+                    </svg>
+                </a>
             </div>
 
             <div className="masthead container">
@@ -195,10 +193,6 @@ export default function Header() {
                             <span>새로운 무대를 준비할 때</span>
                             <strong>대관 공간 비교 →</strong>
                         </Link>
-                        <Link href="/design-rules">
-                            <span style={{ color: "var(--color-sky)" }}>v5 시스템</span>
-                            <strong>디자인 규칙 & 토큰 →</strong>
-                        </Link>
                     </div>
                     <nav className="menu-columns" aria-label="전체 메뉴">
                         {NAV.map((group: any) => (
@@ -218,7 +212,6 @@ export default function Header() {
                         <Link href="/account">마이페이지</Link>
                         <Link href="/account">예매내역</Link>
                         <Link href="/account">관심 프로그램</Link>
-                        <Link href="/design-rules">디자인 시스템</Link>
                         <Link href="/sitemap">사이트맵</Link>
                         <Link href="/english" lang="en">English guide</Link>
                     </nav>
