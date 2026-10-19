@@ -689,20 +689,20 @@ export default function HomePage() {
             {/* 5. 방문 안내와 호버 미리보기 (Visit Guide with Photographic Previews) */}
             <section className="home-visit container" id="plan-your-visit" aria-labelledby="visit-heading">
                 <figure className="visit-photograph">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                        src={`/v5/assets/images/${activeGuide.image}`}
-                        alt={activeGuide.alt}
-                        width={activeGuide.width}
-                        height={activeGuide.height}
-                        loading="lazy"
-                        onError={(e) => {
-                            const target = e.currentTarget;
-                            if (target.src.includes("/v5/assets/")) {
-                                target.src = target.src.replace("/v5/assets/", "/assets/");
-                            }
-                        }}
-                    />
+                    {visitGuides.map((guide) => (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                            key={guide.id}
+                            src={`/assets/images/${guide.image}`}
+                            alt={guide.alt}
+                            width={guide.width}
+                            height={guide.height}
+                            loading="lazy"
+                            data-visit-image={guide.id}
+                            data-visit-kind={guide.kind}
+                            aria-hidden={activeVisitId !== guide.id}
+                        />
+                    ))}
                 </figure>
 
                 <div className="visit-editorial">
@@ -726,6 +726,7 @@ export default function HomePage() {
                                 <Link
                                     key={guide.id}
                                     href={guide.path}
+                                    data-visit-preview={guide.id}
                                     onPointerEnter={() => setActiveVisitId(guide.id)}
                                     onFocus={() => setActiveVisitId(guide.id)}
                                     className={activeVisitId === guide.id ? "is-previewed" : ""}
@@ -737,6 +738,24 @@ export default function HomePage() {
                                     <Icon name="arrow" size={22} />
                                 </Link>
                             ))}
+                        </div>
+                        <div className="visit-hover-rail" aria-hidden="true">
+                            <div className="visit-hover-preview">
+                                {visitGuides.map((guide) => (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
+                                    <img
+                                        key={guide.id}
+                                        src={`/assets/images/${guide.image}`}
+                                        alt=""
+                                        width={guide.width}
+                                        height={guide.height}
+                                        loading="lazy"
+                                        data-visit-hover-image={guide.id}
+                                        data-visit-kind={guide.kind}
+                                        className={activeVisitId === guide.id ? "is-active" : ""}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
