@@ -40,11 +40,22 @@
     --yellow: var(--human);
     --yellow-dark: #ca8a04;
 
-    /* 상태 및 피드백 (Accessibility WCAG AA Compliant) */
-    --semantic-success: #16a34a;
-    --semantic-warning: #ea580c;
-    --semantic-error: #dc2626;
-    --semantic-info: #0284c7;
+    /* [상태 및 피드백 / Semantic Status Tokens: 눈이 편안한 뮤티드 톤 & 틴트 배경] */
+    --semantic-success: #15803d;        /* 신뢰감 있는 딥 포레스트 그린 (원색 형광 배제) */
+    --semantic-success-subtle: #f0fdf4; /* 성공/완료 연한 배경 틴트 */
+    --semantic-success-border: #bbf7d0; /* 성공 경계선 */
+
+    --semantic-warning: #c2410c;        /* 차분한 테라코타 오렌지 (지(地)의 연장선) */
+    --semantic-warning-subtle: #fff7ed; /* 경고 연한 배경 틴트 */
+    --semantic-warning-border: #fed7aa;
+
+    --semantic-error: #b91c1c;          /* 우아하고 깊이 있는 와인 레드 (눈 찌르는 형광 빨강 지양) */
+    --semantic-error-subtle: #fef2f2;   /* 오류/주의 연한 배경 틴트 */
+    --semantic-error-border: #fecaca;   /* 오류 경계선 */
+
+    --semantic-info: #0369a1;           /* 지적인 덜블루 (천(天)의 정제된 톤) */
+    --semantic-info-subtle: #f0f9ff;    /* 정보 안내 연한 배경 틴트 */
+    --semantic-info-border: #bae6fd;
 
     /* 서체 및 반응형 스케일 */
     --font: "Pretendard Variable", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
