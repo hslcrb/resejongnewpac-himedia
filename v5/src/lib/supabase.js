@@ -22,28 +22,33 @@ export const supabase = isSupabaseConfigured
     : null;
 
 /**
- * Google OAuth 로그인 실행
+ * 소셜 OAuth 로그인 실행 (Google, Kakao, GitHub 등 다중 프로바이더 지원)
+ * @param {'google' | 'kakao' | 'github'} provider 공급자
  * @param {string} redirectTo 로그인 완료 후 복귀할 URL
  */
-export async function signInWithGoogle(redirectTo) {
+export async function signInWithOAuthProvider(provider = "google", redirectTo) {
     if (!supabase) {
         throw new Error("Supabase 환경 변수가 설정되지 않았습니다. .env.local을 확인해 주세요.");
     }
 
-    const targetUrl = redirectTo || (typeof window !== "undefined" ? window.location.href : "");
+    const targetUrl = redirectTo || (typeof window !== "undefined" ? window.location.origin + "/v5/account" : "");
     const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
+        provider,
         options: {
             redirectTo: targetUrl,
-            queryParams: {
+            queryParams: provider === "google" ? {
                 access_type: "offline",
                 prompt: "consent",
-            },
+            } : {},
         },
     });
 
     if (error) throw error;
     return data;
+}
+
+export async function signInWithGoogle(redirectTo) {
+    return signInWithOAuthProvider("google", redirectTo);
 }
 
 /**
