@@ -2,3 +2,7 @@
 node_modules/
 .DS_Store
 __pycache__/
+
+v5/.next/
+v5/out/
+
