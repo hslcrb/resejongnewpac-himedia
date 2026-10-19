@@ -1,0 +1,99 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { PROGRAMS } from "../../src/data/catalog.js";
+import ProgramCard from "../../components/ProgramCard";
+import { Program } from "../../types/sejong";
+
+export default function ProgramsPage() {
+    const [category, setCategory] = useState<string>("전체");
+    const [search, setSearch] = useState<string>("");
+
+    const categories = ["전체", "공연", "전시", "교육"];
+
+    const filtered = (PROGRAMS as unknown as Program[]).filter((p) => {
+        const matchCat = category === "전체" || p.category === category;
+        const matchSearch = !search.trim() || [p.title, p.genre || "", p.venue || "", p.description || ""].join(" ").toLowerCase().includes(search.toLowerCase());
+        return matchCat && matchSearch;
+    });
+
+    return (
+        <div className="container" style={{ padding: "3rem 1.5rem 6rem", maxWidth: "1200px", margin: "0 auto" }}>
+            <nav className="breadcrumbs" aria-label="현재 위치" style={{ marginBottom: "1.5rem", display: "flex", gap: "0.5rem", color: "#64748b", fontSize: "0.875rem" }}>
+                <Link href="/" style={{ textDecoration: "none", color: "inherit" }}>홈</Link>
+                <span>/</span>
+                <span aria-current="page" style={{ fontWeight: 600, color: "#0f172a" }}>프로그램 전체보기</span>
+            </nav>
+
+            <header style={{ marginBottom: "2.5rem" }}>
+                <h1 style={{ fontSize: "2.2rem", fontWeight: 800, color: "#0f172a", margin: "0 0 0.5rem 0" }}>
+                    세종의 프로그램
+                </h1>
+                <p style={{ fontSize: "1.05rem", color: "#64748b", margin: 0 }}>
+                    서울시향, 서울시무용단, 서울시극단의 정기공연부터 기획전시와 예술아카데미까지.
+                </p>
+            </header>
+
+            {/* 필터 및 검색 바 */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "2rem" }}>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                    {categories.map((cat) => (
+                        <button
+                            key={cat}
+                            type="button"
+                            onClick={() => setCategory(cat)}
+                            style={{
+                                padding: "0.5rem 1rem",
+                                borderRadius: "9999px",
+                                fontSize: "0.875rem",
+                                fontWeight: 600,
+                                border: category === cat ? "1px solid #0f172a" : "1px solid #e2e8f0",
+                                background: category === cat ? "#0f172a" : "#ffffff",
+                                color: category === cat ? "#ffffff" : "#475569",
+                                cursor: "pointer",
+                            }}
+                        >
+                            {cat}
+                        </button>
+                    ))}
+                </div>
+
+                <div style={{ position: "relative", minWidth: "260px" }}>
+                    <input
+                        type="search"
+                        placeholder="공연명, 장르, 공연장 검색..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        style={{
+                            width: "100%",
+                            padding: "0.55rem 1rem",
+                            borderRadius: "8px",
+                            border: "1px solid #cbd5e1",
+                            fontSize: "0.9rem",
+                            outline: "none",
+                        }}
+                    />
+                </div>
+            </div>
+
+            {/* 프로그램 카드 목록 */}
+            {filtered.length > 0 ? (
+                <div className="program-results-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1.5rem" }}>
+                    {filtered.map((program) => (
+                        <ProgramCard key={program.id} program={program} />
+                    ))}
+                </div>
+            ) : (
+                <div style={{ textAlign: "center", padding: "5rem 1rem", background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                    <p style={{ fontSize: "1.1rem", fontWeight: 700, color: "#1e293b", margin: "0 0 0.5rem 0" }}>
+                        검색 결과가 없습니다
+                    </p>
+                    <p style={{ fontSize: "0.9rem", color: "#64748b", margin: 0 }}>
+                        다른 검색어를 입력하시거나 카테고리 필터를 변경해 보세요.
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+}

@@ -1,0 +1,299 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { Program } from "../../../types/sejong";
+import { showToast } from "../../../components/Toast";
+
+interface BookingClientProps {
+    program: Program;
+}
+
+export default function BookingClient({ program }: BookingClientProps) {
+    const [step, setStep] = useState<number>(1);
+    const [selectedDate, setSelectedDate] = useState<string>(program?.start || "2026-05-01");
+    const [selectedTime, setSelectedTime] = useState<string>("19:30");
+    const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+    const [completed, setCompleted] = useState<boolean>(false);
+
+    const pricePerSeat = 70000;
+    const totalAmount = selectedSeats.length * pricePerSeat;
+
+    const seatsGrid = [
+        ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"],
+        ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"],
+        ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
+        ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8"],
+        ["E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8"],
+    ];
+
+    const toggleSeat = (seat: string) => {
+        if (selectedSeats.includes(seat)) {
+            setSelectedSeats(selectedSeats.filter((s) => s !== seat));
+        } else {
+            if (selectedSeats.length >= 4) {
+                showToast("최대 4매까지 선택 가능합니다.");
+                return;
+            }
+            setSelectedSeats([...selectedSeats, seat]);
+        }
+    };
+
+    const handleCompleteBooking = () => {
+        try {
+            const raw = localStorage.getItem("sejong-v4:bookings");
+            const bookings = raw ? JSON.parse(raw) : [];
+            const newBooking = {
+                id: "BKG-" + Date.now().toString(36).toUpperCase(),
+                programId: program.id,
+                title: program.title,
+                date: selectedDate,
+                time: selectedTime,
+                venue: program.venue,
+                seats: selectedSeats,
+                total: totalAmount,
+                createdAt: new Date().toISOString(),
+            };
+            localStorage.setItem("sejong-v4:bookings", JSON.stringify([...bookings, newBooking]));
+            setCompleted(true);
+            showToast("예매가 성공적으로 완료되었습니다!");
+        } catch {
+            showToast("예매 저장 중 오류가 발생했습니다.");
+        }
+    };
+
+    return (
+        <div className="container" style={{ padding: "3rem 1.5rem 6rem", maxWidth: "900px", margin: "0 auto" }}>
+            <nav className="breadcrumbs" aria-label="현재 위치" style={{ marginBottom: "1.5rem", display: "flex", gap: "0.5rem", color: "#64748b", fontSize: "0.875rem" }}>
+                <Link href="/" style={{ textDecoration: "none", color: "inherit" }}>홈</Link>
+                <span>/</span>
+                <Link href={`/programs/${program.id}`} style={{ textDecoration: "none", color: "inherit" }}>{program.title}</Link>
+                <span>/</span>
+                <span aria-current="page" style={{ fontWeight: 600, color: "#0f172a" }}>온라인 예매</span>
+            </nav>
+
+            <header style={{ marginBottom: "2rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                    <span style={{ fontSize: "0.8rem", padding: "2px 8px", background: "#f0f9ff", color: "#0369a1", borderRadius: "9999px", fontWeight: 700 }}>
+                        ONLINE BOOKING
+                    </span>
+                    <span style={{ fontSize: "0.85rem", color: "#64748b" }}>{program.venue}</span>
+                </div>
+                <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>
+                    {program.title}
+                </h1>
+            </header>
+
+            {/* 단계 표시 인디케이터 */}
+            <ol className="flow-steps" style={{ display: "flex", listStyle: "none", padding: 0, margin: "0 0 2rem 0", gap: "1rem", borderBottom: "1px solid #e2e8f0", paddingBottom: "1rem" }}>
+                {[
+                    { num: 1, label: "회차 선택" },
+                    { num: 2, label: "좌석 선택" },
+                    { num: 3, label: "결제 및 확인" },
+                ].map((s) => (
+                    <li
+                        key={s.num}
+                        style={{
+                            fontWeight: step === s.num ? 700 : 500,
+                            color: step === s.num ? "#0f172a" : "#94a3b8",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            fontSize: "0.95rem",
+                        }}
+                    >
+                        <span
+                            style={{
+                                width: "24px",
+                                height: "24px",
+                                borderRadius: "50%",
+                                background: step === s.num ? "#0f172a" : "#f1f5f9",
+                                color: step === s.num ? "#ffffff" : "#64748b",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                fontSize: "0.8rem",
+                            }}
+                        >
+                            {s.num}
+                        </span>
+                        {s.label}
+                    </li>
+                ))}
+            </ol>
+
+            {/* 단계별 콘텐츠 */}
+            {!completed ? (
+                <div>
+                    {step === 1 && (
+                        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "2rem" }}>
+                            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: "0 0 1rem 0" }}>관람 일시 선택</h3>
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1.5rem" }}>
+                                <div>
+                                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "#475569", marginBottom: "0.4rem" }}>관람 날짜</label>
+                                    <input
+                                        type="date"
+                                        value={selectedDate}
+                                        onChange={(e) => setSelectedDate(e.target.value)}
+                                        style={{ width: "100%", padding: "0.6rem", border: "1px solid #cbd5e1", borderRadius: "6px" }}
+                                    />
+                                </div>
+                                <div>
+                                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "#475569", marginBottom: "0.4rem" }}>회차 시간</label>
+                                    <select
+                                        value={selectedTime}
+                                        onChange={(e) => setSelectedTime(e.target.value)}
+                                        style={{ width: "100%", padding: "0.6rem", border: "1px solid #cbd5e1", borderRadius: "6px" }}
+                                    >
+                                        <option value="15:00">1회차 (15:00)</option>
+                                        <option value="19:30">2회차 (19:30)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setStep(2)}
+                                className="button button--dark"
+                                style={{ width: "100%", padding: "0.8rem", fontSize: "1rem", fontWeight: 700 }}
+                            >
+                                다음: 좌석 선택하기 →
+                            </button>
+                        </div>
+                    )}
+
+                    {step === 2 && (
+                        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "2rem" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+                                <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0 }}>좌석 선택 (최대 4매)</h3>
+                                <span style={{ fontSize: "0.9rem", color: "#0284c7", fontWeight: 600 }}>
+                                    선택한 좌석: {selectedSeats.length > 0 ? selectedSeats.join(", ") : "없음"}
+                                </span>
+                            </div>
+
+                            {/* 무대 영역 */}
+                            <div style={{ textAlign: "center", padding: "0.75rem", background: "#f1f5f9", borderRadius: "6px", fontWeight: 700, color: "#64748b", margin: "0 auto 2rem", maxWidth: "400px", fontSize: "0.85rem" }}>
+                                STAGE (무대)
+                            </div>
+
+                            {/* 좌석 배치도 그리드 */}
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", alignItems: "center", marginBottom: "2rem" }}>
+                                {seatsGrid.map((row, rIdx) => (
+                                    <div key={rIdx} style={{ display: "flex", gap: "0.5rem" }}>
+                                        {row.map((seat) => {
+                                            const active = selectedSeats.includes(seat);
+                                            return (
+                                                <button
+                                                    key={seat}
+                                                    type="button"
+                                                    onClick={() => toggleSeat(seat)}
+                                                    style={{
+                                                        width: "36px",
+                                                        height: "36px",
+                                                        borderRadius: "6px",
+                                                        border: active ? "2px solid #0f172a" : "1px solid #cbd5e1",
+                                                        background: active ? "#0f172a" : "#ffffff",
+                                                        color: active ? "#ffffff" : "#1e293b",
+                                                        fontWeight: 700,
+                                                        fontSize: "0.75rem",
+                                                        cursor: "pointer",
+                                                        transition: "all 0.15s ease",
+                                                    }}
+                                                >
+                                                    {seat}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div style={{ display: "flex", gap: "1rem" }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setStep(1)}
+                                    className="button button--outline"
+                                    style={{ flex: 1 }}
+                                >
+                                    이전
+                                </button>
+                                <button
+                                    type="button"
+                                    disabled={selectedSeats.length === 0}
+                                    onClick={() => setStep(3)}
+                                    className="button button--dark"
+                                    style={{ flex: 2, opacity: selectedSeats.length === 0 ? 0.5 : 1 }}
+                                >
+                                    선택 완료 (결제 단계로) →
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 3 && (
+                        <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "2rem" }}>
+                            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: "0 0 1.25rem 0" }}>예매 내역 확인 및 결제</h3>
+                            <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "1.25rem", marginBottom: "1.5rem" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.6rem" }}>
+                                    <span style={{ color: "#64748b" }}>프로그램</span>
+                                    <strong style={{ color: "#0f172a" }}>{program.title}</strong>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.6rem" }}>
+                                    <span style={{ color: "#64748b" }}>일시</span>
+                                    <span>{selectedDate} {selectedTime}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.6rem" }}>
+                                    <span style={{ color: "#64748b" }}>장소</span>
+                                    <span>{program.venue}</span>
+                                </div>
+                                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.6rem" }}>
+                                    <span style={{ color: "#64748b" }}>선택 좌석</span>
+                                    <strong style={{ color: "#0284c7" }}>{selectedSeats.join(", ")} ({selectedSeats.length}매)</strong>
+                                </div>
+                                <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: "1rem 0" }} />
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <span style={{ fontSize: "1.1rem", fontWeight: 700 }}>총 결제 금액</span>
+                                    <strong style={{ fontSize: "1.4rem", color: "#0f172a" }}>{totalAmount.toLocaleString()}원</strong>
+                                </div>
+                            </div>
+
+                            <div style={{ display: "flex", gap: "1rem" }}>
+                                <button type="button" onClick={() => setStep(2)} className="button button--outline" style={{ flex: 1 }}>
+                                    좌석 다시 선택
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleCompleteBooking}
+                                    className="button button--dark"
+                                    style={{ flex: 2, padding: "0.85rem", fontSize: "1.05rem", fontWeight: 700 }}
+                                >
+                                    예매 확정하기 (체험 완료) ✓
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            ) : (
+                /* 예매 완료 화면 */
+                <div style={{ background: "#ffffff", border: "1px solid #bbf7d0", borderRadius: "12px", padding: "3rem 2rem", textAlign: "center" }}>
+                    <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "#f0fdf4", color: "#15803d", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: "1.8rem", marginBottom: "1rem" }}>
+                        ✓
+                    </div>
+                    <h2 style={{ fontSize: "1.6rem", fontWeight: 800, color: "#0f172a", margin: "0 0 0.5rem 0" }}>
+                        예매가 성공적으로 완료되었습니다!
+                    </h2>
+                    <p style={{ color: "#475569", margin: "0 0 2rem 0" }}>
+                        선택하신 좌석({selectedSeats.join(", ")})으로 예매 정보가 안전하게 저장되었습니다.
+                    </p>
+                    <div style={{ display: "flex", justifyContent: "center", gap: "1rem" }}>
+                        <Link href="/account" className="button button--dark">
+                            예매 내역 확인하기 →
+                        </Link>
+                        <Link href="/programs" className="button button--outline">
+                            다른 프로그램 둘러보기
+                        </Link>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

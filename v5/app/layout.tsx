@@ -1,0 +1,64 @@
+import React from "react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import Toast from "../components/Toast";
+import ReturnTop from "../components/ReturnTop";
+
+import "../styles/compat/shared.css";
+import "../styles/compat/programs.css";
+import "../styles/compat/pages.css";
+import "../styles/compat/flows.css";
+import "../styles/tokens.css";
+import "../styles/defaults.css";
+import "../styles/base.css";
+import "../styles/components.css";
+import "../styles/home.css";
+import "../styles/programs.css";
+import "../styles/information.css";
+import "../styles/transactions.css";
+import "../styles/cards.css";
+import "../styles/notices.css";
+import "../public/assets/icons/material-symbols.css";
+import "../public/assets/ui-feedback.css";
+import "../styles/refinements.css";
+import "../styles/experiences.css";
+import "../styles/goods.css";
+import "../styles/motion.css";
+import "../styles/experience.css";
+import "../styles/home-v4.css";
+import "../styles/story.css";
+import "../styles/journeys.css";
+
+export const metadata = {
+    title: "세종문화회관 - v5 예술로 이어지는 하루 (Next.js & TypeScript)",
+    description: "세종문화회관 리뉴얼 디자인 체험. 공연과 전시, 예술이 있는 일상을 만나보세요. 순수 Next.js App Router & TypeScript로 구동되는 비공식 프로젝트입니다.",
+};
+
+export default function RootLayout({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    return (
+        <html lang="ko">
+            <head>
+                <meta charSet="UTF-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta name="theme-color" content="#ffffff" />
+                <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+            </head>
+            <body>
+                <a className="skip-link" href="#main">
+                    본문 바로가기
+                </a>
+                <Header />
+                <main id="main" tabIndex={-1}>
+                    {children}
+                </main>
+                <Footer />
+                <Toast />
+                <ReturnTop />
+            </body>
+        </html>
+    );
+}
