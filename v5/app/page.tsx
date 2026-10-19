@@ -22,7 +22,7 @@ export default function HomePage() {
                 <div className="container home-hero__content">
                     <div className="home-hero__badge">
                         <span>2026 SEJONG SEASON</span>
-                        <Link href="/design-rules" style={{ color: "#38bdf8", marginLeft: "8px", fontWeight: 700 }}>
+                        <Link href="/design-rules" style={{ color: "var(--color-sky)", marginLeft: "8px", fontWeight: 700 }}>
                             [v5 디자인 규칙 보기 →]
                         </Link>
                     </div>
@@ -48,8 +48,8 @@ export default function HomePage() {
             <section className="container home-section" style={{ marginTop: "3.5rem" }}>
                 <div className="section-heading" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem" }}>
                     <div>
-                        <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "#0284c7" }}>CURATION</span>
-                        <h2 style={{ fontSize: "1.6rem", fontWeight: 800, margin: "0.2rem 0 0 0" }}>지금 주목할 세종의 예술</h2>
+                        <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--text-secondary)", letterSpacing: "0.08em" }}>CURATION</span>
+                        <h2 style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--text-primary)", margin: "0.2rem 0 0 0" }}>지금 주목할 세종의 예술</h2>
                     </div>
                     {/* 카테고리 필터 탭 */}
                     <div className="category-tabs" style={{ display: "flex", gap: "0.5rem" }}>
@@ -63,9 +63,9 @@ export default function HomePage() {
                                     borderRadius: "9999px",
                                     fontSize: "0.85rem",
                                     fontWeight: 600,
-                                    border: selectedCategory === cat ? "1px solid #0f172a" : "1px solid #e2e8f0",
-                                    background: selectedCategory === cat ? "#0f172a" : "#ffffff",
-                                    color: selectedCategory === cat ? "#ffffff" : "#475569",
+                                    border: selectedCategory === cat ? "1px solid var(--border-focus)" : "1px solid var(--border-default)",
+                                    background: selectedCategory === cat ? "var(--action-primary)" : "var(--surface-default)",
+                                    color: selectedCategory === cat ? "var(--text-inverse)" : "var(--text-secondary)",
                                     cursor: "pointer",
                                 }}
                             >
@@ -75,14 +75,29 @@ export default function HomePage() {
                     </div>
                 </div>
 
-                <div className="program-results-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "1.5rem" }}>
+                {/* programs.css의 4열 반응형 그리드 사용 */}
+                <div className="program-results-grid">
                     {filteredPrograms.map((program) => (
                         <ProgramCard key={program.id} program={program} />
                     ))}
                 </div>
 
                 <div style={{ textAlign: "center", marginTop: "2.5rem" }}>
-                    <Link href="/programs" className="button button--outline" style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+                    <Link
+                        href="/programs"
+                        style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.5rem",
+                            padding: "0.8rem 1.5rem",
+                            border: "1px solid var(--border-strong)",
+                            borderRadius: "6px",
+                            color: "var(--text-primary)",
+                            textDecoration: "none",
+                            fontWeight: 600,
+                            fontSize: "0.95rem",
+                        }}
+                    >
                         더 많은 프로그램 보기 ({PROGRAMS.length}개) →
                     </Link>
                 </div>
@@ -92,9 +107,9 @@ export default function HomePage() {
             <section className="container home-section" style={{ marginTop: "4.5rem", marginBottom: "4rem" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "2rem" }}>
                     {/* 공간 안내 */}
-                    <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "1.75rem" }}>
-                        <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#854d0e" }}>VENUES</span>
-                        <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "0.3rem 0 1rem 0" }}>세종의 대표 무대</h3>
+                    <div style={{ background: "var(--surface-default)", border: "1px solid var(--border-default)", borderRadius: "12px", padding: "1.75rem" }}>
+                        <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-secondary)", letterSpacing: "0.08em" }}>VENUES</span>
+                        <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--text-primary)", margin: "0.3rem 0 1rem 0" }}>세종의 대표 무대</h3>
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                             {VENUES.slice(0, 4).map((venue: any) => (
                                 <Link
@@ -105,26 +120,27 @@ export default function HomePage() {
                                         justifyContent: "space-between",
                                         alignItems: "center",
                                         padding: "0.75rem",
-                                        background: "#f8fafc",
+                                        background: "var(--surface-subtle)",
+                                        border: "1px solid var(--border-default)",
                                         borderRadius: "8px",
                                         textDecoration: "none",
                                         color: "inherit",
                                     }}
                                 >
                                     <div>
-                                        <strong style={{ fontSize: "0.95rem" }}>{venue.name}</strong>
-                                        <span style={{ fontSize: "0.8rem", color: "#64748b", marginLeft: "0.5rem" }}>{venue.capacity}석</span>
+                                        <strong style={{ fontSize: "0.95rem", color: "var(--text-primary)" }}>{venue.name}</strong>
+                                        <span style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginLeft: "0.5rem" }}>{venue.capacity}석</span>
                                     </div>
-                                    <span style={{ fontSize: "0.85rem", color: "#0284c7", fontWeight: 600 }}>상세보기 →</span>
+                                    <span style={{ fontSize: "0.85rem", color: "var(--text-primary)", fontWeight: 600 }}>상세보기 →</span>
                                 </Link>
                             ))}
                         </div>
                     </div>
 
                     {/* 공지사항 */}
-                    <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "1.75rem" }}>
-                        <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#0369a1" }}>NOTICE</span>
-                        <h3 style={{ fontSize: "1.3rem", fontWeight: 800, margin: "0.3rem 0 1rem 0" }}>주요 소식</h3>
+                    <div style={{ background: "var(--surface-default)", border: "1px solid var(--border-default)", borderRadius: "12px", padding: "1.75rem" }}>
+                        <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--text-secondary)", letterSpacing: "0.08em" }}>NOTICE</span>
+                        <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--text-primary)", margin: "0.3rem 0 1rem 0" }}>주요 소식</h3>
                         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                             {NOTICES.slice(0, 4).map((notice: any) => (
                                 <Link
@@ -135,15 +151,15 @@ export default function HomePage() {
                                         justifyContent: "space-between",
                                         alignItems: "center",
                                         padding: "0.75rem",
-                                        borderBottom: "1px solid #f1f5f9",
+                                        borderBottom: "1px solid var(--border-default)",
                                         textDecoration: "none",
                                         color: "inherit",
                                     }}
                                 >
-                                    <span style={{ fontSize: "0.9rem", color: "#1e293b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "70%" }}>
+                                    <span style={{ fontSize: "0.9rem", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "70%" }}>
                                         {notice.title}
                                     </span>
-                                    <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>{notice.date}</span>
+                                    <span style={{ fontSize: "0.75rem", color: "var(--text-secondary)" }}>{notice.date}</span>
                                 </Link>
                             ))}
                         </div>

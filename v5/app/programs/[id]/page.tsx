@@ -18,6 +18,10 @@ export default function ProgramDetailPage({
     const program = (PROGRAMS as unknown as Program[]).find((p) => String(p.id) === params.id);
     if (!program) notFound();
 
+    const imagePath = program.image
+        ? `/v5/${program.image.replace(/^\/?(v5\/)?/, "")}`
+        : `/v5/assets/images/poster-${program.id}.svg`;
+
     return (
         <div className="container" style={{ padding: "3rem 1.5rem 6rem", maxWidth: "1000px", margin: "0 auto" }}>
             <nav className="breadcrumbs" aria-label="현재 위치" style={{ marginBottom: "1.5rem", display: "flex", gap: "0.5rem", color: "var(--text-secondary)", fontSize: "0.875rem" }}>
@@ -34,9 +38,15 @@ export default function ProgramDetailPage({
                     <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid var(--border-default)", boxShadow: "0 4px 12px rgba(0,0,0,0.06)" }}>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                            src={`/v5/assets/images/${program.poster}`}
+                            src={imagePath}
                             alt={program.title}
                             style={{ width: "100%", height: "auto", display: "block" }}
+                            onError={(e) => {
+                                const target = e.currentTarget;
+                                if (target.src.includes("/v5/assets/")) {
+                                    target.src = target.src.replace("/v5/assets/", "/assets/");
+                                }
+                            }}
                         />
                     </div>
                 </div>
