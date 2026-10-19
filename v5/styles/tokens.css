@@ -66,6 +66,8 @@
     --sky: var(--color-sky);
     --earth: var(--color-ochre);
     --human: var(--color-yellow);
+    --yellow: var(--human);
+    --yellow-dark: color-mix(in srgb, var(--human) 90%, #000000);
 
     /* 상태 피드백: 불필요한 원색 형광을 배제하고 브랜드 및 그레이 톤으로 정합 */
     --semantic-success: var(--text-primary);
@@ -81,10 +83,22 @@
     --semantic-info-subtle: var(--surface-subtle);
     --semantic-info-border: var(--border-default);
 
-    /* 서체 및 반응형 스케일 */
-    --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    /* 레이아웃 & 반응형 여백 & 곡률 & 애니메이션 토큰 */
+    --container: 1320px;
+    --page-gutter: clamp(20px, 4vw, 64px);
+    --section-gap: clamp(72px, 8vw, 128px);
+
+    --radius: clamp(8px, 0.85vw, 12px);
+    --radius-media: clamp(10px, 1.1vw, 16px);
+    --radius-banner: clamp(14px, 1.4vw, 22px);
     --radius-sm: 2px;
     --radius-md: 4px;
     --radius-lg: 8px;
     --radius-pill: 9999px;
+
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+    --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    --font-sans: var(--font);
+    --display-font: var(--font);
 }
