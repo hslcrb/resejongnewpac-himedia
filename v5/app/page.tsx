@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PROGRAMS, NOTICES } from "../src/data/catalog";
 import ProgramCard from "../components/ProgramCard";
 import Icon from "../components/Icon";
+import VioletQuickMenu from "../components/VioletQuickMenu";
 import {
     seoulToday,
     monthDates,
@@ -109,6 +110,7 @@ export default function HomePage() {
     const [dragX, setDragX] = useState(0);
     const [isMoving, setIsMoving] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
+    const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
     const [progress, setProgress] = useState(0);
     const stageRef = useRef<HTMLDivElement>(null);
 
@@ -132,7 +134,7 @@ export default function HomePage() {
 
     // 캐러셀 자동 재생 (3500ms)
     useEffect(() => {
-        if (isPaused || isMoving) return;
+        if (isPaused || isMoving || isQuickMenuOpen) return;
         const interval = 50;
         const totalDuration = 3500;
         const timer = setInterval(() => {
@@ -146,7 +148,7 @@ export default function HomePage() {
         }, interval);
 
         return () => clearInterval(timer);
-    }, [isPaused, isMoving, heroActive]);
+    }, [isPaused, isMoving, heroActive, isQuickMenuOpen]);
 
     // 3. 캘린더 빠른 예매 위젯 상태
     const [bookingDate, setBookingDate] = useState(today);
@@ -368,6 +370,8 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
+
+            <VioletQuickMenu heroId="featured-season" onOpenChange={setIsQuickMenuOpen} />
 
             {/* 2. 목적별 빠른 진입 (Quick Pathways) */}
             <nav className="home-pathways container" aria-label="이용 목적별 바로가기">
