@@ -11,9 +11,31 @@ import { renderUtilities, bindUtilities } from "./features/utilities.js";
 import { renderGoods, bindGoods } from "./features/goods.js";
 import { renderStory, bindStory } from "./features/story.js";
 import { renderJourneys, bindJourneys } from "./features/journeys.js";
+import { onAuthStateChange } from "./lib/supabase.js";
 
 export function initSejongApp() {
     if (typeof window === "undefined") return;
+
+    // Supabase Auth 상태 동기화 (Google OAuth 로그인 등)
+    onAuthStateChange((event, session) => {
+        if (session && session.user) {
+            const user = session.user;
+            const meta = user.user_metadata || {};
+            const name = meta.full_name || meta.name || user.email?.split("@")[0] || "회원";
+            const email = user.email || "";
+            const phone = meta.phone || "";
+
+            writeStore("session", { active: true, user_id: user.id });
+            writeStore("profile", { name, email, phone });
+            
+            // 만약 현재 OAuth 콜백 해시 처리 중이거나 계정 페이지라면 렌더링 갱신
+            if (event === "SIGNED_IN") {
+                toast(`${name}님, Google 계정으로 로그인되었습니다.`);
+            }
+        } else if (event === "SIGNED_OUT") {
+            writeStore("session", { active: false });
+        }
+    });
 
     const main = document.querySelector("#main");
     const head = document.querySelector("#header");
