@@ -79,3 +79,71 @@ export function onAuthStateChange(callback) {
     });
     return () => subscription.unsubscribe();
 }
+
+/**
+ * -----------------------------------------------------------------------------
+ * Supabase 데이터베이스 (PostgreSQL) 연동 헬퍼
+ * -----------------------------------------------------------------------------
+ */
+
+// 1. 프로필 정보 동기화 (profiles 테이블)
+export async function syncUserProfile(profileData) {
+    if (!supabase) return null;
+    const user = await getCurrentUser();
+    if (!user) return null;
+
+    const { data, error } = await supabase
+        .from("profiles")
+        .upsert({
+            id: user.id,
+            email: user.email,
+            name: profileData.name || "",
+            phone: profileData.phone || "",
+            updated_at: new Date().toISOString(),
+        }, { onConflict: "id" })
+        .select()
+        .single();
+
+    if (error) console.warn("Supabase 프로필 동기화 안내:", error.message);
+    return data;
+}
+
+// 2. 예매 내역 저장 (bookings 테이블)
+export async function saveBookingToDb(booking) {
+    if (!supabase) return null;
+    const user = await getCurrentUser();
+
+    const { data, error } = await supabase
+        .from("bookings")
+        .insert([{
+            ...booking,
+            user_id: user?.id || null,
+            created_at: new Date().toISOString(),
+        }])
+        .select()
+        .single();
+
+    if (error) console.warn("Supabase 예매 저장 안내:", error.message);
+    return data;
+}
+
+// 3. 관심 프로그램 (favorites 테이블) 동기화
+export async function syncFavoritesToDb(programIds) {
+    if (!supabase) return null;
+    const user = await getCurrentUser();
+    if (!user) return null;
+
+    const { data, error } = await supabase
+        .from("favorites")
+        .upsert({
+            user_id: user.id,
+            program_ids: programIds,
+            updated_at: new Date().toISOString(),
+        }, { onConflict: "user_id" })
+        .select()
+        .single();
+
+    if (error) console.warn("Supabase 관심목록 동기화 안내:", error.message);
+    return data;
+}
+
