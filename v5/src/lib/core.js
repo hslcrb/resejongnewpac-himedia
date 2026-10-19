@@ -9,8 +9,17 @@ export const esc = (value) =>
     );
 export const href = (path) => "#" + (path.startsWith("/") ? path : "/" + path);
 export function getRoute() {
-    const raw =
-        typeof location === "undefined" ? "/" : location.hash.slice(1) || "/";
+    let raw = "/";
+    if (typeof location !== "undefined") {
+        if (location.hash && location.hash.startsWith("#/")) {
+            raw = location.hash.slice(1);
+        } else if (location.pathname) {
+            let p = location.pathname.replace(/^\/v5/, "").replace(/\/index\.html$/, "");
+            if (p && p !== "/") {
+                raw = p + (location.search || "");
+            }
+        }
+    }
     const i = raw.indexOf("?");
     return {
         path: decodeURI(i < 0 ? raw : raw.slice(0, i)).replace(/\/$/, "") || "/",

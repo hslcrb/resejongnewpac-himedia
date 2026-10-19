@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node -e \"import('fs').then(fs => fs.copyFileSync('out/index.html', 'index.html'))\"",
     "start": "next start"
   },
   "dependencies": {

@@ -108,7 +108,7 @@ export function initSejongApp() {
         let path = "/";
         let query = new URLSearchParams();
         try {
-            if (location.hash.startsWith("#/")) ({ path, query } = getRoute());
+            ({ path, query } = getRoute());
         } catch {
             path = "/not-found";
         }
