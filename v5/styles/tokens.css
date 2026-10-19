@@ -7,63 +7,84 @@
 }
 
 :root {
-    /* [세종 아이덴티티: 천지인 삼재 컬러 시스템] */
-    --color-cheon: #54c8e8; /* 천 (Sky): 예술적 영감과 맑은 하늘 */
-    --color-ji: #c36d15;    /* 지 (Earth): 유구한 대지와 무대의 품격 */
-    --color-in: #ffe800;    /* 인 (Human): 시민과 예술가의 생명력 */
+    /* =========================================================================
+       01. Primitives: 기존 5색 + 신규 중립색 3색 (색상 원본값)
+       ========================================================================= */
+    --color-black: #000000;
+    --color-sky: #54C8E8;
+    --color-yellow: #FFE800;
+    --color-ochre: #C36D15;
+    --color-white: #FFFFFF;
+    --color-gray-050: #F7F7F5;
+    --color-gray-300: #D9D9D4;
+    --color-gray-600: #626262;
 
-    /* [기본 심볼릭 매핑] */
-    --sky: var(--color-cheon);
-    --earth: var(--color-ji);
-    --human: var(--color-in);
+    /* =========================================================================
+       02. Semantic: 원본 색을 var()로 참조하는 20개 역할 변수
+       ========================================================================= */
+    --background-page: var(--color-gray-050);
+    --surface-default: var(--color-white);
+    --surface-subtle: var(--color-gray-050);
+    --surface-inverse: var(--color-black);
 
-    /* [Brand Designer 60/30/10 & UI Pro Max Semantic Tokens] */
-    /* 60% Neutral Layer (Background, Surface, Text) */
-    --paper: #ffffff;
-    --paper-subtle: #f8fafc;
-    --soft: #f5f6f8;
-    --ink: #0f172a;        /* 깊은 먹색 (가독성 WCAG AAA 통과) */
-    --ink-secondary: #334155;
-    --muted: #64748b;       /* 보조 안내 텍스트 (대비 4.5:1 이상) */
-    --line: #e2e8f0;        /* 구분선 및 보더 */
-    --line-subtle: #f1f5f9;
+    --text-primary: var(--color-black);
+    --text-secondary: var(--color-gray-600);
+    --text-inverse: var(--color-white);
+    --text-on-brand: var(--color-black);
 
-    /* 30% Primary & Structural Layer */
-    --primary: #18181b;     /* 현대적 공연예술 아카이브 블랙 */
-    --primary-foreground: #ffffff;
-    --brand-blue: #0284c7;  /* 링크 및 상호작용 강조 (천(天) 계열 고대비) */
+    --border-default: var(--color-gray-300);
+    --border-strong: var(--color-gray-600);
+    --border-focus: var(--color-black);
 
-    /* 10% Accent & Semantic Feedback Layer */
-    --accent: var(--human); /* 세종 시그니처 포인트 옐로우 */
-    --accent-foreground: #0f172a;
-    --accent-hover: #facc15;
-    --yellow: var(--human);
-    --yellow-dark: #ca8a04;
+    --action-primary: var(--color-black);
+    --action-primary-hover: var(--color-gray-600);
+    --action-secondary: var(--color-sky);
+    --action-tertiary: var(--color-white);
+    --action-disabled: var(--color-gray-300);
+    --action-disabled-text: var(--color-gray-600);
 
-    /* [상태 및 피드백 / Semantic Status Tokens: 눈이 편안한 뮤티드 톤 & 틴트 배경] */
-    --semantic-success: #15803d;        /* 신뢰감 있는 딥 포레스트 그린 (원색 형광 배제) */
-    --semantic-success-subtle: #f0fdf4; /* 성공/완료 연한 배경 틴트 */
-    --semantic-success-border: #bbf7d0; /* 성공 경계선 */
+    --accent-highlight: var(--color-yellow);
+    --accent-heritage: var(--color-ochre);
+    --accent-information: var(--color-sky);
 
-    --semantic-warning: #c2410c;        /* 차분한 테라코타 오렌지 (지(地)의 연장선) */
-    --semantic-warning-subtle: #fff7ed; /* 경고 연한 배경 틴트 */
-    --semantic-warning-border: #fed7aa;
+    /* =========================================================================
+       03. UI 컴포넌트 호환 Alias (sejong-color-guide.html 토큰 기반 연동)
+       ========================================================================= */
+    --paper: var(--surface-default);
+    --paper-subtle: var(--surface-subtle);
+    --soft: var(--background-page);
+    --ink: var(--text-primary);
+    --ink-secondary: var(--text-secondary);
+    --muted: var(--text-secondary);
+    --line: var(--border-default);
+    --line-subtle: var(--border-default);
 
-    --semantic-error: #b91c1c;          /* 우아하고 깊이 있는 와인 레드 (눈 찌르는 형광 빨강 지양) */
-    --semantic-error-subtle: #fef2f2;   /* 오류/주의 연한 배경 틴트 */
-    --semantic-error-border: #fecaca;   /* 오류 경계선 */
+    --primary: var(--action-primary);
+    --primary-foreground: var(--text-inverse);
+    --accent: var(--accent-highlight);
+    --accent-foreground: var(--text-on-brand);
+    --sky: var(--color-sky);
+    --earth: var(--color-ochre);
+    --human: var(--color-yellow);
 
-    --semantic-info: #0369a1;           /* 지적인 덜블루 (천(天)의 정제된 톤) */
-    --semantic-info-subtle: #f0f9ff;    /* 정보 안내 연한 배경 틴트 */
-    --semantic-info-border: #bae6fd;
+    /* 상태 피드백: 불필요한 원색 형광을 배제하고 브랜드 및 그레이 톤으로 정합 */
+    --semantic-success: var(--text-primary);
+    --semantic-success-subtle: var(--surface-subtle);
+    --semantic-success-border: var(--border-strong);
+    --semantic-error: var(--color-black);
+    --semantic-error-subtle: var(--surface-subtle);
+    --semantic-error-border: var(--border-strong);
+    --semantic-warning: var(--color-ochre);
+    --semantic-warning-subtle: var(--surface-subtle);
+    --semantic-warning-border: var(--border-default);
+    --semantic-info: var(--color-sky);
+    --semantic-info-subtle: var(--surface-subtle);
+    --semantic-info-border: var(--border-default);
 
     /* 서체 및 반응형 스케일 */
-    --font: "Pretendard Variable", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-    --display-font: var(--font);
-    --radius: clamp(8px, 0.85vw, 12px);
-    --radius-media: clamp(10px, 1.1vw, 16px);
-    --radius-banner: clamp(14px, 1.4vw, 22px);
-    --page-gutter: clamp(20px, 4vw, 64px);
-    --section-gap: clamp(72px, 8vw, 128px);
-    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    --radius-sm: 2px;
+    --radius-md: 4px;
+    --radius-lg: 8px;
+    --radius-pill: 9999px;
 }

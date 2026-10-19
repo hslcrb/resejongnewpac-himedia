@@ -60,19 +60,26 @@ export interface PageMeta {
 }
 
 export interface FigmaPrimitiveToken {
-    group: string;
-    origin: "기존 브랜드" | "신규 제안";
     name: string;
     hex: string;
+    role?: string;
+    origin: string;
+    title?: string;
     desc: string;
+    sample?: string;
+    ink?: string;
+    [key: string]: any;
 }
 
 export interface FigmaSemanticToken {
-    collection: string;
+    group?: string;
+    collection?: string;
     name: string;
-    primitiveRef: string;
+    alias?: string;
+    primitiveRef?: string;
     hex: string;
     usage: string;
+    [key: string]: any;
 }
 
 export interface UserProfile {
