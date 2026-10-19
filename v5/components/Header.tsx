@@ -90,10 +90,10 @@ export default function Header() {
                 </nav>
 
                 <div className="masthead-actions">
-                    <Link href="/account" className="account-link">
+                    <Link href="/account/login" className="account-link">
                         로그인
                     </Link>
-                    <Link href="/account" className="account-link signup-link">
+                    <Link href="/account/signup" className="account-link signup-link">
                         회원가입
                     </Link>
                     <Link href="/english" className="english-link" lang="en">
