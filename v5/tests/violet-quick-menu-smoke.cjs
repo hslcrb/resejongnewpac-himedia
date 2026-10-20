@@ -39,12 +39,14 @@ async function instrument(context, label) {
       measurement.frame = timestamp;
       callback(timestamp);
     });
-    for (const name of ['drawImage', 'quadraticCurveTo', 'stroke', 'createRadialGradient']) {
+    for (const name of ['drawImage', 'moveTo', 'quadraticCurveTo', 'fill', 'stroke', 'createRadialGradient']) {
       const method = CanvasRenderingContext2D.prototype[name];
       CanvasRenderingContext2D.prototype[name] = function (...args) {
         if (measurement.calls.length < 50000) measurement.calls.push({
           name, frame: measurement.frame, connected: this.canvas.isConnected,
           violet: !!this.canvas.closest?.('[data-violet-menu]'),
+          ...(name === 'moveTo' ? { point: args } : {}),
+          ...(name === 'drawImage' ? { origin: args.slice(1, 3), matrix: [this.getTransform().b, this.getTransform().c, this.getTransform().e, this.getTransform().f] } : {}),
         });
         return method.apply(this, args);
       };
@@ -92,25 +94,40 @@ async function main() {
     const page = await desktop.newPage();
     await load(page);
     await open(page);
-    await check('desktop cached fur steady frames', async () => {
+    await check('desktop fixed fur roots and bounded live tuft painting', async () => {
       await page.evaluate(() => window.__violetCanvasQA.calls = []);
       await page.waitForTimeout(650);
       const calls = await page.evaluate(() => window.__violetCanvasQA.calls);
       const visibleCalls = calls.filter(call => call.violet);
       const draws = visibleCalls.filter(call => call.name === 'drawImage');
       const curves = calls.filter(call => call.name === 'quadraticCurveTo');
+      const roots = visibleCalls.filter(call => call.name === 'moveTo');
       const strokes = calls.filter(call => call.name === 'stroke');
       const gradients = calls.filter(call => call.name === 'createRadialGradient');
       const perFrame = new Map();
       draws.forEach(call => perFrame.set(call.frame, (perFrame.get(call.frame) || 0) + 1));
       assert.ok(draws.length > 0, 'Open animated fur should draw cached frames');
-      assert.equal(curves.length, 0, 'Steady frames must reuse fur geometry');
-      assert.equal(strokes.length, 0, 'Steady frames must not restroke strands');
+      assert.ok(curves.length > 0, 'A bounded live tuft layer should bend above the dense cached coat');
+      assert.equal(strokes.length, 0, 'The dense coat must not be redrawn as individual strokes');
       assert.equal(gradients.length, 0, 'Steady frames must reuse cached gradients');
+      assert.ok(draws.every(call => call.origin.every(value => value === 0) && call.matrix.every(value => value === 0)), 'The cached sphere must not translate or rotate as one bitmap');
+      const rootsByFrame = new Map();
+      roots.forEach(call => { if (!rootsByFrame.has(call.frame)) rootsByFrame.set(call.frame, []); rootsByFrame.get(call.frame).push(call.point); });
+      const rootSamples = [...rootsByFrame.values()];
+      assert.ok(rootSamples.length > 1 && rootSamples[0].length > 0);
+      rootSamples.slice(1).forEach(points => assert.deepEqual(points, rootSamples[0], 'Every live tuft root must remain fixed across frames'));
+      const maximumCalls = name => {
+        const counts = new Map();
+        visibleCalls.filter(call => call.name === name).forEach(call => counts.set(call.frame, (counts.get(call.frame) || 0) + 1));
+        return Math.max(0, ...counts.values());
+      };
+      const maxCurvesPerFrame = maximumCalls('quadraticCurveTo');
+      const maxFillsPerFrame = maximumCalls('fill');
+      assert.ok(maxCurvesPerFrame <= 1200 && maxFillsPerFrame <= 12, 'Only the small anchored layer may be painted live');
       const maxDrawsPerFrame = Math.max(...perFrame.values());
       assert.ok(maxDrawsPerFrame <= 6, `Expected a few cached layers/frame, observed ${maxDrawsPerFrame}`);
       await page.screenshot({ path: path.join(reportDir, 'desktop-open.png') });
-      return { sampledMilliseconds: 650, drawnFrames: perFrame.size, maxDrawsPerFrame, curves: curves.length, strokes: strokes.length, gradients: gradients.length };
+      return { sampledMilliseconds: 650, drawnFrames: perFrame.size, maxDrawsPerFrame, maxCurvesPerFrame, maxFillsPerFrame, fixedRoots: rootSamples[0].length, strokes: strokes.length, gradients: gradients.length };
     });
     await check('desktop quick scroll fades out and back in', async () => {
       const geometry = await page.locator('#featured-season').evaluate(hero => {

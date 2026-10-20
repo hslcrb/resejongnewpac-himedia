@@ -26,12 +26,12 @@
 .horizon {
     position: absolute;
     inset: auto 0 0;
-    height: clamp(150px, 25vh, 245px);
+    height: clamp(170px, 27vh, 265px);
     overflow: hidden;
-    background: linear-gradient(0deg, rgb(99 9 218 / 90%) 0%, rgb(111 21 225 / 56%) 24%, rgb(171 95 244 / 24%) 52%, transparent 100%);
-    opacity: .9;
+    background: radial-gradient(ellipse at 50% 118%, rgb(163 101 229 / 27%), transparent 68%), linear-gradient(0deg, rgb(155 96 224 / 38%) 0%, rgb(181 136 236 / 16%) 28%, rgb(216 187 247 / 5%) 58%, transparent 92%);
+    opacity: .95;
     transition: height .6s ease, opacity .6s ease;
-    mask-image: linear-gradient(0deg, #000 0%, #000 28%, transparent 100%);
+    mask-image: linear-gradient(0deg, #000 0%, #000 18%, transparent 100%);
 }
 
 .horizon::before, .horizon::after, .ribbon {
@@ -40,26 +40,26 @@
     width: 160%;
     height: 180%;
     left: -30%;
-    bottom: -108%;
+    bottom: -114%;
     border-radius: 48% 44% 0 0;
-    background: radial-gradient(ellipse at 50% 0%, #dba4ff 0%, #a02df2 23%, #6907d9 56%, transparent 72%);
-    filter: blur(24px);
-    animation: horizonFlow 12s ease-in-out infinite alternate;
+    background: radial-gradient(ellipse at 48% 0%, rgb(222 189 255 / 34%) 0%, rgb(170 111 231 / 24%) 29%, rgb(142 87 207 / 9%) 49%, transparent 70%);
+    filter: blur(30px);
+    animation: horizonFlow 23s ease-in-out infinite alternate;
     will-change: transform;
 }
 
 .horizon::after {
-    left: -45%;
-    bottom: -117%;
-    opacity: .7;
-    background: radial-gradient(ellipse at 65% 0%, #f1ccff 0%, #ba4dff 18%, #7023db 48%, transparent 70%);
-    animation-duration: 17s;
-    animation-delay: -8s;
+    left: -48%;
+    bottom: -122%;
+    opacity: .65;
+    background: radial-gradient(ellipse at 65% 0%, rgb(232 218 255 / 30%) 0%, rgb(178 151 239 / 24%) 25%, rgb(150 113 217 / 8%) 48%, transparent 72%);
+    animation-duration: 31s;
+    animation-delay: -13s;
     animation-direction: alternate-reverse;
 }
 
-.ribbon { left: -5%; bottom: -120%; opacity: .8; animation-duration: 21s; animation-delay: -4s; }
-.experience[data-state="open"] .horizon { height: min(460px, 67vh); opacity: 1; }
+.ribbon { left: -4%; bottom: -120%; opacity: .65; background: radial-gradient(ellipse at 35% 0%, rgb(239 216 255 / 35%), rgb(182 141 229 / 16%) 37%, transparent 68%); animation-duration: 37s; animation-delay: -21s; }
+.experience[data-state="open"] .horizon { height: min(430px, 64vh); opacity: .98; }
 
 .dock {
     position: absolute;
@@ -130,15 +130,15 @@
 .flow, .luster { position: absolute; inset: -35%; pointer-events: none; }
 
 .flow {
-    background: conic-gradient(from 40deg, #3e098c, #8722e8 18%, #db87ff 29%, #9112e7 42%, #47019c 61%, #b439fa 80%, #3e098c);
+    background: radial-gradient(ellipse at 27% 24%, rgb(204 128 248 / 76%), transparent 43%), radial-gradient(ellipse at 73% 68%, rgb(81 20 155 / 65%), transparent 52%), radial-gradient(ellipse at 64% 24%, rgb(156 76 221 / 58%), transparent 48%);
     filter: blur(18px);
-    animation: violetFlow 19s linear infinite;
+    animation: violetBloom 31s ease-in-out infinite alternate;
 }
 
 .luster {
-    background: radial-gradient(ellipse at 32% 28%, rgb(245 191 255 / 88%), transparent 38%), radial-gradient(ellipse at 65% 75%, #ae21fa, transparent 50%), radial-gradient(ellipse at 60% 20%, #5f05d4, transparent 55%);
-    mix-blend-mode: screen;
-    animation: violetLuster 11s ease-in-out infinite alternate;
+    background: radial-gradient(ellipse at 32% 28%, rgb(234 200 252 / 44%), transparent 43%), radial-gradient(ellipse at 65% 75%, rgb(179 117 226 / 34%), transparent 51%), radial-gradient(ellipse at 66% 20%, rgb(96 44 175 / 32%), transparent 55%);
+    mix-blend-mode: soft-light;
+    animation: violetUndertow 43s ease-in-out -17s infinite alternate;
     filter: blur(13px);
 }
 
@@ -151,8 +151,10 @@
 }
 
 .fur { position: absolute; width: 130%; height: 130%; top: -15%; left: -15%; pointer-events: none; z-index: -1; }
-.coatLight { position: absolute; inset: 0; overflow: hidden; border-radius: 50%; z-index: -1; pointer-events: none; mix-blend-mode: soft-light; }
-.coatLight::before { content: ""; position: absolute; inset: -35%; background: conic-gradient(from 40deg, transparent, rgb(231 179 255 / 65%) 24%, transparent 43%, rgb(103 12 201 / 55%) 63%, transparent 84%); filter: blur(15px); animation: violetFlow 19s linear infinite; }
+.coatLight { position: absolute; inset: 0; overflow: hidden; border-radius: 50%; z-index: -1; pointer-events: none; mix-blend-mode: soft-light; background: radial-gradient(circle at var(--light-x, 35%) var(--light-y, 28%), rgb(236 204 255 / 9%), transparent 58%); }
+.coatLight::before, .coatLight::after { content: ""; position: absolute; inset: -27%; filter: blur(19px); }
+.coatLight::before { background: radial-gradient(ellipse at 29% 28%, rgb(231 190 255 / 43%), transparent 40%), radial-gradient(ellipse at 72% 66%, rgb(119 66 186 / 36%), transparent 48%), radial-gradient(ellipse at 77% 22%, rgb(188 154 242 / 24%), transparent 43%); animation: violetBloom 29s ease-in-out -7s infinite alternate; }
+.coatLight::after { background: radial-gradient(ellipse at 63% 30%, rgb(203 175 250 / 28%), transparent 39%), radial-gradient(ellipse at 34% 74%, rgb(129 64 188 / 25%), transparent 45%); animation: violetUndertow 41s ease-in-out -23s infinite alternate; }
 .rotor { position: absolute; inset: 0; transform: rotate(var(--rotation, 0deg)); transition: transform .65s cubic-bezier(.2, .75, .2, 1); }
 .wheel[data-dragging="true"] .rotor, .wheel[data-dragging="true"] .menuLink { transition: none; }
 .slices { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
@@ -254,8 +256,9 @@
 }
 
 .toggle .art { box-shadow: inset 0 1px 2px rgb(255 255 255 / 30%); }
-.toggle .flow { animation-duration: 13s; filter: blur(5px); }
+.toggle .flow { animation-duration: 37s; filter: blur(5px); }
 .toggle .luster { filter: blur(7px); }
+.toggle .coatLight::before, .toggle .coatLight::after { filter: blur(7px); }
 .toggleLabel { display: flex; flex-direction: column; align-items: center; gap: 7px; font-size: 9px; font-weight: 600; letter-spacing: .17em; text-shadow: 0 1px 8px #6509b3; }
 .spark { width: 23px; height: 23px; overflow: visible; }
 .closedHint { position: absolute; bottom: -14px; left: 50%; width: max-content; transform: translateX(-50%); font-size: 10px; font-weight: 500; line-height: 1; color: #fff; letter-spacing: .02em; text-shadow: 0 1px 8px #5804a6; transition: opacity .2s; }
@@ -280,15 +283,15 @@
 .experience[data-placement="inline"] .horizon { height: 180px; }
 .experience[data-placement="inline"][data-state="open"] .horizon { height: min(460px, 75%); }
 
-@keyframes horizonFlow { from { transform: translate3d(-6%, 4%, 0) rotate(-3deg) scaleX(.94); } to { transform: translate3d(7%, -6%, 0) rotate(4deg) scaleX(1.08); } }
-@keyframes violetFlow { to { transform: rotate(360deg); } }
-@keyframes violetLuster { from { transform: translate(-6%, 3%) rotate(-12deg) scale(1); } to { transform: translate(8%, -5%) rotate(28deg) scale(1.15); } }
+@keyframes horizonFlow { 0% { transform: translate3d(-3%, 2%, 0) scaleX(.98); } 47% { transform: translate3d(1%, -1%, 0) scaleX(1.02); } 100% { transform: translate3d(4%, 1%, 0) scaleX(.99); } }
+@keyframes violetBloom { 0% { transform: translate3d(-4%, 2%, 0) rotate(-7deg) scale(1.02); } 38% { transform: translate3d(3%, -3%, 0) rotate(2deg) scale(1.06); } 72% { transform: translate3d(-1%, 4%, 0) rotate(6deg) scale(1.01); } 100% { transform: translate3d(5%, 1%, 0) rotate(-2deg) scale(1.04); } }
+@keyframes violetUndertow { 0% { transform: translate3d(4%, -3%, 0) rotate(5deg) scale(1.04); } 43% { transform: translate3d(-3%, 2%, 0) rotate(-4deg) scale(1.01); } 78% { transform: translate3d(2%, 4%, 0) rotate(2deg) scale(1.06); } 100% { transform: translate3d(-4%, -1%, 0) rotate(-6deg) scale(1.02); } }
 
 @media (max-width: 600px) {
     .experience { --menu-size: min(332px, calc(100vw - 38px), calc(100svh - 176px)); }
     .dock { bottom: max(24px, env(safe-area-inset-bottom)); height: calc(var(--menu-size) + 76px); }
     .toggle { width: 76px; height: 76px; }
-    .horizon { height: 165px; }
+    .horizon { height: 180px; }
     .menuLink { width: 76px; height: 56px; margin: -28px 0 0 -38px; }
     .menuLabel { font-size: 12px; gap: 4px; }
     .menuLabel svg { width: 21px; height: 21px; }
@@ -328,7 +331,7 @@
 
 @media (prefers-reduced-motion: reduce) {
     .experience, .experience *, .experience *::before, .experience *::after { animation: none !important; transition: none !important; }
-    .flow { transform: rotate(35deg); }
+    .flow { transform: translate3d(-2%, 1%, 0); }
 }
 
 @media (forced-colors: active) {

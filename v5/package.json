@@ -11,7 +11,9 @@
     "start": "next start",
     "test:orb": "node tests/violet-quick-menu.cjs",
     "test:orb:gallery": "node tests/violet-quick-menu-gallery.cjs",
-    "test:orb:smoke": "node tests/violet-quick-menu-smoke.cjs"
+    "test:orb:smoke": "node tests/violet-quick-menu-smoke.cjs",
+    "test:orb:motion": "node tests/violet-fur-motion.cjs",
+    "test:home:anchors": "node tests/home-anchors.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

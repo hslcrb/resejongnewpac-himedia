@@ -89,7 +89,8 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
     const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const suppressClickUntil = useRef(0);
-    const interaction = useRef<VioletInteraction>({ x: -.3, y: -.5, energy: 0 });
+    const interaction = useRef<VioletInteraction>({ x: -.3, y: -.5, energy: 0, velocityX: 0, velocityY: 0, spin: 0, lastInput: 0, active: false });
+    const interactionSurface = useRef<EventTarget | null>(null);
     const selected = selectedAt(rotation);
     const current = items[selected];
 
@@ -109,6 +110,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
         const gesture = gestureRef.current;
         if (!gesture) return;
         gestureRef.current = null;
+        interaction.current.active = false;
         setDragging(false);
         if (gesture.dragged) {
             suppressClickUntil.current = performance.now() + 450;
@@ -127,6 +129,11 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
         openRef.current = false;
         pinnedRef.current = false;
         hoverBlockedRef.current = blockHover;
+        interaction.current.active = false;
+        interaction.current.velocityX = 0;
+        interaction.current.velocityY = 0;
+        interaction.current.spin = 0;
+        interactionSurface.current = null;
         setOpen(false);
         if (restoreFocus) toggleRef.current?.focus({ preventScroll: true });
     }, [clearTimers, finishGesture]);
@@ -220,7 +227,12 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
     }, [open, closeMenu]);
 
     const selectItem = (index: number, focus = false) => {
-        changeRotation(rotationRef.current + angleDelta(rotationRef.current, -index * STEP));
+        const delta = angleDelta(rotationRef.current, -index * STEP);
+        changeRotation(rotationRef.current + delta);
+        if (Math.abs(delta) > .01) {
+            interaction.current.spin = Math.max(-.5, Math.min(.5, delta / 120));
+            interaction.current.lastInput = performance.now();
+        }
         if (focus) linksRef.current[index]?.focus({ preventScroll: true });
     };
 
@@ -241,9 +253,34 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
         selectItem(next, true);
     };
 
+    const trackSurfacePointer = (event: React.PointerEvent<HTMLElement>, reset = false, bounds?: DOMRect) => {
+        if (!event.isPrimary) return;
+        const rect = bounds || event.currentTarget.getBoundingClientRect();
+        const x = Math.max(-1, Math.min(1, (event.clientX - rect.left) / Math.max(1, rect.width) * 2 - 1));
+        const y = Math.max(-1, Math.min(1, (event.clientY - rect.top) / Math.max(1, rect.height) * 2 - 1));
+        const now = performance.now();
+        const pointer = interaction.current;
+        const continuous = !reset && interactionSurface.current === event.currentTarget && now - pointer.lastInput < 120;
+        const elapsed = Math.max(8, now - pointer.lastInput);
+        const velocityX = continuous ? Math.max(-8, Math.min(8, (x - pointer.x) * 1000 / elapsed)) : 0;
+        const velocityY = continuous ? Math.max(-8, Math.min(8, (y - pointer.y) * 1000 / elapsed)) : 0;
+        pointer.velocityX = continuous ? pointer.velocityX * .4 + velocityX * .6 : 0;
+        pointer.velocityY = continuous ? pointer.velocityY * .4 + velocityY * .6 : 0;
+        pointer.x = x;
+        pointer.y = y;
+        pointer.lastInput = now;
+        pointer.active = true;
+        pointer.energy = Math.min(1, Math.hypot(pointer.velocityX, pointer.velocityY) / 8);
+        if (!gestureRef.current) pointer.spin = 0;
+        interactionSurface.current = event.currentTarget;
+        event.currentTarget.style.setProperty("--light-x", `${(x + 1) * 50}%`);
+        event.currentTarget.style.setProperty("--light-y", `${(y + 1) * 50}%`);
+    };
+
     const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
         if (!event.isPrimary || event.button !== 0 || gestureRef.current || (event.target as Element).closest("[data-no-drag]")) return;
         const bounds = event.currentTarget.getBoundingClientRect();
+        trackSurfacePointer(event, true, bounds);
         const centerX = bounds.left + bounds.width / 2;
         const centerY = bounds.top + bounds.height / 2;
         const capture = (event.target as Element).closest("a") || event.currentTarget;
@@ -261,11 +298,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
     };
 
     const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-        const rect = event.currentTarget.getBoundingClientRect();
-        interaction.current.x = Math.max(-1, Math.min(1, (event.clientX - rect.left) / rect.width * 2 - 1));
-        interaction.current.y = Math.max(-1, Math.min(1, (event.clientY - rect.top) / rect.height * 2 - 1));
-        event.currentTarget.style.setProperty("--light-x", `${(interaction.current.x + 1) * 50}%`);
-        event.currentTarget.style.setProperty("--light-y", `${(interaction.current.y + 1) * 50}%`);
+        trackSurfacePointer(event);
         const gesture = gestureRef.current;
         if (!gesture || event.pointerId !== gesture.pointerId) return;
         const x = event.clientX - gesture.centerX;
@@ -284,6 +317,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
             changeRotation(rotationRef.current + delta);
             gesture.velocity = gesture.velocity * .55 + (delta / Math.max(8, now - gesture.lastTime)) * .45;
             interaction.current.energy = Math.min(1, Math.abs(gesture.velocity) * 1.7);
+            interaction.current.spin = Math.max(-1, Math.min(1, gesture.velocity * 1.8));
         }
         gesture.lastAngle = angle;
         gesture.lastTime = now;
@@ -336,6 +370,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
             onPointerEnter={() => { if (closeTimer.current) clearTimeout(closeTimer.current); }}
             onPointerLeave={event => {
                 hoverBlockedRef.current = false;
+                if (!gestureRef.current) interaction.current.active = false;
                 if (hoverTimer.current) clearTimeout(hoverTimer.current);
                 if (openRef.current && event.pointerType === "mouse" && !pinnedRef.current && !gestureRef.current) closeTimer.current = setTimeout(() => closeMenu(false, false), 220);
             }}
@@ -350,6 +385,8 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
                         data-rotation={rotation}
                         data-dragging={dragging}
                         style={{ "--rotation": `${rotation}deg` } as React.CSSProperties}
+                        onPointerEnter={event => trackSurfacePointer(event, true)}
+                        onPointerLeave={() => { if (!gestureRef.current) interaction.current.active = false; }}
                         onPointerDown={onPointerDown}
                         onPointerMove={onPointerMove}
                         onPointerUp={event => { if (event.pointerId === gestureRef.current?.pointerId) finishGesture(); }}
@@ -388,14 +425,16 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
                 aria-expanded={open}
                 aria-controls={menuId}
                 onClick={event => { if (open) closeMenu(); else openMenu(true, event.detail === 0); }}
+                onPointerMove={event => { if (!open) trackSurfacePointer(event); }}
                 onPointerEnter={event => {
+                    if (!open) trackSurfacePointer(event, true);
                     if (event.pointerType !== "mouse" || open || hoverBlockedRef.current || !window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
                     clearTimers();
                     hoverTimer.current = setTimeout(() => openMenu(false), 180);
                 }}
             >
                 <LiquidSurface />
-                <VioletFur awake={visible && !open && !sleeping} animated={false} interaction={interaction} />
+                <VioletFur awake={visible && !open && !sleeping} animated={!reducedMotion && !sleeping} interaction={interaction} />
                 <span className={styles.coatLight} aria-hidden="true" />
                 {open ? <Icon name="close" size={21} /> : <span className={styles.toggleLabel} aria-hidden="true">
                     <svg className={styles.spark} viewBox="0 0 24 24" fill="none"><path d="M12 1C12 8 8 12 1 12C8 12 12 16 12 23C12 16 16 12 23 12C16 12 12 8 12 1Z" fill="currentColor" /><circle cx="21" cy="3" r="1.3" fill="currentColor" /></svg>
