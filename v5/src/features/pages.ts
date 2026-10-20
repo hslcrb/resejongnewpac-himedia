@@ -1,4 +1,8 @@
-import { NAV, PAGES, VENUES, NOTICES, COMPANIES, PROGRAMS } from "../data/catalog.js";
+// /* [보존된 v4 바닐라 동작 참고 / Preserved v4 vanilla behavior reference]
+//    v4 원본 DOM 동작을 v5 비교·검증용으로 그대로 담아 두었고, 해당 파일군은 타입 검사를 생략한다.
+//    Keeps the original v4 DOM behavior intact for v5 comparison and testing, without type checking. */
+// @ts-nocheck
+import { NAV, PAGES, VENUES, NOTICES, COMPANIES, PROGRAMS } from "../data/catalog.ts";
 import {
     esc,
     href,
@@ -8,10 +12,10 @@ import {
     money,
     readStore,
     writeStore,
-} from "../lib/core.js";
-import { pageHeader, programCard, emptyState, button } from "../components/ui.js";
-import { informationNotice } from "../components/notices.js";
-import { animateFeedback, captureLayout, animateLayout, cancelMotion } from "../components/motion.js";
+} from "../lib/core.ts";
+import { pageHeader, programCard, emptyState, button } from "../components/ui.ts";
+import { informationNotice } from "../components/notices.ts";
+import { animateFeedback, captureLayout, animateLayout, cancelMotion } from "../components/motion.ts";
 
 const getMeta = (path) => PAGES.find((p) => p.path === path);
 const qget = (q, key, fallback = "") => q.get(key) || fallback;

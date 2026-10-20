@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { access } from "node:fs/promises";
-import { PAGES, NAV, PROGRAMS, VENUES } from "../src/data/catalog.js";
+import { PAGES, NAV, PROGRAMS, VENUES } from "../src/data/catalog.ts";
 import { PAGES as ORIGINAL_PAGES } from "../../v3/src/data/catalog.js";
 
 // [기존 경로 보존과 새 기능 등록 / Preserved routes and completed services]
@@ -34,13 +34,13 @@ test("all program dates form valid ordered intervals", () => {
   }
 });
 test("each registered information, program and utility route produces content", async () => {
-  const { renderPrograms } = await import("../src/features/programs.js");
-  const { renderPages } = await import("../src/features/pages.js");
-  const { renderFlows } = await import("../src/features/flows.js");
-  const { renderUtilities } = await import("../src/features/utilities.js");
-  const { renderGoods } = await import("../src/features/goods.js");
-  const { renderStory } = await import("../src/features/story.js");
-  const { renderJourneys } = await import("../src/features/journeys.js");
+  const { renderPrograms } = await import("../src/features/programs.ts");
+  const { renderPages } = await import("../src/features/pages.ts");
+  const { renderFlows } = await import("../src/features/flows.ts");
+  const { renderUtilities } = await import("../src/features/utilities.ts");
+  const { renderGoods } = await import("../src/features/goods.ts");
+  const { renderStory } = await import("../src/features/story.ts");
+  const { renderJourneys } = await import("../src/features/journeys.ts");
   for (const p of PAGES.filter((p) => p.path !== "/")) {
     const html = [renderJourneys, renderStory, renderGoods, renderFlows, renderPrograms, renderPages, renderUtilities]
       .map((f) => f(p.path, new URLSearchParams()))

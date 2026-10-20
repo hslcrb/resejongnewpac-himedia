@@ -1,4 +1,5 @@
-import { createClient, SupabaseClient, User, AuthChangeEvent, Session } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
+import type { SupabaseClient, User, AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 // 환경변수에서 Supabase 설정값 취득
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";

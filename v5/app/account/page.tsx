@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { showToast } from "../../components/Toast";
-import { UserProfile, BookingRecord } from "../../types/sejong";
+import type { UserProfile, BookingRecord } from "../../types/sejong.ts";
 import { PROGRAMS } from "../../src/data/catalog";
 
 export default function AccountPage() {

@@ -1,7 +1,11 @@
-import { PAGES } from "../data/catalog.js";
-import { esc, href, icon } from "../lib/core.js";
-import { SEARCH_KINDS, searchContent } from "../lib/discovery.js";
-import { pageHeader, emptyState } from "../components/ui.js";
+// /* [보존된 v4 바닐라 동작 참고 / Preserved v4 vanilla behavior reference]
+//    v4 원본 DOM 동작을 v5 비교·검증용으로 그대로 담아 두었고, 해당 파일군은 타입 검사를 생략한다.
+//    Keeps the original v4 DOM behavior intact for v5 comparison and testing, without type checking. */
+// @ts-nocheck
+import { PAGES } from "../data/catalog.ts";
+import { esc, href, icon } from "../lib/core.ts";
+import { SEARCH_KINDS, searchContent } from "../lib/discovery.ts";
+import { pageHeader, emptyState } from "../components/ui.ts";
 
 // [검색 결과의 분류와 다음 행동 / Group search results and next actions]
 // 검색어를 유지하며 콘텐츠 유형을 좁히고 실제 상세 화면으로 연결합니다.

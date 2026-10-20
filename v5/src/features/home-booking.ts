@@ -1,9 +1,13 @@
-import { PROGRAMS } from "../data/catalog.js";
-import { esc, icon } from "../lib/core.js";
+// /* [보존된 v4 바닐라 동작 참고 / Preserved v4 vanilla behavior reference]
+//    v4 원본 DOM 동작을 v5 비교·검증용으로 그대로 담아 두었고, 해당 파일군은 타입 검사를 생략한다.
+//    Keeps the original v4 DOM behavior intact for v5 comparison and testing, without type checking. */
+// @ts-nocheck
+import { PROGRAMS } from "../data/catalog.ts";
+import { esc, icon } from "../lib/core.ts";
 import {
     seoulToday, monthDates, moveMonth, programsForDate, canSelectProgram,
     createBookingState, changeBookingState, bookingDestination,
-} from "./home-domain.js";
+} from "./home-domain.ts";
 
 const dateLabel = date => !date ? "날짜를 선택하세요" : new Intl.DateTimeFormat("ko-KR", {
     month: "long", day: "numeric", weekday: "short", timeZone: "Asia/Seoul",

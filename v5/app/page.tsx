@@ -15,7 +15,7 @@ import {
     canSelectProgram,
     discoverPrograms,
 } from "../src/features/home-domain";
-import { Program } from "../types/sejong";
+import type { Program } from "../types/sejong.ts";
 
 // 히어로 캐러셀 슬라이드 데이터
 const features = [

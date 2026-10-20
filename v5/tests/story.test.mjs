@@ -1,13 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { access } from "node:fs/promises";
-import { PAGES } from "../src/data/catalog.js";
+import { PAGES } from "../src/data/catalog.ts";
 
 // [사용자 경로와 상호작용 계약 / Visitor routes and interaction contracts]
 // 렌더 결과와 선택 후의 실제 화면 값을 검사하며 CSS 구현을 복제하지 않습니다.
 // Assert rendered destinations and committed UI values rather than CSS implementation.
 async function loadStory() {
-    const module = await import("../src/features/story.js").catch(error => {
+    const module = await import("../src/features/story.ts").catch(error => {
         if (error.code === "ERR_MODULE_NOT_FOUND") return null;
         throw error;
     });

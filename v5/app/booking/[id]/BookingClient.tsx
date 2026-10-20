@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Program } from "../../../types/sejong";
+import type { Program } from "../../../types/sejong.ts";
 import { showToast } from "../../../components/Toast";
 
 interface BookingClientProps {

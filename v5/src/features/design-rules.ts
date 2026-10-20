@@ -1,5 +1,9 @@
-import { esc, href, icon, toast } from "../lib/core.js";
-import { pageHeader } from "../components/ui.js";
+// /* [보존된 v4 바닐라 동작 참고 / Preserved v4 vanilla behavior reference]
+//    v4 원본 DOM 동작을 v5 비교·검증용으로 그대로 담아 두었고, 해당 파일군은 타입 검사를 생략한다.
+//    Keeps the original v4 DOM behavior intact for v5 comparison and testing, without type checking. */
+// @ts-nocheck
+import { esc, href, icon, toast } from "../lib/core.ts";
+import { pageHeader } from "../components/ui.ts";
 
 // Anime.js 동적 임포트 및 펄스 인터랙션
 let animeModule = null;

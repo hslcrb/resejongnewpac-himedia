@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { renderFlows } from "../src/features/flows.js";
-import { PROGRAMS } from "../src/data/catalog.js";
+import { renderFlows } from "../src/features/flows.ts";
+import { PROGRAMS } from "../src/data/catalog.ts";
 
 // [빠른 예매에서 접수까지 / Keep the quick-booking selection]
 test("quick booking preserves a valid date, time and requested party", () => {

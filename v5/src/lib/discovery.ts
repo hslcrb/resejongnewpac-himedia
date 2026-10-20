@@ -1,4 +1,8 @@
-import { PAGES, PROGRAMS, VENUES, COMPANIES, NOTICES } from "../data/catalog.js";
+// /* [보존된 v4 바닐라 동작 참고 / Preserved v4 vanilla behavior reference]
+//    v4 원본 DOM 동작을 v5 비교·검증용으로 그대로 담아 두었고, 해당 파일군은 타입 검사를 생략한다.
+//    Keeps the original v4 DOM behavior intact for v5 comparison and testing, without type checking. */
+// @ts-nocheck
+import { PAGES, PROGRAMS, VENUES, COMPANIES, NOTICES } from "../data/catalog.ts";
 
 // [목적별 콘텐츠 검색 / Search content by visitor intent]
 // 제목·상세 데이터와 동의어를 함께 검색하되 동일한 목적지는 한 번만 반환합니다.

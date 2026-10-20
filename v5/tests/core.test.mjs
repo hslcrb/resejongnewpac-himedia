@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-const load = async () => import("../src/lib/core.js");
+const load = async () => import("../src/lib/core.ts");
 test("filters programs by category, inclusive date and normalized search", async () => {
   const { filterPrograms } = await load();
   const rows = [

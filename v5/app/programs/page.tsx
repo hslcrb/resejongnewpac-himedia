@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { PROGRAMS } from "../../src/data/catalog";
 import ProgramCard from "../../components/ProgramCard";
-import { Program } from "../../types/sejong";
+import type { Program } from "../../types/sejong.ts";
 
 export default function ProgramsPage() {
     const [category, setCategory] = useState<string>("전체");

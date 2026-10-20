@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { initSejongApp } from "../src/app-runner.js";
+import { initSejongApp } from "../src/app-runner.ts";
 
 export default function SejongApp() {
   const initialized = useRef(false);

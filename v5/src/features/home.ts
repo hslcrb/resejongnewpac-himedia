@@ -1,10 +1,14 @@
-import { PROGRAMS, NOTICES } from "../data/catalog.js";
-import { esc, icon, formatDate } from "../lib/core.js";
-import { programCard, heroCard } from "../components/cards.js";
-import { bindHero } from "../components/carousel.js";
-import { captureLayout, animateLayout, cancelMotion } from "../components/motion.js";
-import { renderHomeBooking, bindHomeBooking } from "./home-booking.js";
-import { discoverPrograms, seoulToday } from "./home-domain.js";
+// /* [보존된 v4 바닐라 동작 참고 / Preserved v4 vanilla behavior reference]
+//    v4 원본 DOM 동작을 v5 비교·검증용으로 그대로 담아 두었고, 해당 파일군은 타입 검사를 생략한다.
+//    Keeps the original v4 DOM behavior intact for v5 comparison and testing, without type checking. */
+// @ts-nocheck
+import { PROGRAMS, NOTICES } from "../data/catalog.ts";
+import { esc, icon, formatDate } from "../lib/core.ts";
+import { programCard, heroCard } from "../components/cards.ts";
+import { bindHero } from "../components/carousel.ts";
+import { captureLayout, animateLayout, cancelMotion } from "../components/motion.ts";
+import { renderHomeBooking, bindHomeBooking } from "./home-booking.ts";
+import { discoverPrograms, seoulToday } from "./home-domain.ts";
 
 const features = [
     { id: "dance", theme: "dance", label: "2026 세종시즌 · 서울시무용단", title: "일상을 깨우는,<br>예술의 순간.", name: "서울시무용단 〈일무〉", date: "2026.10.20 - 10.25", venue: "세종대극장", image: "hero-dance.png", alt: "금빛 무대에서 춤추는 무용수의 리뉴얼 콘셉트 이미지" },

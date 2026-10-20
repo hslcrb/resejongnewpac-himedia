@@ -7,7 +7,7 @@ export interface Program {
     start?: string;
     end?: string;
     poster?: string;
-    price?: string;
+    price?: number | string;
     target?: string;
     time?: string;
     runningTime?: string;
@@ -26,6 +26,7 @@ export interface Program {
 export interface Venue {
     id: string;
     name: string;
+    kind?: string;
     capacity: number | string;
     description: string;
     location?: string;
@@ -41,6 +42,9 @@ export interface Notice {
     views?: number;
     important?: boolean;
     content?: string;
+    body?: string;
+    pinned?: boolean;
+    details?: [string, string][];
 }
 
 export interface NavItem {

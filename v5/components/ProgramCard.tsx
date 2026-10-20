@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Program } from "../types/sejong";
+import type { Program } from "../types/sejong.ts";
 import { showToast } from "./Toast";
 
 interface ProgramCardProps {

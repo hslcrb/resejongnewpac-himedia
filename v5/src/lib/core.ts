@@ -1,4 +1,4 @@
-import { Program } from "../../types/sejong";
+import type { Program } from "../../types/sejong.ts";
 
 const memory = new Map<string, any>();
 
@@ -139,3 +139,5 @@ export function navigate(path: string): void {
         location.hash = href(path);
     }
 }
+
+export { icon } from "../../assets/icons/material-symbols.js";

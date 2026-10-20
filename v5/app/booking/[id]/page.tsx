@@ -1,7 +1,7 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import { PROGRAMS } from "../../../src/data/catalog";
-import { Program } from "../../../types/sejong";
+import type { Program } from "../../../types/sejong.ts";
 import BookingClient from "./BookingClient";
 
 export function generateStaticParams() {

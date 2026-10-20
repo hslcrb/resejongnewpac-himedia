@@ -1,4 +1,4 @@
-import { esc } from "../lib/core.js";
+import { esc } from "../lib/core.ts";
 
 // [필요한 안내만 남기기 / Keep useful notice content]
 // 고지는 장식용 띠 박스 대신 읽기 쉬운 본문으로 제공합니다.

@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { PAGES, NAV, VENUES, NOTICES } from "../../src/data/catalog";
-import { PageMeta } from "../../types/sejong";
+import { PageMeta } from "../../types/sejong.ts";
 
 export function generateStaticParams() {
     const routes = new Set<string>();

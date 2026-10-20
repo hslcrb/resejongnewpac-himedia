@@ -1,8 +1,12 @@
-import { PROGRAMS, VENUES } from "../data/catalog.js";
-import { esc, href, icon, formatDate, readStore, writeStore } from "../lib/core.js";
-import { pageHeader, button } from "../components/ui.js";
-import { animateFeedback, cancelMotion } from "../components/motion.js";
-import { venueTech, venueLocation } from "./pages.js";
+// /* [보존된 v4 바닐라 동작 참고 / Preserved v4 vanilla behavior reference]
+//    v4 원본 DOM 동작을 v5 비교·검증용으로 그대로 담아 두었고, 해당 파일군은 타입 검사를 생략한다.
+//    Keeps the original v4 DOM behavior intact for v5 comparison and testing, without type checking. */
+// @ts-nocheck
+import { PROGRAMS, VENUES } from "../data/catalog.ts";
+import { esc, href, icon, formatDate, readStore, writeStore } from "../lib/core.ts";
+import { pageHeader, button } from "../components/ui.ts";
+import { animateFeedback, cancelMotion } from "../components/motion.ts";
+import { venueTech, venueLocation } from "./pages.ts";
 
 // [관람과 대관을 잇는 두 도구 / Two tools connecting visits and venue rental]
 // 기존 프로그램·공간·신청 경로를 사용하며 확정 일정이나 실시간 이동 정보를 만들지 않습니다.

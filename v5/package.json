@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/clean-build.js",
+    "prebuild": "node scripts/clean-build.ts",
     "build": "next build",
-    "postbuild": "node scripts/sync-out.js",
+    "postbuild": "node scripts/sync-out.ts",
     "start": "next start",
     "test:orb": "node tests/violet-quick-menu.cjs",
     "test:orb:gallery": "node tests/violet-quick-menu-gallery.cjs",

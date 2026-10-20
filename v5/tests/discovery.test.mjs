@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { searchContent } from "../src/lib/discovery.js";
+import { searchContent } from "../src/lib/discovery.ts";
 
 test("search ranks a named program and tolerates Korean spacing", () => {
     const results = searchContent("일 무");

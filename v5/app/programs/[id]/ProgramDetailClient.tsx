@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Program } from "../../../types/sejong";
+import type { Program } from "../../../types/sejong.ts";
 
 interface ProgramDetailClientProps {
     program: Program;
@@ -143,7 +143,9 @@ export default function ProgramDetailClient({ program }: ProgramDetailClientProp
 
                             <dt style={{ color: "var(--text-secondary)", fontWeight: 600 }}>가격</dt>
                             <dd style={{ margin: 0, color: "var(--text-primary)" }}>
-                                {program.price || "VIP석 100,000원 / R석 80,000원 / S석 50,000원"}
+                                {typeof program.price === "number"
+                                    ? `${program.price.toLocaleString("ko-KR")}원`
+                                    : (program.price || "VIP석 100,000원 / R석 80,000원 / S석 50,000원")}
                             </dd>
 
                             <dt style={{ color: "var(--text-secondary)", fontWeight: 600 }}>시간</dt>

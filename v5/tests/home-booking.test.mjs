@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
     seoulToday, monthDates, moveMonth, programsForDate,
     createBookingState, changeBookingState, bookingDestination, discoverPrograms,
-} from "../src/features/home-domain.js";
+} from "../src/features/home-domain.ts";
 
 const programs = [
     { id: "opera", title: "오페라", category: "공연", start: "2026-10-15", end: "2026-10-18", times: ["14:00", "19:30"], status: "예매중" },

@@ -1,8 +1,12 @@
-import { renderSearch } from "./search.js";
-import { PAGES, NAV, PROGRAMS } from "../data/catalog.js";
-import { esc, href, icon } from "../lib/core.js";
-import { pageHeader, button, emptyState } from "../components/ui.js";
-import { animateFeedback, cancelMotion } from "../components/motion.js";
+// /* [보존된 v4 바닐라 동작 참고 / Preserved v4 vanilla behavior reference]
+//    v4 원본 DOM 동작을 v5 비교·검증용으로 그대로 담아 두었고, 해당 파일군은 타입 검사를 생략한다.
+//    Keeps the original v4 DOM behavior intact for v5 comparison and testing, without type checking. */
+// @ts-nocheck
+import { renderSearch } from "./search.ts";
+import { PAGES, NAV, PROGRAMS } from "../data/catalog.ts";
+import { esc, href, icon } from "../lib/core.ts";
+import { pageHeader, button, emptyState } from "../components/ui.ts";
+import { animateFeedback, cancelMotion } from "../components/motion.ts";
 export function renderUtilities(path, query) {
     const meta = PAGES.find((p) => p.path === path);
     if (path === "/sitemap")

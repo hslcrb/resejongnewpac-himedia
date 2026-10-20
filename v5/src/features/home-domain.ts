@@ -1,4 +1,4 @@
-import { Program } from "../../types/sejong";
+import type { Program } from "../../types/sejong.ts";
 
 export interface BookingState {
     month: string;

@@ -1,4 +1,4 @@
-import { Program, Venue, Notice, NavItem, PageMeta } from "../../types/sejong";
+import type { Program, Venue, Notice, NavItem, PageMeta } from "../../types/sejong.ts";
 
 const page = (path: string, title: string, group: string, description = "", type = "content"): PageMeta => ({
     path,
@@ -156,6 +156,7 @@ export const VENUES: Venue[] = [
     {
         id: "grand",
         name: "세종대극장",
+        kind: "공연장",
         capacity: "3,022",
         description:
             "대형 규모의 대표 공연장. 오페라와 발레, 오케스트라 등 대규모 무대가 상연됩니다.",
@@ -164,6 +165,7 @@ export const VENUES: Venue[] = [
     {
         id: "m-theater",
         name: "세종M씨어터",
+        kind: "공연장",
         capacity: "609",
         description:
             "무대와 객석의 거리가 가까우니 배우의 표정까지 보이는 중극장입니다.",
@@ -172,6 +174,7 @@ export const VENUES: Venue[] = [
     {
         id: "s-theater",
         name: "세종S씨어터",
+        kind: "공연장",
         capacity: "300",
         description:
             "무대와 객석 배치를 공연마다 다시 만드는 블랙박스형 공간입니다.",
@@ -180,6 +183,7 @@ export const VENUES: Venue[] = [
     {
         id: "chamber",
         name: "세종체임버홀",
+        kind: "공연장",
         capacity: "443",
         description:
             "실내악 특화의 어쿠스틱 홀. 연주 소리의 작은 결까지 전합니다.",
@@ -188,6 +192,7 @@ export const VENUES: Venue[] = [
     {
         id: "gallery",
         name: "세종미술관",
+        kind: "전시장",
         capacity: "전시 공간",
         description:
             "도심 한가운데 있는 미술관. 기획전과 아트페어가 열립니다.",
@@ -398,7 +403,7 @@ export const PROGRAMS: Program[] = rows.map(
         start,
         end,
         venue,
-        price: `${price.toLocaleString("ko-KR")}원`,
+        price,
         image: `assets/images/poster-${art}.svg`,
         description,
         duration:
@@ -439,16 +444,32 @@ export const NOTICES: Notice[] = [
         category: "티켓오픈",
         title: "2026 세종시즌 11월 프로그램 티켓 오픈 안내",
         date: "2026-10-13",
+        pinned: true,
         content:
             "새로운 계절을 함께할 11월 세종시즌 프로그램의 예매가 시작됩니다. 작품별 상세 페이지에서 공연 일정과 관람 연령, 좌석 등급을 확인해 주세요. 이 페이지의 일정은 리뉴얼 시연용입니다.",
+        body:
+            "새로운 계절을 함께할 11월 세종시즌 프로그램의 예매가 시작됩니다. 작품별 상세 페이지에서 공연 일정과 관람 연령, 좌석 등급을 확인해 주세요. 이 페이지의 일정은 리뉴얼 시연용입니다.",
+        details: [
+            ["티켓 오픈", "2026.10.15 (목) 오후 2시"],
+            ["예매 방법", "프로그램 상세 → 예매하기"],
+            ["대상 프로그램", "11월 세종시즌 공연"],
+        ],
     },
     {
         id: "rental-2027",
         category: "대관공고",
         title: "2027년도 세종문화회관 공연장 정기대관 공고",
         date: "2026-10-12",
+        pinned: true,
         content:
             "2027년 공연장 정기대관 일정을 공고합니다. 시설별 대관 기준과 신청서류를 확인한 후 대관 신청을 진행해 주세요.",
+        body:
+            "예술가와 관객이 만나는 새로운 무대를 기다립니다. 시설별 대관 기준과 신청서류를 확인한 후 대관 신청을 진행해 주세요.",
+        details: [
+            ["대상", "세종대극장 · M씨어터 · 체임버홀"],
+            ["접수", "2026.10.12 ~ 10.30"],
+            ["문의", "대관 문의 페이지"],
+        ],
     },
     {
         id: "parking",
@@ -457,6 +478,12 @@ export const NOTICES: Notice[] = [
         date: "2026-10-10",
         content:
             "광화문 일대의 행사로 주말 교통 혼잡이 예상됩니다. 원활한 관람을 위해 대중교통 이용을 권장하며 공연 시작 전 여유 있게 도착해 주세요.",
+        body:
+            "광화문 일대의 행사로 주말 교통 혼잡이 예상됩니다. 원활한 관람을 위해 대중교통 이용을 권장하며 공연 시작 전 여유 있게 도착해 주세요.",
+        details: [
+            ["지하철", "5호선 광화문역 1·8번 출구"],
+            ["주차", "세종로 공영주차장 이용"],
+        ],
     },
     {
         id: "recruit",
@@ -464,7 +491,14 @@ export const NOTICES: Notice[] = [
         title: "세종문화회관 공연장 안내원 모집 안내",
         date: "2026-10-08",
         content:
+            "관객의 특별한 하루를 함께 만들어갈 공연장 안내원 모집 안내입니다. 본 내용은 채용 상세 페이지 구현을 위한 예시이며 실제 채용 접수는 진행되지 않습니다.",
+        body:
             "관객의 특별한 하루를 함께 만들어갈 공연장 안내원을 모집합니다. 본 내용은 채용 상세 페이지 구현을 위한 예시이며 실제 채용 접수는 진행되지 않습니다.",
+        details: [
+            ["모집분야", "공연장 관객 안내 및 운영 지원"],
+            ["근무형태", "공연 일정에 따른 탄력 근무"],
+            ["전형", "서류 검토 → 면접 → 결과 안내"],
+        ],
     },
     {
         id: "academy-notice",
@@ -473,6 +507,12 @@ export const NOTICES: Notice[] = [
         date: "2026-10-05",
         content:
             "음악과 미술, 예술을 알아가는 즐거움. 가을학기 강좌별 일정과 준비물을 교육 프로그램 상세에서 확인하실 수 있습니다.",
+        body:
+            "음악과 미술, 예술을 알아가는 즐거움. 가을학기 강좌별 일정과 준비물을 교육 프로그램 상세에서 확인하실 수 있습니다.",
+        details: [
+            ["분야", "클래식 감상 · 미술사 · 예술 인문학"],
+            ["신청", "교육 프로그램에서 강좌 선택"],
+        ],
     },
     {
         id: "access",
@@ -481,6 +521,12 @@ export const NOTICES: Notice[] = [
         date: "2026-10-02",
         content:
             "세종문화회관은 누구나 편안하게 문화예술을 경험할 수 있는 공간을 만들어갑니다. 휠체어석과 이동 동선, 보조기기 대여 정보를 확인해 주세요.",
+        body:
+            "세종문화회관은 누구나 편안하게 문화예술을 경험할 수 있는 공간을 만들어갑니다. 휠체어석과 이동 동선, 보조기기 대여 정보를 확인해 주세요.",
+        details: [
+            ["서비스", "휠체어석 · 이동 지원 · 보조기기 안내"],
+            ["안내", "장애인 이용안내 페이지"],
+        ],
     },
 ];
 

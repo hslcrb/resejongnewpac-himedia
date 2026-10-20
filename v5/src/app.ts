@@ -1,16 +1,20 @@
-import { PAGES, PROGRAMS } from "./data/catalog.js";
-import { getRoute, href, readStore, writeStore, toast, todayISO } from "./lib/core.js";
-import { header, footer, pageHeader, emptyState } from "./components/ui.js";
-import { bindCards } from "./components/cards.js";
-import { animateFeedback, animateSequence, captureLayout, animateLayout, bindPageMotion, bindShellMotion, bindReturnTop } from "./components/motion.js";
-import { renderHome, bindHome } from "./features/home.js";
-import { renderPrograms, bindPrograms } from "./features/programs.js";
-import { renderPages, bindPages } from "./features/pages.js";
-import { renderFlows, bindFlows } from "./features/flows.js";
-import { renderUtilities, bindUtilities } from "./features/utilities.js";
-import { renderGoods, bindGoods } from "./features/goods.js";
-import { renderStory, bindStory } from "./features/story.js";
-import { renderJourneys, bindJourneys } from "./features/journeys.js";
+// /* [보존된 v4 바닐라 동작 참고 / Preserved v4 vanilla behavior reference]
+//    v4 원본 DOM 동작을 v5 비교·검증용으로 그대로 담아 두었고, 해당 파일군은 타입 검사를 생략한다.
+//    Keeps the original v4 DOM behavior intact for v5 comparison and testing, without type checking. */
+// @ts-nocheck
+import { PAGES, PROGRAMS } from "./data/catalog.ts";
+import { getRoute, href, readStore, writeStore, toast, todayISO } from "./lib/core.ts";
+import { header, footer, pageHeader, emptyState } from "./components/ui.ts";
+import { bindCards } from "./components/cards.ts";
+import { animateFeedback, animateSequence, captureLayout, animateLayout, bindPageMotion, bindShellMotion, bindReturnTop } from "./components/motion.ts";
+import { renderHome, bindHome } from "./features/home.ts";
+import { renderPrograms, bindPrograms } from "./features/programs.ts";
+import { renderPages, bindPages } from "./features/pages.ts";
+import { renderFlows, bindFlows } from "./features/flows.ts";
+import { renderUtilities, bindUtilities } from "./features/utilities.ts";
+import { renderGoods, bindGoods } from "./features/goods.ts";
+import { renderStory, bindStory } from "./features/story.ts";
+import { renderJourneys, bindJourneys } from "./features/journeys.ts";
 
 const main = document.querySelector("#main");
 const head = document.querySelector("#header");

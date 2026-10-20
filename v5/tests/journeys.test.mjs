@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { PROGRAMS, VENUES } from "../src/data/catalog.js";
-import * as journeys from "../src/features/journeys.js";
+import { PROGRAMS, VENUES } from "../src/data/catalog.ts";
+import * as journeys from "../src/features/journeys.ts";
 
 // [방문 준비와 공간 비교의 입력 계약 / Input contracts for visits and venue comparisons]
 // 주소의 잘못된 값이 실제 일정이나 대관 가능 상태로 오인되지 않도록 검사합니다.
