@@ -8,12 +8,14 @@
 - Implementation: `VioletQuickMenu.tsx`
 - Scoped presentation: `VioletQuickMenu.module.css`
 - Decorative canvas: `VioletFur.tsx`
+- Internal rooted-tuft physics: `violetFurPhysics.ts`
 - Reference: [사용자의 Figma 시안](https://www.figma.com/design/EufUvqqxgphtoLRX6bcdV6/Untitled?node-id=1-6)
 - Full guide: [디자인 근거, 재사용 API, 접근성 및 검증 절차](../docs/components/violet-quick-menu.md)
 - Live example: [디자인 가이드의 컴포넌트 갤러리](../app/design-rules/page.tsx) - `/v5/design-rules/#violet-quick-menu`
 - Verification: [기존 여섯 항목 구현의 25개 동작 검증 기록 및 PC·모바일 화면](../../docs/v5-violet-quick-menu/README.md)
 - Execution and verification: [날짜별 검사 결과, 최종 커밋·병합 이력과 배포 확인](../docs/violet-quick-menu-verification.md)
-- Fur/fade verification (2026-10-20): [필수 5개 검사 결과](../docs/evidence/violet-fur-fade/smoke-results.json), [PC](../docs/evidence/violet-fur-fade/desktop.webp), [모바일](../docs/evidence/violet-fur-fade/mobile390.webp). 실행 명령은 `npm run test:orb:smoke`입니다.
+- Current motion/anchors verification (2026-10-20): [통합 52개 검사와 화면·동영상](../docs/evidence/violet-motion-anchors/README.md), [메인 앵커 목록](../docs/home-anchors.md).
+- Initial fur/fade verification (2026-10-20): [이전 필수 5개 검사 결과](../docs/evidence/violet-fur-fade/smoke-results.json), [이전 PC](../docs/evidence/violet-fur-fade/desktop.webp), [이전 모바일](../docs/evidence/violet-fur-fade/mobile390.webp).
 
 ```tsx
 "use client";
@@ -113,3 +115,11 @@ NEXT_TELEMETRY_DISABLED=1 npm run build
 ```
 
 Stop the dev server before building, because both commands write to `.next`. The existing `postbuild` copies the static export into the tracked `v5/` hosting directory. Commit that generated output together with the source after reviewing the diff. Test legacy versions separately; their copied `home-v4.cjs` script targets the older app and is not this component's test.
+
+## HomeAnchorNavigation
+
+메인에서 사용하는 내부 탐색 컴포넌트입니다. `resolveAnchor(id)` 콜백으로 슬라이드·공연·공지·일정을 먼저 펼친 뒤 해당 ID의 제목이나 조작에 포커스를 두고, 실제 sticky 헤더 높이와 16px 여백을 적용합니다. 초기 `#URL`, `hashchange`, 뒤로/앞으로 가기와 복원된 페이지를 처리하며 일반 캐러셀 렌더링에서는 다시 실행하지 않습니다.
+
+- Implementation: `HomeAnchorNavigation.tsx`, integrated by `v5/app/page.tsx`.
+- Stable fragments and footer logo: [전체 목록과 접근성 동작](../docs/home-anchors.md).
+- Verification: `SEJONG_TEST_URL=http://127.0.0.1:8765/v5/ npm --prefix v5 run test:home:anchors`.

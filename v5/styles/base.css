@@ -6,7 +6,7 @@
 }
 
 html {
-    scroll-padding-top: 100px;
+    scroll-padding-top: var(--anchor-header-offset, 100px);
     color-scheme: light;
 }
 
@@ -92,6 +92,11 @@ h1, h2, h3, h4 {
 
 section[id], main[id] {
     scroll-margin-top: 100px;
+}
+
+/* Fragment targets reserve the measured sticky header plus a small reading gap. */
+.home-v4-wrap [id], .home-v4-wrap[id], .renewal-footer[id], .renewal-footer [id] {
+    scroll-margin-top: 16px;
 }
 
 ::selection {

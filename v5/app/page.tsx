@@ -6,6 +6,7 @@ import { PROGRAMS, NOTICES } from "../src/data/catalog";
 import ProgramCard from "../components/ProgramCard";
 import Icon from "../components/Icon";
 import VioletQuickMenu from "../components/VioletQuickMenu";
+import HomeAnchorNavigation from "../components/HomeAnchorNavigation";
 import {
     seoulToday,
     monthDates,
@@ -101,6 +102,13 @@ const visitGuides = [
     },
 ];
 
+const programCategoryIds: Record<string, string> = {
+    "전체": "all", "공연": "performance", "전시": "exhibition", "교육": "education", "기획·시즌": "season",
+};
+const newsCategoryIds: Record<string, string> = {
+    "전체": "all", "공지": "notices", "티켓오픈": "ticket-open", "대관공고": "rental",
+};
+
 export default function HomePage() {
     // 1. 서울 기준 오늘 날짜
     const today = seoulToday();
@@ -113,6 +121,7 @@ export default function HomePage() {
     const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
     const [progress, setProgress] = useState(0);
     const stageRef = useRef<HTMLDivElement>(null);
+    const heroMoveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const moveHero = (dir: 1 | -1) => {
         if (isMoving) return;
@@ -125,12 +134,17 @@ export default function HomePage() {
 
         setDragX(-dir * step);
 
-        setTimeout(() => {
+        heroMoveTimer.current = setTimeout(() => {
             setHeroActive((prev) => (prev + dir + features.length) % features.length);
             setIsMoving(false);
             setDragX(0);
+            heroMoveTimer.current = null;
         }, 750);
     };
+
+    useEffect(() => () => {
+        if (heroMoveTimer.current) clearTimeout(heroMoveTimer.current);
+    }, []);
 
     // 캐러셀 자동 재생 (3500ms)
     useEffect(() => {
@@ -226,8 +240,13 @@ export default function HomePage() {
 
     // 4. 프로그램 탐색 섹션 상태
     const [selectedCategory, setSelectedCategory] = useState<string>("전체");
+    const [anchorProgramId, setAnchorProgramId] = useState("");
     const categories = ["전체", "공연", "전시", "교육", "기획·시즌"];
-    const filteredPrograms = discoverPrograms(PROGRAMS, selectedCategory, today).slice(0, 4) as Program[];
+    const programChoices = discoverPrograms(PROGRAMS, selectedCategory, today);
+    const anchoredProgram = PROGRAMS.find(program => program.id === anchorProgramId);
+    const filteredPrograms = (anchoredProgram
+        ? [anchoredProgram, ...programChoices.filter(program => program.id !== anchoredProgram.id)]
+        : programChoices).slice(0, 4) as Program[];
 
     // 5. 방문 안내 미리보기 상태
     const [activeVisitId, setActiveVisitId] = useState<string>("directions");
@@ -235,19 +254,89 @@ export default function HomePage() {
 
     // 6. 소식 & 참여 섹션 상태
     const [newsCategory, setNewsCategory] = useState<string>("전체");
+    const [anchorNoticeId, setAnchorNoticeId] = useState("");
     const newsCategories = ["전체", "공지", "티켓오픈", "대관공고"];
-    const filteredNotices = (NOTICES as any[])
-        .filter((n) => newsCategory === "전체" || n.category === newsCategory)
-        .slice(0, 4);
+    const noticeChoices = NOTICES.filter(notice => newsCategory === "전체" || notice.category === newsCategory);
+    const anchoredNotice = NOTICES.find(notice => notice.id === anchorNoticeId);
+    const filteredNotices = (anchoredNotice
+        ? [anchoredNotice, ...noticeChoices.filter(notice => notice.id !== anchoredNotice.id)]
+        : noticeChoices).slice(0, 4);
+
+    const resolveHomeAnchor = (id: string) => {
+        const featureIndex = features.findIndex(feature => id === `home-feature-${feature.id}`);
+        if (featureIndex >= 0) {
+            if (heroMoveTimer.current) clearTimeout(heroMoveTimer.current);
+            heroMoveTimer.current = null;
+            setHeroActive(featureIndex);
+            setIsMoving(false);
+            setDragX(0);
+            setProgress(0);
+            setIsPaused(true);
+            return true;
+        }
+
+        const programCategory = categories.find(category => id === `home-program-category-${programCategoryIds[category]}`);
+        if (programCategory) {
+            setAnchorProgramId("");
+            setSelectedCategory(programCategory);
+            return true;
+        }
+        const program = PROGRAMS.find(item => id === `home-program-${item.id}`);
+        if (program) {
+            if (!filteredPrograms.some(item => item.id === program.id)) {
+                setSelectedCategory("전체");
+                setAnchorProgramId(program.id);
+            }
+            return true;
+        }
+
+        const noticeCategory = newsCategories.find(category => id === `home-news-category-${newsCategoryIds[category]}`);
+        if (noticeCategory) {
+            setAnchorNoticeId("");
+            setNewsCategory(noticeCategory);
+            return true;
+        }
+        const notice = NOTICES.find(item => id === `home-notice-${item.id}`);
+        if (notice) {
+            if (!filteredNotices.some(item => item.id === notice.id)) {
+                setNewsCategory("전체");
+                setAnchorNoticeId(notice.id);
+            }
+            return true;
+        }
+
+        const date = id.startsWith("home-booking-date-") ? id.slice("home-booking-date-".length) : "";
+        if (date && monthDates(date.slice(0, 7)).includes(date)) {
+            setBookingMonth(date.slice(0, 7));
+            handleDateSelect(date);
+            return true;
+        }
+        const bookingProgram = PROGRAMS.find(item => id === `home-booking-program-${item.id}`);
+        if (bookingProgram) {
+            if (!programsOnBookingDate.some(item => item.id === bookingProgram.id)) {
+                const date = today < bookingProgram.start || today > bookingProgram.end ? bookingProgram.start : today;
+                setBookingMonth(date.slice(0, 7));
+                handleDateSelect(date);
+            }
+            return true;
+        }
+
+        const guide = visitGuides.find(item => id === `home-visit-${item.id}`);
+        if (guide) setActiveVisitId(guide.id);
+        const target = document.getElementById(id);
+        return Boolean(target && (target.closest(".home-v4-wrap, #footer") || ["header", "main"].includes(id)));
+    };
 
     return (
-        <div className="home-v4-wrap">
+        <div className="home-v4-wrap" id="home" data-home-anchor>
+            <HomeAnchorNavigation resolveAnchor={resolveHomeAnchor} />
             <h1 className="sr-only">세종문화회관, 예술로 채우는 당신의 일상</h1>
 
             {/* 1. 시즌 히어로 캐러셀 (Season Hero Carousel) */}
             <section
                 className="season-hero"
                 id="featured-season"
+                data-home-anchor
                 aria-label="주요 프로그램"
                 aria-roledescription="캐러셀"
             >
@@ -278,12 +367,15 @@ export default function HomePage() {
                                     }`}
                                     data-card="hero"
                                     data-feature={item.id}
+                                    id={isCurrent ? `home-feature-${item.id}` : undefined}
+                                    data-home-anchor={isCurrent ? "" : undefined}
                                     aria-hidden={!isCurrent}
                                 >
                                     <Link
                                         className="season-card-link"
                                         href={`/programs/${item.id}`}
                                         draggable={false}
+                                        tabIndex={isCurrent ? 0 : -1}
                                         aria-label={`${item.name} 자세히 보기`}
                                     >
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -331,7 +423,7 @@ export default function HomePage() {
                 {/* 캐러셀 툴바 & 컨트롤 */}
                 <div className="season-toolbar container">
                     <p>예술로 채우는 당신의 일상</p>
-                    <div className="season-controls">
+                    <div className="season-controls" id="home-feature-controls" data-home-anchor role="group" aria-label="주요 프로그램 제어">
                         <span className="season-pagination" aria-hidden="true">
                             <span>{String(heroActive + 1).padStart(2, "0")}</span>
                             <span className="season-pagination-total"> / 03</span>
@@ -341,6 +433,7 @@ export default function HomePage() {
                         </span>
                         <button
                             type="button"
+                            id="home-feature-previous"
                             className="round-button"
                             onClick={() => moveHero(-1)}
                             aria-label="이전 프로그램"
@@ -349,6 +442,7 @@ export default function HomePage() {
                         </button>
                         <button
                             type="button"
+                            id="home-feature-next"
                             className="round-button"
                             onClick={() => moveHero(1)}
                             aria-label="다음 프로그램"
@@ -357,6 +451,7 @@ export default function HomePage() {
                         </button>
                         <button
                             type="button"
+                            id="home-feature-playback"
                             className="round-button"
                             onClick={() => setIsPaused(!isPaused)}
                             aria-label={isPaused ? "자동 재생 시작" : "자동 재생 일시정지"}
@@ -374,8 +469,8 @@ export default function HomePage() {
             <VioletQuickMenu heroId="featured-season" onOpenChange={setIsQuickMenuOpen} />
 
             {/* 2. 목적별 빠른 진입 (Quick Pathways) */}
-            <nav className="home-pathways container" aria-label="이용 목적별 바로가기">
-                <Link href="/programs">
+            <nav className="home-pathways container" id="home-pathways" data-home-anchor aria-label="이용 목적별 바로가기">
+                <Link href="/programs" id="home-pathway-programs" data-home-anchor>
                     <Icon name="calendar" size={26} />
                     <span>
                         <strong>나를 위한 한 편</strong>
@@ -383,7 +478,7 @@ export default function HomePage() {
                     </span>
                     <Icon name="arrow" size={22} />
                 </Link>
-                <Link href="/visit/group">
+                <Link href="/visit/group" id="home-pathway-group" data-home-anchor>
                     <Icon name="ticket" size={26} />
                     <span>
                         <strong>함께하는 관람</strong>
@@ -391,7 +486,7 @@ export default function HomePage() {
                     </span>
                     <Icon name="arrow" size={22} />
                 </Link>
-                <Link href="/rental">
+                <Link href="/rental" id="home-pathway-rental" data-home-anchor>
                     <Icon name="pin" size={26} />
                     <span>
                         <strong>당신의 무대를 위해</strong>
@@ -402,21 +497,21 @@ export default function HomePage() {
             </nav>
 
             {/* 3. 캘린더 빠른 예매 위젯 (Quick Booking Widget) */}
-            <section className="home-booking container" id="quick-booking" aria-labelledby="quick-booking-heading">
+            <section className="home-booking container" id="quick-booking" data-home-anchor aria-labelledby="quick-booking-heading">
                 <div className="section-heading">
                     <div>
                         <p className="home-section-label">날짜로 찾는 예술</p>
                         <h2 id="quick-booking-heading">언제 만나볼까요?</h2>
                         <p className="section-description">관람할 날을 고르면, 그날의 예술이 보여요.</p>
                     </div>
-                    <Link className="text-link" href="/programs?view=calendar">
+                    <Link className="text-link" href="/programs?view=calendar" id="home-booking-full-calendar" data-home-anchor>
                         전체 일정 <Icon name="arrow" size={20} />
                     </Link>
                 </div>
 
                 <div className="quick-booking-layout">
                     {/* 달력 영역 */}
-                    <div className="quick-calendar">
+                    <div className="quick-calendar" id="home-booking-calendar" data-home-anchor>
                         <div className="quick-calendar-heading">
                             <h3 id="quick-month" aria-live="polite">
                                 {bookingMonth.replace("-", ". ")}
@@ -424,6 +519,7 @@ export default function HomePage() {
                             <div className="quick-month-controls">
                                 <button
                                     type="button"
+                                    id="home-booking-previous-month"
                                     onClick={() => setBookingMonth(moveMonth(bookingMonth, -1))}
                                     aria-label="이전 달"
                                 >
@@ -431,6 +527,7 @@ export default function HomePage() {
                                 </button>
                                 <button
                                     type="button"
+                                    id="home-booking-today"
                                     onClick={() => {
                                         setBookingMonth(today.slice(0, 7));
                                         handleDateSelect(today);
@@ -440,6 +537,7 @@ export default function HomePage() {
                                 </button>
                                 <button
                                     type="button"
+                                    id="home-booking-next-month"
                                     onClick={() => setBookingMonth(moveMonth(bookingMonth, 1))}
                                     aria-label="다음 달"
                                 >
@@ -467,6 +565,8 @@ export default function HomePage() {
                                 return (
                                     <button
                                         key={date}
+                                        id={`home-booking-date-${date}`}
+                                        data-home-anchor
                                         type="button"
                                         onClick={() => handleDateSelect(date)}
                                         aria-label={`${dateLabel(date)}${isCurrentDate ? ", 오늘" : ""}, ${
@@ -491,11 +591,11 @@ export default function HomePage() {
                     </div>
 
                     {/* 선택 프로그램 및 회차 선택 영역 */}
-                    <div className="quick-booking-choices">
+                    <div className="quick-booking-choices" id="home-booking-programs" data-home-anchor>
                         <div className="quick-day-heading">
                             <div>
                                 <p>선택한 날짜</p>
-                                <h3>{dateLabel(bookingDate)}</h3>
+                                <h3 id="home-booking-day-heading">{dateLabel(bookingDate)}</h3>
                             </div>
                             <span>{programsOnBookingDate.length}개 프로그램</span>
                         </div>
@@ -512,6 +612,8 @@ export default function HomePage() {
                                     return (
                                         <button
                                             key={prog.id}
+                                            id={`home-booking-program-${prog.id}`}
+                                            data-home-anchor
                                             type="button"
                                             className={`quick-program${isSelected ? " is-selected" : ""}`}
                                             onClick={() => handleProgramSelect(prog)}
@@ -562,7 +664,7 @@ export default function HomePage() {
                             </div>
                         )}
 
-                        <div className="quick-selection-fields">
+                        <div className="quick-selection-fields" id="home-booking-options" data-home-anchor role="group" aria-label="회차와 인원 선택">
                             <label htmlFor="quick-time">
                                 회차
                                 <select
@@ -598,7 +700,7 @@ export default function HomePage() {
                             </label>
                         </div>
 
-                        <div className="quick-booking-action">
+                        <div className="quick-booking-action" id="home-booking-action" data-home-anchor>
                             <p>
                                 {isBookingValid && selectedProgram ? (
                                     <>
@@ -626,7 +728,7 @@ export default function HomePage() {
             </section>
 
             {/* 4. 프로그램 탐색 섹션 (Discover Programs) */}
-            <section className="home-programs container" id="discover-programs" aria-labelledby="discover-heading">
+            <section className="home-programs container" id="discover-programs" data-home-anchor aria-labelledby="discover-heading">
                 <div className="section-heading">
                     <div>
                         <p className="home-section-label">오늘부터 다음 계절까지</p>
@@ -637,18 +739,20 @@ export default function HomePage() {
                         </h2>
                         <p className="section-description">오늘 만나는 프로그램부터 다가오는 무대까지.</p>
                     </div>
-                    <Link className="text-link" href="/programs">
+                    <Link className="text-link" href="/programs" id="home-program-all" data-home-anchor>
                         모든 프로그램 <Icon name="arrow" size={20} />
                     </Link>
                 </div>
 
                 <div className="program-filter-row">
-                    <div className="program-choice" role="group" aria-label="프로그램 분류">
+                    <div className="program-choice" id="home-program-filters" data-home-anchor role="group" aria-label="프로그램 분류">
                         {categories.map((cat) => (
                             <button
                                 key={cat}
+                                id={`home-program-category-${programCategoryIds[cat]}`}
+                                data-home-anchor
                                 type="button"
-                                onClick={() => setSelectedCategory(cat)}
+                                onClick={() => { setAnchorProgramId(""); setSelectedCategory(cat); }}
                                 className={selectedCategory === cat ? "is-selected" : ""}
                                 aria-pressed={selectedCategory === cat}
                             >
@@ -656,15 +760,17 @@ export default function HomePage() {
                             </button>
                         ))}
                     </div>
-                    <Link className="calendar-link" href="/programs?view=calendar">
+                    <Link className="calendar-link" href="/programs?view=calendar" id="home-program-calendar" data-home-anchor>
                         <Icon name="calendar" size={18} /> 일정으로 보기
                     </Link>
                 </div>
 
-                <div className="home-program-grid" id="home-program-results">
+                <div className="home-program-grid" id="home-program-results" data-home-anchor>
                     {filteredPrograms.length > 0 ? (
                         filteredPrograms.map((program) => (
-                            <ProgramCard key={program.id} program={program} />
+                            <div key={program.id} id={`home-program-${program.id}`} className="home-program-anchor" data-home-anchor>
+                                <ProgramCard program={program} />
+                            </div>
                         ))
                     ) : (
                         <p className="selection-empty">
@@ -675,7 +781,7 @@ export default function HomePage() {
                 </div>
 
 
-                <Link href="/programs/season" className="home-season-link">
+                <Link href="/programs/season" className="home-season-link" id="home-season-programs" data-home-anchor>
                     <span>
                         <strong>한 편에서 시작하는, 나만의 시즌.</strong>
                         <span>세종시즌부터 Sync Next까지, 취향을 넓히는 기획 프로그램</span>
@@ -687,8 +793,8 @@ export default function HomePage() {
             </section>
 
             {/* 5. 방문 안내와 호버 미리보기 (Visit Guide with Photographic Previews) */}
-            <section className="home-visit container" id="plan-your-visit" aria-labelledby="visit-heading">
-                <figure className="visit-photograph">
+            <section className="home-visit container" id="plan-your-visit" data-home-anchor aria-labelledby="visit-heading">
+                <figure className="visit-photograph" id="home-visit-preview" data-home-anchor aria-label="방문 안내 미리보기">
                     {visitGuides.map((guide) => (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
@@ -716,7 +822,7 @@ export default function HomePage() {
                         <br />
                         즐거운 관람에 필요한 정보를 모았어요.
                     </p>
-                    <Link className="text-link home-visit-planner" href="/visit/plan">
+                    <Link className="text-link home-visit-planner" href="/visit/plan" id="home-visit-planner" data-home-anchor>
                         나의 방문 계획 만들기 <Icon name="arrow" size={20} />
                     </Link>
 
@@ -725,6 +831,8 @@ export default function HomePage() {
                             {visitGuides.map((guide) => (
                                 <Link
                                     key={guide.id}
+                                    id={`home-visit-${guide.id}`}
+                                    data-home-anchor
                                     href={guide.path}
                                     data-visit-preview={guide.id}
                                     onPointerEnter={() => setActiveVisitId(guide.id)}
@@ -762,35 +870,37 @@ export default function HomePage() {
             </section>
 
             {/* 6. 소식과 참여 (News & Participation) */}
-            <section className="home-news container" id="sejong-news" aria-labelledby="news-heading">
+            <section className="home-news container" id="sejong-news" data-home-anchor aria-labelledby="news-heading">
                 <div className="section-heading">
                     <div>
                         <p className="home-section-label">예술을 이어가는 이야기</p>
                         <h2 id="news-heading">소식과 참여</h2>
                         <p className="section-description">새로운 무대의 소식, 오래 함께할 즐거움.</p>
                     </div>
-                    <Link href="/news" className="text-link">
+                    <Link href="/news" className="text-link" id="home-news-all" data-home-anchor>
                         소식 전체 보기 <Icon name="arrow" size={20} />
                     </Link>
                 </div>
 
                 <div className="home-news-layout">
                     <div>
-                        <div className="home-news-filters" role="group" aria-label="소식 분류">
+                        <div className="home-news-filters" id="home-news-filters" data-home-anchor role="group" aria-label="소식 분류">
                             {newsCategories.map((cat) => (
                                 <button
                                     key={cat}
+                                    id={`home-news-category-${newsCategoryIds[cat]}`}
+                                    data-home-anchor
                                     type="button"
-                                    onClick={() => setNewsCategory(cat)}
+                                    onClick={() => { setAnchorNoticeId(""); setNewsCategory(cat); }}
                                     aria-pressed={newsCategory === cat}
                                 >
                                     {cat}
                                 </button>
                             ))}
                         </div>
-                        <div className="news-editorial-list" id="home-news-results">
+                        <div className="news-editorial-list" id="home-news-results" data-home-anchor>
                             {filteredNotices.map((notice) => (
-                                <Link key={notice.id} href={`/news/notices/${notice.id}`}>
+                                <Link key={notice.id} href={`/news/notices/${notice.id}`} id={`home-notice-${notice.id}`} data-home-anchor>
                                     <span className="news-category">{notice.category}</span>
                                     <h3>{notice.title}</h3>
                                     <time dateTime={notice.date}>
@@ -802,7 +912,7 @@ export default function HomePage() {
                         </div>
                     </div>
 
-                    <aside className="membership-feature" aria-labelledby="membership-heading">
+                    <aside className="membership-feature" id="home-membership" data-home-anchor aria-labelledby="membership-heading">
                         <p className="membership-label">세종 멤버십</p>
                         <h3 id="membership-heading">
                             좋아하는 예술을,
@@ -814,28 +924,28 @@ export default function HomePage() {
                             <br />
                             다음 무대를 함께 기다려요.
                         </p>
-                        <Link className="text-link" href="/news/membership">
+                        <Link className="text-link" href="/news/membership" id="home-membership-details" data-home-anchor>
                             멤버십 알아보기 <Icon name="arrow" size={22} />
                         </Link>
                     </aside>
                 </div>
 
-                <nav className="home-participation" aria-label="문화예술 참여">
-                    <Link href="/news/events">
+                <nav className="home-participation" id="home-participation" data-home-anchor aria-label="문화예술 참여">
+                    <Link href="/news/events" id="home-participation-events" data-home-anchor>
                         <span>
                             <strong>이벤트</strong>
                             <small>예술과 만나는 또 다른 즐거움</small>
                         </span>
                         <Icon name="arrow" size={22} />
                     </Link>
-                    <Link href="/news/newsletter">
+                    <Link href="/news/newsletter" id="home-participation-newsletter" data-home-anchor>
                         <span>
                             <strong>뉴스레터 · 세종문화N</strong>
                             <small>무대 너머의 이야기를 만나세요</small>
                         </span>
                         <Icon name="arrow" size={22} />
                     </Link>
-                    <Link href="/about/donation">
+                    <Link href="/about/donation" id="home-participation-donation" data-home-anchor>
                         <span>
                             <strong>문화예술 후원</strong>
                             <small>더 많은 사람에게 전하는 예술</small>
@@ -846,7 +956,7 @@ export default function HomePage() {
             </section>
 
             {/* 7. 기관 아이덴티티 및 천지인 섹션 (Identity Section) */}
-            <section className="home-identity" id="our-identity" aria-labelledby="identity-heading">
+            <section className="home-identity" id="our-identity" data-home-anchor aria-labelledby="identity-heading">
                 <div className="container identity-layout">
                     <div>
                         <h2 id="identity-heading">
@@ -859,29 +969,31 @@ export default function HomePage() {
                             <br />
                             서로 다른 우리가 예술로 만나는 곳입니다.
                         </p>
-                        <Link className="identity-link" href="/about">
+                        <Link className="identity-link" href="/about" id="home-identity-about" data-home-anchor>
                             세종문화회관을 소개합니다 <Icon name="arrow" size={23} />
                         </Link>
                     </div>
 
                     <Link
                         href="/about/introduction/ci"
+                        id="home-identity-marks"
+                        data-home-anchor
                         className="identity-composition"
                         aria-label="천지인 색상과 세종문화회관의 아이덴티티 알아보기"
                     >
-                        <div className="identity-channel channel-sky">
+                        <div className="identity-channel channel-sky" id="home-identity-sky" data-home-anchor>
                             <i />
                             <span>
                                 天<span>하늘</span>
                             </span>
                         </div>
-                        <div className="identity-channel channel-earth">
+                        <div className="identity-channel channel-earth" id="home-identity-earth" data-home-anchor>
                             <i />
                             <span>
                                 地<span>땅</span>
                             </span>
                         </div>
-                        <div className="identity-channel channel-human">
+                        <div className="identity-channel channel-human" id="home-identity-human" data-home-anchor>
                             <i />
                             <span>
                                 人<span>사람</span>
@@ -890,17 +1002,17 @@ export default function HomePage() {
                     </Link>
                 </div>
 
-                <nav className="home-institution-links container" aria-label="기관 이야기">
-                    <Link href="/about/companies">
+                <nav className="home-institution-links container" id="home-institution" data-home-anchor aria-label="기관 이야기">
+                    <Link href="/about/companies" id="home-institution-companies" data-home-anchor>
                         서울시예술단 <Icon name="arrow" size={20} />
                     </Link>
-                    <Link href="/about/esg">
+                    <Link href="/about/esg" id="home-institution-esg" data-home-anchor>
                         지속가능한 예술 <Icon name="arrow" size={20} />
                     </Link>
-                    <Link href="/about/disclosure">
+                    <Link href="/about/disclosure" id="home-institution-disclosure" data-home-anchor>
                         정보공개 <Icon name="arrow" size={20} />
                     </Link>
-                    <Link href="/about/partners">
+                    <Link href="/about/partners" id="home-institution-partners" data-home-anchor>
                         협력과 협찬 <Icon name="arrow" size={20} />
                     </Link>
                 </nav>
