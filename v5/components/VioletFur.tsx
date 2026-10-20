@@ -2,12 +2,9 @@
 
 import { useEffect, useRef, type MutableRefObject } from "react";
 import styles from "./VioletQuickMenu.module.css";
+import { createTufts, stepTufts, drawTufts, FUR_SIZE as SIZE, FUR_CENTER as CENTER, FUR_RADIUS as RADIUS, type TuftField, type VioletInteraction } from "./violetFurPhysics";
 
-export interface VioletInteraction {
-    x: number;
-    y: number;
-    energy: number;
-}
+export type { VioletInteraction } from "./violetFurPhysics";
 
 interface VioletFurProps {
     awake: boolean;
@@ -20,14 +17,12 @@ interface FurTexture {
     pixels: number;
     expanded: boolean;
     coats: [HTMLCanvasElement, HTMLCanvasElement];
+    tufts: TuftField;
 }
 
-const SIZE = 600;
-const CENTER = SIZE / 2;
-const RADIUS = CENTER / 1.3;
 const SHADES = 20;
 
-function createTexture(pixels: number, expanded: boolean): FurTexture | null {
+function createTexture(pixels: number, expanded: boolean, modestDevice: boolean): FurTexture | null {
     const coats = [document.createElement("canvas"), document.createElement("canvas")] as FurTexture["coats"];
     const contexts = coats.map(canvas => {
         canvas.width = pixels;
@@ -39,7 +34,7 @@ function createTexture(pixels: number, expanded: boolean): FurTexture | null {
     if (!contexts[0] || !contexts[1]) return null;
 
     // Bake a shaded undercoat and thousands of short tapered fibres once.
-    // The animation below only composites these two reusable bitmaps.
+    // This dense pile stays fixed; a small, separate tuft layer bends above it.
     const undercoat = contexts[0].createRadialGradient(218, 166, 22, CENTER, CENTER, RADIUS + 18);
     undercoat.addColorStop(0, "rgba(208, 130, 255, .96)");
     undercoat.addColorStop(.35, "rgba(148, 54, 230, .94)");
@@ -106,7 +101,7 @@ function createTexture(pixels: number, expanded: boolean): FurTexture | null {
         });
     });
 
-    return { pixels, expanded, coats };
+    return { pixels, expanded, coats, tufts: createTufts(expanded, modestDevice) };
 }
 
 /** Decorative only: native links remain usable if Canvas is unavailable. */
@@ -126,7 +121,7 @@ export default function VioletFur({ awake, animated, expanded = false, interacti
         const cssSize = canvas.clientWidth || (expanded ? 480 : 114);
         const pixels = Math.max(expanded ? 420 : 160, Math.min(expanded ? 720 : 256, Math.ceil(cssSize * pixelRatio / 32) * 32));
         if (!textureRef.current || textureRef.current.pixels !== pixels || textureRef.current.expanded !== expanded) {
-            textureRef.current = createTexture(pixels, expanded);
+            textureRef.current = createTexture(pixels, expanded, modestDevice);
         }
         const texture = textureRef.current;
         if (!texture) return;
@@ -136,44 +131,33 @@ export default function VioletFur({ awake, animated, expanded = false, interacti
 
         let frame = 0;
         let previousFrame = performance.now();
-        let pointerX = interaction.current.x;
-        let pointerY = interaction.current.y;
+        let previousDraw = previousFrame;
+        texture.tufts.springs.fill(0);
         const interval = 1000 / (modestDevice ? 20 : 24);
 
-        function draw(time: number) {
+        function draw(now: number) {
             if (!context || !texture) return;
-            const motion = animated ? time : 0;
-            pointerX += (interaction.current.x - pointerX) * .14;
-            pointerY += (interaction.current.y - pointerY) * .14;
-            const energy = animated ? Math.min(1, interaction.current.energy) : 0;
+            if (animated) stepTufts(texture.tufts, interaction.current, now / 1000, (now - previousDraw) / 1000);
+            previousDraw = now;
             context.clearRect(0, 0, SIZE, SIZE);
-            context.save();
-            context.translate(CENTER, CENTER);
-            context.rotate(animated ? Math.sin(motion * .34) * .012 + pointerX * .006 : 0);
-            context.drawImage(texture.coats[0], -CENTER, -CENTER, SIZE, SIZE);
-            context.restore();
-
-            context.save();
-            context.translate(CENTER + (animated ? Math.sin(motion * .7) * .7 + pointerX * .7 : 0), CENTER + (animated ? Math.cos(motion * .6) * .6 + pointerY * .7 : 0));
-            context.rotate(animated ? Math.sin(motion * .43 + 1.4) * .018 - pointerY * .006 + energy * .01 : 0);
-            context.drawImage(texture.coats[1], -CENTER, -CENTER, SIZE, SIZE);
-            context.restore();
+            context.drawImage(texture.coats[0], 0, 0, SIZE, SIZE);
+            context.drawImage(texture.coats[1], 0, 0, SIZE, SIZE);
+            drawTufts(context, texture.tufts);
         }
 
         function tick(now: number) {
             const elapsed = now - previousFrame;
             if (elapsed >= interval) {
-                draw(now / 1000);
-                interaction.current.energy *= .92;
+                draw(now);
                 previousFrame = now - elapsed % interval;
             }
             frame = requestAnimationFrame(tick);
         }
 
-        draw(performance.now() / 1000);
+        draw(performance.now());
         if (animated) frame = requestAnimationFrame(tick);
         return () => cancelAnimationFrame(frame);
     }, [awake, animated, expanded, interaction]);
 
-    return <canvas ref={canvasRef} className={styles.fur} aria-hidden="true" />;
+    return <canvas ref={canvasRef} className={styles.fur} data-violet-fur={expanded ? "expanded" : "resting"} aria-hidden="true" />;
 }
