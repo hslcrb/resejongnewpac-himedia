@@ -30,8 +30,8 @@ import "../styles/story.css";
 import "../styles/journeys.css";
 
 export const metadata = {
-    title: "세종문화회관 - v5 예술로 이어지는 하루 (Next.js & TypeScript)",
-    description: "세종문화회관 리뉴얼. 공연과 전시, 예술이 있는 일상을 만나보세요. Next.js App Router & TypeScript 기반 웹입니다.",
+    title: "세종문화회관 - 공연·전시·교육, 예매와 이용 안내 (Next.js & TypeScript)",
+    description: "세종문화회관 리뉴얼 콘셉트. 공연·전시·교육 일정과 예매, 이용 안내를 한곳에서 확인하세요. Next.js App Router & TypeScript 기반 비공식 콘셉트 사이트입니다.",
 };
 
 export default function RootLayout({

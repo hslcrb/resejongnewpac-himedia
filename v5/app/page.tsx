@@ -23,7 +23,7 @@ const features = [
         id: "dance",
         theme: "dance",
         label: "2026 세종시즌 · 서울시무용단",
-        title: "일상을 깨우는,\n예술의 순간.",
+        title: "오래된 춤의 걸음,\n지금의 무대.",
         name: "서울시무용단 〈일무〉",
         date: "2026.10.20 - 10.25",
         venue: "세종대극장",
@@ -34,7 +34,7 @@ const features = [
         id: "carmen",
         theme: "opera",
         label: "2026 세종시즌 · 서울시오페라단",
-        title: "가장 뜨거운\n자유의 노래.",
+        title: "자유롭게 사랑하고,\n자유롭게 떠나는 카르멘.",
         name: "서울시오페라단 〈카르멘〉",
         date: "2026.10.15 - 10.18",
         venue: "세종대극장",
@@ -45,7 +45,7 @@ const features = [
         id: "light",
         theme: "light",
         label: "전시 · 빛과 공간",
-        title: "낯선 빛이 여는\n새로운 감각.",
+        title: "빛의 각도에 따라\n달라지는 공간.",
         name: "빛이 머무는 자리",
         date: "2026.10.01 - 11.15",
         venue: "세종미술관",
@@ -70,7 +70,7 @@ const visitGuides = [
     {
         id: "spaces",
         title: "공간과 좌석",
-        description: "나의 공연장 미리 둘러보기",
+        description: "객석 배치와 좌석 시야 미리보기",
         path: "/visit/spaces",
         image: "sejong-grand-auditorium.png",
         alt: "무대에서 바라본 세종대극장 객석",
@@ -330,7 +330,7 @@ export default function HomePage() {
     return (
         <div className="home-v4-wrap" id="home" data-home-anchor>
             <HomeAnchorNavigation resolveAnchor={resolveHomeAnchor} />
-            <h1 className="sr-only">세종문화회관, 예술로 채우는 당신의 일상</h1>
+            <h1 className="sr-only">세종문화회관 - 공연·전시·교육 일정, 예매와 이용 안내</h1>
 
             {/* 1. 시즌 히어로 캐러셀 (Season Hero Carousel) */}
             <section
@@ -422,7 +422,7 @@ export default function HomePage() {
 
                 {/* 캐러셀 툴바 & 컨트롤 */}
                 <div className="season-toolbar container">
-                    <p>예술로 채우는 당신의 일상</p>
+                    <p>2026 세종시즌 · 지금 상연 중</p>
                     <div className="season-controls" id="home-feature-controls" data-home-anchor role="group" aria-label="주요 프로그램 제어">
                         <span className="season-pagination" aria-hidden="true">
                             <span>{String(heroActive + 1).padStart(2, "0")}</span>
@@ -473,7 +473,7 @@ export default function HomePage() {
                 <Link href="/programs" id="home-pathway-programs" data-home-anchor>
                     <Icon name="calendar" size={26} />
                     <span>
-                        <strong>나를 위한 한 편</strong>
+                        <strong>일정·예매</strong>
                         <small>공연·전시·교육 살펴보기</small>
                     </span>
                     <Icon name="arrow" size={22} />
@@ -481,7 +481,7 @@ export default function HomePage() {
                 <Link href="/visit/group" id="home-pathway-group" data-home-anchor>
                     <Icon name="ticket" size={26} />
                     <span>
-                        <strong>함께하는 관람</strong>
+                        <strong>단체 관람</strong>
                         <small>단체관람 안내와 신청</small>
                     </span>
                     <Icon name="arrow" size={22} />
@@ -489,7 +489,7 @@ export default function HomePage() {
                 <Link href="/rental" id="home-pathway-rental" data-home-anchor>
                     <Icon name="pin" size={26} />
                     <span>
-                        <strong>당신의 무대를 위해</strong>
+                        <strong>대관</strong>
                         <small>대관 시설과 일정 확인</small>
                     </span>
                     <Icon name="arrow" size={22} />
@@ -500,9 +500,9 @@ export default function HomePage() {
             <section className="home-booking container" id="quick-booking" data-home-anchor aria-labelledby="quick-booking-heading">
                 <div className="section-heading">
                     <div>
-                        <p className="home-section-label">날짜로 찾는 예술</p>
-                        <h2 id="quick-booking-heading">언제 만나볼까요?</h2>
-                        <p className="section-description">관람할 날을 고르면, 그날의 예술이 보여요.</p>
+                        <p className="home-section-label">빠른 예매</p>
+                        <h2 id="quick-booking-heading">날짜로 공연을 찾아 보세요.</h2>
+                        <p className="section-description">선택한 날의 공연·전시·교육 일정이 표시됩니다.</p>
                     </div>
                     <Link className="text-link" href="/programs?view=calendar" id="home-booking-full-calendar" data-home-anchor>
                         전체 일정 <Icon name="arrow" size={20} />
@@ -718,7 +718,7 @@ export default function HomePage() {
                                 </Link>
                             ) : (
                                 <button className="button button--dark" type="button" disabled>
-                                    예매·신청으로
+                                    예매·신청
                                 </button>
                             )}
                         </div>
@@ -731,13 +731,13 @@ export default function HomePage() {
             <section className="home-programs container" id="discover-programs" data-home-anchor aria-labelledby="discover-heading">
                 <div className="section-heading">
                     <div>
-                        <p className="home-section-label">오늘부터 다음 계절까지</p>
+                        <p className="home-section-label">프로그램</p>
                         <h2 id="discover-heading">
-                            마음이 향하는
+                            공연·전시·교육
                             <br />
-                            예술을 찾아보세요.
+                            전체 일정을 확인하세요.
                         </h2>
-                        <p className="section-description">오늘 만나는 프로그램부터 다가오는 무대까지.</p>
+                        <p className="section-description">오늘 열리는 무대부터 다음 달 일정까지.</p>
                     </div>
                     <Link className="text-link" href="/programs" id="home-program-all" data-home-anchor>
                         모든 프로그램 <Icon name="arrow" size={20} />
@@ -774,7 +774,7 @@ export default function HomePage() {
                         ))
                     ) : (
                         <p className="selection-empty">
-                            이 분류의 다음 일정을 준비하고 있어요.{" "}
+                            이 분류의 다음 일정은 아직 확정 전입니다.{" "}
                             <Link href="/programs">전체 프로그램을 살펴보세요.</Link>
                         </p>
                     )}
@@ -783,11 +783,11 @@ export default function HomePage() {
 
                 <Link href="/programs/season" className="home-season-link" id="home-season-programs" data-home-anchor>
                     <span>
-                        <strong>한 편에서 시작하는, 나만의 시즌.</strong>
-                        <span>세종시즌부터 Sync Next까지, 취향을 넓히는 기획 프로그램</span>
+                        <strong>세종시즌과 기획 프로그램</strong>
+                        <span>세종시즌부터 Sync Next까지, 기획 일정을 모았습니다</span>
                     </span>
                     <span>
-                        기획·시즌 살펴보기 <Icon name="arrow" size={22} />
+                        기획·시즌 일정 보기 <Icon name="arrow" size={22} />
                     </span>
                 </Link>
             </section>
@@ -813,17 +813,17 @@ export default function HomePage() {
 
                 <div className="visit-editorial">
                     <h2 id="visit-heading">
-                        예술을 만나는 길,
+                        오시는 길부터
                         <br />
-                        편안하게 오세요.
+                        관람 준비까지.
                     </h2>
                     <p className="visit-description">
-                        오는 길부터 공연이 끝나는 순간까지.
+                        지하철 광화문역 출구 안내부터 주차.
                         <br />
-                        즐거운 관람에 필요한 정보를 모았어요.
+                        접근성 서비스와 관람 예절까지 정리했습니다.
                     </p>
                     <Link className="text-link home-visit-planner" href="/visit/plan" id="home-visit-planner" data-home-anchor>
-                        나의 방문 계획 만들기 <Icon name="arrow" size={20} />
+                        방문 계획 만들기 <Icon name="arrow" size={20} />
                     </Link>
 
                     <div className="visit-links-layout">
@@ -873,9 +873,9 @@ export default function HomePage() {
             <section className="home-news container" id="sejong-news" data-home-anchor aria-labelledby="news-heading">
                 <div className="section-heading">
                     <div>
-                        <p className="home-section-label">예술을 이어가는 이야기</p>
+                        <p className="home-section-label">새로운 소식</p>
                         <h2 id="news-heading">소식과 참여</h2>
-                        <p className="section-description">새로운 무대의 소식, 오래 함께할 즐거움.</p>
+                        <p className="section-description">공지와 티켓오픈, 대관공고 소식.</p>
                     </div>
                     <Link href="/news" className="text-link" id="home-news-all" data-home-anchor>
                         소식 전체 보기 <Icon name="arrow" size={20} />
@@ -915,14 +915,14 @@ export default function HomePage() {
                     <aside className="membership-feature" id="home-membership" data-home-anchor aria-labelledby="membership-heading">
                         <p className="membership-label">세종 멤버십</p>
                         <h3 id="membership-heading">
-                            좋아하는 예술을,
+                            자주 관람한다면,
                             <br />
-                            더 가까이.
+                            멤버십이 유리합니다.
                         </h3>
                         <p>
-                            나에게 맞는 관람 혜택을 살펴보고
+                            등급별 예매 할인과 초대 공연 혜택
                             <br />
-                            다음 무대를 함께 기다려요.
+                            지금 확인해 보세요.
                         </p>
                         <Link className="text-link" href="/news/membership" id="home-membership-details" data-home-anchor>
                             멤버십 알아보기 <Icon name="arrow" size={22} />
@@ -934,21 +934,21 @@ export default function HomePage() {
                     <Link href="/news/events" id="home-participation-events" data-home-anchor>
                         <span>
                             <strong>이벤트</strong>
-                            <small>예술과 만나는 또 다른 즐거움</small>
+                            <small>진행 중인 이벤트와 당첨자 발표</small>
                         </span>
                         <Icon name="arrow" size={22} />
                     </Link>
                     <Link href="/news/newsletter" id="home-participation-newsletter" data-home-anchor>
                         <span>
                             <strong>뉴스레터 · 세종문화N</strong>
-                            <small>무대 너머의 이야기를 만나세요</small>
+                            <small>공연·전시 소식을 이메일로 받아보세요</small>
                         </span>
                         <Icon name="arrow" size={22} />
                     </Link>
                     <Link href="/about/donation" id="home-participation-donation" data-home-anchor>
                         <span>
                             <strong>문화예술 후원</strong>
-                            <small>더 많은 사람에게 전하는 예술</small>
+                            <small>후원 방법과 참여 안내</small>
                         </span>
                         <Icon name="arrow" size={22} />
                     </Link>
@@ -962,15 +962,15 @@ export default function HomePage() {
                         <h2 id="identity-heading">
                             서울의 중심,
                             <br />
-                            예술의 다음.
+                            1978년부터 이어진 무대.
                         </h2>
                         <p className="identity-description">
-                            하늘과 땅, 그리고 사람.
+                            공연·전시·교육을 한 곳에 모았습니다.
                             <br />
-                            서로 다른 우리가 예술로 만나는 곳입니다.
+                            천지인 세 가지 색은 세종의 아이덴티티입니다.
                         </p>
                         <Link className="identity-link" href="/about" id="home-identity-about" data-home-anchor>
-                            세종문화회관을 소개합니다 <Icon name="arrow" size={23} />
+                            세종문화회관 소개 <Icon name="arrow" size={23} />
                         </Link>
                     </div>
 

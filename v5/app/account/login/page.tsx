@@ -70,7 +70,7 @@ export default function LoginPage() {
                         <div>
                             <p className="eyebrow">MY SEJONG</p>
                             <h1>로그인</h1>
-                            <p className="page-description">예술로 채워지는 나의 일상, 나만의 세종.</p>
+                            <p className="page-description">예매 내역과 관심 프로그램을 관리하는 페이지입니다.</p>
                         </div>
                     </div>
                 </div>
@@ -80,11 +80,11 @@ export default function LoginPage() {
                 <div className="account-auth-layout">
                     <section className="account-auth-intro" aria-labelledby="account-intro-title">
                         <h2 id="account-intro-title">
-                            좋아하는 예술로
+                            예매 내역과 관심 프로그램,
                             <br />
-                            채우는 나의 일상.
+                            한곳에서 확인하세요.
                         </h2>
-                        <p>나의 예매와 관심 프로그램을 한곳에서 만나보세요.</p>
+                        <p>내 예매와 관심 프로그램을 한곳에서 확인하세요.</p>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             className="account-auth-photo"
@@ -93,7 +93,7 @@ export default function LoginPage() {
                             height={680}
                             alt="세종대극장의 객석"
                         />
-                        <span className="account-auth-caption">예술과 가까워지는 나만의 공간.</span>
+                        <span className="account-auth-caption">세종대극장 객석. 공연장 정보는 방문 안내에 정리되어 있습니다.</span>
                     </section>
 
                     <form className="flow-panel" data-account-auth="login" onSubmit={handleSubmit} noValidate>

@@ -42,7 +42,7 @@ export default function Header() {
         <header id="header" className="renewal-header">
             <div className="project-note">
                 <span>
-                    v5 · 예술로 이어지는 하루{" "}
+                    v5 · 세종문화회관 리뉴얼{" "}
                     <span lang="en">· Unofficial design concept</span>
                 </span>
                 <a href="/">
@@ -172,7 +172,7 @@ export default function Header() {
             {menuOpen && (
                 <div className="navigation-dialog menu-dialog is-open" id="menu-dialog" role="dialog" aria-modal="true" aria-labelledby="menu-heading">
                     <div className="dialog-top">
-                        <h2 id="menu-heading">세종의 모든 순간</h2>
+                        <h2 id="menu-heading">세종문화회관 전체 메뉴</h2>
                         <button
                             type="button"
                             className="round-button"
@@ -186,11 +186,11 @@ export default function Header() {
                     </div>
                     <div className="menu-journeys">
                         <Link href="/visit/plan">
-                            <span>예술을 만나는 하루</span>
-                            <strong>나의 방문 계획 →</strong>
+                            <span>관람할 날부터 이동 안내까지</span>
+                            <strong>방문 계획 →</strong>
                         </Link>
                         <Link href="/rental/compare">
-                            <span>새로운 무대를 준비할 때</span>
+                            <span>공간 조건을 한눈에 비교</span>
                             <strong>대관 공간 비교 →</strong>
                         </Link>
                     </div>

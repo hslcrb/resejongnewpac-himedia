@@ -49,7 +49,7 @@ export default function CatalogDynamicPage({
     const noticeMatch = NOTICES.find((n: any) => path.endsWith(`/${n.id}`));
 
     const title = pageMeta?.title || venueMatch?.name || noticeMatch?.title || "세종문화회관 안내";
-    const description = pageMeta?.description || venueMatch?.description || (noticeMatch ? `등록일: ${noticeMatch.date}` : "문화와 예술이 살아 숨 쉬는 공간, 세종문화회관입니다.");
+    const description = pageMeta?.description || venueMatch?.description || (noticeMatch ? `등록일: ${noticeMatch.date}` : "세종문화회관의 서비스와 공간 상세 안내입니다.");
 
     return (
         <div className="container" style={{ padding: "3rem 1.5rem 6rem", maxWidth: "1000px", margin: "0 auto" }}>
@@ -167,7 +167,7 @@ export default function CatalogDynamicPage({
                             서비스 및 공간 안내
                         </h2>
                         <p style={{ color: "var(--text-secondary)", lineHeight: 1.7, fontSize: "0.95rem" }}>
-                            시민과 예술가가 함께 호흡하는 열린 문화 예술 공간, 세종문화회관의 상세 안내입니다.
+                            세종문화회관의 서비스와 공간을 페이지별로 정리한 안내입니다.
                         </p>
                         <div style={{ marginTop: "1.5rem" }}>
                             <Link

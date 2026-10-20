@@ -27,6 +27,10 @@ if (fs.existsSync(outDir)) {
         throw new Error("Development assets found in the export. Stop the dev server, remove v5/.next and v5/out, then run the production build again.");
     }
     console.log("Syncing out/ to v5 root for direct static hosting...");
+    const nextDir = path.join(v5Root, "_next");
+    if (fs.existsSync(nextDir)) {
+        fs.rmSync(nextDir, { recursive: true, force: true });
+    }
     copyRecursive(outDir, v5Root);
     console.log("Sync completed successfully!");
 }

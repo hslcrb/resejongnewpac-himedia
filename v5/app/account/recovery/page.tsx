@@ -50,7 +50,7 @@ export default function RecoveryPage() {
                         <div>
                             <p className="eyebrow">MY SEJONG</p>
                             <h1>계정 찾기</h1>
-                            <p className="page-description">예술로 채워지는 나의 일상, 나만의 세종.</p>
+                            <p className="page-description">예매 내역과 관심 프로그램을 관리하는 페이지입니다.</p>
                         </div>
                     </div>
                 </div>

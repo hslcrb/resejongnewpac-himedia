@@ -19,7 +19,7 @@ export default function Footer() {
         <footer id="footer" className="renewal-footer" data-home-anchor>
             <div className="footer-utility" id="footer-newsletter" data-home-anchor>
                 <div className="container">
-                    <p>예술과 더 가까워지는 방법.</p>
+                    <p>세종문화회관의 새 소식.</p>
                     <Link href="/news/newsletter">
                         세종의 소식 받아보기 →
                     </Link>
@@ -45,8 +45,9 @@ export default function Footer() {
                         />
                     </Link>
                     <p>
-                        서울의 중심에서<br />
-                        당신의 일상에 예술을.
+                        공연·전시·교육
+                        <br />
+                        한 곳에서 이어지는 무대.
                     </p>
                     <span className="identity-marks" aria-hidden="true">
                         <i></i><i></i><i></i>

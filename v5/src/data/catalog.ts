@@ -85,7 +85,7 @@ export const NAV: NavItem[] = [
 ];
 
 export const PAGES: PageMeta[] = [
-    page("/", "홈", "home", "예술로 열리는 당신의 일상", "home"),
+    page("/", "홈", "home", "공연·전시·교육 일정, 예매와 이용 안내", "home"),
     ...NAV.flatMap((n) => [
         page(n.path, n.title, n.id),
         ...n.items.map(([t, p]) => page(p, t, n.id)),
@@ -114,8 +114,8 @@ export const PAGES: PageMeta[] = [
         ["/news/events/winners", "당첨자 발표", "news"],
         ["/news/notices/recruit/apply", "공연장 안내원 지원 체험", "news"],
         ["/news/goods/art-postcards", "공연의 한 장면 · 엽서", "news"],
-        ["/news/goods/canvas-bag", "예술을 담는 가방", "news"],
-        ["/news/goods/viewing-journal", "나만의 관람 기록 · 노트", "news"],
+        ["/news/goods/canvas-bag", "캔버스 토트백", "news"],
+        ["/news/goods/viewing-journal", "관람 기록 노트", "news"],
         ["/news/goods/cart", "굿즈 장바구니", "news"],
         ["/news/goods/orders", "굿즈 주문내역", "news"],
         ["/news/newsletter/archive", "뉴스레터 아카이브", "news"],
@@ -158,7 +158,7 @@ export const VENUES: Venue[] = [
         name: "세종대극장",
         capacity: "3,022",
         description:
-            "압도적인 무대와 풍부한 울림, 대형 공연의 감동이 시작되는 세종문화회관의 대표 공연장입니다.",
+            "대형 규모의 대표 공연장. 오페라와 발레, 오케스트라 등 대규모 무대가 상연됩니다.",
         image: "assets/images/venue-grand.svg",
     },
     {
@@ -166,7 +166,7 @@ export const VENUES: Venue[] = [
         name: "세종M씨어터",
         capacity: "609",
         description:
-            "무대와 객석의 가까운 거리에서 섬세한 표정과 호흡까지 만나는 중극장입니다.",
+            "무대와 객석의 거리가 가까우니 배우의 표정까지 보이는 중극장입니다.",
         image: "assets/images/venue-m.svg",
     },
     {
@@ -174,7 +174,7 @@ export const VENUES: Venue[] = [
         name: "세종S씨어터",
         capacity: "300",
         description:
-            "무대와 객석의 경계를 새롭게 만드는 블랙박스형 공연 공간입니다.",
+            "무대와 객석 배치를 공연마다 다시 만드는 블랙박스형 공간입니다.",
         image: "assets/images/venue-s.svg",
     },
     {
@@ -182,7 +182,7 @@ export const VENUES: Venue[] = [
         name: "세종체임버홀",
         capacity: "443",
         description:
-            "음악의 작은 결까지 전하는 어쿠스틱 공간. 연주자와 관객이 깊게 연결됩니다.",
+            "실내악 특화의 어쿠스틱 홀. 연주 소리의 작은 결까지 전합니다.",
         image: "assets/images/venue-chamber.svg",
     },
     {
@@ -190,7 +190,7 @@ export const VENUES: Venue[] = [
         name: "세종미술관",
         capacity: "전시 공간",
         description:
-            "시대의 시선과 새로운 상상력이 교차하는 도심 속 열린 미술관입니다.",
+            "도심 한가운데 있는 미술관. 기획전과 아트페어가 열립니다.",
         image: "assets/images/venue-gallery.svg",
     },
 ];
@@ -206,7 +206,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종대극장",
         50000,
         "orchestra",
-        "서울시국악관현악단과 함께 만나는 계절의 선율. 전통의 깊은 울림이 동시대의 감각을 만납니다.",
+        "서울시국악관현악단 정기공연. 국악기와 관현악이 한 무대에서 울립니다.",
     ],
     [
         "carmen",
@@ -218,7 +218,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종대극장",
         80000,
         "carmen",
-        "자유를 노래하는 가장 뜨거운 이름. 비제의 선율과 서울시오페라단이 전하는 강렬한 무대.",
+        "비제 오페라 〈카르멘〉. 서울시오페라단이 부르는 뜨겁고 자유로운 사랑의 노래.",
     ],
     [
         "dance",
@@ -230,7 +230,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종대극장",
         60000,
         "dance",
-        "전통의 질서를 넘어 오늘의 움직임으로. 서울시무용단의 압도적인 군무를 만납니다.",
+        "제례의 춤 〈일무〉를 서울시무용단이 오늘의 형태로 무대에 올립니다.",
     ],
     [
         "chamber-autumn",
@@ -242,7 +242,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종체임버홀",
         30000,
         "chamber",
-        "첼로와 현악사중주가 전하는 가을의 문장들. 가까이에서 듣는 실내악의 아름다움.",
+        "첼로와 현악사중주 실내악 정기공연. 가까이 듣는 스트링 음색.",
     ],
     [
         "sumire",
@@ -254,7 +254,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종M씨어터",
         40000,
         "sumire",
-        "작은 미용실에서 시작되는 우리들의 이야기. 평범한 일상 속 빛나는 순간을 무대 위에 담았습니다.",
+        "작은 미용실에 오가는 손님들의 이야기를 연극으로 옮겼습니다.",
     ],
     [
         "hypnosis",
@@ -266,7 +266,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종S씨어터",
         35000,
         "hypnosis",
-        "음악과 영상, 몸의 경계가 사라지는 순간. Sync Next가 제안하는 새로운 공연 경험.",
+        "음악과 영상, 무용이 섞이는 융복합 공연. Sync Next 기획작.",
     ],
     [
         "light",
@@ -278,7 +278,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종미술관",
         15000,
         "light",
-        "빛과 공간, 그리고 우리 사이. 동시대 작가들의 시선으로 일상의 감각을 다시 발견합니다.",
+        "빛을 다룬 설치 작업들이 공간의 밝기와 온도를 바꿉니다. 동시대 작가 기획전.",
     ],
     [
         "art-goods",
@@ -290,7 +290,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종미술관",
         0,
         "art",
-        "작품에서 일상으로, 당신 곁에 두는 예술. 작가와 작품의 이야기를 만나는 열린 축제.",
+        "아트굿즈 작가와 브랜드 부스가 세종미술관에 모입니다. 입장 무료.",
     ],
     [
         "academy",
@@ -302,7 +302,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종예술아카데미",
         120000,
         "academy",
-        "익숙한 선율에 새로운 이야기를 더합니다. 음악과 친해지는 여섯 번의 화요일 저녁.",
+        "여섯 차례의 화요일 저녁 강좌. 곡마다 배경과 감상 포인트를 안내합니다.",
     ],
     [
         "art-class",
@@ -314,7 +314,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종예술아카데미",
         100000,
         "artclass",
-        "작품 앞에 머무는 시간이 달라집니다. 미술사의 장면을 통해 나만의 감상 언어를 찾아보세요.",
+        "미술사의 대표 작품을 작가 이야기와 함께 해설하는 감상 강좌입니다.",
     ],
     [
         "ballet",
@@ -326,7 +326,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종M씨어터",
         40000,
         "ballet",
-        "발레의 우아함을 가장 가까이에서. 해설과 함께 즐기는 서울시발레단의 특별한 오후.",
+        "해설이 붙은 서울시발레단 오후 공연. 무대 가까이에서 보는 발레.",
     ],
     [
         "choral",
@@ -338,7 +338,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종체임버홀",
         25000,
         "choral",
-        "서로 다른 목소리가 하나의 울림이 되는 순간. 서울시합창단이 전하는 위로와 연대.",
+        "서울시합창단 정기공연. 체임버홀에서 열립니다.",
     ],
     [
         "everyone-classic",
@@ -350,7 +350,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종대극장",
         1000,
         "classic",
-        "누구에게나 열려 있는 클래식의 세계. 천 원으로 만나는 특별한 문화예술의 시간.",
+        "천 원 티켓으로 보는 클래식 공연. 누구나 들어갈 수 있습니다.",
     ],
     [
         "winter",
@@ -362,7 +362,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종M씨어터",
         55000,
         "winter",
-        "겨울을 기다리는 사람들의 따뜻한 이야기. 서울시뮤지컬단의 새로운 창작 무대.",
+        "겨울철 상연하는 서울시뮤지컬단 창작 무대입니다.",
     ],
     [
         "tour",
@@ -374,7 +374,7 @@ const rows: [string, string, string, string, string, string, string, number, str
         "세종대극장",
         15000,
         "tour",
-        "공연이 만들어지는 곳, 평소에는 볼 수 없었던 무대 뒤의 이야기를 만나보세요.",
+        "평소에는 접근할 수 없는 대극장 무대 뒷공간을 안내원과 함께 둘러봅니다.",
     ],
 ];
 
@@ -424,13 +424,13 @@ PROGRAMS.forEach((p) => {
 });
 
 export const COMPANIES = [
-    ["traditional", "서울시국악관현악단", "전통의 울림, 새로운 미래", "국악"],
-    ["dance", "서울시무용단", "우리의 움직임으로 시대를 말하다", "무용"],
-    ["musical", "서울시뮤지컬단", "노래와 이야기로 만나는 세상", "뮤지컬"],
-    ["chorus", "서울시합창단", "도시를 감싸는 목소리", "합창"],
-    ["opera", "서울시오페라단", "무대 위에 펼쳐지는 삶의 드라마", "오페라"],
-    ["theater", "서울시극단", "지금, 우리의 이야기를 무대로", "연극"],
-    ["ballet", "서울시발레단", "클래식의 아름다움, 동시대의 감각", "발레"],
+    ["traditional", "서울시국악관현악단", "국악기와 관현악을 함께 쓰는 정기공연", "국악"],
+    ["dance", "서울시무용단", "전통춤과 창작 무용을 상연", "무용"],
+    ["musical", "서울시뮤지컬단", "창작 뮤지컬과 대표작을 상연", "뮤지컬"],
+    ["chorus", "서울시합창단", "합창 정기공연을 상연", "합창"],
+    ["opera", "서울시오페라단", "정기 오페라 시즌을 상연", "오페라"],
+    ["theater", "서울시극단", "한국 연극 작품을 상연", "연극"],
+    ["ballet", "서울시발레단", "고전 발레와 창작 발레를 상연", "발레"],
 ].map(([id, name, description, genre]) => ({ id, name, description, genre }));
 
 export const NOTICES: Notice[] = [
@@ -448,7 +448,7 @@ export const NOTICES: Notice[] = [
         title: "2027년도 세종문화회관 공연장 정기대관 공고",
         date: "2026-10-12",
         content:
-            "예술가와 관객이 만나는 새로운 무대를 기다립니다. 시설별 대관 기준과 신청서류를 확인한 후 대관 신청을 진행해 주세요.",
+            "2027년 공연장 정기대관 일정을 공고합니다. 시설별 대관 기준과 신청서류를 확인한 후 대관 신청을 진행해 주세요.",
     },
     {
         id: "parking",
@@ -523,7 +523,7 @@ for (const [id, title] of [
             "/news/events/" + id,
             title,
             "news",
-            "예술과 함께하는 특별한 만남",
+            "이벤트 상세 안내입니다.",
             "event"
         )
     );
@@ -533,13 +533,13 @@ for (const [path, title, group, description] of [
         "/news/events/autumn-walk/apply",
         "가을의 취향을 나누다 · 참여",
         "news",
-        "나의 가을 취향과 함께 이벤트 참여를 체험해 보세요.",
+        "내 가을 취향과 함께 이벤트 참여를 체험해 보세요.",
     ],
     [
         "/news/events/review/apply",
         "관람 후기 이벤트 · 참여",
         "news",
-        "예술을 만난 순간의 이야기를 들려주세요.",
+        "관람한 작품에 대한 후기를 남겨 주세요.",
     ],
     [
         "/visit/support/lost/umbrella",
@@ -563,7 +563,7 @@ for (const [path, title, group, description] of [
     PAGES.push(page(path, title, group, description));
 
 PAGES.push(
-    { path: "/visit/plan", title: "나의 방문 계획", description: "프로그램과 이동 방법에 맞춰 나의 관람 일정을 계획하세요.", group: "visit", eyebrow: "방문 준비", type: "content" },
+    { path: "/visit/plan", title: "방문 계획", description: "관람 날짜와 이동 방법, 준비할 안내를 정리합니다.", group: "visit", eyebrow: "방문 준비", type: "content" },
     { path: "/rental/compare", title: "대관 공간 비교", description: "규모와 무대, 장비를 비교하고 맞는 공간으로 이어가세요.", group: "rental", eyebrow: "대관 준비", type: "content" },
     { path: "/design-rules", title: "디자인 시스템 & 규칙", description: "세종문화회관 v5 브랜드 컬러 시스템 및 Figma Variables 가이드", group: "rules", eyebrow: "디자인 설계", type: "content" }
 );

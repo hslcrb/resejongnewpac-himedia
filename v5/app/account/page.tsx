@@ -72,7 +72,7 @@ export default function AccountPage() {
                         <div>
                             <p className="eyebrow">MY SEJONG</p>
                             <h1>마이페이지</h1>
-                            <p className="page-description">예술로 채워지는 나의 일상, 나만의 세종.</p>
+                            <p className="page-description">예매 내역과 관심 프로그램을 관리하는 페이지입니다.</p>
                         </div>
                     </div>
                 </div>
@@ -110,12 +110,12 @@ export default function AccountPage() {
                         <h2>
                             {isLoggedIn ? (profile.name || "관람객") : "관람객"}님,
                             <br />
-                            오늘도 예술 가까이.
+                            오늘도 반갑습니다.
                         </h2>
                         <p>
                             {isLoggedIn
-                                ? "나의 문화생활을 한곳에서 만나보세요."
-                                : "로그인하고 나만의 문화생활을 모아보세요."}
+                                ? "예매 내역과 관심 프로그램을 한곳에서 관리하세요."
+                                : "로그인하면 예매 내역과 관심 프로그램이 열립니다."}
                         </p>
                     </div>
                     {isLoggedIn ? (
@@ -182,11 +182,11 @@ export default function AccountPage() {
                 {/* 추천 피처 박스 */}
                 <div className="account-feature">
                     <div>
-                        <h3>다음 감동을 만나볼까요?</h3>
+                        <h3>다음 관람은 어떤 공연인가요?</h3>
                         <p>
-                            공연부터 전시, 배움의 순간까지.
+                            예정된 공연·전시·교육 일정을
                             <br />
-                            당신을 기다리는 프로그램을 찾아보세요.
+                            확인해 보세요.
                         </p>
                     </div>
                     <Link className="button button--dark" href="/programs">

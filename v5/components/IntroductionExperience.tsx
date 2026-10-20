@@ -4,10 +4,10 @@ import Link from "next/link";
 import "./introduction.css";
 
 const moments=[
- {id:"opening",kicker:"PROLOGUE · SEOUL",title:"도시가 무대가 되는 순간",subtitle:"예술은 벽 안에 머무르지 않는다.",tone:"a"},
- {id:"pulse",kicker:"ACT 01 · RHYTHM",title:"우리의 선, 오늘의 비트",subtitle:"한국의 색과 리듬을 지금의 감각으로.",tone:"b"},
- {id:"space",kicker:"ACT 02 · SPACE",title:"일상이 예술과 마주하는 곳",subtitle:"광화문에서 시작되는 새로운 장면.",tone:"c"},
- {id:"together",kicker:"ACT 03 · PEOPLE",title:"다음 장면은 당신과 함께",subtitle:"관객과 창작자가 함께 완성하는 문화의 공간.",tone:"d"},
+ {id:"opening",kicker:"PROLOGUE · SEOUL",title:"광화문, 무대가 열리는 곳",subtitle:"1978년부터 공연·전시·교육이 한 건물에.",tone:"a"},
+ {id:"pulse",kicker:"ACT 01 · RHYTHM",title:"옛 춤과 노래를 오늘의 무대로",subtitle:"국악과 전통춤 공연이 시즌마다 상연됩니다.",tone:"b"},
+ {id:"space",kicker:"ACT 02 · SPACE",title:"한 건물에, 여러 개의 무대",subtitle:"대극장부터 소극장, 미술관까지 공간을 구경합니다.",tone:"c"},
+ {id:"together",kicker:"ACT 03 · PEOPLE",title:"다음 무대의 자리가 비어 있습니다",subtitle:"프로그램 일정을 확인해 보세요.",tone:"d"},
 ];
 export default function IntroductionExperience(){
  const root=useRef<HTMLDivElement>(null);
@@ -46,22 +46,22 @@ export default function IntroductionExperience(){
   </nav>
   <section id="intro-opening" data-intro-scene="opening" className="intro-panel intro-cover">
    <div className="intro-grid" aria-hidden="true"/><div className="intro-wash" aria-hidden="true"/>
-   <div className="intro-title-wrap"><span className="intro-kicker">SEJONG CENTER · SINCE 1978</span><p className="intro-stamp">KOREA / SEOUL / CULTURE</p><h1>서울의 심장,<br/><em>예술의 박동.</em></h1><p>도시가 무대가 되고,<br/>당신이 그 장면의 주인공이 되는 곳.</p><button className="intro-down" onClick={()=>jump("pulse")}>SCROLL TO FEEL <span aria-hidden="true">↓</span></button></div>
-   <div className="intro-vertical" aria-hidden="true">ART IS EVERYWHERE - SEOUL</div>
+   <div className="intro-title-wrap"><span className="intro-kicker">SEJONG CENTER · SINCE 1978</span><p className="intro-stamp">KOREA / SEOUL / CULTURE</p><h1>광화문에서<br/><em>무대가 열리는 곳.</em></h1><p>공연장과 전시장, 예술교육<br/>한 건물에 모었습니다.</p><button className="intro-down" onClick={()=>jump("pulse")}>SCROLL <span aria-hidden="true">↓</span></button></div>
+   <div className="intro-vertical" aria-hidden="true">SEJONG CENTER FOR THE PERFORMING ARTS - SEOUL</div>
   </section>
   <section id="intro-pulse" data-intro-scene="pulse" className="intro-panel intro-pulse">
    <div className="intro-marquee" aria-hidden="true"><span>흥 · 멋 · 빛 · 움직임 · 흥 · 멋 · 빛 · 움직임 · </span></div>
    <div className="intro-ribbons" aria-hidden="true">{["gold","red","blue","green","cream"].map((x,i)=><i key={x} className={`ribbon ribbon-${x}`} style={{animationDelay:(i*-.45)+"s"}}/>)}</div>
-   <div className="intro-copy"><span className="intro-kicker">01 - KOREAN RHYTHM</span><h2>전통은<br/><em>멈춰 있지 않다.</em></h2><p>색동의 유연한 선과 동시대의 선명한 박자. 옛 감각을 새롭게 바라보는 실험, 문화의 내일을 상상합니다.</p><a href="#intro-space" onClick={e=>{e.preventDefault();jump("space")}}>다음 장면 보기 ↗</a></div>
+   <div className="intro-copy"><span className="intro-kicker">01 - KOREAN RHYTHM</span><h2>전통은<br/><em>멈춰 있지 않다.</em></h2><p>국악관현악과 전통춤, 탈춤 공연이 시즌마다 다시 무대에 오릅니다. 옛 무대를 오늘의 무대 위에 올려둔 것이 세종의 방식입니다.</p><a href="#intro-space" onClick={e=>{e.preventDefault();jump("space")}}>다음 장면 보기 ↗</a></div>
   </section>
   <section id="intro-space" data-intro-scene="space" className="intro-panel intro-space">
    <div className="intro-photo" role="img" aria-label="세종문화회관에서 선보인 공연의 이미지"/><div className="intro-photo-shade"/>
-   <div className="intro-copy"><span className="intro-kicker">02 - OPEN SPACE</span><h2>서울 한가운데,<br/><em>다른 세계로.</em></h2><p>광화문에서 공연과 전시, 교육과 만남이 교차하는 예술의 거점. 무대의 막이 오르기 전에도 이야기는 이미 시작됩니다.</p><Link href="/visit/spaces">공간 둘러보기 ↗</Link></div>
+   <div className="intro-copy"><span className="intro-kicker">02 - OPEN SPACE</span><h2>한 건물에<br/><em>여러 개의 무대.</em></h2><p>대극장부터 소공연장, 미술관까지 무대마다 분위기와 좌석이 다릅니다. 막이 오르기 전에 공간을 먼저 둘러보세요.</p><Link href="/visit/spaces">공간 둘러보기 ↗</Link></div>
   </section>
   <section id="intro-together" data-intro-scene="together" className="intro-panel intro-last">
    <div className="intro-orbit" aria-hidden="true"><i/><i/><i/></div>
-   <div className="intro-copy"><span className="intro-kicker">03 - THE NEXT SCENE</span><h2>다음 장면은<br/><em>우리의 것.</em></h2><p>예술가가 만들고 관객이 완성하는 도시. 세종문화회관의 다음 페이지에 당신을 초대합니다.</p>
-    <div className="intro-actions"><Link href="/programs">공연·전시 만나기 ↗</Link><Link href="/about/introduction/history">걸어온 역사 ↗</Link></div>
+   <div className="intro-copy"><span className="intro-kicker">03 - THE NEXT SCENE</span><h2>다음 무대의<br/><em>자리가 비어 있습니다.</em></h2><p>무대는 예술가가 차리고, 관람은 관객이 완성합니다. 다음 회차 일정을 확인해 보세요.</p>
+    <div className="intro-actions"><Link href="/programs">공연·전시 일정 ↗</Link><Link href="/about/introduction/history">걸어온 역사 ↗</Link></div>
    </div><p className="intro-credit">UNOFFICIAL REDESIGN CONCEPT · NOT AN OFFICIAL WEBSITE</p>
   </section>
  </div>;
