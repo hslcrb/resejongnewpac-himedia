@@ -101,7 +101,7 @@ function createTexture(pixels: number, expanded: boolean, modestDevice: boolean)
         });
     });
 
-    return { pixels, expanded, coats, tufts: createTufts(expanded, modestDevice) };
+    return { pixels, expanded, coats, tufts: createTufts(expanded, modestDevice, expanded ? 1 : 3) };
 }
 
 /** Decorative only: native links remain usable if Canvas is unavailable. */
@@ -133,13 +133,14 @@ export default function VioletFur({ awake, animated, expanded = false, interacti
         let previousFrame = performance.now();
         let previousDraw = previousFrame;
         texture.tufts.springs.fill(0);
-        // [터프 생기] 닫힌 구슬에서도 확실히 나풀거리도록 잔잔한 바람보다 큰 세기를 준다 · Clearly visible idle sway at every size.
-        const vigor = (expanded ? 1.9 : 2.3) * (modestDevice ? .75 : 1);
+        // [터프 생기] 닫힌 구슬은 굵은 가닥에 큰 물결을 걸고 넓은 휠은 서늘한 헤일을 걸어둔다 · Bold waves on the small orb, a cooler veil on the wide wheel.
+        const vigor = (expanded ? 1.75 : 6.5) * (modestDevice ? .75 : 1);
+        const ceiling = expanded ? 14 : 34;
         const interval = 1000 / (modestDevice ? 20 : 24);
 
         function draw(now: number) {
             if (!context || !texture) return;
-            if (animated) stepTufts(texture.tufts, interaction.current, now / 1000, (now - previousDraw) / 1000, vigor);
+            if (animated) stepTufts(texture.tufts, interaction.current, now / 1000, (now - previousDraw) / 1000, vigor, ceiling);
             previousDraw = now;
             context.clearRect(0, 0, SIZE, SIZE);
             context.drawImage(texture.coats[0], 0, 0, SIZE, SIZE);

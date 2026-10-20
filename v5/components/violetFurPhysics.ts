@@ -25,7 +25,7 @@ export const FUR_RADIUS = FUR_CENTER / 1.3;
 const TUFT_SHADES = 10;
 const FIBER_STRIDE = 10;
 
-export function createTufts(expanded: boolean, modestDevice: boolean): TuftField {
+export function createTufts(expanded: boolean, modestDevice: boolean, strandScale = 1): TuftField {
     let seed = expanded ? 7341 : 4157;
     const random = () => {
         seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
@@ -58,7 +58,8 @@ export function createTufts(expanded: boolean, modestDevice: boolean): TuftField
             dx /= magnitude;
             dy /= magnitude;
             const length = rim ? 21 + random() * 9 : 12 + random() * 9;
-            const width = (rim ? .18 : .28) + random() * .28;
+            // [가닥 두께] 600 공간 기준 굵기에 상태 배율을 얹어 작은 구슬에서도 픽셀을 건드리게 한다 · Strand widths stay readable when the field shrinks onto the small orb.
+            const width = ((rim ? 1.1 : 1.5) + random() * .95) * strandScale;
             const curl = (random() - .5) * length * .55;
             const light = Math.max(0, -nx * .52 - ny * .65 + Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny)) * .57);
             const shade = Math.min(TUFT_SHADES - 1, Math.floor((.15 + light * .5 + random() * .28) * TUFT_SHADES));
@@ -75,11 +76,12 @@ export function createTufts(expanded: boolean, modestDevice: boolean): TuftField
         anchors,
         springs: new Float32Array(count * 4),
         fibers: buckets.map(values => new Float32Array(values)),
-        colors: Array.from({ length: TUFT_SHADES }, (_, shade) => `hsla(${272 + shade * 1.1}, 75%, ${30 + shade * 5.2}%, .85)`),
+        // [털 농도] 시선을 방해하지 않도록 가닥을 절반 이하 농도로만 얹는다 · Half-transparent strands so the fur stays a soft coat.
+        colors: Array.from({ length: TUFT_SHADES }, (_, shade) => `hsla(${272 + shade * 1.1}, 75%, ${30 + shade * 5.2}%, ${expanded ? .3 : .38})`),
     };
 }
 
-export function stepTufts(field: TuftField, input: VioletInteraction, time: number, elapsed: number, vigor = 1) {
+export function stepTufts(field: TuftField, input: VioletInteraction, time: number, elapsed: number, vigor = 1, ceiling = 12) {
     // A bounded timestep and near-critical damping avoid a snap after a slow frame.
     const dt = Math.min(.05, Math.max(0, elapsed));
     const steps = Math.max(1, Math.ceil(dt / (1 / 60)));
@@ -102,14 +104,15 @@ export function stepTufts(field: TuftField, input: VioletInteraction, time: numb
         const angle = -1.15 + phase * .26 + Math.sin(time * .47 + phase * 2.2) * .38;
         const gust = Math.sin(time * .5 + phase * 1.6) * .62 + Math.sin(time * .24 + phase * .8 + gustWave) * .5;
         const flutter = Math.sin(time * 1.7 + phase * 5.3) * .3 + Math.sin(time * 2.6 + phase * 6.9) * .16;
-        const magnitude = (1.8 + gust * 1.5 + flutter) * vigor * anchors[offset + 3];
+        const magnitude = (2.6 + gust * 2 + flutter) * vigor * anchors[offset + 3];
         // [살랑 잔물결] 흐름각 밖의 소주파수 성분을 섞어 뭉치마다 제각각 흔들리게 한다 · Off-axis low-frequency shimmer keeps every tuft out of sync.
-        let targetX = Math.cos(angle) * magnitude + Math.cos(time * .9 + phase * 3.7) * .6 * vigor;
-        let targetY = Math.sin(angle) * magnitude * .84 + Math.sin(time * 1.13 + phase * 4.9) * .5 * vigor;
+        let targetX = Math.cos(angle) * magnitude + Math.cos(time * .9 + phase * 3.7) * .7 * vigor;
+        let targetY = Math.sin(angle) * magnitude * .84 + Math.sin(time * 1.13 + phase * 4.9) * .6 * vigor;
         targetX += input.velocityX * nearby * push * 1.05 - ny * spin * 3.6;
         targetY += input.velocityY * nearby * push * 1.05 + nx * spin * 3.6;
         const bend = Math.hypot(targetX, targetY);
-        if (bend > 9) { targetX *= 9 / bend; targetY *= 9 / bend; }
+        // [구슬 배율] 같은 바람이 작은 캔버스에서 커 보이도록 상태별 상한을 두른다 · Per-state ceiling keeps the wind readable on the tiny orb.
+        if (bend > ceiling) { targetX *= ceiling / bend; targetY *= ceiling / bend; }
 
         let x = springs[offset];
         let y = springs[offset + 1];
