@@ -12,7 +12,7 @@
 - Full guide: [디자인 근거, 재사용 API, 접근성 및 검증 절차](../docs/components/violet-quick-menu.md)
 - Live example: [디자인 가이드의 컴포넌트 갤러리](../app/design-rules/page.tsx) - `/v5/design-rules/#violet-quick-menu`
 - Verification: [기존 여섯 항목 구현의 25개 동작 검증 기록 및 PC·모바일 화면](../../docs/v5-violet-quick-menu/README.md)
-- Integration verification: [갤러리를 포함한 36개 프로덕션 검사와 대표 화면](../docs/violet-quick-menu-verification.md)
+- Execution and verification: [날짜별 검사 결과, 최종 커밋·병합 이력과 배포 확인](../docs/violet-quick-menu-verification.md)
 - Fur/fade verification (2026-10-20): [필수 5개 검사 결과](../docs/evidence/violet-fur-fade/smoke-results.json), [PC](../docs/evidence/violet-fur-fade/desktop.webp), [모바일](../docs/evidence/violet-fur-fade/mobile390.webp). 실행 명령은 `npm run test:orb:smoke`입니다.
 
 ```tsx

@@ -197,6 +197,8 @@
     align-items: start;
 }
 
+.home-program-anchor { min-width: 0; }
+
 .home-demo-note {
     margin-top: 26px;
     color: var(--muted);
