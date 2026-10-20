@@ -54,7 +54,7 @@ test('idle tuft flutter stays small and preserves every cached root', () => {
     stepTufts(field, restingInput(), 10 + frame / 24, 1 / 24);
     maximum = Math.max(maximum, displacement(field));
   }
-  assert.ok(maximum > .1 && maximum < .55, `Idle movement should be tiny but present: ${maximum}`);
+  assert.ok(maximum > .9 && maximum < 7, `Idle wind should be clearly visible yet bounded: ${maximum}`);
   assert.deepEqual(field.anchors, anchors);
   assert.deepEqual(field.fibers, fibers);
   assert.deepEqual(drawGeometry(field).roots, before.roots);
@@ -78,7 +78,7 @@ test('pointer and signed spin bend tips locally, then settle back to idle', () =
     response = Math.max(response, displacement(field, idle));
   }
   assert.ok(response > 1, `Movement must visibly exceed idle: ${response}`);
-  assert.ok(maximum <= 4.3, `Bend must remain restrained: ${maximum}`);
+  assert.ok(maximum <= 7.4, `Bend must remain restrained: ${maximum}`);
   assert.ok(displacement(field, idle) < .04, 'Released tufts must settle back to their moving idle rest state');
   assert.deepEqual(drawGeometry(field).roots, roots, 'Both edges of every root remain fixed after interaction');
 });

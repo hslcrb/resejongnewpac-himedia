@@ -31,22 +31,23 @@ export function createTufts(expanded: boolean, modestDevice: boolean): TuftField
         seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
         return seed / 4294967296;
     };
-    const bodyCount = expanded ? modestDevice ? 32 : 48 : 12;
-    const rimCount = expanded ? modestDevice ? 24 : 36 : 16;
+    // [터프 밀도] 뭉치가 빈약해 보이지 않도록 각 상태의 털 수와 가닥 수를 늘린다 · Dense tuft counts per state.
+    const bodyCount = expanded ? modestDevice ? 34 : 48 : 24;
+    const rimCount = expanded ? modestDevice ? 28 : 40 : 26;
     const count = bodyCount + rimCount;
     const anchors = new Float32Array(count * 4);
     const buckets: number[][] = Array.from({ length: TUFT_SHADES }, () => []);
 
     for (let tuft = 0; tuft < count; tuft++) {
         const rim = tuft >= bodyCount;
-        const angle = rim ? (tuft - bodyCount + random() * .4) / rimCount * Math.PI * 2 : tuft * 2.399963 + random() * .2;
+        const angle = rim ? (tuft - bodyCount + random() * .8) / rimCount * Math.PI * 2 : tuft * 2.399963 + random() * .35;
         const radius = rim ? FUR_RADIUS - 5 + random() * 3 : Math.sqrt((tuft + .5) / bodyCount) * FUR_RADIUS * .92;
         const nx = Math.cos(angle) * radius / FUR_RADIUS;
         const ny = Math.sin(angle) * radius / FUR_RADIUS;
         const offset = tuft * 4;
         anchors.set([nx, ny, random() * Math.PI * 2, .9 + random() * .2], offset);
 
-        for (let hair = 0; hair < (expanded ? 6 : 4); hair++) {
+        for (let hair = 0; hair < (expanded ? modestDevice ? 5 : 6 : 5); hair++) {
             const x = FUR_CENTER + nx * FUR_RADIUS + (random() - .5) * 8;
             const y = FUR_CENTER + ny * FUR_RADIUS + (random() - .5) * 8;
             const edge = Math.pow(radius / FUR_RADIUS, 5);
@@ -78,7 +79,7 @@ export function createTufts(expanded: boolean, modestDevice: boolean): TuftField
     };
 }
 
-export function stepTufts(field: TuftField, input: VioletInteraction, time: number, elapsed: number) {
+export function stepTufts(field: TuftField, input: VioletInteraction, time: number, elapsed: number, vigor = 1) {
     // A bounded timestep and near-critical damping avoid a snap after a slow frame.
     const dt = Math.min(.05, Math.max(0, elapsed));
     const steps = Math.max(1, Math.ceil(dt / (1 / 60)));
@@ -88,6 +89,8 @@ export function stepTufts(field: TuftField, input: VioletInteraction, time: numb
     const spin = input.spin * freshness;
     const anchors = field.anchors;
     const springs = field.springs;
+    // [바람 돌풍] 큰 파도가 천천히 지나가며 뭉치별로 시차를 둔다 · A slow gust wave sweeps the dome with lag between clumps.
+    const gustWave = Math.sin(time * .3) * .55 + Math.sin(time * .17 + 1.7) * .45;
 
     for (let offset = 0; offset < anchors.length; offset += 4) {
         const nx = anchors[offset];
@@ -95,12 +98,17 @@ export function stepTufts(field: TuftField, input: VioletInteraction, time: numb
         const phase = anchors[offset + 2];
         const distance = (nx - input.x) ** 2 + (ny - input.y) ** 2;
         const nearby = 1 / (1 + distance * 7) ** 2;
-        let targetX = Math.sin(time * .33 + phase) * .32 + Math.sin(time * .17 + phase * 1.7) * .12;
-        let targetY = Math.sin(time * .27 + phase * 1.3) * .26;
+        // [나풀 풍성] 각 뭉치가 자기 흐름각 위에서 숨을 쉬고, 빠른 잔떨림이 겹친다 · Each tuft breathes along its own flow angle under a fast flutter.
+        const angle = -1.15 + phase * .26 + Math.sin(time * .47 + phase * 2.2) * .38;
+        const gust = Math.sin(time * .5 + phase * 1.6) * .62 + Math.sin(time * .24 + phase * .8 + gustWave) * .5;
+        const flutter = Math.sin(time * 1.7 + phase * 5.3) * .3 + Math.sin(time * 2.6 + phase * 6.9) * .16;
+        const magnitude = (1.8 + gust * 1.5 + flutter) * vigor * anchors[offset + 3];
+        let targetX = Math.cos(angle) * magnitude;
+        let targetY = Math.sin(angle) * magnitude * .84;
         targetX += input.velocityX * nearby * push * .95 - ny * spin * 2.1;
         targetY += input.velocityY * nearby * push * .95 + nx * spin * 2.1;
         const bend = Math.hypot(targetX, targetY);
-        if (bend > 4.2) { targetX *= 4.2 / bend; targetY *= 4.2 / bend; }
+        if (bend > 6.4) { targetX *= 6.4 / bend; targetY *= 6.4 / bend; }
 
         let x = springs[offset];
         let y = springs[offset + 1];

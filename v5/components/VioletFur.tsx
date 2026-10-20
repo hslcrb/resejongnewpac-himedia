@@ -133,11 +133,13 @@ export default function VioletFur({ awake, animated, expanded = false, interacti
         let previousFrame = performance.now();
         let previousDraw = previousFrame;
         texture.tufts.springs.fill(0);
+        // [터프 생기] 닫힌 구슬에서도 눈에 보이는 나풀임을 위해 확장 상태엔 강한 바람을 준다 · Visible idle sway with stronger wind while expanded.
+        const vigor = (expanded ? 1.55 : 1.25) * (modestDevice ? .8 : 1);
         const interval = 1000 / (modestDevice ? 20 : 24);
 
         function draw(now: number) {
             if (!context || !texture) return;
-            if (animated) stepTufts(texture.tufts, interaction.current, now / 1000, (now - previousDraw) / 1000);
+            if (animated) stepTufts(texture.tufts, interaction.current, now / 1000, (now - previousDraw) / 1000, vigor);
             previousDraw = now;
             context.clearRect(0, 0, SIZE, SIZE);
             context.drawImage(texture.coats[0], 0, 0, SIZE, SIZE);
