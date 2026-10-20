@@ -14,8 +14,13 @@
     isolation: isolate;
 }
 
-.experience[hidden] { display: none; }
-.experience[hidden] *, .experience[hidden] *::before, .experience[hidden] *::after,
+.experience[data-placement="hero"] {
+    opacity: var(--hero-opacity, 0);
+    visibility: hidden;
+    transition: opacity 180ms ease-out, visibility 0s linear 180ms;
+}
+.experience[data-placement="hero"][data-visible="true"] { visibility: visible; transition-delay: 0s; }
+.experience[data-visible="false"] * { pointer-events: none !important; }
 .experience[data-sleeping="true"] *, .experience[data-sleeping="true"] *::before, .experience[data-sleeping="true"] *::after { animation-play-state: paused !important; }
 
 .horizon {
@@ -146,6 +151,8 @@
 }
 
 .fur { position: absolute; width: 130%; height: 130%; top: -15%; left: -15%; pointer-events: none; z-index: -1; }
+.coatLight { position: absolute; inset: 0; overflow: hidden; border-radius: 50%; z-index: -1; pointer-events: none; mix-blend-mode: soft-light; }
+.coatLight::before { content: ""; position: absolute; inset: -35%; background: conic-gradient(from 40deg, transparent, rgb(231 179 255 / 65%) 24%, transparent 43%, rgb(103 12 201 / 55%) 63%, transparent 84%); filter: blur(15px); animation: violetFlow 19s linear infinite; }
 .rotor { position: absolute; inset: 0; transform: rotate(var(--rotation, 0deg)); transition: transform .65s cubic-bezier(.2, .75, .2, 1); }
 .wheel[data-dragging="true"] .rotor, .wheel[data-dragging="true"] .menuLink { transition: none; }
 .slices { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
@@ -253,7 +260,7 @@
 .spark { width: 23px; height: 23px; overflow: visible; }
 .closedHint { position: absolute; bottom: -14px; left: 50%; width: max-content; transform: translateX(-50%); font-size: 10px; font-weight: 500; line-height: 1; color: #fff; letter-spacing: .02em; text-shadow: 0 1px 8px #5804a6; transition: opacity .2s; }
 .experience[data-state="open"] .toggle { width: 44px; height: 44px; background: rgb(61 9 114 / 64%); border: 1px solid rgb(255 255 255 / 42%); backdrop-filter: blur(10px); }
-.experience[data-state="open"] .toggle .art, .experience[data-state="open"] .toggle .fur, .experience[data-state="open"] .closedHint { opacity: 0; }
+.experience[data-state="open"] .toggle .art, .experience[data-state="open"] .toggle .fur, .experience[data-state="open"] .toggle .coatLight, .experience[data-state="open"] .closedHint { opacity: 0; }
 .experience[data-state="open"] .toggle { bottom: 6px; }
 
 /* Inline previews stay in document flow so their own visibility can be observed. */
@@ -320,12 +327,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .experience *, .experience *::before, .experience *::after { animation: none !important; transition: none !important; }
+    .experience, .experience *, .experience *::before, .experience *::after { animation: none !important; transition: none !important; }
     .flow { transform: rotate(35deg); }
 }
 
 @media (forced-colors: active) {
-    .horizon, .fur, .art { display: none; }
+    .horizon, .fur, .art, .coatLight { display: none; }
     .wheel, .toggle, .current { background: Canvas; border: 2px solid ButtonText; color: ButtonText; }
     .menuLink, .menuLabel, .current small, .instruction { color: LinkText; text-shadow: none; }
     .instruction { background: Canvas; border-color: ButtonText; }
