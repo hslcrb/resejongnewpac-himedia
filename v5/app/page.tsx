@@ -500,9 +500,9 @@ export default function HomePage() {
             <section className="home-booking container" id="quick-booking" data-home-anchor aria-labelledby="quick-booking-heading">
                 <div className="section-heading">
                     <div>
-                        <p className="home-section-label">빠른 예매</p>
-                        <h2 id="quick-booking-heading">날짜로 공연을 찾아 보세요.</h2>
-                        <p className="section-description">선택한 날의 공연·전시·교육 일정이 표시됩니다.</p>
+                        <p className="home-section-label">날짜로 찾는 예술</p>
+                        <h2 id="quick-booking-heading">언제 만나볼까요?</h2>
+                        <p className="section-description">관람할 날을 고르면, 그날의 예술이 보여요.</p>
                     </div>
                     <Link className="text-link" href="/programs?view=calendar" id="home-booking-full-calendar" data-home-anchor>
                         전체 일정 <Icon name="arrow" size={20} />
@@ -783,11 +783,11 @@ export default function HomePage() {
 
                 <Link href="/programs/season" className="home-season-link" id="home-season-programs" data-home-anchor>
                     <span>
-                        <strong>세종시즌과 기획 프로그램</strong>
-                        <span>세종시즌부터 Sync Next까지, 기획 일정을 모았습니다</span>
+                        <strong>한 편에서 시작하는, 나만의 시즌.</strong>
+                        <span>세종시즌부터 Sync Next까지, 취향을 넓히는 기획 프로그램</span>
                     </span>
                     <span>
-                        기획·시즌 일정 보기 <Icon name="arrow" size={22} />
+                        기획·시즌 살펴보기 <Icon name="arrow" size={22} />
                     </span>
                 </Link>
             </section>
@@ -962,15 +962,15 @@ export default function HomePage() {
                         <h2 id="identity-heading">
                             서울의 중심,
                             <br />
-                            1978년부터 이어진 무대.
+                            예술의 다음.
                         </h2>
                         <p className="identity-description">
-                            공연·전시·교육을 한 곳에 모았습니다.
+                            하늘과 땅, 그리고 사람.
                             <br />
-                            천지인 세 가지 색은 세종의 아이덴티티입니다.
+                            서로 다른 우리가 예술로 만나는 곳입니다.
                         </p>
                         <Link className="identity-link" href="/about" id="home-identity-about" data-home-anchor>
-                            세종문화회관 소개 <Icon name="arrow" size={23} />
+                            세종문화회관을 소개합니다 <Icon name="arrow" size={23} />
                         </Link>
                     </div>
 
