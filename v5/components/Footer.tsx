@@ -16,8 +16,8 @@ export default function Footer() {
     };
 
     return (
-        <footer id="footer" className="renewal-footer">
-            <div className="footer-utility">
+        <footer id="footer" className="renewal-footer" data-home-anchor>
+            <div className="footer-utility" id="footer-newsletter" data-home-anchor>
                 <div className="container">
                     <p>예술과 더 가까워지는 방법.</p>
                     <Link href="/news/newsletter">
@@ -27,7 +27,7 @@ export default function Footer() {
             </div>
 
             <div className="container footer-main">
-                <div className="footer-identity">
+                <div className="footer-identity" id="footer-identity" data-home-anchor>
                     <Link href="/" aria-label="세종문화회관 홈">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -53,12 +53,12 @@ export default function Footer() {
                     </span>
                 </div>
 
-                <div className="footer-information">
-                    <nav className="footer-policy" aria-label="정책과 안내">
-                        <Link href="/policy/privacy">개인정보처리방침</Link>
-                        <Link href="/policy/terms">이용약관</Link>
-                        <Link href="/visit/support">고객지원</Link>
-                        <Link href="/sitemap">사이트맵</Link>
+                <div className="footer-information" id="footer-information" data-home-anchor>
+                    <nav className="footer-policy" id="footer-policy" data-home-anchor aria-label="정책과 안내">
+                        <Link href="/policy/privacy" id="footer-policy-privacy" data-home-anchor>개인정보처리방침</Link>
+                        <Link href="/policy/terms" id="footer-policy-terms" data-home-anchor>이용약관</Link>
+                        <Link href="/visit/support" id="footer-support" data-home-anchor>고객지원</Link>
+                        <Link href="/sitemap" id="footer-sitemap" data-home-anchor>사이트맵</Link>
                     </nav>
                     <address>
                         서울특별시 종로구 세종대로 175<br />
@@ -70,17 +70,27 @@ export default function Footer() {
                     </p>
                 </div>
 
-                <div className="footer-service">
+                <div className="footer-service" id="footer-service" data-home-anchor>
                     <span>전화예매 및 문의</span>
-                    <a className="footer-phone" href="tel:023991000">02-399-1000</a>
+                    <a className="footer-phone" href="tel:023991000" id="footer-phone" data-home-anchor>02-399-1000</a>
+                    <a className="footer-citybrand" id="footer-citybrand" data-home-anchor href="https://www.seoul.go.kr/main/index.jsp">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src="/v5/assets/logos/seoulmysoul-citybrand.svg"
+                            alt="서울시 로고 SEOUL MY SOUL"
+                            width={624.55}
+                            height={101.21}
+                            loading="lazy"
+                        />
+                    </a>
                     <label htmlFor="family-site" className="sr-only">관련 페이지</label>
-                    <select id="family-site" onChange={handleFamilySiteChange} defaultValue="">
+                    <select id="family-site" data-home-anchor onChange={handleFamilySiteChange} defaultValue="">
                         <option value="">패밀리 사이트</option>
                         <option value="/about/companies">서울시예술단</option>
                         <option value="/programs/education">세종예술아카데미</option>
                         <option value="/programs/history">세종·충무공 이야기</option>
                     </select>
-                    <a className="version-link" href="/">
+                    <a className="version-link" href="/" id="footer-versions" data-home-anchor>
                         전체 버전 비교 ↗
                     </a>
                 </div>
