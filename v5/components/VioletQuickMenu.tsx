@@ -28,7 +28,9 @@ export const SEJONG_QUICK_MENU_ITEMS: VioletQuickMenuItems = [
 ];
 
 export interface VioletQuickMenuProps {
-    /** Only show the fixed horizon and menu while this hero is in view. */
+    /** Keep the default fixed hero control, or contain the same menu in page content. */
+    placement?: "hero" | "inline";
+    /** Fade the fixed horizon and menu as this hero scrolls behind the header. */
     heroId?: string;
     items?: VioletQuickMenuItems;
     /** Lets a host carousel pause while its visitor is choosing a destination. */
@@ -65,8 +67,8 @@ function LiquidSurface() {
     return <span className={styles.art} aria-hidden="true"><span className={styles.flow} /><span className={styles.luster} /><span className={styles.light} /></span>;
 }
 
-/** Hero-scoped, non-modal radial navigation. All destinations are real links. */
-function VioletQuickMenu({ heroId = "featured-season", items = SEJONG_QUICK_MENU_ITEMS, onOpenChange }: VioletQuickMenuProps) {
+/** Non-modal radial navigation for a hero or an inline preview. All destinations are real links. */
+function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items = SEJONG_QUICK_MENU_ITEMS, onOpenChange }: VioletQuickMenuProps) {
     const menuId = useId();
     const hintId = useId();
     const [visible, setVisible] = useState(false);
@@ -138,22 +140,57 @@ function VioletQuickMenu({ heroId = "featured-season", items = SEJONG_QUICK_MENU
     };
 
     useEffect(() => {
-        const hero = document.getElementById(heroId);
-        if (!hero) return;
+        const observed = placement === "inline" ? rootRef.current : document.getElementById(heroId);
+        const root = rootRef.current;
+        if (!observed || !root) return;
+        const topInset = placement === "hero" ? 96 : 0;
+        let frame = 0;
+        let lastOpacity = -1;
+        let lastVisible: boolean | null = null;
         const update = () => {
-            const rect = hero.getBoundingClientRect();
-            setVisible(rect.bottom > 96 && rect.top < window.innerHeight);
+            frame = 0;
+            const rect = observed.getBoundingClientRect();
+            const inView = rect.bottom > topInset && rect.top < window.innerHeight;
+            // Start fading when the hero reaches the header; finish within a short scroll.
+            const distance = Math.min(180, Math.max(120, rect.height * .25));
+            const opacity = placement === "inline" ? 1 : inView ? Math.min(1, Math.max(0, (rect.top - topInset + distance) / distance)) : 0;
+            const nextVisible = inView && (placement === "inline" || opacity > .001);
+            if (Math.abs(opacity - lastOpacity) > .001) {
+                root.style.setProperty("--hero-opacity", opacity.toFixed(4));
+                lastOpacity = opacity;
+            }
+            // No invisible links can intercept pointer or keyboard input during dismissal.
+            root.inert = !nextVisible;
+            if (nextVisible !== lastVisible) {
+                lastVisible = nextVisible;
+                setVisible(nextVisible);
+            }
         };
+        const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
         update();
-        if (typeof IntersectionObserver === "undefined") {
-            window.addEventListener("scroll", update, { passive: true });
-            window.addEventListener("resize", update);
-            return () => { window.removeEventListener("scroll", update); window.removeEventListener("resize", update); };
-        }
-        const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { rootMargin: "-96px 0px 0px 0px", threshold: 0 });
-        observer.observe(hero);
-        return () => observer.disconnect();
-    }, [heroId]);
+        // Event-driven and coalesced: no idle loop or per-scroll React render.
+        window.addEventListener("scroll", schedule, { passive: true });
+        window.addEventListener("resize", schedule);
+        const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(schedule);
+        observer?.observe(observed);
+        return () => {
+            cancelAnimationFrame(frame);
+            window.removeEventListener("scroll", schedule);
+            window.removeEventListener("resize", schedule);
+            observer?.disconnect();
+        };
+    }, [heroId, placement]);
+
+    useEffect(() => {
+        // A lost window or changed wheel geometry must not leave a captured drag active.
+        const cancel = () => finishGesture(true);
+        window.addEventListener("blur", cancel);
+        window.addEventListener("resize", cancel);
+        return () => {
+            window.removeEventListener("blur", cancel);
+            window.removeEventListener("resize", cancel);
+        };
+    }, [finishGesture]);
 
     useEffect(() => {
         const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -290,7 +327,7 @@ function VioletQuickMenu({ heroId = "featured-season", items = SEJONG_QUICK_MENU
         ><span className={styles.menuLabel}><Icon name={item.icon} size={24} /><span>{item.label}</span></span></Link>;
     };
 
-    return <div ref={rootRef} className={styles.experience} data-violet-menu data-state={open ? "open" : "closed"} data-sleeping={sleeping} hidden={!visible}>
+    return <div ref={rootRef} className={styles.experience} data-violet-menu data-placement={placement} data-visible={visible} data-state={open ? "open" : "closed"} data-sleeping={sleeping || !visible} aria-hidden={!visible}>
         <div className={styles.horizon} aria-hidden="true"><span className={styles.ribbon} /></div>
         <div
             ref={dockRef}
@@ -325,6 +362,7 @@ function VioletQuickMenu({ heroId = "featured-season", items = SEJONG_QUICK_MENU
                     >
                         <LiquidSurface />
                         <VioletFur awake={visible && open && !sleeping} animated={!reducedMotion && !sleeping} expanded interaction={interaction} />
+                        <span className={styles.coatLight} aria-hidden="true" />
                         <div className={styles.rotor}>
                             <svg className={styles.slices} viewBox="0 0 400 400" aria-hidden="true">
                                 {items.map((item, index) => <path key={item.id} className={styles.slice} d={sectorPath(index)} data-selected={selected === index} />)}
@@ -358,6 +396,7 @@ function VioletQuickMenu({ heroId = "featured-season", items = SEJONG_QUICK_MENU
             >
                 <LiquidSurface />
                 <VioletFur awake={visible && !open && !sleeping} animated={false} interaction={interaction} />
+                <span className={styles.coatLight} aria-hidden="true" />
                 {open ? <Icon name="close" size={21} /> : <span className={styles.toggleLabel} aria-hidden="true">
                     <svg className={styles.spark} viewBox="0 0 24 24" fill="none"><path d="M12 1C12 8 8 12 1 12C8 12 12 16 12 23C12 16 16 12 23 12C16 12 12 8 12 1Z" fill="currentColor" /><circle cx="21" cy="3" r="1.3" fill="currentColor" /></svg>
                     <span>QUICK</span>

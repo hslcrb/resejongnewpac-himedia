@@ -71,6 +71,8 @@ async function home(page) {
     await expect(page.locator("#featured-season")).toHaveCount(1);
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await page.evaluate(() => document.fonts.ready);
+    // The hero is server-rendered; the visibility observer starts after hydration.
+    await expect(page.locator(selectors.toggle)).toBeVisible();
     return response;
 }
 
@@ -78,6 +80,19 @@ async function wheelIsStable(page) {
     let previous;
     let stableSamples = 0;
     await expect.poll(async () => {
+        // A pending transition can return the same compressed box before its first paint.
+        const transitioning = await page.locator(selectors.wheel).evaluate((element) => {
+            for (let node = element; node; node = node.parentElement) {
+                if (node.getAnimations().some((animation) => animation instanceof CSSTransition && (animation.playState === "running" || animation.pending))) return true;
+                if (node.matches("[data-violet-menu]")) break;
+            }
+            return false;
+        });
+        if (transitioning) {
+            previous = undefined;
+            stableSamples = 0;
+            return false;
+        }
         const box = await page.locator(selectors.wheel).boundingBox();
         assert.ok(box, "The expanded wheel must have a visible box");
         const stable = previous && ["x", "y", "width", "height"].every((key) => Math.abs(previous[key] - box[key]) < 0.5);
@@ -169,6 +184,12 @@ async function dragArc(page) {
 async function dragWheel(page, touch = false) {
     const beforeUrl = page.url();
     const points = await dragArc(page);
+    const startHit = await page.evaluate(({ point, links }) => {
+        const hit = document.elementFromPoint(point.x, point.y);
+        const link = hit?.closest(links);
+        return { point, tag: hit?.tagName, link: link?.matches("a[href]") ? link.getAttribute("data-violet-link") : null };
+    }, { point: points[0], links: selectors.links });
+    assert.ok(startHit.link, `Dragging must start on a visible native shortcut: ${JSON.stringify(startHit)}`);
     const samples = [await rotation(page)];
     const client = touch ? await page.context().newCDPSession(page) : null;
     const touchPoint = (point) => ({ ...point, id: 1, radiusX: 4, radiusY: 4, force: 1 });
@@ -205,7 +226,7 @@ async function dragWheel(page, touch = false) {
     assert.ok(Math.abs(snapped - samples.at(-1)) <= 120.75, "Gentle inertia must settle within two further items");
     assert.equal(page.url(), beforeUrl, "Dragging a native menu link must not navigate on release");
     await expect(page.locator(selectors.menu)).toHaveAttribute("data-state", "open");
-    return { input: touch ? "CDP touch events" : "mouse pointer", liveChange, snapped, samples };
+    return { input: touch ? "CDP touch events" : "mouse pointer", startHit, liveChange, snapped, samples };
 }
 
 async function geometry(page) {
@@ -422,9 +443,10 @@ async function bookingArrived(page) {
             await screenshot(reducedPage, "reduced-motion-1440.png");
         });
 
-        await check("the menu introduces no attributable browser errors", async () => {
+        await check("the home and menu produce no browser errors", async () => {
             assert.deepEqual(report.menuErrors, []);
-            return { unrelatedErrorsReportedSeparately: report.unrelatedErrors.length };
+            assert.deepEqual(report.unrelatedErrors, []);
+            return { pageAndConsoleErrors: 0 };
         });
     } finally {
         await browser.close();
