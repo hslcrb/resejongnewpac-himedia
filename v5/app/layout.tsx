@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Toast from "../components/Toast";
 import ReturnTop from "../components/ReturnTop";
+import ContextMenu from "../components/ContextMenu";
 
 import "../styles/compat/shared.css";
 import "../styles/compat/programs.css";
@@ -59,6 +60,7 @@ export default function RootLayout({
                 <Footer />
                 <Toast />
                 <ReturnTop />
+                <ContextMenu />
             </body>
         </html>
     );

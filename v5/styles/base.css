@@ -126,3 +126,30 @@ section[id], main[id] {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ==========================================================================
+   [텍스트 선택·드래그 방지 / Selection & Drag Guard]
+   사용자 요청에 따라 화면 전체 텍스트 선택과 이미지 끌어당김을 막고,
+   입력·복사가 필요한 폼 요소는 선택을 다시 허용합니다.
+   Disable text selection and image dragging site-wide by request,
+   while re-enabling selection for form fields that need editing or copying.
+   ========================================================================== */
+* {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+img,
+svg {
+    -webkit-user-drag: none;
+}
+
+input,
+textarea,
+select,
+[contenteditable="true"],
+[contenteditable=""] {
+    -webkit-touch-callout: default;
+    -webkit-user-select: text;
+    user-select: text;
+}

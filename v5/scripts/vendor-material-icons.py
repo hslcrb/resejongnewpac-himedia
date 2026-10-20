@@ -18,6 +18,7 @@ SYMBOLS = [
     "calendar_month", "location_on", "confirmation_number", "person", "favorite",
     "favorite-fill", "chevron_right", "schedule", "add", "check", "accessible",
     "directions_car", "apartment", "local_cafe", "mail", "download", "play_arrow", "pause",
+    "refresh", "home", "undo", "content_copy", "open_in_new",
 ]
 
 
