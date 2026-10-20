@@ -12,6 +12,7 @@ export function generateStaticParams() {
             // 이미 전용 폴더가 있는 라우트는 slug에서 제외
             if (
                 !p.startsWith("design-rules") &&
+                p !== "about/introduction" &&
                 !p.startsWith("account") &&
                 p !== "programs"
             ) {
