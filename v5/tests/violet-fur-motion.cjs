@@ -78,7 +78,7 @@ test('pointer and signed spin bend tips locally, then settle back to idle', () =
     response = Math.max(response, displacement(field, idle));
   }
   assert.ok(response > 1, `Movement must visibly exceed idle: ${response}`);
-  assert.ok(maximum <= 7.4, `Bend must remain restrained: ${maximum}`);
+  assert.ok(maximum <= 10.6, `Bend must remain restrained: ${maximum}`);
   assert.ok(displacement(field, idle) < .04, 'Released tufts must settle back to their moving idle rest state');
   assert.deepEqual(drawGeometry(field).roots, roots, 'Both edges of every root remain fixed after interaction');
 });

@@ -103,12 +103,13 @@ export function stepTufts(field: TuftField, input: VioletInteraction, time: numb
         const gust = Math.sin(time * .5 + phase * 1.6) * .62 + Math.sin(time * .24 + phase * .8 + gustWave) * .5;
         const flutter = Math.sin(time * 1.7 + phase * 5.3) * .3 + Math.sin(time * 2.6 + phase * 6.9) * .16;
         const magnitude = (1.8 + gust * 1.5 + flutter) * vigor * anchors[offset + 3];
-        let targetX = Math.cos(angle) * magnitude;
-        let targetY = Math.sin(angle) * magnitude * .84;
-        targetX += input.velocityX * nearby * push * .95 - ny * spin * 2.1;
-        targetY += input.velocityY * nearby * push * .95 + nx * spin * 2.1;
+        // [살랑 잔물결] 흐름각 밖의 소주파수 성분을 섞어 뭉치마다 제각각 흔들리게 한다 · Off-axis low-frequency shimmer keeps every tuft out of sync.
+        let targetX = Math.cos(angle) * magnitude + Math.cos(time * .9 + phase * 3.7) * .6 * vigor;
+        let targetY = Math.sin(angle) * magnitude * .84 + Math.sin(time * 1.13 + phase * 4.9) * .5 * vigor;
+        targetX += input.velocityX * nearby * push * 1.05 - ny * spin * 3.6;
+        targetY += input.velocityY * nearby * push * 1.05 + nx * spin * 3.6;
         const bend = Math.hypot(targetX, targetY);
-        if (bend > 6.4) { targetX *= 6.4 / bend; targetY *= 6.4 / bend; }
+        if (bend > 9) { targetX *= 9 / bend; targetY *= 9 / bend; }
 
         let x = springs[offset];
         let y = springs[offset + 1];
