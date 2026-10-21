@@ -58,6 +58,7 @@ export default function Footer() {
                     <nav className="footer-policy" id="footer-policy" data-home-anchor aria-label="정책과 안내">
                         <Link href="/policy/privacy" id="footer-policy-privacy" data-home-anchor>개인정보처리방침</Link>
                         <Link href="/policy/terms" id="footer-policy-terms" data-home-anchor>이용약관</Link>
+                        <Link href="/design-rules" id="footer-policy-design-system" data-home-anchor>디자인 시스템</Link>
                         <Link href="/visit/support" id="footer-support" data-home-anchor>고객지원</Link>
                         <Link href="/sitemap" id="footer-sitemap" data-home-anchor>사이트맵</Link>
                     </nav>

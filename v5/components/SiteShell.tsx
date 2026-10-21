@@ -1,0 +1,43 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
+import Header from "./Header";
+import Footer from "./Footer";
+import Toast from "./Toast";
+import ReturnTop from "./ReturnTop";
+import ContextMenu from "./ContextMenu";
+
+// [사이트와 문서의 탐색 영역 / Product and documentation navigation]
+// 디자인 가이드는 자체 문서 탐색을 사용하고, 나머지 화면은 기존 사이트 셸을 유지합니다.
+// The design guide owns its documentation navigation; other pages retain the product shell.
+export default function SiteShell({ children }: { children: ReactNode }) {
+    const pathname = usePathname();
+    const documentation = pathname.replace(/\/$/, "").endsWith("/design-rules");
+    if (documentation) {
+        return (
+            <>
+                <a className="skip-link" href="#main">
+                    본문 바로가기
+                </a>
+                {children}
+                <Toast />
+            </>
+        );
+    }
+    return (
+        <>
+            <a className="skip-link" href="#main">
+                본문 바로가기
+            </a>
+            <Header />
+            <main id="main" tabIndex={-1}>
+                {children}
+            </main>
+            <Footer />
+            <ReturnTop />
+            <ContextMenu />
+            <Toast />
+        </>
+    );
+}

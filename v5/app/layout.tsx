@@ -1,9 +1,5 @@
 import React from "react";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import Toast from "../components/Toast";
-import ReturnTop from "../components/ReturnTop";
-import ContextMenu from "../components/ContextMenu";
+import SiteShell from "../components/SiteShell";
 
 import "../styles/compat/shared.css";
 import "../styles/compat/programs.css";
@@ -29,6 +25,7 @@ import "../styles/experience.css";
 import "../styles/home-v4.css";
 import "../styles/story.css";
 import "../styles/journeys.css";
+import "../styles/design-system.css";
 
 export const metadata = {
     title: "세종문화회관 - 공연·전시·교육, 예매와 이용 안내 (Next.js & TypeScript)",
@@ -46,21 +43,11 @@ export default function RootLayout({
                 <meta charSet="UTF-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <meta name="theme-color" content="#ffffff" />
-                <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+                <link rel="icon" type="image/svg+xml" href="/v5/assets/favicon.svg" />
                 <link rel="preload" href="/v5/assets/fonts/woff2/WantedSansVariable.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
             </head>
             <body>
-                <a className="skip-link" href="#main">
-                    본문 바로가기
-                </a>
-                <Header />
-                <main id="main" tabIndex={-1}>
-                    {children}
-                </main>
-                <Footer />
-                <Toast />
-                <ReturnTop />
-                <ContextMenu />
+                <SiteShell>{children}</SiteShell>
             </body>
         </html>
     );

@@ -18,7 +18,7 @@ body {
     font-size: var(--text-body);
     font-weight: var(--weight-body);
     line-height: var(--leading-body);
-    letter-spacing: -0.025em;
+    letter-spacing: var(--tracking-body);
     word-break: keep-all;
     overflow-wrap: break-word;
     -webkit-font-smoothing: antialiased;
@@ -65,8 +65,8 @@ p {
 h1, h2, h3, h4 {
     font-family: var(--display-font);
     font-weight: var(--weight-heading);
-    line-height: 1.3;
-    letter-spacing: -0.045em;
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-heading);
     text-wrap: balance;
 }
 
