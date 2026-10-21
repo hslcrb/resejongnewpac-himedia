@@ -53,12 +53,21 @@ async function drag(target: Locator, dx: number, dy: number) {
     await pause();
 }
 async function inBounds(target: Page) {
+    // 반응형 전환 자체의 WebGL 모션이 끝난 뒤 정착한 창의 배치를 검증합니다.
+    // Resizing can switch presentation; measure the settled interactive panel.
+    await target.waitForFunction(() => {
+        const panel = document.querySelector<HTMLElement>(".glass-menu");
+        const presentation = matchMedia("(max-width: 700px)").matches ? "drawer" : "floating";
+        return panel?.dataset.phase === "open" && panel.dataset.presentation === presentation;
+    });
     const state = await target.evaluate(() => {
         const panel = document.querySelector(".glass-menu")!;
         const box = panel.getBoundingClientRect();
         const controls = panel.querySelector(".glass-menu-actions")!.getBoundingClientRect();
+        const drawer = panel.getAttribute("data-presentation") === "drawer";
         return {
-            fits:
+            fits: drawer ? Math.abs(box.left) < 1 && Math.abs(box.top) < 1 &&
+                box.right <= innerWidth - 23 && Math.abs(box.bottom - innerHeight) < 1 :
                 box.left >= 11 &&
                 box.top >= 11 &&
                 box.right <= innerWidth - 11 &&
@@ -330,6 +339,8 @@ try {
             assert.equal(await touchPage.locator(".glass-menu[data-dragging]").count(), 0);
             await touchPage.setViewportSize({ width: 390, height: 844 });
             await touchPage.evaluate(() => new Promise(requestAnimationFrame));
+            await touchPage.locator('.glass-menu[data-phase="open"][data-presentation="drawer"]').waitFor();
+            await touchPage.locator(".glass-menu-group summary").first().click();
             const body = (await touchPage.locator(".glass-menu-content").boundingBox())!;
             await touch("touchStart", body.x + 100, body.y + 350);
             for (let i = 1; i <= 10; i++)

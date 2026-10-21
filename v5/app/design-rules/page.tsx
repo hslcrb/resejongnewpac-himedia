@@ -1114,6 +1114,7 @@ export default function DesignRulesPage() {
                                     label="LiquidGlass 컴포넌트 속성"
                                     headings={["속성", "기본값", "역할"]}
                                     rows={[
+                                        ["variant", "surface", "surface · 기본 표면 / drawer · 짙고 두꺼운 서랍형 유리"],
                                         ["opacity", "0.82", "흰 유리의 불투명도 · 0–1"],
                                         ["refraction", "64", "굴절 강도 · 0–120"],
                                         ["blur", "18", "중심부 배경 흐림 · 0–40px"],
@@ -1123,6 +1124,14 @@ export default function DesignRulesPage() {
                                             "기본 div와 동일",
                                             "콘텐츠·초점·위치·이벤트 연결",
                                         ],
+                                    ]}
+                                />
+                                <DataTable
+                                    label="리퀴드 글래스 재질 베리언트"
+                                    headings={["베리언트", "불투명도", "굴절", "흐림", "두께"]}
+                                    rows={[
+                                        ["surface", "82%", "64", "18px", "32px"],
+                                        ["drawer", "94%", "96", "24px", "40px"],
                                     ]}
                                 />
                                 <p className="ds-caption">
@@ -1137,9 +1146,9 @@ export default function DesignRulesPage() {
                             "떠 있는 유리 메뉴",
                             <>
                                 <p>
-                                    <code className="ds-token">FloatingPanel</code>은
+                                    <code className="ds-token">FloatingPanel</code>은{" "}
                                     <code className="ds-token">LiquidGlass</code>를 사용하는 공통
-                                    목록 창입니다. 위치·드래그·초점·등장과 퇴장을 담당하며,
+                                    목록 창입니다. 위치·드래그·초점·등장과 퇴장을 담당하며,{" "}
                                     <code className="ds-token">FloatingMenu</code>는 그 안에 실제
                                     사이트의 탐색 목록을 넣는 컴포넌트입니다.
                                 </p>
@@ -1173,10 +1182,19 @@ export default function DesignRulesPage() {
                                     되돌아가는 역방향 동작입니다. 도중에 다시 눌러도 위치와 속도를
                                     이어갑니다.
                                 </p>
+                                <h3>작은 화면에서는 왼쪽 서랍으로</h3>
+                                <p>
+                                    700px 이하에서 전체 메뉴는 왼쪽 벽에 붙는 세로 목록으로 바뀝니다.
+                                    그룹을 펼쳐 탐색하고, 창 안에서 스크롤합니다. 이동 버튼과 자유
+                                    드래그는 이 화면에서 제공하지 않습니다. 같은 WebGL 탄성이 왼쪽에서
+                                    펼쳐지고 다시 벽 안으로 들어가며, drawer 재질의 더 높은 불투명도와
+                                    강한 굴절로 목록의 가독성을 지킵니다.
+                                </p>
                                 <DataTable
                                     label="FloatingPanel 컴포넌트 속성"
                                     headings={["속성", "역할"]}
                                     rows={[
+                                        ["variant", "floating · 자유 이동 / drawer · 왼쪽 고정 서랍"],
                                         [
                                             "open / onClose",
                                             "열림을 제어하며, 퇴장이 끝날 때까지 창을 유지합니다",
@@ -1368,7 +1386,7 @@ export default function DesignRulesPage() {
                                 </p>
                                 <div className="ds-inline-links">
                                     <Link href="/">
-                                        홈의 실제 적용 보기
+                                        홈 관람 예약 보기
                                         <Icon name="diagonal" size={20} />
                                     </Link>
                                 </div>

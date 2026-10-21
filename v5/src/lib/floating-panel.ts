@@ -1,4 +1,6 @@
 export type PanelPoint = { x: number; y: number };
+export type PanelVariant = "floating" | "drawer";
+export const PANEL_DRAWER_QUERY = "(max-width: 700px)";
 export type PanelFrame = {
     width: number;
     height: number;

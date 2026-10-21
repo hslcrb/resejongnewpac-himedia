@@ -8,10 +8,11 @@ import Icon from "./Icon";
 import useFloatingPanel from "./useFloatingPanel";
 import { createPanelTransition } from "../src/lib/panel-transition";
 import type { PanelPhase, PanelTransition } from "../src/lib/panel-transition";
-import type { PanelPoint } from "../src/lib/floating-panel";
+import type { PanelPoint, PanelVariant } from "../src/lib/floating-panel";
 
 export type FloatingPanelProps = {
     open: boolean;
+    variant?: PanelVariant;
     onClose: () => void;
     anchorRef: RefObject<HTMLButtonElement>;
     position?: { current: PanelPoint | null };
@@ -38,6 +39,7 @@ export default function FloatingPanel(props: FloatingPanelProps) {
 // [LiquidGlass를 사용하는 이동·모션·탐색의 공통 창 / Shared glass, positioning and motion lifecycle]
 function PanelSurface({
     open,
+    variant = "floating",
     onClose,
     onExited,
     anchorRef,
@@ -63,6 +65,7 @@ function PanelSurface({
         panelRef,
         position || defaultPosition,
         onClose,
+        variant === "drawer",
     );
 
     useLayoutEffect(() => {
@@ -82,7 +85,7 @@ function PanelSurface({
             transitionRef.current = null;
             transition.dispose();
         };
-    }, [anchorRef, onExited]);
+    }, [anchorRef, onExited, variant]);
     useLayoutEffect(() => {
         transitionRef.current?.setOpen(open);
     }, [open]);
@@ -115,12 +118,14 @@ function PanelSurface({
                 ref={panelRef}
                 id={id}
                 className={`floating-panel ${className}`.trim()}
+                variant={variant === "drawer" ? "drawer" : "surface"}
+                data-presentation={variant}
                 role="dialog"
                 aria-modal="false"
                 aria-labelledby={`${labelId}-heading`}
                 aria-hidden={currentPhase !== "open" || undefined}
                 data-phase={currentPhase}
-                data-move-mode={moveMode || undefined}
+                data-move-mode={(variant === "floating" && moveMode) || undefined}
             >
                 <div className="glass-menu-header floating-panel-header">
                     <div>
@@ -128,7 +133,7 @@ function PanelSurface({
                         <h2 id={`${labelId}-heading`}>{title}</h2>
                     </div>
                     <div className="glass-menu-actions">
-                        <button
+                        {variant === "floating" && <button
                             type="button"
                             className="glass-menu-move"
                             data-panel-move
@@ -146,7 +151,7 @@ function PanelSurface({
                                 aria-hidden="true"
                             />
                             <span>이동</span>
-                        </button>
+                        </button>}
                         <button
                             ref={closeRef}
                             type="button"
@@ -159,8 +164,8 @@ function PanelSurface({
                     </div>
                 </div>
                 <p id={`${labelId}-move-help`} className="sr-only">
-                    마우스로 글자나 여백을 잡아 옮길 수 있습니다. 터치에서는 제목을 잡거나 이동
-                    버튼을 켜세요. 이동 버튼에서 방향키로 옮기고 Home 키로 처음 위치로 돌립니다.
+                    {variant === "drawer" ? "왼쪽에 고정된 메뉴입니다. 목록을 스크롤하고 그룹을 펼쳐 탐색할 수 있습니다." :
+                        "마우스로 글자나 여백을 잡아 옮길 수 있습니다. 터치에서는 제목을 잡거나 이동 버튼을 켜세요. 이동 버튼에서 방향키로 옮기고 Home 키로 처음 위치로 돌립니다."}
                 </p>
                 <span className="sr-only" role="status" aria-live="polite">
                     {announcement}

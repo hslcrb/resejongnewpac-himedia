@@ -14,6 +14,14 @@
         inset 0 -2px 1px rgb(0 0 0 / 12%);
 }
 
+/* [서랍형의 짙고 두꺼운 유리 / Denser, thicker glass for the drawer variant] */
+.liquid-glass[data-glass-variant="drawer"] {
+    --glass-opacity: var(--glass-drawer-opacity);
+    --glass-refraction: var(--glass-drawer-refraction);
+    --glass-blur: var(--glass-drawer-blur);
+    --glass-thickness: var(--glass-drawer-thickness);
+}
+
 .glass-lens-definitions {
     position: absolute;
     pointer-events: none;

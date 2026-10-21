@@ -141,13 +141,15 @@ try {
         } finally { await fallbackContext.close(); }
         await page.bringToFront();
     });
-    await check("mobile origins match the hamburger and the resting panel fits the viewport", async () => {
+    await check("mobile drawers enter from the left wall and remain attached at rest", async () => {
         for (const width of [390, 320]) {
             await page.setViewportSize({ width, height: 844 });
             await open();
             const bounds = (await panel().boundingBox())!;
-            assert.ok(bounds.x >= 11 && bounds.y >= 11 && bounds.x + bounds.width <= width - 11);
-            assert.ok(bounds.y + bounds.height <= 833);
+            assert.equal(bounds.x, 0); assert.equal(bounds.y, 0);
+            assert.ok(bounds.width <= width - 23 && bounds.height === 844);
+            const origin = await page.locator(".floating-panel-webgl").evaluate(canvas => JSON.parse((canvas as HTMLElement).dataset.origin!));
+            assert.equal(origin.x, -bounds.width); assert.equal(origin.y, 0);
             await page.screenshot({ path: path.join(directory, `mobile-${width}.png`) });
             await close();
         }

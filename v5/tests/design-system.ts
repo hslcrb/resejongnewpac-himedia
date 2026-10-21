@@ -371,60 +371,24 @@ try {
         },
     );
     await check(
-        "home uses a long scroll interval, positive gaps and the same non-overlapping letters",
+        "home headings stay static and participation cards use filled backgrounds without dividing rules",
         async () => {
             await page.goto(base, { waitUntil: "networkidle" });
             await page.evaluate(() => document.fonts.ready);
             const heading = page.locator("#quick-booking-heading");
-            const position = await heading.evaluate(
-                (element) => element.getBoundingClientRect().top + scrollY,
-            );
-            for (const progress of [0.15, 0.35, 0.55, 0.75, 1]) {
-                await page.evaluate(
-                    ({ position, progress }) =>
-                        window.scrollTo({
-                            top:
-                                position -
-                                (innerHeight * 0.9 -
-                                    progress *
-                                        (innerHeight * 0.9 - Math.max(innerHeight * 0.18, 124))),
-                            behavior: "instant",
-                        }),
-                    { position, progress },
-                );
-                await page.waitForTimeout(60);
-                const state = await heading.evaluate((element) => {
-                    const slots = [
-                        ...element.querySelectorAll(".booking-invitation-letter-slot"),
-                    ].map((slot) => slot.getBoundingClientRect());
-                    const overlap = slots.some((a, index) =>
-                        slots
-                            .slice(index + 1)
-                            .some(
-                                (b) =>
-                                    Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0.5 &&
-                                    Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 0.5,
-                            ),
-                    );
-                    const gap = parseFloat(
-                        getComputedStyle(element.querySelector(".booking-invitation-word")!).gap,
-                    );
-                    return {
-                        overlap,
-                        gap,
-                        times: element
-                            .getAnimations({ subtree: true })
-                            .map((animation) => animation.currentTime),
-                    };
-                });
-                assert.equal(state.overlap, false);
-                assert.ok(state.gap >= 2);
-                if (progress === 0.55)
-                    assert.ok(
-                        state.times.some((time) => time === 0) &&
-                            state.times.some((time) => Number(time) > 500),
-                    );
-            }
+            assert.equal(await heading.textContent(), "관람 예약");
+            assert.equal(await page.locator("#discover-heading").textContent(), "관람 일정");
+            assert.equal(await page.locator("#visit-heading").textContent(), "오시는 길");
+            await heading.scrollIntoViewIfNeeded();
+            assert.equal(await heading.evaluate(element => element.getAnimations({ subtree: true }).length), 0);
+            assert.equal(await page.locator(".booking-invitation-letter").count(), 0);
+            const cards = await page.locator(".home-participation > a").evaluateAll(elements => elements.map(element => {
+                const style = getComputedStyle(element);
+                return { background: style.backgroundColor, border: style.borderTopWidth };
+            }));
+            assert.equal(cards.length, 3);
+            assert.ok(cards.every(card => card.background !== "rgba(0, 0, 0, 0)" && card.border === "0px"));
+            assert.equal(await page.locator(".home-participation").evaluate(element => getComputedStyle(element).borderTopWidth), "0px");
             for (const width of [320, 390]) {
                 await page.setViewportSize({ width, height: 900 });
                 await heading.scrollIntoViewIfNeeded();

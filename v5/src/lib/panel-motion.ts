@@ -21,11 +21,24 @@ export function samplePanelVertex(
     origin: MotionRect,
     target: MotionRect,
     result = { x: 0, y: 0 },
+    presentation: "floating" | "drawer" = "floating",
 ) {
     const startX = origin.x + u * origin.width;
     const startY = origin.y + v * origin.height;
     const endX = target.x + u * target.width;
     const endY = target.y + v * target.height;
+    if (presentation === "drawer") {
+        // 왼쪽은 벽 뒤에 유지하고 앞쪽 가장자리만 부드럽게 휩니다.
+        // Keep the left edge behind the wall while the leading edge flexes.
+        const envelope = Math.sin(Math.PI * Math.max(0, Math.min(progress, 1)));
+        const p = progress - (1 - u) * 0.07 * envelope;
+        result.x = progress > 1
+            ? target.x + u * target.width * progress
+            : startX + (endX - startX) * p;
+        result.y = endY + Math.sin(v * Math.PI) * Math.sin(u * Math.PI / 2) *
+            envelope * Math.min(8, Math.abs(velocity) * 1.5);
+        return result;
+    }
     const centerX = origin.x + origin.width / 2;
     const centerY = origin.y + origin.height / 2;
     const diagonal = Math.max(1, Math.hypot(target.width, target.height));

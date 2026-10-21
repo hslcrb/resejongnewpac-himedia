@@ -3,7 +3,8 @@
 import { useState } from "react";
 import LiquidGlass from "./LiquidGlass";
 import { SystemButton } from "./SystemPrimitives";
-import { GLASS_DEFAULTS } from "../src/lib/liquid-glass";
+import { GLASS_DEFAULTS, GLASS_VARIANTS } from "../src/lib/liquid-glass";
+import type { GlassVariant } from "../src/lib/liquid-glass";
 
 // [같은 컴포넌트의 재질 비교 / Compare material settings on the actual component]
 export default function LiquidGlassDemo({
@@ -13,11 +14,25 @@ export default function LiquidGlassDemo({
     onCopy: (code: string) => void;
     copied: boolean;
 }) {
+    const [variant, setVariant] = useState<GlassVariant>("surface");
     const [opacity, setOpacity] = useState(GLASS_DEFAULTS.opacity);
     const [refraction, setRefraction] = useState(GLASS_DEFAULTS.refraction);
-    const code = `import LiquidGlass from "@/components/LiquidGlass";\n\n<LiquidGlass\n    opacity={${opacity.toFixed(2)}}\n    refraction={${refraction}}\n    blur={18}\n    thickness={32}\n>\n    <h2>세종문화회관</h2>\n    <p>유리 위의 콘텐츠는 선명하게 유지됩니다.</p>\n</LiquidGlass>`;
+    const material = GLASS_VARIANTS[variant];
+    const code = `import LiquidGlass from "@/components/LiquidGlass";\n\n<LiquidGlass\n    variant="${variant}"\n    opacity={${opacity.toFixed(2)}}\n    refraction={${refraction}}\n    blur={${material.blur}}\n    thickness={${material.thickness}}\n>\n    <h2>세종문화회관</h2>\n    <p>유리 위의 콘텐츠는 선명하게 유지됩니다.</p>\n</LiquidGlass>`;
     return (
         <>
+            <div className="ds-glass-variant">
+                <label htmlFor="glass-variant">재질 베리언트</label>
+                <select id="glass-variant" value={variant} onChange={event => {
+                    const next = event.target.value as GlassVariant;
+                    setVariant(next);
+                    setOpacity(GLASS_VARIANTS[next].opacity);
+                    setRefraction(GLASS_VARIANTS[next].refraction);
+                }}>
+                    <option value="surface">Surface · 기본 표면</option>
+                    <option value="drawer">Drawer · 모바일 서랍</option>
+                </select>
+            </div>
             <div className="ds-glass-stage">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -25,7 +40,7 @@ export default function LiquidGlassDemo({
                     alt=""
                     className="ds-glass-backdrop"
                 />
-                <LiquidGlass className="ds-glass-example" opacity={opacity} refraction={refraction}>
+                <LiquidGlass variant={variant} className="ds-glass-example" opacity={opacity} refraction={refraction}>
                     <code className="ds-glass-component-name">LiquidGlass</code>
                     <h3>빛을 머금은 유리</h3>
                     <p>배경은 가장자리에서 꺾이고, 글자는 선명하게 남습니다.</p>
@@ -67,8 +82,8 @@ export default function LiquidGlassDemo({
                 <SystemButton
                     variant="quiet"
                     onClick={() => {
-                        setOpacity(GLASS_DEFAULTS.opacity);
-                        setRefraction(GLASS_DEFAULTS.refraction);
+                        setOpacity(material.opacity);
+                        setRefraction(material.refraction);
                     }}
                 >
                     기본값으로

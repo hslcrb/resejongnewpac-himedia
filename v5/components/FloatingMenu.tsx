@@ -1,10 +1,20 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import type { RefObject } from "react";
 import Icon from "./Icon";
 import FloatingPanel from "./FloatingPanel";
 import { NAV } from "../src/data/catalog";
 import type { PanelPoint } from "../src/lib/floating-panel";
+import { PANEL_DRAWER_QUERY } from "../src/lib/floating-panel";
+
+const subscribeViewport = (listener: () => void) => {
+    const query = matchMedia(PANEL_DRAWER_QUERY);
+    query.addEventListener("change", listener);
+    return () => query.removeEventListener("change", listener);
+};
+const isDrawer = () => matchMedia(PANEL_DRAWER_QUERY).matches;
+const serverPresentation = () => false;
 
 // [흰 덮개 없는 떠 있는 탐색 / Floating navigation without a page-covering backdrop]
 // 정적 범주·상세 문서는 각 문서 주소로 엽니다. / Document links preserve exported category and detail routes.
@@ -19,9 +29,11 @@ export default function FloatingMenu({
     returnFocus: RefObject<HTMLButtonElement>;
     position: { current: PanelPoint | null };
 }) {
+    const drawer = useSyncExternalStore(subscribeViewport, isDrawer, serverPresentation);
     return (
         <FloatingPanel
             open={open}
+            variant={drawer ? "drawer" : "floating"}
             onClose={onClose}
             anchorRef={returnFocus}
             position={position}
@@ -48,7 +60,19 @@ export default function FloatingMenu({
                     </a>
                 </div>
                 <nav className="glass-menu-columns" aria-label="전체 메뉴">
-                    {NAV.map((group) => (
+                    {NAV.map((group) => drawer ? (
+                        <details className="glass-menu-group" key={group.id}>
+                            <summary>
+                                {group.title} <Icon name="chevron" size={24} />
+                            </summary>
+                            <div className="glass-menu-group-links">
+                                <a className="glass-menu-overview" href={`/v5${group.path}/`}>{group.title} 전체</a>
+                                {group.items.map(([label, path]) => (
+                                    <a key={path} href={`/v5${path}/`}>{label}</a>
+                                ))}
+                            </div>
+                        </details>
+                    ) : (
                         <div key={group.id}>
                             <a className="glass-menu-title" href={`/v5${group.path}/`}>
                                 {group.title}

@@ -4,6 +4,7 @@ export type GlassOptions = {
     blur: number;
     thickness: number;
 };
+export type GlassVariant = "surface" | "drawer";
 
 // [공통 유리의 재질 / Shared glass material]
 export const GLASS_DEFAULTS: Readonly<GlassOptions> = Object.freeze({
@@ -13,14 +14,21 @@ export const GLASS_DEFAULTS: Readonly<GlassOptions> = Object.freeze({
     thickness: 32,
 });
 
-export function resolveGlassOptions(options: Partial<GlassOptions>): GlassOptions {
+// [용도에 따른 재질 베리언트 / Material variants by purpose]
+export const GLASS_VARIANTS: Readonly<Record<GlassVariant, Readonly<GlassOptions>>> = Object.freeze({
+    surface: GLASS_DEFAULTS,
+    drawer: Object.freeze({ opacity: 0.94, refraction: 96, blur: 24, thickness: 40 }),
+});
+
+export function resolveGlassOptions(options: Partial<GlassOptions>, variant: GlassVariant = "surface"): GlassOptions {
+    const defaults = GLASS_VARIANTS[variant];
     const bounded = (value: number | undefined, fallback: number, min: number, max: number) =>
         Math.max(min, Math.min(Number.isFinite(value) ? value! : fallback, max));
     return {
-        opacity: bounded(options.opacity, GLASS_DEFAULTS.opacity, 0, 1),
-        refraction: bounded(options.refraction, GLASS_DEFAULTS.refraction, 0, 120),
-        blur: bounded(options.blur, GLASS_DEFAULTS.blur, 0, 40),
-        thickness: bounded(options.thickness, GLASS_DEFAULTS.thickness, 1, 64),
+        opacity: bounded(options.opacity, defaults.opacity, 0, 1),
+        refraction: bounded(options.refraction, defaults.refraction, 0, 120),
+        blur: bounded(options.blur, defaults.blur, 0, 40),
+        thickness: bounded(options.thickness, defaults.thickness, 1, 64),
     };
 }
 

@@ -10,6 +10,7 @@ export default function useFloatingPanel(
     panelRef: RefObject<HTMLDivElement>,
     savedPosition: { current: PanelPoint | null },
     onClose: () => void,
+    docked = false,
 ) {
     const [moveMode, setMoveMode] = useState(false);
     const [announcement, setAnnouncement] = useState("");
@@ -35,10 +36,12 @@ export default function useFloatingPanel(
         const paint = () => {
             pending = 0;
             panel.style.transform = `translate3d(${point.x}px, ${point.y}px, 0)`;
-            savedPosition.current = point;
         };
         const move = (target: PanelPoint) => {
             point = constrainPanel(target, frame);
+            // 화면 크기 보정은 사용자가 옮긴 원래 위치를 덮어쓰지 않습니다.
+            // Only an intentional move replaces the saved desktop position.
+            if (!docked) savedPosition.current = point;
             if (!pending) pending = requestAnimationFrame(paint);
         };
         const measure = () => {
@@ -50,7 +53,7 @@ export default function useFloatingPanel(
                 panelHeight: panel.offsetHeight,
                 inset: 12,
             };
-            point = constrainPanel(savedPosition.current || initialPanelPosition(frame), frame);
+            point = docked ? { x: 0, y: 0 } : constrainPanel(savedPosition.current || initialPanelPosition(frame), frame);
             paint();
             panel.dataset.ready = "true";
         };
@@ -74,7 +77,7 @@ export default function useFloatingPanel(
             }
         };
         const down = (event: PointerEvent) => {
-            if (panel.dataset.phase !== "open") return;
+            if (docked || panel.dataset.phase !== "open") return;
             const target = event.target as Element;
             if (
                 !event.isPrimary ||
@@ -134,6 +137,7 @@ export default function useFloatingPanel(
                 return;
             }
             const target = event.target as Element;
+            if (docked) return;
             if (!target.closest("[data-panel-move]")) return;
             const step = event.shiftKey ? 4 : 16;
             const directions: Record<string, PanelPoint> = {
@@ -181,7 +185,7 @@ export default function useFloatingPanel(
             window.removeEventListener("resize", measure);
             window.visualViewport?.removeEventListener("resize", measure);
         };
-    }, [panelRef, savedPosition, onClose]);
+    }, [panelRef, savedPosition, onClose, docked]);
 
     return { moveMode, setMoveMode, announcement };
 }

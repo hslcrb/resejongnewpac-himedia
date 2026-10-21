@@ -4,20 +4,20 @@ import { forwardRef, useImperativeHandle, useRef } from "react";
 import type { CSSProperties, HTMLAttributes } from "react";
 import GlassRefraction from "./GlassRefraction";
 import { resolveGlassOptions } from "../src/lib/liquid-glass";
-import type { GlassOptions } from "../src/lib/liquid-glass";
+import type { GlassOptions, GlassVariant } from "../src/lib/liquid-glass";
 
-export type LiquidGlassProps = HTMLAttributes<HTMLDivElement> & Partial<GlassOptions>;
+export type LiquidGlassProps = HTMLAttributes<HTMLDivElement> & Partial<GlassOptions> & { variant?: GlassVariant };
 
 // [콘텐츠와 분리된 공통 유리 표면 / Reusable glass without altering its content]
 // 기본값은 디자인 토큰을 따르며 개별 표면만 props로 조정할 수 있습니다.
 // Defaults inherit design tokens; props override only this particular surface.
 const LiquidGlass = forwardRef<HTMLDivElement, LiquidGlassProps>(function LiquidGlass(
-    { children, className = "", style, opacity, refraction, blur, thickness, ...props },
+    { children, className = "", style, variant = "surface", opacity, refraction, blur, thickness, ...props },
     forwardedRef,
 ) {
     const surfaceRef = useRef<HTMLDivElement>(null);
     useImperativeHandle(forwardedRef, () => surfaceRef.current!, []);
-    const options = resolveGlassOptions({ opacity, refraction, blur, thickness });
+    const options = resolveGlassOptions({ opacity, refraction, blur, thickness }, variant);
     const surfaceStyle: CSSProperties & Record<string, string | number> = {};
     if (opacity !== undefined) surfaceStyle["--glass-opacity"] = options.opacity;
     if (refraction !== undefined) surfaceStyle["--glass-refraction"] = options.refraction;
@@ -28,14 +28,15 @@ const LiquidGlass = forwardRef<HTMLDivElement, LiquidGlassProps>(function Liquid
         <div
             {...props}
             ref={surfaceRef}
+            data-glass-variant={variant}
             className={`liquid-glass ${className}`.trim()}
             style={{ ...surfaceStyle, ...style }}
         >
             <GlassRefraction
                 surfaceRef={surfaceRef}
-                blur={blur}
-                refraction={refraction}
-                thickness={thickness}
+                blur={blur ?? (variant === "drawer" ? options.blur : undefined)}
+                refraction={refraction ?? (variant === "drawer" ? options.refraction : undefined)}
+                thickness={thickness ?? (variant === "drawer" ? options.thickness : undefined)}
             />
             <div className="liquid-glass-optics" aria-hidden="true" />
             {children}

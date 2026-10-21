@@ -47,3 +47,19 @@ test("mesh endpoints coincide with the real trigger and the dragged panel", () =
         assert.ok(Number.isFinite(middle.x) && Number.isFinite(middle.y));
     }
 });
+
+test("the drawer slides from the left wall and stays attached during elastic overshoot", () => {
+    const origin = { x: -360, y: 0, width: 360, height: 844 };
+    const target = { x: 0, y: 0, width: 360, height: 844 };
+    for (const p of [0, 0.25, 0.5, 0.75, 1, 1.04]) {
+        const left = samplePanelVertex(0, 0.5, p, 2, origin, target, undefined, "drawer");
+        const right = samplePanelVertex(1, 0.5, p, 2, origin, target, undefined, "drawer");
+        assert.ok(left.x <= 0, String(left.x));
+        assert.ok(right.x > left.x);
+        if (p === 1) assert.deepEqual(right, { x: 360, y: 422 });
+    }
+    // Shadow-padding vertices straddle u=0; their interpolated wall must have no gap.
+    const a = samplePanelVertex(-0.015625, 0.5, 1.04, 2, origin, target, undefined, "drawer");
+    const b = samplePanelVertex(0.01875, 0.5, 1.04, 2, origin, target, undefined, "drawer");
+    assert.ok(Math.abs(a.x + (b.x - a.x) * (0.015625 / 0.034375)) < 0.001);
+});

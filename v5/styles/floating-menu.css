@@ -35,6 +35,17 @@
     pointer-events: none;
     visibility: hidden;
 }
+/* [왼쪽 벽에 붙는 세로 메뉴 / Vertical navigation attached to the left edge] */
+.floating-panel[data-presentation="drawer"] {
+    width: min(24rem, calc(100vw - 24px));
+    height: 100dvh;
+    max-height: 100dvh;
+    grid-template-rows: auto minmax(0, 1fr);
+    border-left: 0;
+    border-radius: 0 var(--radius-dialog) var(--radius-dialog) 0;
+    cursor: default;
+}
+.floating-panel[data-presentation="drawer"] .glass-menu-content a { cursor: pointer; }
 .floating-panel[data-dragging] {
     cursor: grabbing;
     will-change: transform;
@@ -237,13 +248,38 @@
         font-size: var(--text-subheading);
     }
     .glass-menu-columns {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: var(--space-6) var(--space-4);
+        grid-template-columns: 1fr;
+        gap: 0;
     }
     .glass-menu-columns .glass-menu-title {
         font-size: var(--text-item-title);
     }
     .glass-menu-utilities {
-        gap: 0 var(--space-4);
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0;
     }
+    .glass-menu-journeys span { display: none; }
+    .glass-menu-journeys strong { font-size: var(--text-item-title); }
+    .glass-menu-group { border-bottom: 1px solid var(--border-default); }
+    .glass-menu-group summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-height: 64px;
+        gap: var(--space-3);
+        font-size: var(--text-item-title);
+        font-weight: var(--weight-heading);
+        cursor: pointer;
+        list-style: none;
+    }
+    .glass-menu-group summary::-webkit-details-marker { display: none; }
+    .glass-menu-group summary svg { transition: transform 180ms var(--ease-out); }
+    .glass-menu-group[open] summary svg { transform: rotate(90deg); }
+    .glass-menu-group-links { display: grid; padding: 0 0 var(--space-4) var(--space-3); }
+    .glass-menu-group-links a { font-size: var(--text-body); }
+    .glass-menu-group-links .glass-menu-overview { color: var(--text-secondary); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .glass-menu-group summary svg { transition: none; }
 }

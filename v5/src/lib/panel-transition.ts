@@ -37,15 +37,20 @@ uniform float u_radius;
 uniform float u_fade;
 uniform float u_opacity;
 uniform float u_texture;
+uniform float u_refraction;
+uniform float u_blur;
+uniform float u_thickness;
+uniform float u_drawer;
 void main() {
-    vec2 q = abs((v_uv - 0.5) * u_size) - (u_size * 0.5 - u_radius);
-    float distance = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - u_radius;
+    float radius = u_drawer > 0.5 && v_uv.x < 0.5 ? 0.0 : u_radius;
+    vec2 q = abs((v_uv - 0.5) * u_size) - (u_size * 0.5 - radius);
+    float distance = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
     float mask = 1.0 - smoothstep(-0.8, 0.8, distance);
-    float rim = 1.0 - smoothstep(0.0, 15.0, max(0.0, -distance));
+    float rim = 1.0 - smoothstep(0.0, u_thickness * 0.5, max(0.0, -distance));
     float highlight = 0.5 + 0.5 * sin(v_uv.x * 3.8 + v_uv.y * 2.4);
     vec2 normal = normalize((v_uv - 0.5) * u_size + vec2(0.0001));
-    vec2 uv = v_screen - normal * rim * 20.0 / u_viewport;
-    vec2 blur = vec2(14.0) / u_viewport;
+    vec2 uv = v_screen - normal * rim * u_refraction * 0.3125 / u_viewport;
+    vec2 blur = vec2(u_blur * 0.78) / u_viewport;
     vec3 backdrop = texture2D(u_backdrop, uv).rgb * 0.2;
     backdrop += texture2D(u_backdrop, uv + vec2(blur.x, 0.0)).rgb * 0.1;
     backdrop += texture2D(u_backdrop, uv - vec2(blur.x, 0.0)).rgb * 0.1;
@@ -70,6 +75,10 @@ function rect(element: HTMLElement): MotionRect {
     return { x: box.x, y: box.y, width: box.width, height: box.height };
 }
 function originFor(options: TransitionOptions): MotionRect {
+    if (options.panel.dataset.presentation === "drawer") {
+        const target = rect(options.panel);
+        return { ...target, x: target.x - target.width };
+    }
     const anchor = options.anchor();
     return anchor && anchor.offsetWidth
         ? rect(anchor)
@@ -107,10 +116,11 @@ function nativeTransition(options: TransitionOptions, reduced: boolean): PanelTr
                     ? end
                     : `translate3d(${origin.x}px, ${origin.y}px, 0) scale(${origin.width / destination.width}, ${origin.height / destination.height})`;
                 panel.style.transformOrigin = "0 0";
+                const radius = panel.dataset.presentation === "drawer" ? "0 24px 24px 0" : "24px";
                 animation = panel.animate(
                     [
-                        { transform: start, opacity: 0, borderRadius: "24px" },
-                        { transform: end, opacity: 1, borderRadius: "24px" },
+                        { transform: start, opacity: 0, borderRadius: radius },
+                        { transform: end, opacity: 1, borderRadius: radius },
                     ],
                     { duration, easing: "cubic-bezier(.2,.88,.2,1)", fill: "both" },
                 );
@@ -236,7 +246,7 @@ export function createPanelTransition(options: TransitionOptions): PanelTransiti
     );
     gl.activeTexture(gl.TEXTURE0);
     const uniforms = Object.fromEntries(
-        ["viewport", "size", "radius", "fade", "opacity", "texture", "content", "backdrop"].map(
+        ["viewport", "size", "radius", "fade", "opacity", "texture", "content", "backdrop", "refraction", "blur", "thickness", "drawer"].map(
             (name) => [name, gl.getUniformLocation(program, "u_" + name)],
         ),
     );
@@ -256,7 +266,11 @@ export function createPanelTransition(options: TransitionOptions): PanelTransiti
     let destination = rect(panel),
         origin = originFor(options);
     let materialOpacity = 0.82,
-        materialRadius = 24;
+        materialRadius = 24,
+        materialRefraction = 64,
+        materialBlur = 18,
+        materialThickness = 32;
+    const presentation = panel.dataset.presentation === "drawer" ? "drawer" : "floating";
     let fallback: PanelTransition | null = null;
     const spring = { position: 0, velocity: 0 };
     const point = { x: 0, y: 0 };
@@ -273,7 +287,8 @@ export function createPanelTransition(options: TransitionOptions): PanelTransiti
             .map((element, index) => element.scrollTop || element.scrollLeft
                 ? `${index}:${element.scrollTop},${element.scrollLeft}` : "")
             .filter(Boolean).join(";");
-        return `${panel.offsetWidth}x${panel.offsetHeight}|${scrolling}|${panel.textContent}`;
+        const disclosures = [...panel.querySelectorAll("details")].map(element => Number(element.open)).join("");
+        return `${panel.offsetWidth}x${panel.offsetHeight}|${scrolling}|${disclosures}|${panel.textContent}`;
     };
     const capture = async () => {
         const content = contentKey();
@@ -339,6 +354,7 @@ export function createPanelTransition(options: TransitionOptions): PanelTransiti
                 origin,
                 destination,
                 point,
+                presentation,
             );
             vertices[offset] = point.x;
             vertices[offset + 1] = point.y;
@@ -354,14 +370,18 @@ export function createPanelTransition(options: TransitionOptions): PanelTransiti
         gl.uniform1f(uniforms.radius, Math.min(materialRadius, width / 2, height / 2));
         gl.uniform1f(uniforms.fade, Math.max(0, Math.min(1, p / 0.14)));
         gl.uniform1f(uniforms.opacity, materialOpacity);
+        gl.uniform1f(uniforms.refraction, materialRefraction);
+        gl.uniform1f(uniforms.blur, materialBlur);
+        gl.uniform1f(uniforms.thickness, materialThickness);
+        gl.uniform1f(uniforms.drawer, Number(presentation === "drawer"));
         gl.uniform1f(
             uniforms.texture,
             textureReadyAt ? Math.min(1, (now - textureReadyAt) / 90) : 0,
         );
         gl.clearColor(0, 0, 0, 0);
         gl.clear(gl.COLOR_BUFFER_BIT);
-        gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
         canvas.dataset.progress = p.toFixed(4);
+        gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
         frame = requestAnimationFrame(draw);
     };
     const onHidden = () => {
@@ -415,6 +435,9 @@ export function createPanelTransition(options: TransitionOptions): PanelTransiti
             const style = getComputedStyle(panel);
             materialOpacity = parseFloat(style.getPropertyValue("--glass-opacity")) || 0.82;
             materialRadius = parseFloat(style.borderTopLeftRadius) || 24;
+            materialRefraction = parseFloat(style.getPropertyValue("--glass-refraction")) || 64;
+            materialBlur = parseFloat(style.getPropertyValue("--glass-blur")) || 18;
+            materialThickness = parseFloat(style.getPropertyValue("--glass-thickness")) || 32;
             canvas.dataset.origin = JSON.stringify(origin);
             canvas.dataset.destination = JSON.stringify(destination);
             phase(options, open ? "opening" : "closing");

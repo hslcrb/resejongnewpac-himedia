@@ -471,11 +471,22 @@
 .home-participation {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 32px;
-    margin-top: 40px;
-    padding-top: 32px;
-    border-top: 1px solid #dce0d5;
+    gap: var(--space-4);
+    margin-top: var(--space-10);
 }
+
+/* [선 대신 채워진 참여 박스 / Filled participation cards instead of a dividing rule] */
+.home-participation > a {
+    padding: var(--space-6);
+    min-height: 132px;
+    border-radius: var(--radius-lg);
+    background: var(--surface-subtle);
+    color: var(--text-primary);
+}
+.home-participation > a:nth-child(1) { background: var(--accent-information); }
+.home-participation > a:nth-child(2) { background: var(--accent-highlight); }
+.home-participation small { color: var(--text-primary); }
+.home-participation > a:active { filter: brightness(0.96); }
 
 .home-participation a,
 .home-institution-links a {
@@ -483,8 +494,8 @@
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    min-height: 64px;
 }
+.home-institution-links a { min-height: 64px; }
 
 .home-institution-links {
     display: grid;
@@ -578,21 +589,23 @@
         padding-block: 64px;
     }
 
-    .home-pathways,
-    .home-participation {
+    .home-pathways {
         grid-template-columns: 1fr;
         gap: 0;
         padding-block: 12px;
     }
 
-    .home-pathways > a,
-    .home-participation > a {
+    .home-pathways > a {
         padding-block: 20px;
     }
 
-    .home-pathways > a + a,
-    .home-participation > a + a {
+    .home-pathways > a + a {
         border-top: 1px solid #e1e3dc;
+    }
+
+    .home-participation {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
     }
 
     .home-pathways > a > svg:first-child {

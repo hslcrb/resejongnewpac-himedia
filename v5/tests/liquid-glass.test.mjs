@@ -10,6 +10,16 @@ test("the shared surface is denser and more refractive than the previous menu", 
     assert.deepEqual(resolveGlassOptions({}), GLASS_DEFAULTS);
 });
 
+test("the drawer variant provides a denser and stronger lens with independently bounded overrides", () => {
+    const drawer = resolveGlassOptions({}, "drawer");
+    assert.ok(drawer.opacity > GLASS_DEFAULTS.opacity && drawer.opacity < 1);
+    assert.ok(drawer.refraction > GLASS_DEFAULTS.refraction);
+    assert.ok(drawer.blur > GLASS_DEFAULTS.blur);
+    assert.ok(drawer.thickness > GLASS_DEFAULTS.thickness);
+    assert.deepEqual(resolveGlassOptions({ opacity: 0.88, refraction: NaN }, "drawer"), { ...drawer, opacity: 0.88 });
+    assert.deepEqual(resolveGlassOptions({}), GLASS_DEFAULTS);
+});
+
 test("component overrides stay finite and within useful rendering bounds", () => {
     assert.deepEqual(
         resolveGlassOptions({ opacity: 0.9, refraction: 80, blur: 12, thickness: 24 }),

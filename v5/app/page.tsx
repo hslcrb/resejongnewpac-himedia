@@ -7,7 +7,6 @@ import ProgramCard from "../components/ProgramCard";
 import Icon from "../components/Icon";
 import VioletQuickMenu from "../components/VioletQuickMenu";
 import HomeAnchorNavigation from "../components/HomeAnchorNavigation";
-import BookingInvitation from "../components/BookingInvitation";
 import {
     seoulToday,
     monthDates,
@@ -501,8 +500,7 @@ export default function HomePage() {
             <section className="home-booking container" id="quick-booking" data-home-anchor aria-labelledby="quick-booking-heading">
                 <div className="section-heading">
                     <div>
-                        <p className="home-section-label">날짜로 찾는 예술</p>
-                        <BookingInvitation />
+                        <h2 id="quick-booking-heading">관람 예약</h2>
                         <p className="section-description">관람할 날을 고르면, 그날의 예술이 보여요.</p>
                     </div>
                     <Link className="text-link" href="/programs?view=calendar" id="home-booking-full-calendar" data-home-anchor>
@@ -732,12 +730,7 @@ export default function HomePage() {
             <section className="home-programs container" id="discover-programs" data-home-anchor aria-labelledby="discover-heading">
                 <div className="section-heading">
                     <div>
-                        <p className="home-section-label">프로그램</p>
-                        <h2 id="discover-heading">
-                            공연·전시·교육
-                            <br />
-                            전체 일정을 확인하세요.
-                        </h2>
+                        <h2 id="discover-heading">관람 일정</h2>
                         <p className="section-description">오늘 열리는 무대부터 다음 달 일정까지.</p>
                     </div>
                     <Link className="text-link" href="/programs" id="home-program-all" data-home-anchor>
@@ -813,11 +806,7 @@ export default function HomePage() {
                 </figure>
 
                 <div className="visit-editorial">
-                    <h2 id="visit-heading">
-                        오시는 길부터
-                        <br />
-                        관람 준비까지.
-                    </h2>
+                    <h2 id="visit-heading">오시는 길</h2>
                     <p className="visit-description">
                         지하철 광화문역 출구 안내부터 주차.
                         <br />
