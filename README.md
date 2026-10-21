@@ -1,220 +1,267 @@
-# 세종문화회관 - 예술로 열리는 당신의 일상  
+# 세종문화회관 리뉴얼 / Sejong Center Renewal
 
-세종문화회관의 비공식 프런트엔드 리뉴얼 프로젝트입니다. 현재 개발 대상은 **v5 - Next.js 14, React 18, TypeScript**이며 소스는 `v5/`에 있습니다. 시작 화면에는 구버전·v2·v3·v4와 빌드된 v5의 진입점을 보존합니다. 이전 정적 버전의 실행 안내는 아래에 따로 정리했습니다.
+공연을 발견하고, 관람을 준비하고, 나의 문화생활을 기록하는 웹사이트입니다. 현재 개발 대상은 `v5/`이며, 이전 버전은 같은 저장소에 보존합니다.
 
-## v5 개발 환경
+A website for discovering performances, planning a visit, and keeping a personal record of cultural experiences. Active development lives in `v5/`; earlier versions remain available in this repository.
 
-Node.js 22 이상과 npm을 사용합니다. 현재 [잠금 파일](v5/package-lock.json)의 Supabase 의존성이 Node.js 22 이상을 요구합니다. 저장소 루트에서 다음 명령을 실행하세요.
+[웹사이트 / Website](https://renewsejongpac.rhee.life/v5/) · [디자인 시스템 / Design system](https://renewsejongpac.rhee.life/v5/design-rules/) · [디자인·회원 DB 계약 / Design and member-data contract](v5/docs/visual-contract-and-member-db.md)
+
+## 구현 현황 / What is implemented
+
+| 영역 / Area | 한국어 | English |
+| --- | --- | --- |
+| 프로그램 / Programs | 공연·전시·교육 탐색, 검색·필터, 상세 화면, 양옆 작품이 보이는 히어로 | Performance, exhibition, and education discovery; search, filters, detail pages, and a hero with neighboring works |
+| 방문·대관 / Visits and rentals | 관람 일정 선택, 방문 계획, 공간 비교, 이용 안내 | Date selection, visit planning, venue comparison, and visitor information |
+| 계정 / Accounts | Supabase Google OAuth와 이메일 로그인 링크, PKCE 복귀 처리 | Supabase Google OAuth and email sign-in links with a PKCE callback |
+| 나의 공간 / Personal space | TSX 미니룸, 회원정보, 관심 프로그램, 관람노트, 예매 기록 | An authored TSX mini room, member profile, favorites, notes, and booking records |
+| 회원 데이터 / Member data | PostgreSQL 저장과 RLS 기반 회원별 접근 제한 | PostgreSQL persistence with per-member Row Level Security |
+| 공통 UI / Shared UI | 텍스트·컨트롤·둥근 표면·Liquid Glass·알림 컴포넌트 | Shared typography, controls, rounded surfaces, Liquid Glass, and notifications |
+
+예매 화면은 선택한 회차·좌석·금액의 기록과 취소를 지원합니다. PG 결제, 실제 좌석 재고 연동, 티켓 발행은 구현 범위에 포함되지 않습니다.
+
+The booking flow saves selected sessions, seats, and amounts, and supports cancelling those records. Payment processing, live seat inventory, and ticket issuance are not integrated.
+
+## 실행 / Getting started
+
+Node.js **24.x**와 npm을 사용합니다. 개발·빌드 스크립트와 테스트는 Node의 기본 type stripping으로 TypeScript를 직접 실행합니다.
+
+Use Node.js **24.x** and npm. Development, build, and test scripts execute TypeScript directly using Node's built-in type stripping.
 
 ```bash
-cd v5
+git clone https://github.com/hslcrb/renewsejongpac.git
+cd renewsejongpac/v5
 npm ci
+```
+
+`v5/.env.local`에 Supabase 프로젝트의 공개 설정을 입력합니다. 이 파일은 커밋하지 않습니다.
+
+Create `v5/.env.local` with your Supabase project's public configuration. Keep this file out of Git.
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_OR_LEGACY_ANON_KEY
+```
+
+```bash
 npm run dev -- --hostname 127.0.0.1
 ```
 
-홈은 `http://127.0.0.1:3000/v5/`, 디자인 가이드는 `http://127.0.0.1:3000/v5/design-rules/`입니다. [Next.js 설정](v5/next.config.mjs)의 `basePath`가 `/v5`이므로 개발 서버에서도 이 경로로 접속합니다.
+| 화면 / Page | 개발 주소 / Development URL |
+| --- | --- |
+| 홈 / Home | <http://127.0.0.1:3000/v5/> |
+| 디자인 시스템 / Design system | <http://127.0.0.1:3000/v5/design-rules/> |
+| 마이페이지 / Account | <http://127.0.0.1:3000/v5/account/> |
 
-개발 서버를 종료한 뒤 같은 `v5/` 폴더에서 정적 빌드를 실행합니다.
+Next.js의 `basePath`는 `/v5`입니다. 브라우저에서도 이 경로를 포함해야 합니다.
+
+The Next.js `basePath` is `/v5`; include that prefix when opening development pages.
+
+## 회원 데이터 ERD / Member-data ERD
+
+운영 마이그레이션의 핵심 키와 관계를 발췌했습니다. 하늘색은 인증 계정, 노랑은 개인 공간, 웜 화이트는 회원 기록입니다. 각 엔티티에 한국어 이름과 실제 테이블 이름을 함께 표시합니다.
+
+This ERD shows key fields and relationships from the deployed migration. Sky blue identifies the authenticated user, yellow the personal space, and warm white member records. Each entity includes its Korean name and physical table name.
+
+```mermaid
+%%{init: {"theme":"base","er":{"nodeSpacing":32,"rankSpacing":96,"fontSize":16},"themeVariables":{"fontFamily":"system-ui, sans-serif","fontSize":"16px","primaryColor":"#FFFEFA","primaryTextColor":"#211F1C","primaryBorderColor":"#D9D9D4","lineColor":"#626262","secondaryColor":"#F7F7F5","tertiaryColor":"#FFFEFA"}}}%%
+erDiagram
+    direction LR
+
+    AUTH_USERS["인증 계정 / auth.users"] {
+        uuid id PK "회원 ID / User ID"
+    }
+    SEJONG_PROFILES["회원정보 / sejong_profiles"] {
+        uuid user_id PK, FK "소유자 / Owner"
+        text name "이름 / Name"
+        text phone "연락처 / Phone"
+    }
+    SEJONG_SPACES["개인 공간 / sejong_spaces"] {
+        uuid user_id PK, FK "소유자 / Owner"
+        text nickname "공간 이름 / Space name"
+        text theme "테마 / Theme"
+    }
+    SEJONG_FAVORITES["관심 프로그램 / sejong_favorites"] {
+        uuid user_id PK, FK "소유자 / Owner"
+        text program_id PK "프로그램 ID / Program ID"
+    }
+    SEJONG_NOTES["관람노트 / sejong_notes"] {
+        uuid id PK "노트 ID / Note ID"
+        uuid user_id FK "소유자 / Owner"
+        text program_id "프로그램 ID / Program ID"
+    }
+    SEJONG_BOOKINGS["예매 기록 / sejong_bookings"] {
+        uuid id PK "기록 ID / Record ID"
+        uuid user_id FK "소유자 / Owner"
+        text program_id "프로그램 ID / Program ID"
+        text status "상태 / Status"
+    }
+
+    AUTH_USERS ||--o| SEJONG_PROFILES : "회원정보 / profile"
+    AUTH_USERS ||--o| SEJONG_SPACES : "공간 / space"
+    AUTH_USERS ||--o{ SEJONG_FAVORITES : "관심 등록 / favorites"
+    AUTH_USERS ||..o{ SEJONG_NOTES : "관람 기록 / notes"
+    AUTH_USERS ||..o{ SEJONG_BOOKINGS : "예매 기록 / bookings"
+
+    classDef identity fill:#54C8E8,stroke:#D9D9D4,color:#211F1C
+    classDef space fill:#F7D549,stroke:#D9D9D4,color:#211F1C
+    classDef record fill:#FFFEFA,stroke:#D9D9D4,color:#211F1C
+    class AUTH_USERS identity
+    class SEJONG_SPACES space
+    class SEJONG_PROFILES,SEJONG_FAVORITES,SEJONG_NOTES,SEJONG_BOOKINGS record
+```
+
+| 테이블 / Table | 저장 내용 / Stored data | 회원과의 관계 / Per user |
+| --- | --- | --- |
+| `sejong_profiles` | 이름·이메일·연락처 / Name, email, and phone | 0 또는 1 / Zero or one |
+| `sejong_spaces` | 공간 이름·한마디·테마·조명 / Space name, message, theme, and lighting | 0 또는 1 / Zero or one |
+| `sejong_favorites` | 관심 프로그램 ID / Favorite program IDs | 0 이상, 회원·프로그램 조합 고유 / Zero or more; unique per user and program |
+| `sejong_notes` | 프로그램·관람일·본문 / Program, event date, and note body | 0 이상 / Zero or more |
+| `sejong_bookings` | 프로그램·제목·장소·회차·좌석·금액·상태 / Program, title, venue, session, seats, amount, and status | 0 이상 / Zero or more |
+
+- 모든 `user_id`는 `auth.users.id`를 참조하며 계정 삭제 시 관련 행도 삭제됩니다. / Every `user_id` references `auth.users.id` with cascading deletion.
+- RLS는 `auth.uid() = user_id`를 확인합니다. 익명 접근과 다른 회원으로의 소유자 변경을 차단합니다. / RLS enforces `auth.uid() = user_id`, denies anonymous access, and prevents ownership reassignment.
+- `program_id`는 [TypeScript 카탈로그](v5/src/data/catalog.ts)의 식별자이며 프로그램 DB 테이블의 외래 키가 아닙니다. / `program_id` identifies an entry in the [TypeScript catalog](v5/src/data/catalog.ts); it is not a foreign key to a program database table.
+- 인증 세션은 Supabase SDK가 관리하고, 회원 데이터의 원본은 DB입니다. / The Supabase SDK manages authentication sessions; member records are stored in the database.
+
+전체 필드·제약·정책은 [마이그레이션 SQL](v5/supabase/migrations/20261021075737_v5_member_data.sql), 실제 소유권 검사는 [롤백 검증 SQL](v5/supabase/tests/member-ownership.sql), 운영 적용 결과는 [DB 검증 기록](v5/docs/member-db-live-verification.json)을 참고하세요.
+
+See the [migration SQL](v5/supabase/migrations/20261021075737_v5_member_data.sql) for all fields, constraints, and policies; the [transactional ownership test](v5/supabase/tests/member-ownership.sql) for isolation checks; and the [live verification report](v5/docs/member-db-live-verification.json) for deployment evidence.
+
+## 인증 설정 / Authentication setup
+
+Google Client ID와 Client Secret은 **Supabase의 Google 제공자 설정**에 입력합니다. 브라우저용 환경 변수에는 Supabase의 공개 키만 사용합니다.
+
+Configure the Google Client ID and Client Secret in the **Supabase Google provider settings**. Only the Supabase public key belongs in browser-facing environment variables.
+
+| 설정 / Setting | 값 / Value |
+| --- | --- |
+| Google 승인 리디렉션 URI / Google authorized redirect URI | `https://<PROJECT_REF>.supabase.co/auth/v1/callback` |
+| Supabase 앱 복귀 URL / Application redirect URL | `https://<APP_HOST>/v5/account/callback/` |
+| 로컬 개발 복귀 URL / Local development redirect URL | `http://127.0.0.1:3000/v5/account/callback/` |
+
+Google 제공자와 이메일 로그인을 활성화하고 앱 복귀 URL을 Supabase 허용 목록에 등록합니다. 로컬·운영·미리보기 주소는 각각 등록합니다.
+
+Enable Google and email sign-in and allow application callback URLs in Supabase. Register development, production, and preview addresses separately.
+
+## 디자인 시스템 / Design system
+
+제품 화면과 가이드가 같은 컴포넌트를 사용합니다. 색상과 규격은 TypeScript 원본에서 생성하며, 페이지별 CSS는 배치를 담당합니다.
+
+Product pages and the guide use the same components. Colors and specifications are generated from TypeScript definitions; page-level CSS handles layout.
+
+| 기준 / Contract | 구현 / Implementation |
+| --- | --- |
+| 텍스트 최소 16px / Minimum 16px text | `SystemText`, `textAttributes`, `data-text` |
+| 공통 둥근 표면 / Shared rounded surfaces | `SystemSurface` |
+| 버튼·링크·입력 / Buttons, links, and fields | `SystemPrimitives`, `SystemNavigation`, `SystemDialog` |
+| 유리 재질 / Glass materials | `LiquidGlass`: `surface`, `drawer`, `hero`, `black` |
+| 소형 상태 알림 / Small status notifications | `SmallNotificationModal` with the `black` glass variant |
+| 이전 글자 모션 / Retired letter motion | `BookingInvitation` - `Deprecated`; guide example only |
+
+| 컬러 / Color | 토큰 / Token | 값 / Value |
+| --- | --- | --- |
+| 어스 블랙 / Earth black | `--color-black` | `#211F1C` |
+| 웜 화이트 / Warm white | `--color-white` | `#FFFEFA` |
+| 하늘 / Sky | `--color-sky` | `#54C8E8` |
+| 노랑 / Yellow | `--color-yellow` | `#F7D549` |
+| 황토 / Ochre | `--color-ochre` | `#C36D15` |
+
+원본은 [디자인 토큰](v5/src/data/design-tokens.ts)과 [컴포넌트 등록부](v5/src/data/component-registry.ts)에 있습니다. 변경할 때 제품과 가이드를 함께 확인합니다.
+
+The sources of truth are the [design tokens](v5/src/data/design-tokens.ts) and [component registry](v5/src/data/component-registry.ts). Review both product pages and guide examples when changing them.
+
+## 빌드·검증 / Build and verification
+
+아래 명령은 `v5/`에서 실행합니다. 변경에 관련된 검사를 먼저 실행하고, 제품 소스를 수정했다면 마지막에 전체 검사와 정적 빌드를 수행합니다.
+
+Run these commands from `v5/`. Start with checks relevant to the change; finish product-code changes with the full test suite and static build.
 
 ```bash
+npm run check:system
+npx tsc --noEmit
+node --test tests/*.test.mjs tests/*.test.ts
 npm run build
 ```
 
-`prebuild`가 이전 `.next/`와 `out/`을 비운 뒤 `output: "export"` 설정에 따라 `v5/out/`을 생성합니다. `postbuild`의 `scripts/sync-out.js`가 개발용 번들 포함 여부를 확인하고 내보낸 파일을 `v5/`에도 복사합니다. 빌드 결과는 저장소 루트의 정적 서버에서 `/v5/`로 확인할 수 있습니다. 자세한 구조는 [v5 실행 안내](v5/README.md), 새 인터랙션의 사용법은 [보라빛 퀵메뉴 문서](v5/docs/components/violet-quick-menu.md)를 참고하세요.
+빌드 전 디자인 계약을 검사하고 이전 빌드 디렉터리를 정리합니다. Next.js 정적 내보내기는 `v5/out/`에 생성되며, [sync-out.ts](v5/scripts/sync-out.ts)가 배포 파일을 `v5/` 루트에도 미러링합니다. 두 산출물을 모두 커밋합니다.
 
-## 버전 선택
+The prebuild step checks design contracts and cleans previous build directories. Next.js exports to `v5/out/`, and [sync-out.ts](v5/scripts/sync-out.ts) mirrors deployment files into the `v5/` root. Commit both outputs.
 
-| 화면 | 주소 | 내용 |
-| --- | --- | --- |
-| v5 · 현재 개발 | `http://127.0.0.1:3000/v5/` | Next.js 개발 서버의 현재 화면 |
-| 버전 선택 | `http://localhost:8000/` | 보존된 정적 버전과 빌드된 v5로 이동 |
-| 구버전 | `http://localhost:8000/legacy.html` | 기존 디자인과 모든 탐색·예매 체험 유지 |
-| 신버전 | `http://localhost:8000/v2/index.html` | 새 디자인 지침을 적용한 폴더 구조 |
-| v3 · 상호 참고 버전 | `http://localhost:8000/v3/` | 기존의 간결함에 비교본의 정보 위계·정렬·혜택 구성을 반영 |
+브라우저 검사는 Playwright Chromium을 사용합니다. 필요한 경우 `npx playwright install chromium`으로 설치하고 개발 서버나 빌드된 정적 서버를 먼저 실행합니다.
 
-구버전은 기존 `index.html`을 `legacy.html`로 보존했습니다. 기존 `css/`, `js/`, `assets/images/` 경로를 함께 사용하며, 예전 `/#/programs/carmen` 같은 북마크는 같은 해시를 유지한 구버전 주소로 이동합니다. 버전 선택 링크는 JavaScript 없이도 작동합니다.
-
-이것은 공식 페이지가 아닙니다. / **This is not an official website.** 각 버전 진입 시에도 한국어와 영어 안내가 표시됩니다.
-
-## 보존된 정적 버전 서버 열기
-
-다음은 구버전·v2·v3·v4와 빌드된 v5를 위한 정적 서버 안내입니다. 명령은 프로젝트 루트(`index.html`이 있는 폴더)에서 실행합니다. Windows PowerShell에서는 현재 저장소로 이동한 뒤 Python 서버를 시작하세요.
-
-```powershell
-cd C:\Users\hi\renewsejongpac
-py -m http.server 8000
-```
-
-`py` 명령이 없으면 설치된 Python 명령에 맞춰 아래 중 하나를 사용합니다.
-
-```powershell
-python -m http.server 8000
-python3 -m http.server 8000
-```
-
-macOS/Linux에서는 프로젝트 폴더에서 실행합니다.
+Browser checks use Playwright Chromium. Install it with `npx playwright install chromium` if needed, and start a development or static server first.
 
 ```bash
-python3 -m http.server 8000
+node tests/component-system-browser.ts http://127.0.0.1:3000/v5/
+node tests/visual-contract-browser.ts http://127.0.0.1:3000/v5/
+node tests/member-db-browser.ts http://127.0.0.1:3000/v5/
 ```
 
-서버가 실행 중인 동안 브라우저에서 `http://localhost:8000`을 엽니다. 종료는 터미널에서 `Ctrl+C`를 누릅니다. 포트 8000을 사용 중이면 명령의 `8000`을 `8080` 등으로 바꾸고 해당 포트 주소로 접속하세요. ES 모듈을 사용하므로 파일을 직접 더블클릭하지 말고 HTTP 서버를 사용하세요. **보존된 정적 버전은 프로젝트 루트에서 같은 서버로 실행**합니다. 구버전의 페이지 경로는 `legacy.html#/programs/carmen` 같은 해시 라우트를 사용해 새로고침과 뒤로 가기를 지원합니다.
+`member-db-browser.ts`는 실제 SDK와 모의 Auth·REST 응답을 사용합니다. 실제 DB의 RLS는 별도의 롤백 SQL로 검증하며 두 결과를 구분해 기록합니다.
 
-## Vercel 배포
+`member-db-browser.ts` uses the real SDK with mocked Auth and REST responses. Verify live database RLS separately with the rollback SQL, and record those results separately.
 
-저장소 루트의 [vercel.json](vercel.json)은 v5의 의존성 설치와 `npm --prefix v5 run build`를 지정합니다. 출력 디렉터리는 저장소 루트이며 `/v5` 아래의 페이지와 리소스를 `v5/out/`으로 연결합니다. 배포 프로젝트의 루트를 저장소 루트로 두고 이 설정을 사용합니다. 기존 정적 버전은 같은 루트에서 제공됩니다.
+[검증 결과 / Verification report](v5/docs/visual-contract-verification.json)
 
-## 신버전 디자인과 웹폰트
+## 배포 / Deployment
 
-이 프로젝트의 사용자 피드백·개선 이력·현재 디자인 계약·개발과 검증 절차는
-프로젝트 점검 지침에 보존합니다.
-이후 작업은 이 스킬과 연결된 상세 참고 자료를 먼저 확인하세요.
+[vercel.json](vercel.json)이 v5 설치·빌드와 `/v5/` 정적 경로를 설정합니다. Vercel 프로젝트 루트는 저장소 루트로 둡니다.
 
-신버전의 글자 크기·행간·조작 영역·상태 피드백·불필요한 문구 제거 기준은
-[디자인 기본값](v2/docs/design-system.md)에 정리했습니다.
-`v2/styles/defaults.css`를 공통 기준으로 사용하며, 본문은 18px,
-보조 정보는 최소 16px, 카드·안내 항목 제목은 20px/650, 빠른 메뉴는 22px(모바일 20px)입니다.
-카드-히어로·카드-포스터·카드-배너는 `v2/src/components/cards.js`에서 관리합니다.
-히어로는 2.7초마다 왼쪽으로 전환하며 마우스·터치의 양방향 드래그를 지원합니다.
-추가 검사는 `node v2/tests/cards-carousel.cjs`와
-`node scripts/check-decoration.cjs`로 실행합니다.
+[vercel.json](vercel.json) defines v5 installation, building, and `/v5/` static routing. Use the repository root as the Vercel project root.
 
-프로젝트 디자인 지침과 Toss/세종문화회관 참고 자료를 사용합니다. 검정과 흰색을 바탕으로 천·지·인의 세 채널을 CSS 변수로 분리해 색상을 바꿀 수 있도록 구성합니다.
+```bash
+# 저장소 루트에서 실행 / Run from the repository root
+python -m http.server 8000
+```
 
-| 역할 | CSS 변수 | 기본값 |
-| --- | --- | --- |
-| 주조색 | - | 검정 `#000000` / 흰색 `#FFFFFF` |
-| 천 · 하늘색 | `--color-cheon` | `#54C8E8` |
-| 지 · 황토색 | `--color-ji` | `#C36D15` |
-| 인 · 노란색 | `--color-in` | `#FFE800` |
+빌드된 v5는 <http://localhost:8000/v5/>에서 확인합니다. Windows에서 `python` 대신 `py`, macOS·Linux에서 `python3`을 사용할 수 있습니다.
 
-버전 선택 화면과 신버전은 **Pretendard Variable**을 로컬 WOFF2 파일로 제공합니다. 외부 폰트 CDN에 의존하지 않으며, `font-display: swap`과 한글 시스템 글꼴 대체값을 사용합니다. 글꼴 원본은 [공식 Pretendard 저장소](https://github.com/orioncactus/pretendard)이며, SIL Open Font License 1.1 전문과 다운로드 출처를 `v2/assets/fonts/`에 함께 보관합니다.
+Open <http://localhost:8000/v5/> for the exported application. Use `py` on Windows or `python3` on macOS and Linux if appropriate.
 
-## 구버전 구현 범위
-
-- **프로그램:** 공연·전시·교육 목록, 검색·장르·장소·날짜 필터, 리스트/캘린더 전환, 프로그램 상세 및 탭, 기획·시즌, Sync Next, 모든 누구나, 투어, 세종·충무공 이야기, 예매·교육 안내.
-- **대관:** 이용 대상·요금·시설·일정·절차·서류·장비 안내, 공연장/전시장 상세, 신청과 문의.
-- **이용안내:** 공간·좌석 안내, 교통·주차, 편의시설·다이닝, 접근성, 관람 예절, FAQ·문의·분실물, 단체관람.
-- **소식과 혜택:** 공지·티켓오픈·대관·채용 상세, 이벤트·결과, 뉴스레터·아카이브·매거진, 멤버십·혜택·가입, 굿즈.
-- **기관:** 소개·인사말·연혁·조직·CI, 7개 예술단과 관련 프로그램, ESG, 정보공개·경영공시·청구·신고, 협력·후원과 신청.
-- **공통:** 통합검색, 전체 메뉴·사이트맵, 영어 방문 안내, 약관·개인정보 안내, 체험 회원·마이페이지.
-- **완료 흐름:** 날짜/시간 → 좌석 → 확인 → 예매 완료 → 내역 → 취소. 전시는 입장 인원으로 예매하며, 교육·대관·단체·고객문의·멤버십·후원·이벤트 등 12가지 신청 유형은 작성 → 검토 → 접수 체험 → 내역으로 이어집니다.
-
-페이지 목록은 사이트 안의 **사이트맵**과 [페이지 목록](docs/sitemap.md)을 참고하세요. 문서에 명시된 5개 대메뉴와 26개 2depth를 구현하고, 기존 부가 콘텐츠와 완료 흐름을 추가했습니다.
-
-## 자료와 데이터
-
-사용자 제공 PDF의 내용을 사이트 제작의 참고자료로 분석했습니다. 문서 안의 과거 프롬프트를 새 작업 지시로 실행하지 않았습니다. [PDF 분석](docs/pdf-analysis.md)에 확정/추론 범위를 구분했습니다.
-
-- 실시간 공식 사이트는 환경의 외부 접속 제한(HTTP 403)으로 확인하지 못했습니다.
-- 일부 이미지는 PDF에 들어 있는 공식 사이트 화면에서 추출했습니다. `-concept` 이미지는 PDF 작성자의 콘셉트 시안입니다. [원본 출처](docs/asset-sources.json)를 참고하세요.
-- `hero-dance.png`는 이 리뉴얼을 위해 생성한 독창적인 콘셉트 이미지입니다. 실제 공연의 공식 사진이 아닙니다.
-- `poster-*.svg`, `venue-*.svg` 및 CSS 건축 도형은 제작한 일러스트입니다. 시설 이미지는 실측 자료가 아닙니다.
-- 공연명 일부는 자료를 참고하고, 나머지 프로그램·일정·가격·공지 본문은 체험용으로 작성했습니다. 실제 관람 전에는 공식 홈페이지에서 확인해야 합니다.
-
-## 프런트엔드 체험의 경계
-
-실제 로그인 인증·결제·티켓 발행·이메일 발송·기관 접수는 하지 않습니다. 완료 화면과 접수번호는 체험용이며 각 화면에 명시했습니다. 비밀번호와 카드정보를 요구하거나 저장하지 않습니다.
-
-관심 프로그램, 체험 프로필, 예매와 신청 내역은 **현재 브라우저의 localStorage**에 저장됩니다. 저장소가 차단되면 세션 중 메모리로 동작합니다. 브라우저 사이트 데이터 삭제 시 초기화됩니다. 입력한 개인정보를 외부 서버로 보내지 않습니다. 실제 개인정보 대신 예시 정보를 사용하세요.
-
-## 파일 구조
+## 저장소 구조 / Repository layout
 
 ```text
-index.html                구버전·v2·v3 선택 화면
-legacy.html               기존 단일 정적 진입점 보존
-assets/entry.css           버전 선택 화면 스타일
-assets/entry.js            비공식 안내·기존 해시 주소 연결
-v3/index.html             상호 참고 버전 진입점
-v3/src/                   v3 독립 실행 모듈·저장소
-v3/styles/                v3 스타일·refinements.css
-v3/assets/                v3 자체 이미지·아이콘·로컬 폰트
-v3/v2/ 등        요청에 따라 복사 보존한 원본 자료
-v2/index.html             신버전 진입점
-v2/assets/fonts/          로컬 웹폰트·라이선스·출처
-v2/src/app.js             신버전 라우터·공통 이벤트
-v2/src/components/ui.js   공통 UI 컴포넌트
-v2/src/lib/core.js        공통 로직
-v2/src/data/catalog.js    콘텐츠 데이터
-v2/src/features/          홈·프로그램·안내·예매·검색 기능
-v2/styles/                디자인 토큰·기본 스타일·섹션별 스타일
-v2/styles/compat/         기존 기능 화면의 호환 스타일
-v2/docs/                  디자인 결정·검증 기록
-css/styles.css            공통 디자인·메뉴·푸터·반응형
-css/home.css              6개 홈 섹션
-css/programs.css          프로그램·시즌
-css/pages.css             정보 페이지
-css/flows.css             예매·신청·회원
-js/data.js                전체 페이지·메뉴·콘텐츠 데이터
-js/core.js                검색·날짜·안전한 저장·검증·공통 도구
-js/components.js          공통 헤더·푸터·카드
-js/home.js                구버전 홈 렌더·달력·캐러셀
-js/programs.js            프로그램 탐색·상세
-js/pages.js               정보 페이지
-js/flows.js               예매·신청·마이페이지
-js/utilities.js            검색·사이트맵·정책·영문 안내
-js/app.js                 해시 라우터와 공통 이벤트
-assets/images/            로컬 이미지·포스터·공간 일러스트
+v5/
+  app/                    Next.js 경로 / Routes
+  components/             등록 UI·페이지 조합 / Registered UI and page composition
+  src/data/               카탈로그·토큰·등록부 / Catalog, tokens, and registry
+  src/lib/                인증·회원 DB·상태 / Auth, member database, and state
+  styles/                 생성 토큰·공통·배치 스타일 / Generated tokens and styles
+  scripts/                계약 검사·정적 미러링 / Contract checks and export mirroring
+  supabase/migrations/    회원 스키마·RLS / Member schema and RLS
+  supabase/tests/         실제 DB 소유권 검사 / Live ownership checks
+  tests/                  단위·브라우저 검사 / Unit and browser checks
+  public/                 공연 이미지·아이콘·폰트 / Program media, icons, and fonts
+  docs/                   설계·검증 기록 / Design and verification records
+  out/                    전체 정적 빌드 / Complete static export
+index.html                버전 선택 / Version selector
+legacy.html               초기 정적 버전 / Original static version
+v2/, v3/, v4/             보존된 버전 / Preserved versions
+vercel.json               배포 설정 / Deployment configuration
 ```
 
-## 구버전 검증 도구
+이전 버전의 안내는 [v2 디자인 문서](v2/docs/design-system.md), [v3 README](v3/README.md), [v4 README](v4/README.md)에 보존합니다. 버전 선택 화면은 루트 정적 서버에서 엽니다.
 
-신버전의 경로 보존·정적 리소스·윤년 달력·버전별 저장소 분리 검사는 다음 명령으로 실행합니다.
+Earlier documentation remains in the [v2 design guide](v2/docs/design-system.md), [v3 README](v3/README.md), and [v4 README](v4/README.md). Open the version selector through the root static server.
+
+## 협업·권한 / Collaboration and access
+
+원본 저장소의 협업자는 읽기·편집·푸시 권한을 사용합니다. 개인 계정 저장소의 삭제와 접근 관리는 소유자 권한입니다. 보관용 비공개 미러는 별도 권한을 사용하며 협업자에게 공유하지 않습니다.
+
+Source-repository collaborators can read, edit, and push. Repository deletion and access administration remain owner operations for a personal-account repository. The private archive mirror has separate access controls and is not shared with collaborators.
+
+소유자 작업폴더의 `origin`에는 원본과 미러의 두 push URL이 설정되어 있습니다. 아래 명령은 그 작업폴더에서 두 저장소에 전송합니다. 이 설정은 `.git/config`에 있으므로 다른 clone에 자동 전달되지 않습니다.
+
+The owner's working copy has two push URLs on `origin`, targeting the source and archive repositories. The command below pushes to both from that working copy. This configuration is local to `.git/config` and is not inherited by other clones.
 
 ```bash
-node --test v2/tests/routes.test.mjs
+git push origin main
 ```
 
-구버전과 신버전의 전체 Node 테스트를 함께 실행하려면 아래 명령을 사용하세요.
+커밋 메시지는 영어 접두사와 한국어 설명을 사용합니다. / Use an English prefix with a Korean description.
 
-```bash
-node --test tests/core.test.mjs tests/routes.test.mjs v2/tests/routes.test.mjs
+```text
+docs: 프로젝트 안내와 회원 데이터 구조 정리
 ```
 
-화면·사용 흐름·HTML/CSS 검수 결과와 제한 사항은 [신버전 검수 기록](v2/docs/verification.md)에 있습니다.
-
-```bash
-node --test tests/*.test.mjs
-```
-
-브라우저 검증은 개발 환경에 설치된 Playwright와 Chromium을 사용하며 앱 실행에는 필요하지 않습니다.
-
-```bash
-node tests/browser.cjs
-node tests/accessibility.cjs
-node tests/layout.cjs
-node tests/applications.cjs
-node tests/transactions.cjs
-node tests/admission.cjs
-```
-
-기존 브라우저 테스트는 구버전을 대상으로 합니다. 실행 전에 `SEJONG_TEST_URL`을 `http://127.0.0.1:8000/legacy.html`로 지정하세요. 도구의 기본 Chromium 경로는 `/usr/bin/chromium`이며, 필요하면 `CHROMIUM_PATH` 환경변수로 변경합니다. 별도 환경에서는 Playwright 및 Chromium을 개발 도구로 설치한 뒤 실행하세요. 위 명령은 검증 도구 안내이며 이번 변경에서 모두 실행했다는 의미는 아닙니다.
-
-키보드 탐색·포커스 표시·건너뛰기·이미지 대체 텍스트와 모션 감소 설정을 지원합니다. 신버전의 실제 검증 범위와 관찰 결과는 `v2/docs/verification.md`를 참고하세요.
-
-
-## v3 · 상호 참고 버전
-
-기존 `renewsejongpac`의 미니멀한 인상과 132개 경로를 유지하면서,
-`renewsejongpac-philosophized`의 제목·설명·행동 위계와 소식·혜택의 관계를 참고했습니다.
-히어로와 프로그램의 노란 UI 강조, 넓은 시즌 배너는 중성색으로 정돈하고 작품의 색은 유지합니다.
-소식 옆에는 기존 멤버십 화면으로 이어지는 안내를 추가했습니다.
-
-요청에 따라 기존 추적 파일 10,181개를 먼저 `v3/`로 복사했습니다. 실제 v3 실행 파일은
-`v3/index.html`, `v3/src/`, `v3/styles/`, `v3/assets/`이고, 나머지는 보존된 비교 자료입니다.
-기존 구버전·v2 파일은 그대로이며 v3 체험 데이터는 `sejong-v3:` 저장소로 분리합니다.
-[변경한 내용과 이유](docs/v3-design-decisions.md), [검증 결과](docs/v3-verification.md),
-[v3 실행 안내](v3/README.md)를 참고하세요.
-
-```bash
-node --test tests/*.test.mjs v2/tests/*.test.mjs
-node tests/v3-browser.cjs
-```
-
-v3 브라우저 검사는 저장소 루트의 HTTP 서버를 사용합니다. Playwright와 Chromium은
-검증 도구이며 앱 런타임 의존성이 아닙니다. 결과·캡처는 Git 제외 경로 `.local-reports/v3/`에 저장합니다.
-# v4 · 예술로 이어지는 하루
-
-v3 전체를 복사한 독립 v4를 추가했습니다. 기존 경로를 보존하며 빠른 예매, 방문 계획, 대관 공간 비교, 소개 스토리와 통합검색을 확장했습니다. 루트 버전 선택 또는 `v4/index.html`에서 시작할 수 있습니다.
-
-실행·구조는 [v4 README](v4/README.md), 원본 보존과 140개 경로 검증은 [검증 기록](v4/docs/verification-2026-10-16.md), 스킬·kordoc·REA 연결은 [도구 설정](docs/agent-tools-2026-10-16.md)에 정리했습니다.
+[저장소 작업 규칙 / Repository instructions](CONTRIBUTING.md) · [GitHub 개인 저장소 권한 / GitHub personal-repository permissions](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/repository-access-and-collaboration/permission-levels-for-a-personal-account-repository) · [Mermaid ERD 문법 / Mermaid ERD syntax](https://mermaid.js.org/syntax/entityRelationshipDiagram.html)
