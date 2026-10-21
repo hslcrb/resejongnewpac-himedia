@@ -6,6 +6,8 @@ import Link from "next/link";
 import Icon from "../../components/Icon";
 import BookingInvitation from "../../components/BookingInvitation";
 import ProgramCard from "../../components/ProgramCard";
+import FloatingMenu from "../../components/FloatingMenu";
+import type { PanelPoint } from "../../src/lib/floating-panel";
 import { PROGRAMS } from "../../src/data/catalog";
 import type { Program } from "../../types/sejong";
 import VioletQuickMenu, { SEJONG_QUICK_MENU_ITEMS } from "../../components/VioletQuickMenu";
@@ -125,6 +127,10 @@ export default function DesignRulesPage() {
     const [specimenWeight, setSpecimenWeight] = useState(600);
     const [demoTab, setDemoTab] = useState(0);
     const [demoDate, setDemoDate] = useState("2026-10-23");
+    const [floatingMenuOpen, setFloatingMenuOpen] = useState(false);
+    const floatingMenuTrigger = useRef<HTMLButtonElement>(null);
+    const floatingMenuPosition = useRef<PanelPoint | null>(null);
+    const closeFloatingMenu = useCallback(() => setFloatingMenuOpen(false), []);
     const searchDialog = useRef<HTMLDialogElement>(null);
     const navigationDialog = useRef<HTMLDialogElement>(null);
     const demoDialog = useRef<HTMLDialogElement>(null);
@@ -1087,6 +1093,90 @@ export default function DesignRulesPage() {
                                         </p>
                                     </details>
                                 </div>
+                            </>,
+                        )}
+                        {section(
+                            "floating-menu",
+                            "떠 있는 유리 메뉴",
+                            <>
+                                <p>
+                                    전체 메뉴는 페이지를 가리는 흰 덮개 없이 독립된 창으로 뜹니다.
+                                    기존 흰색과 검정의 투명도, 배경의 흐림, 둥근 가장자리의 굴절과
+                                    반사를 겹쳐 깊이를 표현합니다. 글자는 굴절시키지 않습니다.
+                                </p>
+                                <div className="ds-demo">
+                                    <SystemButton
+                                        ref={floatingMenuTrigger}
+                                        aria-haspopup="dialog"
+                                        aria-expanded={floatingMenuOpen}
+                                        aria-controls="menu-dialog"
+                                        onClick={() => setFloatingMenuOpen(!floatingMenuOpen)}
+                                    >
+                                        전체 메뉴 체험하기 <Icon name="menu" size={24} />
+                                    </SystemButton>
+                                    {floatingMenuOpen && (
+                                        <FloatingMenu
+                                            onClose={closeFloatingMenu}
+                                            returnFocus={floatingMenuTrigger}
+                                            position={floatingMenuPosition}
+                                        />
+                                    )}
+                                </div>
+                                <DataTable
+                                    label="떠 있는 메뉴의 표면과 위계"
+                                    headings={["역할", "기준", "토큰"]}
+                                    rows={[
+                                        [
+                                            "창 제목",
+                                            "36–48px · 700 / 모바일 28–32px",
+                                            "--text-title",
+                                        ],
+                                        [
+                                            "메뉴 그룹",
+                                            "24px · 700 / 모바일 20px",
+                                            "--text-menu-group",
+                                        ],
+                                        [
+                                            "탐색 링크",
+                                            "18px · 500 · 조작 높이 48px",
+                                            "--text-menu-link",
+                                        ],
+                                        ["설명·개인 서비스", "16px · 400–500", "--text-sm"],
+                                        ["모서리", "24px", "--radius-dialog"],
+                                        ["유리 바탕", "흰색 68% + 방향성 반사광", "--glass-tint"],
+                                        [
+                                            "배경 흐림",
+                                            "18px · 채도 1.4배",
+                                            "--glass-blur / --glass-saturation",
+                                        ],
+                                        [
+                                            "테두리·그림자",
+                                            "흰색 78% · 겹쳐진 높이",
+                                            "--glass-edge / --glass-shadow",
+                                        ],
+                                    ]}
+                                />
+                                <ul className="ds-rules-list">
+                                    <li>
+                                        마우스로 글자와 여백을 잡아 옮깁니다. 드래그한 링크는 열리지
+                                        않습니다.
+                                    </li>
+                                    <li>
+                                        터치에서는 제목을 잡아 옮깁니다. 본문은 세로로 스크롤하며,
+                                        이동 버튼을 켜면 본문에서도 창을 옮길 수 있습니다.
+                                    </li>
+                                    <li>
+                                        이동 버튼에 초점을 두고 방향키로 16px, Shift와 함께 4px씩
+                                        옮깁니다. Home은 처음 위치, Escape는 닫기입니다.
+                                    </li>
+                                    <li>
+                                        배경 페이지도 사용할 수 있습니다. 화면 크기가 바뀌어도
+                                        닫기와 탐색을 화면 안에 유지합니다.
+                                    </li>
+                                    <li>
+                                        투명도 감소·고대비 설정에서는 흰 불투명 표면으로 전환합니다.
+                                    </li>
+                                </ul>
                             </>,
                         )}
                         {section(

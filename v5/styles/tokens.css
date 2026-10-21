@@ -99,6 +99,16 @@
     --radius-lg: 16px;
     --radius-pill: 9999px;
 
+    /* [떠 있는 유리 표면 / Floating glass surface]
+       원래 흰색과 검정의 투명도만 사용합니다. / Only the existing white and black are used. */
+    --glass-tint: rgb(255 255 255 / 68%);
+    --glass-blur: 18px;
+    --glass-saturation: 1.4;
+    --glass-edge: rgb(255 255 255 / 78%);
+    --glass-shadow: 0 24px 80px rgb(0 0 0 / 16%), 0 4px 16px rgb(0 0 0 / 8%);
+    --text-menu-link: var(--text-lead);
+    --text-menu-group: var(--text-subheading);
+
     --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
     --font: "Wanted Sans Variable", "Wanted Sans", -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;

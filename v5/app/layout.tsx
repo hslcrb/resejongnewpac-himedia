@@ -25,6 +25,7 @@ import "../styles/experience.css";
 import "../styles/home-v4.css";
 import "../styles/story.css";
 import "../styles/journeys.css";
+import "../styles/floating-menu.css";
 import "../styles/design-system.css";
 
 export const metadata = {

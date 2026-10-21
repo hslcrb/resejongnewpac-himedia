@@ -1,23 +1,29 @@
 "use client";
 
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from "react";
+import { forwardRef } from "react";
 import Icon from "./Icon";
 
 // [토큰을 사용하는 기본 조작 / Token-based interface primitives]
 // 문서의 예제와 제품 화면에서 같은 크기·상태·접근성 속성을 사용합니다.
 // Documentation and product screens share dimensions, states and accessible attributes.
-export function SystemButton({
-    variant = "primary",
-    className = "",
-    type = "button",
-    ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & {
+type SystemButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
     variant?: "primary" | "secondary" | "accent" | "quiet";
-}) {
+};
+
+export const SystemButton = forwardRef<HTMLButtonElement, SystemButtonProps>(function SystemButton(
+    { variant = "primary", className = "", type = "button", ...props }: SystemButtonProps,
+    ref,
+) {
     return (
-        <button {...props} type={type} className={`ds-button ds-button-${variant} ${className}`} />
+        <button
+            {...props}
+            ref={ref}
+            type={type}
+            className={`ds-button ds-button-${variant} ${className}`}
+        />
     );
-}
+});
 
 export function SystemField({
     id,
