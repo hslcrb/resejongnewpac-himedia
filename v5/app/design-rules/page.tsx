@@ -8,6 +8,7 @@ import BookingInvitation from "../../components/BookingInvitation";
 import ProgramCard from "../../components/ProgramCard";
 import FloatingMenu from "../../components/FloatingMenu";
 import LiquidGlassDemo from "../../components/LiquidGlassDemo";
+import { showSmallNotification } from "../../components/SmallNotificationModal";
 import type { PanelPoint } from "../../src/lib/floating-panel";
 import { PROGRAMS } from "../../src/data/catalog";
 import type { Program } from "../../types/sejong";
@@ -1284,6 +1285,41 @@ export default function DesignRulesPage() {
                                         투명도 감소·고대비 설정에서는 흰 불투명 표면으로 전환합니다.
                                     </li>
                                 </ul>
+                            </>,
+                        )}
+                        {section(
+                            "small-notification",
+                            "알림소형모달",
+                            <>
+                                <p>
+                                    v4의 둥근 하단 알림을 공통 컴포넌트로 등록했습니다.
+                                    관심 등록·해제처럼 짧은 결과를 전달하며, 배경을 가리거나
+                                    초점을 옮기지 않습니다. 3.5초 뒤 부드럽게 사라지고,
+                                    새 알림은 같은 캡슐 안에서 갱신됩니다.
+                                </p>
+                                <div className="ds-demo-actions">
+                                    <SystemButton onClick={() => showSmallNotification("관심 프로그램에 저장했어요.")}>
+                                        알림소형모달 체험
+                                    </SystemButton>
+                                    <SystemButton variant="quiet" onClick={() => showSmallNotification("관심 프로그램에서 삭제했어요.")}>
+                                        다음 알림으로 교체
+                                    </SystemButton>
+                                </div>
+                                <DataTable label="알림소형모달 컴포넌트 속성"
+                                    headings={["속성", "역할"]}
+                                    rows={[
+                                        ["open / message", "표시 상태와 안내 문장"],
+                                        ["id", "여러 표면을 구분하는 식별자 · 선택"],
+                                        ["SmallNotificationModalHost", "사이트에 한 번 등록하는 알림 호스트"],
+                                        ["showSmallNotification(message)", "어느 화면에서든 알림을 표시"],
+                                        ["duration", "호스트의 표시 시간 · 기본 3500ms"],
+                                    ]}
+                                />
+                                <pre className="ds-code-block"><code>{`import SmallNotificationModal, {\n    showSmallNotification\n} from "@/components/SmallNotificationModal";\n\nshowSmallNotification("관심 프로그램에 저장했어요.");\n\n// 직접 상태를 제어하는 경우\n<SmallNotificationModal open={visible} message="저장했어요." />`}</code></pre>
+                                <p className="ds-caption">
+                                    양끝은 완전한 캡슐이며, 글자는 최소 16px로 유지합니다.
+                                    모션 감소 설정에서는 위치 이동 없이 페이드만 사용합니다.
+                                </p>
                             </>,
                         )}
                         {section(

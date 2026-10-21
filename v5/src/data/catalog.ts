@@ -1,4 +1,6 @@
 import type { Program, Venue, Notice, NavItem, PageMeta } from "../../types/sejong.ts";
+import { officialImage, officialImageAlt } from "./official-media.ts";
+import type { OfficialMediaId } from "./official-media.ts";
 
 const page = (path: string, title: string, group: string, description = "", type = "content"): PageMeta => ({
     path,
@@ -160,7 +162,7 @@ export const VENUES: Venue[] = [
         capacity: "3,022",
         description:
             "대형 규모의 대표 공연장. 오페라와 발레, 오케스트라 등 대규모 무대가 상연됩니다.",
-        image: "assets/images/venue-grand.svg",
+        image: "assets/images/sejong-grand-interior.png",
     },
     {
         id: "m-theater",
@@ -169,7 +171,7 @@ export const VENUES: Venue[] = [
         capacity: "609",
         description:
             "무대와 객석의 거리가 가까우니 배우의 표정까지 보이는 중극장입니다.",
-        image: "assets/images/venue-m.svg",
+        image: officialImage("venue-m"),
     },
     {
         id: "s-theater",
@@ -178,7 +180,7 @@ export const VENUES: Venue[] = [
         capacity: "300",
         description:
             "무대와 객석 배치를 공연마다 다시 만드는 블랙박스형 공간입니다.",
-        image: "assets/images/venue-s.svg",
+        image: officialImage("venue-s"),
     },
     {
         id: "chamber",
@@ -187,7 +189,7 @@ export const VENUES: Venue[] = [
         capacity: "443",
         description:
             "실내악 특화의 어쿠스틱 홀. 연주 소리의 작은 결까지 전합니다.",
-        image: "assets/images/venue-chamber.svg",
+        image: officialImage("venue-chamber"),
     },
     {
         id: "gallery",
@@ -196,7 +198,7 @@ export const VENUES: Venue[] = [
         capacity: "전시 공간",
         description:
             "도심 한가운데 있는 미술관. 기획전과 아트페어가 열립니다.",
-        image: "assets/images/venue-gallery.svg",
+        image: officialImage("venue-gallery"),
     },
 ];
 
@@ -383,6 +385,14 @@ const rows: [string, string, string, string, string, string, string, number, str
     ],
 ];
 
+// [실제 세종 공연·공간 자료를 쓰는 시연 일정 / Official media for the demonstration schedule]
+const programMedia: Record<string, OfficialMediaId> = {
+    autumn: "season-05", carmen: "season-28", dance: "ilmu-poster",
+    "chamber-autumn": "season-14", sumire: "season-11", hypnosis: "season-23",
+    light: "venue-gallery", "art-goods": "venue-gallery", academy: "season-29",
+    "art-class": "venue-gallery", ballet: "season-01", choral: "season-04",
+    "everyone-classic": "season-18", winter: "season-10", tour: "venue-m",
+};
 export const PROGRAMS: Program[] = rows.map(
     ([
         id,
@@ -404,7 +414,8 @@ export const PROGRAMS: Program[] = rows.map(
         end,
         venue,
         price,
-        image: `assets/images/poster-${art}.svg`,
+        image: officialImage(programMedia[id]),
+        imageAlt: officialImageAlt(programMedia[id]),
         description,
         duration:
             category === "전시"
@@ -417,16 +428,6 @@ export const PROGRAMS: Program[] = rows.map(
         status: "예매중",
     })
 );
-
-const sourceArtwork: Record<string, string> = {
-    hypnosis: "hypnosis-therapy.png",
-    sumire: "sumire-hair-salon.png",
-    "everyone-classic": "everyone-classic.png",
-};
-
-PROGRAMS.forEach((p) => {
-    if (sourceArtwork[p.id]) p.image = "assets/images/" + sourceArtwork[p.id];
-});
 
 export const COMPANIES = [
     ["traditional", "서울시국악관현악단", "국악기와 관현악을 함께 쓰는 정기공연", "국악"],

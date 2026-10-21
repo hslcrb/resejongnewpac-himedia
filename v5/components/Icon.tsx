@@ -51,15 +51,8 @@ export default function Icon({ name, size = 24, className = "", filled = false }
             focusable="false"
         >
             <use
-                className={isHeart && !filled ? "material-icon-outline" : undefined}
-                href={`/v5/assets/icons/material-symbols-rounded.svg#${symbol}`}
+                href={`/v5/assets/icons/material-symbols-rounded.svg#${isHeart && filled ? "favorite-fill" : symbol}`}
             />
-            {isHeart && (
-                <use
-                    className={filled ? undefined : "material-icon-filled"}
-                    href="/v5/assets/icons/material-symbols-rounded.svg#favorite-fill"
-                />
-            )}
         </svg>
     );
 }

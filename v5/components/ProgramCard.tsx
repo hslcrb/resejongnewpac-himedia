@@ -1,52 +1,31 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import type { Program } from "../types/sejong.ts";
-import { showToast } from "./Toast";
+import { showSmallNotification } from "./SmallNotificationModal";
+import Icon from "./Icon";
+import useFavorites from "./useFavorites";
+import { toggleFavorite } from "../src/lib/favorites";
+import { mediaPath } from "../src/lib/media";
 
 interface ProgramCardProps {
     program: Program;
 }
 
 export default function ProgramCard({ program }: ProgramCardProps) {
-    const [isFavorite, setIsFavorite] = useState(false);
+    const isFavorite = useFavorites().includes(program.id);
 
-    useEffect(() => {
-        try {
-            const raw = localStorage.getItem("sejong-v4:favorites");
-            if (raw) {
-                const list = JSON.parse(raw);
-                if (Array.isArray(list) && list.includes(program.id)) {
-                    setIsFavorite(true);
-                }
-            }
-        } catch {}
-    }, [program.id]);
-
-    const toggleFavorite = (e: React.MouseEvent) => {
+    const handleFavorite = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        try {
-            const raw = localStorage.getItem("sejong-v4:favorites");
-            let list: string[] = [];
-            if (raw) list = JSON.parse(raw);
-            if (!Array.isArray(list)) list = [];
-
-            const exists = list.includes(program.id);
-            const next = exists ? list.filter((id) => id !== program.id) : [...list, program.id];
-            localStorage.setItem("sejong-v4:favorites", JSON.stringify(next));
-            setIsFavorite(!exists);
-            showToast(exists ? "관심 프로그램에서 삭제했어요." : "관심 프로그램에 저장했어요.");
-        } catch {
-            showToast("관심 프로그램 설정에 실패했습니다.");
-        }
+        const { saved, persisted } = toggleFavorite(program.id);
+        const message = saved ? "관심 프로그램에 저장했어요." : "관심 프로그램에서 삭제했어요.";
+        showSmallNotification(message + (persisted ? "" : " (이 창에서만 유지)"));
     };
 
     // 포스터 이미지 경로 안전 취득
-    const imagePath = program.image
-        ? `/v5/${program.image.replace(/^\/?(v5\/)?/, "")}`
-        : `/v5/assets/images/poster-${program.id}.svg`;
+    const imagePath = mediaPath(program.image);
 
     const formatDate = (val?: string) => String(val || "").replaceAll("-", ".");
 
@@ -62,15 +41,16 @@ export default function ProgramCard({ program }: ProgramCardProps) {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={imagePath}
-                        alt={`${program.title} 포스터`}
+                        alt={program.imageAlt || program.title}
                         loading="lazy"
                         width={450}
                         height={600}
                         draggable={false}
                         onError={(e) => {
                             const target = e.currentTarget;
-                            if (target.src.includes("/v5/assets/")) {
-                                target.src = target.src.replace("/v5/assets/", "/assets/");
+                            if (!target.dataset.fallback) {
+                                target.dataset.fallback = "true";
+                                target.src = mediaPath();
                             }
                         }}
                     />
@@ -97,21 +77,11 @@ export default function ProgramCard({ program }: ProgramCardProps) {
                 <button
                     type="button"
                     className={`favorite-button round-button ${isFavorite ? "selected" : ""}`}
-                    onClick={toggleFavorite}
+                    onClick={handleFavorite}
                     aria-pressed={isFavorite}
                     aria-label={`${program.title} 관심 프로그램 ${isFavorite ? "해제" : "등록"}`}
                 >
-                    <svg
-                        className="material-icon"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill={isFavorite ? "var(--color-black)" : "none"}
-                        stroke="currentColor"
-                        strokeWidth="2"
-                    >
-                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                    </svg>
+                    <Icon name="heart" filled={isFavorite} size={24} />
                 </button>
             </div>
         </article>

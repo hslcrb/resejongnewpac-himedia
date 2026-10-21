@@ -14,11 +14,11 @@ const storyLink = (label, path, className = "story-link") => `
 // 사진 출처는 assets/images/README.txt를 유지하며 일러스트를 실제 공간 사진으로 표시하지 않습니다.
 // Preserve asset provenance and distinguish venue illustrations from official photographs.
 function renderSpace(venue) {
-    const photograph = venue.id === "grand";
-    const source = photograph ? "assets/images/sejong-grand-interior.png" : venue.image;
+    const photograph = !/\.svg(?:$|\?)/i.test(venue.image);
+    const source = venue.image;
     return `
         <figure class="story-space-image${photograph ? "" : " story-space-illustration"}">
-            <img src="${esc(source)}" width="1160" height="680" alt="${esc(venue.name)} ${photograph ? "무대와 객석" : "공간 안내 일러스트"}" loading="lazy" decoding="async">
+            <img src="${esc(source)}" width="1160" height="680" alt="${esc(venue.name)} ${photograph ? "공식 공간 사진" : "공간 안내 일러스트"}" loading="lazy" decoding="async">
             <figcaption>${photograph ? "사진: 세종문화회관" : "공간의 성격을 소개하는 일러스트"}</figcaption>
         </figure>
         <div class="story-space-copy">

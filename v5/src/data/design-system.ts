@@ -227,6 +227,7 @@ export const CHAPTERS = [
             ["navigation", "탭과 펼침"],
             ["liquid-glass", "리퀴드 글래스"],
             ["floating-menu", "떠 있는 유리 메뉴"],
+            ["small-notification", "알림소형모달"],
             ["feedback", "상태와 대화상자"],
         ],
     },

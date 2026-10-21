@@ -7,6 +7,8 @@ import ProgramCard from "../components/ProgramCard";
 import Icon from "../components/Icon";
 import VioletQuickMenu from "../components/VioletQuickMenu";
 import HomeAnchorNavigation from "../components/HomeAnchorNavigation";
+import { OFFICIAL_MEDIA } from "../src/data/official-media";
+import { mediaPath } from "../src/lib/media";
 import {
     seoulToday,
     monthDates,
@@ -27,8 +29,8 @@ const features = [
         name: "서울시무용단 〈일무〉",
         date: "2026.10.20 - 10.25",
         venue: "세종대극장",
-        image: "hero-dance.png",
-        alt: "금빛 무대에서 춤추는 무용수의 리뉴얼 콘셉트 이미지",
+        image: "official/" + OFFICIAL_MEDIA["ilmu-stage"].file,
+        alt: OFFICIAL_MEDIA["ilmu-stage"].alt,
     },
     {
         id: "carmen",
@@ -38,8 +40,8 @@ const features = [
         name: "서울시오페라단 〈카르멘〉",
         date: "2026.10.15 - 10.18",
         venue: "세종대극장",
-        image: "poster-carmen.svg",
-        alt: "오페라 카르멘 콘셉트 포스터",
+        image: "official/" + OFFICIAL_MEDIA["season-28"].file,
+        alt: OFFICIAL_MEDIA["season-28"].alt,
     },
     {
         id: "light",
@@ -49,8 +51,8 @@ const features = [
         name: "빛이 머무는 자리",
         date: "2026.10.01 - 11.15",
         venue: "세종미술관",
-        image: "poster-light.svg",
-        alt: "빛이 머무는 자리 전시 콘셉트 포스터",
+        image: "official/" + OFFICIAL_MEDIA["venue-gallery"].file,
+        alt: OFFICIAL_MEDIA["venue-gallery"].alt,
     },
 ];
 
@@ -83,22 +85,22 @@ const visitGuides = [
         title: "모두를 위한 관람",
         description: "접근성 서비스와 편의시설",
         path: "/visit/accessibility",
-        image: "visit-guide-access.png",
-        alt: "휠체어와 경사로, 객석을 표현한 접근성 안내 삽화",
-        kind: "illustration",
-        width: 1254,
-        height: 1254,
+        image: "official/" + OFFICIAL_MEDIA["venue-s"].file,
+        alt: OFFICIAL_MEDIA["venue-s"].alt,
+        kind: "photo",
+        width: 1160,
+        height: 680,
     },
     {
         id: "etiquette",
         title: "관람 전 알아두세요",
         description: "예매와 관람에 필요한 안내",
         path: "/visit/etiquette",
-        image: "visit-guide-etiquette.png",
-        alt: "객석과 닫힌 프로그램북, 뒤집어 둔 휴대전화를 표현한 관람 안내 삽화",
-        kind: "illustration",
-        width: 1254,
-        height: 1254,
+        image: "official/" + OFFICIAL_MEDIA["venue-chamber"].file,
+        alt: OFFICIAL_MEDIA["venue-chamber"].alt,
+        kind: "photo",
+        width: 1160,
+        height: 680,
     },
 ];
 
@@ -389,8 +391,9 @@ export default function HomePage() {
                                             loading={isCurrent ? "eager" : "lazy"}
                                             onError={(e) => {
                                                 const target = e.currentTarget;
-                                                if (target.src.includes("/v5/assets/")) {
-                                                    target.src = target.src.replace("/v5/assets/", "/assets/");
+                                                if (!target.dataset.fallback) {
+                                                    target.dataset.fallback = "true";
+                                                    target.src = mediaPath();
                                                 }
                                             }}
                                         />
@@ -604,9 +607,7 @@ export default function HomePage() {
                                 {programsOnBookingDate.map((prog: any) => {
                                     const available = canSelectProgram(prog) && bookingDate >= today;
                                     const isSelected = selectedProgramId === prog.id;
-                                    const posterSrc = prog.image
-                                        ? `/v5/${prog.image.replace(/^\/?(v5\/)?/, "")}`
-                                        : `/v5/assets/images/poster-${prog.id}.svg`;
+                                    const posterSrc = mediaPath(prog.image);
 
                                     return (
                                         <button
@@ -628,8 +629,9 @@ export default function HomePage() {
                                                 loading="lazy"
                                                 onError={(e) => {
                                                     const target = e.currentTarget;
-                                                    if (target.src.includes("/v5/assets/")) {
-                                                        target.src = target.src.replace("/v5/assets/", "/assets/");
+                                                    if (!target.dataset.fallback) {
+                                                        target.dataset.fallback = "true";
+                                                        target.src = mediaPath();
                                                     }
                                                 }}
                                             />

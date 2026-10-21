@@ -103,7 +103,7 @@
     pointer-events: auto;
 }
 
-.card--poster .favorite-button.selected { background: var(--human); }
+.card--poster .favorite-button.selected { background: var(--human); opacity: 1; pointer-events: auto; }
 
 .card--poster .program-card-meta {
     display: flex;

@@ -5,11 +5,13 @@ import Link from "next/link";
 import { showToast } from "../../components/Toast";
 import type { UserProfile, BookingRecord } from "../../types/sejong.ts";
 import { PROGRAMS } from "../../src/data/catalog";
+import { mediaPath } from "../../src/lib/media";
+import useFavorites from "../../components/useFavorites";
 
 export default function AccountPage() {
     const [profile, setProfile] = useState<UserProfile>({ name: "", email: "", phone: "" });
     const [bookings, setBookings] = useState<BookingRecord[]>([]);
-    const [favorites, setFavorites] = useState<string[]>([]);
+    const favorites = useFavorites();
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState<string>("dashboard");
 
@@ -27,10 +29,6 @@ export default function AccountPage() {
             const rawBookings = localStorage.getItem("sejong-v4:bookings");
             if (rawBookings) {
                 setBookings(JSON.parse(rawBookings));
-            }
-            const rawFavorites = localStorage.getItem("sejong-v4:favorites");
-            if (rawFavorites) {
-                setFavorites(JSON.parse(rawFavorites));
             }
         } catch {}
     }, []);
@@ -209,7 +207,7 @@ export default function AccountPage() {
                                         <article key={booking.id} className="account-booking">
                                             {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img
-                                                src={`/v5/assets/images/${program?.image || "poster-carmen.png"}`}
+                                                src={mediaPath(program?.image)}
                                                 alt={booking.title}
                                             />
                                             <div className="account-booking__body">
@@ -268,7 +266,7 @@ export default function AccountPage() {
                                         <article key={favId} className="account-booking">
                                             {/* eslint-disable-next-line @next/next/no-img-element */}
                                             <img
-                                                src={`/v5/assets/images/${program.image}`}
+                                                src={mediaPath(program.image)}
                                                 alt={program.title}
                                             />
                                             <div className="account-booking__body">

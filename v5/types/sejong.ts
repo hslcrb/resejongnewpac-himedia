@@ -7,6 +7,8 @@ export interface Program {
     start?: string;
     end?: string;
     poster?: string;
+    image?: string;
+    imageAlt?: string;
     price?: number | string;
     target?: string;
     time?: string;

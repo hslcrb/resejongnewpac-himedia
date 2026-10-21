@@ -134,7 +134,9 @@ test("Choosing a space commits its matching description and detail destination, 
     assert.match(f.panel.innerHTML, /세종S씨어터/);
     assert.match(f.panel.innerHTML, /블랙박스형/);
     assert.match(f.panel.innerHTML, /href="#\/visit\/spaces\/s-theater"/);
-    assert.match(f.panel.innerHTML, /venue-s\.svg/);
+    assert.match(f.panel.innerHTML, /official\/venue-s\.png/);
+    assert.match(f.panel.innerHTML, /사진: 세종문화회관/);
+    assert.ok(!f.panel.innerHTML.includes("일러스트"));
     assert.match(f.status.textContent, /세종S씨어터/);
     const chosen = f.panel.innerHTML;
     f.change("unknown-space");

@@ -3,15 +3,14 @@
 import React from "react";
 import Link from "next/link";
 import type { Program } from "../../../types/sejong.ts";
+import { mediaPath } from "../../../src/lib/media";
 
 interface ProgramDetailClientProps {
     program: Program;
 }
 
 export default function ProgramDetailClient({ program }: ProgramDetailClientProps) {
-    const imagePath = program.image
-        ? `/v5/${program.image.replace(/^\/?(v5\/)?/, "")}`
-        : `/v5/assets/images/poster-${program.id}.svg`;
+    const imagePath = mediaPath(program.image);
 
     return (
         <div className="container" style={{ padding: "3rem 1.5rem 6rem", maxWidth: "1000px", margin: "0 auto" }}>
@@ -60,12 +59,13 @@ export default function ProgramDetailClient({ program }: ProgramDetailClientProp
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             src={imagePath}
-                            alt={program.title}
+                            alt={program.imageAlt || program.title}
                             style={{ width: "100%", height: "auto", display: "block" }}
                             onError={(e) => {
                                 const target = e.currentTarget;
-                                if (target.src.includes("/v5/assets/")) {
-                                    target.src = target.src.replace("/v5/assets/", "/assets/");
+                                if (!target.dataset.fallback) {
+                                    target.dataset.fallback = "true";
+                                    target.src = mediaPath();
                                 }
                             }}
                         />

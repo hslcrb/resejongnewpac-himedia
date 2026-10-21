@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
-import Toast from "./Toast";
+import { SmallNotificationModalHost } from "./SmallNotificationModal";
 import ReturnTop from "./ReturnTop";
 import ContextMenu from "./ContextMenu";
 
@@ -21,7 +21,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
                     본문 바로가기
                 </a>
                 {children}
-                <Toast />
+                <SmallNotificationModalHost />
             </>
         );
     }
@@ -37,7 +37,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
             <Footer />
             <ReturnTop />
             <ContextMenu />
-            <Toast />
+            <SmallNotificationModalHost />
         </>
     );
 }
