@@ -34,10 +34,11 @@ import "../styles/system-primitives.css";
 import "../styles/component-catalog.css";
 import "../styles/account-mini-room.css";
 import "../styles/account-space.css";
+import "../styles/page-layout.css";
 
 export const metadata = {
-    title: "세종문화회관 - 공연·전시·교육, 예매와 이용 안내 (Next.js & TypeScript)",
-    description: "세종문화회관 리뉴얼 콘셉트. 공연·전시·교육 일정과 예매, 이용 안내를 한곳에서 확인하세요. Next.js App Router & TypeScript 기반 비공식 콘셉트 사이트입니다.",
+    title: "세종문화회관 | 공연·전시·교육",
+    description: "공연·전시·교육 일정과 예매, 이용 안내를 한곳에서 확인하세요.",
 };
 
 export default function RootLayout({

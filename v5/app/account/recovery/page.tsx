@@ -25,12 +25,12 @@ export default function RecoveryPage() {
             if (raw) {
                 const profile = JSON.parse(raw);
                 if (profile.email && profile.email.toLowerCase() === email.trim().toLowerCase()) {
-                    setRecoveryResult(`등록된 계정이 확인되었습니다: ${profile.name || "관람객"} (${profile.email})`);
+                    setRecoveryResult(`저장한 프로필을 찾았습니다: ${profile.name || "관람객"} (${profile.email})`);
                     showToast("계정 확인 완료");
                     return;
                 }
             }
-            setRecoveryResult("일치하는 회원 정보를 찾을 수 없습니다.");
+            setRecoveryResult("이 브라우저에 일치하는 프로필이 없습니다.");
         } catch {
             setErrorMessage("조회 중 오류가 발생했습니다.");
         }
@@ -50,7 +50,6 @@ export default function RecoveryPage() {
                     </nav>
                     <div className="page-title-row">
                         <div>
-                            <p className="eyebrow">MY SEJONG</p>
                             <h1>계정 찾기</h1>
                             <p className="page-description">예매 내역과 관심 프로그램을 관리하는 페이지입니다.</p>
                         </div>
@@ -61,8 +60,8 @@ export default function RecoveryPage() {
             <div className="container page-content flow-content">
                 <form className="flow-panel account-narrow" onSubmit={handleSubmit} noValidate>
                     <div className="flow-panel-heading">
-                        <h2>등록된 계정 찾기</h2>
-                        <p>가입 시 입력했던 이메일을 입력해 주세요.</p>
+                        <h2>저장한 프로필 찾기</h2>
+                        <p>프로필에 입력했던 이메일을 입력해 주세요.</p>
                     </div>
 
                     {errorMessage && (
@@ -98,7 +97,7 @@ export default function RecoveryPage() {
 
                     <div className="account-auth-links">
                         <Link href="/account/login">로그인</Link>
-                        <Link href="/account/signup">회원가입</Link>
+                        <Link href="/account/signup">프로필 만들기</Link>
                     </div>
                 </form>
             </div>

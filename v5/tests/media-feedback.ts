@@ -112,7 +112,7 @@ try {
         await page.goto(new URL("design-rules/#components/small-notification", base).href, { waitUntil: "networkidle" });
         await page.getByRole("heading", { name: "알림소형모달", exact: true }).waitFor();
         await page.getByRole("region", { name: "알림소형모달 컴포넌트 속성" }).waitFor();
-        await page.getByRole("button", { name: "알림소형모달 체험", exact: true }).click();
+        await page.getByRole("button", { name: "알림소형모달 보기", exact: true }).click();
         await page.waitForFunction(() => document.querySelector("#toast")?.classList.contains("visible"));
         assert.match(await page.locator("#toast").innerText(), /저장/);
         assert.ok((await page.locator(".ds-code-block").allTextContents()).some(code => code.includes("SmallNotificationModal")));

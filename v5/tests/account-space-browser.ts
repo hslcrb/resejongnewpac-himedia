@@ -138,7 +138,7 @@ try {
         assert.equal(await page.locator("[data-cancelled=true]").count(),0);
         await trigger.click();await page.keyboard.press("Escape");
         assert.ok(await trigger.evaluate(el=>document.activeElement===el));
-        await trigger.click();await page.locator(".account-cancel-dialog").getByRole("button",{name:"체험 예매 취소",exact:true}).click();
+        await trigger.click();await page.locator(".account-cancel-dialog").getByRole("button",{name:"예매 기록 취소",exact:true}).click();
         await page.locator('.account-ticket[data-cancelled="true"]').waitFor();
         assert.equal(await page.evaluate(()=>document.activeElement?.id),"account-bookings-heading");
         assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem("sejong-v4:bookings")||"[]")[0].status),"cancelled");

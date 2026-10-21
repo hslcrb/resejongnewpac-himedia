@@ -1,19 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { PROGRAMS, NOTICES } from "../src/data/catalog";
 import ProgramCard from "../components/ProgramCard";
 import Icon from "../components/Icon";
 import VioletQuickMenu from "../components/VioletQuickMenu";
 import HomeAnchorNavigation from "../components/HomeAnchorNavigation";
-import HeroCompanion from "../components/HeroCompanion";
-import HeroSlide from "../components/HeroSlide";
-import { HOME_FEATURES as features } from "../src/data/home-features";
+import HeroCarousel from "../components/HeroCarousel";
+import type { HeroCarouselHandle } from "../components/HeroCarousel";
 import SeasonBanner from "../components/SeasonBanner";
 import BookingInvitation from "../components/BookingInvitation";
 import { BookingCalendar, BookingProgramChoice } from "../components/HomeBookingControls";
-import { SystemButton, SystemIconButton, SystemLink, SystemField, SystemFilterButton, SystemBadge } from "../components/SystemPrimitives";
+import { SystemButton, SystemLink, SystemField, SystemFilterButton, SystemBadge } from "../components/SystemPrimitives";
 import { OFFICIAL_MEDIA } from "../src/data/official-media";
 import {
     seoulToday,
@@ -86,56 +85,9 @@ export default function HomePage() {
     // 1. 서울 기준 오늘 날짜
     const today = seoulToday();
 
-    // 2. 히어로 캐러셀 상태
-    const [heroActive, setHeroActive] = useState(0);
-    const [dragX, setDragX] = useState(0);
-    const [isMoving, setIsMoving] = useState(false);
-    const [isPaused, setIsPaused] = useState(false);
+    // [등록된 히어로 조합의 앵커 연결 / Connect anchors to the registered hero composition]
+    const heroRef = useRef<HeroCarouselHandle>(null);
     const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
-    const [progress, setProgress] = useState(0);
-    const stageRef = useRef<HTMLDivElement>(null);
-    const heroMoveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    const moveHero = (dir: 1 | -1) => {
-        if (isMoving) return;
-        setIsMoving(true);
-        setProgress(0);
-
-        const stage = stageRef.current;
-        const slideEl = stage?.querySelector(".season-slide");
-        const step = slideEl ? slideEl.getBoundingClientRect().width : 1200;
-
-        setDragX(-dir * step);
-
-        heroMoveTimer.current = setTimeout(() => {
-            setHeroActive((prev) => (prev + dir + features.length) % features.length);
-            setIsMoving(false);
-            setDragX(0);
-            heroMoveTimer.current = null;
-        }, 750);
-    };
-
-    useEffect(() => () => {
-        if (heroMoveTimer.current) clearTimeout(heroMoveTimer.current);
-    }, []);
-
-    // 캐러셀 자동 재생 (3500ms)
-    useEffect(() => {
-        if (isPaused || isMoving || isQuickMenuOpen) return;
-        const interval = 50;
-        const totalDuration = 3500;
-        const timer = setInterval(() => {
-            setProgress((prev) => {
-                if (prev >= 1) {
-                    moveHero(1);
-                    return 0;
-                }
-                return prev + interval / totalDuration;
-            });
-        }, interval);
-
-        return () => clearInterval(timer);
-    }, [isPaused, isMoving, heroActive, isQuickMenuOpen]);
 
     // 3. 캘린더 빠른 예매 위젯 상태
     const [bookingDate, setBookingDate] = useState(today);
@@ -235,17 +187,7 @@ export default function HomePage() {
         : noticeChoices).slice(0, 4);
 
     const resolveHomeAnchor = (id: string) => {
-        const featureIndex = features.findIndex(feature => id === `home-feature-${feature.id}`);
-        if (featureIndex >= 0) {
-            if (heroMoveTimer.current) clearTimeout(heroMoveTimer.current);
-            heroMoveTimer.current = null;
-            setHeroActive(featureIndex);
-            setIsMoving(false);
-            setDragX(0);
-            setProgress(0);
-            setIsPaused(true);
-            return true;
-        }
+        if (heroRef.current?.showFeature(id)) return true;
 
         const programCategory = categories.find(category => id === `home-program-category-${programCategoryIds[category]}`);
         if (programCategory) {
@@ -304,86 +246,7 @@ export default function HomePage() {
             <HomeAnchorNavigation resolveAnchor={resolveHomeAnchor} />
             <h1 className="sr-only">세종문화회관 - 공연·전시·교육 일정, 예매와 이용 안내</h1>
 
-            {/* 1. 시즌 히어로 캐러셀 (Season Hero Carousel) */}
-            <section
-                className="season-hero"
-                id="featured-season"
-                data-home-anchor
-                aria-label="이번 달의 문화예술"
-                aria-roledescription="캐러셀"
-            >
-                <div
-                    className="season-stage"
-                    ref={stageRef}
-                    onMouseEnter={() => setIsPaused(true)}
-                    onMouseLeave={() => setIsPaused(false)}
-                >
-                    <div
-                        className={`season-track${isMoving ? " is-moving" : ""}`}
-                        style={{
-                            "--drag-x": `${dragX}px`,
-                            "--carousel-duration": "750ms",
-                        } as React.CSSProperties}
-                    >
-                        {[-2, -1, 0, 1, 2].map((offset) => {
-                            const slideIndex = (heroActive + offset + features.length) % features.length;
-                            const item = features[slideIndex];
-                            const isCurrent = offset === 0;
-
-                            return (
-                                <HeroSlide key={`${item.id}-${offset}`} feature={item} active={isCurrent} />
-                            );
-                        })}
-                    </div>
-                </div>
-
-                <HeroCompanion />
-
-                {/* 캐러셀 툴바 & 컨트롤 */}
-                <div className="season-toolbar container">
-                    <p>이번 달의 문화예술</p>
-                    <div className="season-controls" id="home-feature-controls" data-home-anchor role="group" aria-label="주요 프로그램 제어">
-                        <span className="season-pagination" aria-hidden="true">
-                            <span>{String(heroActive + 1).padStart(2, "0")}</span>
-                            <span className="season-pagination-total"> / 03</span>
-                        </span>
-                        <span className="season-progress" aria-hidden="true">
-                            <i style={{ transform: `scaleX(${progress})` }} />
-                        </span>
-                        <SystemIconButton
-                            type="button"
-                            id="home-feature-previous"
-                            className="round-button"
-                            onClick={() => moveHero(-1)}
-                            aria-label="이전 프로그램"
-                        >
-                            <Icon name="back" size={24} />
-                        </SystemIconButton>
-                        <SystemIconButton
-                            type="button"
-                            id="home-feature-next"
-                            className="round-button"
-                            onClick={() => moveHero(1)}
-                            aria-label="다음 프로그램"
-                        >
-                            <Icon name="arrow" size={24} />
-                        </SystemIconButton>
-                        <SystemIconButton
-                            type="button"
-                            id="home-feature-playback"
-                            className="round-button"
-                            onClick={() => setIsPaused(!isPaused)}
-                            aria-label={isPaused ? "자동 재생 시작" : "자동 재생 일시정지"}
-                            aria-pressed={isPaused}
-                        >
-                            <Icon name={isPaused ? "play" : "pause"} size={24} />
-                        </SystemIconButton>
-                        <span className="sr-only" aria-live="polite">
-                            {heroActive + 1} / {features.length}, {features[heroActive].name}
-                        </span>
-                    </div>
-                </div>
-            </section>
+            <HeroCarousel ref={heroRef} externalPaused={isQuickMenuOpen} />
 
             <VioletQuickMenu heroId="featured-season" onOpenChange={setIsQuickMenuOpen} />
 

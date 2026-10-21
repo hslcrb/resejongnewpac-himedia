@@ -158,7 +158,7 @@ try {
         await page.setViewportSize({ width: 1600, height: 1000 });
         await page.goto(new URL("design-rules/#components/floating-menu", base).href, { waitUntil: "networkidle" });
         await page.getByRole("region", { name: "FloatingPanel 컴포넌트 속성" }).waitFor();
-        const button = page.getByRole("button", { name: "전체 메뉴 체험하기" });
+        const button = page.getByRole("button", { name: "전체 메뉴 열기", exact: true }).last();
         // 해시 이동의 smooth scroll과 자동 클릭 스크롤이 경합하지 않게 실제 체험 위치에 정착합니다.
         // Settle the documentation's smooth hash navigation before measuring the clicked anchor.
         await button.evaluate(element => element.scrollIntoView({ behavior: "instant", block: "center" }));

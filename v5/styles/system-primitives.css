@@ -31,6 +31,7 @@
 .ds-button.ds-button-quiet[data-context] { color: var(--text-primary); background: transparent; border-color: transparent; }
 .ds-button.ds-button-inverse[data-context] { color: var(--text-primary); background: var(--surface-default); border-color: var(--surface-default); }
 .ds-button.ds-button-inverse-outline[data-context] { color: var(--text-inverse); background: transparent; border-color: var(--text-inverse); }
+.ds-button.ds-button-inverse-quiet[data-context] { color: var(--text-inverse); background: transparent; border-color: transparent; }
 .ds-button[data-context][data-shape="pill"] { border-radius: var(--radius-pill); }
 .ds-button[data-context][data-shape="circle"] { width: var(--control-size); height: var(--control-size); padding: 0; border-radius: 50%; }
 .ds-button.ds-icon-button[data-context] { flex: none; min-width: var(--control-size); min-height: var(--control-size); padding: 0; }
@@ -38,7 +39,7 @@
     .ds-button.ds-button-primary[data-context]:hover:not(:disabled) { background: var(--action-primary-hover); border-color: var(--action-primary-hover); }
     .ds-button:is(.ds-button-secondary, .ds-button-quiet, .ds-button-inverse)[data-context]:hover:not(:disabled) { background: var(--surface-subtle); }
     .ds-button:is(.ds-button-accent, .ds-button-highlight)[data-context]:hover:not(:disabled) { border-color: var(--border-strong); }
-    .ds-button.ds-button-inverse-outline[data-context]:hover:not(:disabled) { background: rgb(255 255 255 / 12%); }
+    .ds-button:is(.ds-button-inverse-outline, .ds-button-inverse-quiet)[data-context]:hover:not(:disabled) { background: rgb(255 255 255 / 12%); }
 }
 .ds-button[data-context]:active:not(:disabled) { filter: brightness(88%); }
 .ds-button[data-context]:disabled { color: var(--action-disabled-text); background: var(--action-disabled); border-color: var(--action-disabled); cursor: not-allowed; opacity: 1; }
@@ -46,7 +47,7 @@
 .ds-tabs [role="tab"]:focus-visible,
 .ds-tabpanel:focus-visible,
 .ds-disclosure summary:focus-visible { outline: var(--focus-width, 3px) solid var(--border-focus); outline-offset: var(--focus-offset, 4px); }
-.ds-button:is(.ds-button-inverse, .ds-button-inverse-outline)[data-context]:focus-visible { outline-color: var(--text-inverse); }
+.ds-button:is(.ds-button-inverse, .ds-button-inverse-outline, .ds-button-inverse-quiet)[data-context]:focus-visible { outline-color: var(--text-inverse); }
 .ds-filter-button[data-component="filter-button"][aria-pressed="true"] { color: var(--text-inverse); background: var(--action-primary); border-color: var(--action-primary); }
 .ds-filter-button[data-component="filter-button"][aria-pressed="true"]:hover { background: var(--action-primary-hover); }
 

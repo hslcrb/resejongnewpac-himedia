@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useId } from "react";
 import type { Program } from "../types/sejong.ts";
@@ -16,6 +16,322 @@ export interface AccountMiniRoomProps {
     onToggleLight?: () => void;
 }
 
+// [직접 구성한 미니어처와 실제 관심 공연 / An authored miniature with live favourite posters]
+function MiniRoomArtwork({ instanceId, programs, lightOn }: {
+    instanceId: string;
+    programs: readonly Program[];
+    lightOn: boolean;
+}) {
+    const paint = (name: string) => `url(#mini-room-${name}-${instanceId})`;
+    const id = (name: string) => `mini-room-${name}-${instanceId}`;
+
+    return (
+        <svg
+            className="mini-room-art"
+            viewBox="0 0 960 710"
+            role="img"
+            aria-label={`벨벳 커튼의 작은 무대, 아치 창문, 파란 안락의자와 턴테이블, 책과 식물을 손수 배치한 나만의 공연장.${programs.length ? ` 벽에 걸린 공연 포스터: ${programs.map((program) => program.title).join(", ")}.` : ""} 조명 ${lightOn ? "켜짐" : "꺼짐"}.`}
+        >
+            <defs>
+                <linearGradient id={id("floor")} x1="0" y1="0" x2="0.8" y2="1">
+                    <stop stopColor="#F5E4C7" />
+                    <stop offset="1" stopColor="#DDC398" />
+                </linearGradient>
+                <linearGradient id={id("edge")} x2="0" y2="1">
+                    <stop stopColor="#D5B88D" />
+                    <stop offset="1" stopColor="#B59365" />
+                </linearGradient>
+                <linearGradient id={id("wall")} x2="0.9" y2="1">
+                    <stop stopColor="#FFFFFF" stopOpacity="0.34" />
+                    <stop offset="0.65" stopColor="#FFFFFF" stopOpacity="0" />
+                    <stop offset="1" stopColor="#6F7868" stopOpacity="0.13" />
+                </linearGradient>
+                <linearGradient id={id("velvet")}>
+                    <stop stopColor="#633C26" />
+                    <stop offset="0.2" stopColor="var(--mini-room-curtain)" />
+                    <stop offset="0.52" stopColor="#F0BC74" />
+                    <stop offset="0.74" stopColor="var(--mini-room-curtain)" />
+                    <stop offset="1" stopColor="#704329" />
+                </linearGradient>
+                <linearGradient id={id("backstage")} x2="0" y2="1">
+                    <stop stopColor="#303C39" />
+                    <stop offset="1" stopColor="#172B29" />
+                </linearGradient>
+                <linearGradient id={id("chair")} x1="0.1" y1="0" x2="0.8" y2="1">
+                    <stop stopColor="#9AE0E8" />
+                    <stop offset="0.35" stopColor="var(--mini-room-chair)" />
+                    <stop offset="1" stopColor="#23849A" />
+                </linearGradient>
+                <linearGradient id={id("ceramic")}>
+                    <stop stopColor="#D4CDBA" />
+                    <stop offset="0.35" stopColor="#FAF6E8" />
+                    <stop offset="1" stopColor="#DED6C2" />
+                </linearGradient>
+                <linearGradient id={id("cabinet")} x2="0" y2="1">
+                    <stop stopColor="#BD8852" />
+                    <stop offset="1" stopColor="#9D693C" />
+                </linearGradient>
+                <linearGradient id={id("window")} x2="0" y2="1">
+                    <stop stopColor="#B8DADD" />
+                    <stop offset="1" stopColor="#EAF2DE" />
+                </linearGradient>
+                <radialGradient id={id("light")}>
+                    <stop stopColor="#FFE7A3" stopOpacity="0.8" />
+                    <stop offset="0.52" stopColor="#FFE2A1" stopOpacity="0.25" />
+                    <stop offset="1" stopColor="#FFE2A1" stopOpacity="0" />
+                </radialGradient>
+                <radialGradient id={id("stage-light")} cx="0.5" cy="0.8" r="0.85">
+                    <stop stopColor="#FCE7AE" stopOpacity="0.5" />
+                    <stop offset="1" stopColor="#FCE7AE" stopOpacity="0" />
+                </radialGradient>
+                <filter id={id("shadow")} x="-25%" y="-50%" width="150%" height="200%">
+                    <feGaussianBlur stdDeviation="9" />
+                </filter>
+                <filter id={id("contact")} x="-25%" y="-60%" width="150%" height="220%">
+                    <feGaussianBlur stdDeviation="3" />
+                </filter>
+                <clipPath id={id("window-clip")}>
+                    <path d="M279 158V67a31 31 0 0 1 62 0v91Z" />
+                </clipPath>
+            </defs>
+
+            {/* [두께 있는 건축과 단풍나무 바닥 / Architecture and maple floor] */}
+            <ellipse cx="484" cy="646" rx="313" ry="38" fill="#5C503D" opacity="0.14" filter={paint("shadow")} />
+            <path d="M101 490 480 305 859 490 480 679Z" fill={paint("floor")} />
+            <path d="M101 490 480 679v15L101 507Z" fill={paint("edge")} />
+            <path d="m480 679 379-189v17L480 694Z" fill="#BA976A" />
+            <path d="M101 490 480 679 859 490" fill="none" stroke="#F7EAD4" strokeWidth="3" />
+            <g fill="none" stroke="#B99A70" strokeWidth="1.2" opacity="0.45">
+                <path d="m142 510 379-185m-328 210 379-185m-328 210 379-185m-328 210 379-185m-328 210 379-185m-328 210 379-185m-328 210 379-185" />
+                <path d="m206 458 51 25m132-115 51 25m-132 15 51 25m130-17 51 25m-130 17 51 25m131-16 51 25m-130 16 51 25m-388-27 51 25m132-116 51 25m-131 16 51 25m131-16 51 25m-131 16 51 25" />
+            </g>
+            <g fill="none" stroke="#FFF8E9" strokeLinecap="round" opacity="0.37">
+                <path d="m241 513 112-55m-16 102 86-42m126-19 117-57m-171-23 76-37m-148 234 87-43m60-1 117-57" />
+            </g>
+            <path d="M101 239 480 54v253L101 493Z" fill="#C9C9B8" />
+            <path d="M480 54 859 239v254L480 307Z" fill="#D0CDBA" />
+            <path d="M108 246 480 64v244L108 490Z" className="mini-room-wall-left" />
+            <path d="M480 64 852 246v244L480 308Z" className="mini-room-wall-right" />
+            <path d="M108 246 480 64v244L108 490Z" fill={paint("wall")} />
+            <path d="M480 64 852 246v244L480 308Z" fill={paint("wall")} />
+            <path d="M101 239 480 54 859 239l-7 7L480 64 108 246Z" fill="#FFFDF2" />
+            <path d="M101 239v251l7 7V246m744 0v251l7-7V239" fill="#E8E3D1" />
+            <path d="M113 471 480 292 847 471v15L480 307 113 486Z" fill="#D9D6C5" />
+            <path d="m113 471 367-179 367 179" fill="none" stroke="#FAF8E9" strokeWidth="4" />
+            <path d="M480 66v225" stroke="#8D9988" strokeOpacity="0.2" strokeWidth="3" />
+
+            {/* [아치 창과 린넨 커튼 / Arched window with linen curtains] */}
+            <g transform="matrix(1 -.49 0 1 108 246)">
+                <path d="M269 170V67a41 41 0 0 1 82 0v103Z" fill="#8E9D8C" opacity="0.2" />
+                <path d="M273 163V67a37 37 0 0 1 74 0v96Z" fill="#B8AE92" />
+                <path d="M279 158V67a31 31 0 0 1 62 0v91Z" fill={paint("window")} />
+                <g clipPath={paint("window-clip")}>
+                    <path d="M275 136c18-23 30-14 39-29 10-14 22-5 32-16v72h-71Z" fill="#B4C8AA" />
+                    <path d="M275 150c22-17 42-7 70-27v40h-70Z" fill="#93AC91" />
+                    <path d="M292 73c8-8 14-4 18 0 4-2 10-1 12 4h-33Z" fill="#FFFFFF" opacity="0.7" />
+                    <path d="M283 53v106m27-121v121m28-106v106M279 92h63" fill="none" stroke="#FAF8EA" strokeWidth="5" />
+                </g>
+                <path d="M276 160V67a34 34 0 0 1 68 0v93Z" fill="none" stroke="#F9F7E9" strokeWidth="5" />
+                <path d="M268 162h84l-5 8h-84Z" fill="#FFFBEA" />
+                <path d="M263 170h84v6h-84Z" fill="#CCC6AD" />
+                <path d="M265 44c-4 31 1 70-5 114l16 3c-2-35 4-80 1-117Zm79 0c-2 40 5 80 0 117l15-3c-6-44 1-89-4-114Z" fill="#F5EDD8" />
+                <path d="M268 47c-2 32 2 72-3 107m83-107c-1 39 5 71 1 107" fill="none" stroke="#D9CFB7" strokeWidth="3" />
+                <path d="M260 42h100" stroke="#9E7C50" strokeWidth="4" strokeLinecap="round" />
+                <circle cx="259" cy="42" r="4" fill="#C8A568" />
+                <circle cx="361" cy="42" r="4" fill="#C8A568" />
+                <path d="m283 164 6-20h12l6 20Z" fill="#D19972" />
+                <path d="M295 145v-25m0 17c-13-1-14-12-14-12 11-1 15 3 14 12Zm1-9c13 1 17-10 17-10-11-3-16 2-17 10Z" fill="#718C62" />
+            </g>
+            <path d="m400 379 60-30 129 61-61 30Z" fill="#F8F3CA" opacity="0.25" />
+            <path d="m409 382 22-11 129 62-22 11m-98-77 19-9 129 62-19 9" fill="#FFF9DA" opacity="0.22" />
+
+            {/* [목재 프로시니엄과 벨벳 주름 / Timber proscenium and velvet folds] */}
+            <path d="m134 474 221-108 73 36-221 109Z" fill="#CFA778" />
+            <path d="m134 474 73 37v14l-73-37Z" fill="#A97748" />
+            <path d="m207 511 221-109v14L207 525Z" fill="#B98D5C" />
+            <path d="m146 474 209-102 60 30-208 102Z" fill="#E2C59A" />
+            <path d="m166 478 187-91m-166 102 188-92" stroke="#C5A271" strokeWidth="1.5" />
+            <g transform="matrix(1 -.49 0 1 108 246)">
+                <path d="M25 242V86C25 28 251 28 251 86v156Z" fill="#A77F53" />
+                <path d="M32 242V87C32 36 244 36 244 87v155Z" fill="#E1C69D" />
+                <path d="M43 241V89C43 49 233 49 233 89v152Z" fill={paint("backstage")} />
+                <path d="M46 238V93C46 57 230 57 230 93v145Z" fill="none" stroke="#805E3D" strokeWidth="4" />
+                <path d="M52 100c35 8 57-1 86-13 29 12 53 21 86 13V82c-42-20-130-20-172 0Z" fill={paint("velvet")} />
+                <path d="M52 91c35 22 38 64 5 120l-5 27Zm172 0c-35 22-38 64-5 120l5 27Z" fill={paint("velvet")} />
+                <path d="M59 104c18 31 13 60 1 88m11-83c14 27 11 52-3 81m149-86c-18 31-13 60-1 88m-11-83c-14 27-11 52 3 81" fill="none" stroke="#553A2B" strokeWidth="3" strokeOpacity="0.32" />
+                <path d="M58 86c21 9 52 7 80-3 28 10 58 12 80 3" fill="none" stroke="#FFE2A6" strokeWidth="2" strokeOpacity="0.5" />
+                <path d="m53 196 21 5m128 0 21-5" stroke="#E8C982" strokeWidth="5" />
+                <path d="m58 199 6 13m152-13-6 13" stroke="#D5AB5D" strokeWidth="2" />
+                <path d="M42 70c33-31 160-31 193 0" fill="none" stroke="#F6E7CA" strokeWidth="3" />
+                <path d="M37 94v143m202-143v143" stroke="#B09165" strokeWidth="3" />
+                <g className="mini-room-glow">
+                    <path d="m94 84-28 155h144L183 84Z" fill={paint("stage-light")} />
+                    <ellipse cx="138" cy="227" rx="71" ry="13" fill="#FFE3A4" opacity="0.18" />
+                </g>
+                <path d="M91 65v13m95-13v13" stroke="#665840" strokeWidth="3" />
+                <rect x="80" y="75" width="23" height="11" rx="4" fill="#39443E" />
+                <rect x="174" y="75" width="23" height="11" rx="4" fill="#39443E" />
+                <path d="M84 86h15m79 0h15" className="mini-room-light-strip" strokeWidth="3" />
+
+                {/* [작은 그랜드 피아노 / Miniature grand piano] */}
+                <ellipse cx="144" cy="229" rx="56" ry="9" fill="#071D1B" opacity="0.4" />
+                <path d="m112 206-3 24m68-24 4 24m-43-28v24" stroke="#BA9860" strokeWidth="4" strokeLinecap="round" />
+                <path d="M108 171c-2-14 6-22 20-23 25-2 37 16 52 20v36h-72Z" fill="#182C2A" />
+                <path d="M108 171c-2-14 6-22 20-23 25-2 37 16 52 20v10h-72Z" fill="#50635B" />
+                <path d="M111 169c3-15 16-15 28-9 13 7 21 11 35 11" fill="none" stroke="#889486" strokeWidth="2" />
+                <path d="M108 179h75v8h-75Z" fill="#0F2524" />
+                <path d="M109 180h72v5h-72Z" fill="#F1E8CF" />
+                <path d="M115 180v4m8-4v4m8-4v4m8-4v4m8-4v4m8-4v4m8-4v4m8-4v4" stroke="#192D2B" strokeWidth="3" />
+                <path d="M128 167v-15h24v15Z" fill="#A59570" />
+                <path d="M130 165v-11l10 2 10-2v11l-10 2Z" fill="#F3ECD8" />
+                <path d="M140 156v11" stroke="#C7B98E" />
+                <rect x="121" y="209" width="32" height="8" rx="3" fill="#714E38" />
+                <path d="M125 216v12m24-12v12" stroke="#BEA06C" strokeWidth="3" />
+            </g>
+
+            {/* [실제 공연이 담긴 액자와 갤러리 조명 / Real programme frames and gallery lighting] */}
+            <g transform="matrix(1 .49 0 1 480 64)">
+                <path d="M29 45h301" stroke="#A09377" strokeWidth="3" strokeLinecap="round" />
+                {programs.map((program, index) => {
+                    const x = 35 + index * 99;
+                    return (
+                        <g key={program.id}>
+                            <path d={`M${x + 37} 46v18`} stroke="#A39983" strokeWidth="1.5" />
+                            <rect x={x + 3} y="71" width="82" height="122" rx="3" fill="#6C7363" opacity="0.15" />
+                            <rect x={x - 4} y="64" width="82" height="122" rx="3" fill="#72563B" />
+                            <rect x={x - 1} y="67" width="76" height="116" fill="#F7EEDB" />
+                            <image href={mediaPath(program.image)} x={x + 3} y="71" width="68" height="108" preserveAspectRatio="xMidYMid slice" />
+                            <path d={`M${x - 2} 65h78M${x - 2} 65v119`} fill="none" stroke="#D5B786" strokeWidth="1.5" />
+                            <path d={`m${x + 60} 72-56 96v-17l47-79Z`} fill="#FFFFFF" opacity="0.08" />
+                        </g>
+                    );
+                })}
+                <path d="M94 40v11m99-11v11m99-11v11" stroke="#8C7C58" strokeWidth="3" />
+                <path d="M83 51h22m77 0h22m77 0h22" stroke="#B29961" strokeWidth="6" strokeLinecap="round" />
+                <path d="M85 55h18m81 0h18m81 0h18" className="mini-room-light-strip" strokeWidth="2" />
+                <g className="mini-room-glow" opacity="0.45">
+                    <path d="m88 58-26 109h63L100 58Zm99 0-26 109h63L199 58Zm99 0-26 109h63L298 58Z" fill={paint("stage-light")} />
+                </g>
+            </g>
+
+            {/* [레코드장과 책, 손으로 놓은 턴테이블 / Record console, books and a hand-placed turntable] */}
+            <path d="m461 382 285 139 39-18-287-140Z" fill="#756044" opacity="0.13" filter={paint("contact")} />
+            <g transform="matrix(1 .49 0 1 480 64)">
+                <path d="m-19 314-2 18m275-18 3 18m-242-36 1 13m236-13v13" stroke="#755336" strokeWidth="6" strokeLinecap="round" />
+                <path d="M22 223h291l-45 45H-23Z" fill="#D6B585" />
+                <path d="m-23 268 291 0v52H-23Z" fill={paint("cabinet")} />
+                <path d="m268 268 45-45v52l-45 45Z" fill="#8E603C" />
+                <path d="M-23 268h291v5H-23Z" fill="#E3C799" />
+                <path d="M-13 281h91v31h-91Z" fill="#6B5037" />
+                <path d="M89 280h83v34H89Zm92 0h76v34h-76Z" fill="#BD8954" stroke="#A47245" />
+                <path d="M128 286v6m91-6v6" stroke="#D9BE81" strokeWidth="3" strokeLinecap="round" />
+                <path d="M-7 285h10v26H-7Z" fill="#EAD7A5" />
+                <path d="M5 283h8v28H5Z" fill="#627D76" />
+                <path d="M15 286h8v25h-8Z" fill="#C98151" />
+                <path d="M26 282h10v29H26Z" fill="#DBCFB5" />
+                <path d="m40 286 8-2 7 26-8 2Z" fill="#556A70" />
+                <path d="M58 304h14v7H58Z" fill="#C1AD85" />
+                <path d="M-9 290H1m6 14h5m5-10h5m6 10h7" stroke="#F5E6BB" strokeWidth="1.5" />
+                <path d="m52 219 86 0-27 28H25Z" fill="#715640" />
+                <path d="m25 247 86 0v7H25Z" fill="#4F4435" />
+                <path d="m111 247 27-28v7l-27 28Z" fill="#5E4935" />
+                <path d="m55 222 74 0-20 21H35Z" fill="#C5AB7D" />
+                <ellipse cx="77" cy="232" rx="28" ry="9" fill="#273735" />
+                <ellipse cx="77" cy="232" rx="21" ry="6" fill="none" stroke="#6B7666" strokeWidth="1" />
+                <ellipse cx="77" cy="232" rx="8" ry="3" fill="#E4B257" />
+                <path d="m120 225-15 7-6 9" fill="none" stroke="#ECE3C5" strokeWidth="3" strokeLinecap="round" />
+                <circle cx="124" cy="225" r="3" fill="#6B6750" />
+                <path d="m40 214 19-18 83 0-4 23H52Z" fill="#CDDDCE" opacity="0.3" stroke="#F8F4DD" strokeWidth="1.5" />
+                <path d="m167 228 40 0-13 13h-40Z" fill="#E4D9BF" />
+                <path d="m154 241 40 0v5h-40Z" fill="#A9B3A6" />
+                <path d="m161 223 37 0-12 12h-37Z" fill="#BF7250" />
+                <path d="m149 235 37 0v5h-37Z" fill="#E5BF92" />
+                <path d="M241 220h22l-3 19h-16Z" fill={paint("ceramic")} />
+                <ellipse cx="252" cy="220" rx="11" ry="4" fill="#B9AD91" />
+                <path d="M252 220v-28m0 16c-14 0-18-13-18-13 13-3 18 4 18 13Zm0-9c12 0 18-11 18-11-12-4-18 2-18 11Z" fill="#718B65" />
+            </g>
+
+            {/* [낮은 울 러그와 편안한 안락의자 / Low wool rug and upholstered reading chair] */}
+            <path d="M357 465c49-24 85-31 120-14l152 74c34 17 34 37-5 56l-69 34c-29 15-64 15-96-1l-157-77c-28-13-20-34 10-49Z" fill="#9E8767" opacity="0.13" />
+            <path d="M354 457c49-24 85-31 120-14l152 74c34 17 34 37-5 56l-69 34c-29 15-64 15-96-1l-157-77c-28-13-20-34 10-49Z" fill="#F3EDD9" />
+            <path d="M359 467c44-22 78-27 108-12l146 71c27 13 27 26-5 42l-62 31c-26 12-54 12-81-1l-150-73c-20-10-16-22 10-35Z" fill="none" stroke="#D7D0B8" strokeWidth="3" />
+            <path d="m323 509 275 38m-245-54 218 86m-242-66 254 49" fill="none" stroke="#FFFBEA" strokeWidth="2" opacity="0.45" />
+            <ellipse cx="432" cy="517" rx="78" ry="24" fill="#5C685C" opacity="0.16" filter={paint("contact")} />
+            <path d="m371 486-4 31m97-1 8 26m-14-72 9 26" stroke="#8D683F" strokeWidth="7" strokeLinecap="round" />
+            <path d="M355 427c-5-40 26-56 63-40l48 24c16 8 21 20 17 40l-9 49c-2 15-13 21-29 15l-72-35c-13-6-20-19-18-34Z" fill="#25849B" />
+            <path d="M362 425c-3-27 19-39 48-26l48 24c12 6 14 14 11 27l-8 37c-2 8-8 10-17 6l-66-32c-11-5-17-11-16-22Z" fill={paint("chair")} />
+            <path d="M373 406c14-4 25-1 39 6l38 19c7 3 11 8 11 14" fill="none" stroke="#CBF0E8" strokeWidth="2" opacity="0.6" />
+            <path d="m371 465 48-23 57 28-45 26Z" fill="#79D0DC" />
+            <path d="m371 465 60 31v15l-60-30Z" fill="#3CAAC0" />
+            <path d="m431 496 45-26-2 17-43 24Z" fill="#2D97AE" />
+            <path d="M353 442c0-9 8-12 16-8l13 7c5 2 8 8 7 14l-3 23c-1 9-8 13-16 8l-9-5c-6-3-9-8-9-15Z" fill={paint("chair")} />
+            <path d="M449 488c0-10 7-15 15-11l14 7c6 3 8 8 6 15l-3 12c-2 9-9 12-16 8l-10-5c-5-3-7-8-7-14Z" fill={paint("chair")} />
+            <path d="m402 429 19-8c4-2 7-1 10 2l13 20c3 4 2 8-2 10l-20 9c-4 2-7 0-9-3l-15-20c-2-4-1-7 4-10Z" fill="#F5E8C7" />
+            <path d="m408 432 25 21m-15-25 13 30" stroke="#C7B991" strokeWidth="1.5" />
+
+            {/* [차와 펼친 책이 놓인 원목 테이블 / Timber table with tea and an open book] */}
+            <ellipse cx="546" cy="551" rx="55" ry="18" fill="#726348" opacity="0.14" filter={paint("contact")} />
+            <path d="m513 517-9 39m68-34 9 35m-37-55v31" stroke="#9D774A" strokeWidth="6" strokeLinecap="round" />
+            <path d="M492 506c0-17 26-28 54-28s54 11 54 28v9c0 17-26 28-54 28s-54-11-54-28Z" fill="#C5A16E" />
+            <ellipse cx="546" cy="506" rx="54" ry="27" fill="#E7CDA1" />
+            <ellipse cx="546" cy="504" rx="48" ry="22" fill="none" stroke="#F4E1BB" strokeWidth="1.5" />
+            <path d="m512 507 17-9 23 10 19-6-4 15-17 8-23-11-17 5Z" fill="#C7AD7D" />
+            <path d="m512 502 17-8 23 10 19-6-3 15-17 8-23-11-17 5Z" fill="#FFF7DF" />
+            <path d="m529 494-1 16 23 11 1-17" fill="#EBE0C2" />
+            <path d="m533 500 14 6m-15-1 14 6m-15-1 14 6m12-9 9-4m-10 9 9-4" stroke="#B7AB8A" strokeWidth="1" />
+            <ellipse cx="567" cy="491" rx="15" ry="6" fill="#C9AF82" />
+            <path d="M557 479h18v10c0 7-18 7-18 0Z" fill="#F7F2DE" />
+            <path d="M575 481c11-2 10 10 0 9" fill="none" stroke="#F7F2DE" strokeWidth="3" />
+            <ellipse cx="566" cy="479" rx="9" ry="4" fill="#FDF8E8" />
+            <ellipse cx="566" cy="479" rx="6.5" ry="2.5" fill="#947450" />
+            <path d="M563 470c-5-7 5-9 1-16m6 18c-4-5 4-8 1-13" fill="none" stroke="#FFFFEE" strokeWidth="2" strokeLinecap="round" opacity="0.7" />
+
+            {/* [주름 갓의 독서등과 큰 화분 / Pleated reading lamp and a large ceramic planter] */}
+            <ellipse cx="677" cy="495" rx="29" ry="12" fill="#665C42" opacity="0.12" filter={paint("contact")} />
+            <ellipse cx="677" cy="485" rx="25" ry="11" fill="#9A8256" />
+            <ellipse cx="677" cy="482" rx="24" ry="9" fill="#B9A47C" />
+            <path d="M677 480V345c0-13-10-22-23-22h-16" fill="none" stroke="#AE9465" strokeWidth="5" />
+            <path d="M677 479V345c0-13-10-22-23-22" fill="none" stroke="#E2CEA0" strokeWidth="1.5" />
+            <g className="mini-room-glow">
+                <ellipse cx="637" cy="430" rx="114" ry="101" fill={paint("light")} />
+                <path d="m615 345-60 155c40 24 113 26 154 7l-49-162Z" fill="#FFE6A5" opacity="0.09" />
+                <ellipse cx="633" cy="506" rx="81" ry="27" fill={paint("light")} />
+            </g>
+            <path d="M617 311h34l17 42c-13 12-54 12-68 0Z" fill="#CCB276" />
+            <path d="M619 311h30l15 40c-16 8-47 8-60 0Z" className="mini-room-lampshade" />
+            <path d="m620 315-9 34m15-35-4 38m11-38v39m7-39 5 38m1-38 11 35" stroke="#BDA876" strokeWidth="1.6" opacity="0.65" />
+            <ellipse cx="634" cy="311" rx="17" ry="5" fill="#E5D4A8" />
+            <ellipse cx="634" cy="354" rx="33" ry="8" fill="#C8B37F" />
+            <ellipse cx="634" cy="354" rx="27" ry="5" className="mini-room-bulb" />
+            <path d="M632 303v4" stroke="#AE9465" strokeWidth="4" strokeLinecap="round" />
+            <ellipse cx="755" cy="533" rx="35" ry="13" fill="#66573F" opacity="0.15" filter={paint("contact")} />
+            <path d="M728 478h51l-6 48c-2 16-38 16-40 0Z" fill={paint("ceramic")} />
+            <ellipse cx="753.5" cy="478" rx="25.5" ry="11" fill="#FAF6E6" />
+            <ellipse cx="753.5" cy="478" rx="20" ry="7" fill="#A29476" />
+            <path d="M754 478v-97m0 72-25-33m25 15 28-36m-28 3-13-36" fill="none" stroke="#667D53" strokeWidth="4" strokeLinecap="round" />
+            <path d="M753 405c-30-1-45-29-39-45 28-1 43 16 39 45Z" fill="#7C976B" />
+            <path d="M754 393c-9-29 5-49 24-51 14 25 3 46-24 51Z" fill="#91A778" />
+            <path d="M774 420c-4-31 18-50 38-45 2 27-12 45-38 45Z" fill="#69865C" />
+            <path d="M742 439c-29 4-47-17-44-38 28-3 45 13 44 38Z" fill="#A0B188" />
+            <path d="M755 462c16-28 38-29 54-15-10 23-30 30-54 15Z" fill="#839D6B" />
+            <path d="m719 366 27 30m29-47-18 39m49-8-25 32m-78-6 31 26m66 16-38 12" fill="none" stroke="#DFE6C6" strokeWidth="1.5" strokeOpacity="0.4" />
+
+            {/* [직접 만든 작은 오토만과 접은 담요 / Small upholstered ottoman and folded throw] */}
+            <ellipse cx="440" cy="592" rx="36" ry="12" fill="#8B7657" opacity="0.12" filter={paint("contact")} />
+            <path d="m412 575-2 17m54-15 2 16" stroke="#A38055" strokeWidth="5" strokeLinecap="round" />
+            <path d="M404 555c0-11 16-19 36-19s36 8 36 19v17c0 11-16 19-36 19s-36-8-36-19Z" fill="#BA8C62" />
+            <ellipse cx="440" cy="555" rx="36" ry="19" fill="#D8B68A" />
+            <ellipse cx="440" cy="553" rx="30" ry="14" fill="none" stroke="#F0D5AA" strokeWidth="1.5" />
+            <path d="m417 542 16-8 31 16-16 10v24l-13-6v-23Z" fill="#E7D7B0" />
+            <path d="m424 540 28 16v21m-21-40 28 16m-24 4 13 7m-13-1 13 7" fill="none" stroke="#B9AC82" strokeWidth="1.5" />
+            <path d="m437 578-1 6m5-4v6m5-3v6" stroke="#E7D7B0" strokeWidth="2" />
+
+            {/* [조명 상태에 따라 달라지는 실내의 저녁 빛 / Dusk tint follows the actual light state] */}
+            <path d="M108 246 480 64 852 246v244L480 679 108 490Z" className="mini-room-dusk" />
+        </svg>
+    );
+}
+
 // [취향이 걸린 작은 공연장 / A little theatre for personal favourites]
 export default function AccountMiniRoom({
     name,
@@ -29,8 +345,6 @@ export default function AccountMiniRoom({
 }: AccountMiniRoomProps) {
     const instanceId = useId().replaceAll(":", "");
     const headingId = `mini-room-heading-${instanceId}`;
-    const lightId = `mini-room-light-${instanceId}`;
-    const shadowId = `mini-room-shadow-${instanceId}`;
     const posters = programs.slice(0, 3);
     const lightLabel = lightOn ? "공연장 조명이 켜져 있어요. 조명 끄기" : "공연장 조명이 꺼져 있어요. 조명 켜기";
 
@@ -55,128 +369,14 @@ export default function AccountMiniRoom({
                 </div>
             </header>
 
-            {/* [한마디와 독창적인 등각 투영 무대 / Personal note and original isometric theatre] */}
+            {/* [한마디와 고정 구성 미니어처 / Personal note and fixed authored miniature] */}
             <figure className="mini-room-figure">
                 <div className="mini-room-scene" data-note-layout={message.length > 40 || name.length > 16 ? "flow" : "overlay"}>
                     <blockquote className="mini-room-note">
                         <p>{message}</p>
                         <cite>{name}의 공연장</cite>
                     </blockquote>
-
-                    <svg className="mini-room-art" viewBox="0 0 960 650" role="img" aria-label={`작은 무대와 파란 의자, 식물이 있는 나만의 공연장.${posters.length ? ` 벽에 걸린 공연 포스터: ${posters.map((program) => program.title).join(", ")}.` : ""} 조명 ${lightOn ? "켜짐" : "꺼짐"}.`}>
-                        <defs>
-                            <radialGradient id={lightId}>
-                                <stop offset="0%" stopColor="#F7D549" stopOpacity="0.54" />
-                                <stop offset="100%" stopColor="#F7D549" stopOpacity="0" />
-                            </radialGradient>
-                            <filter id={shadowId} x="-30%" y="-40%" width="160%" height="180%">
-                                <feGaussianBlur stdDeviation="10" />
-                            </filter>
-                        </defs>
-
-                        {/* [건축: 종이 같은 벽과 나무 바닥 / Architecture: paper walls and timber floor] */}
-                        <ellipse cx="486" cy="565" rx="301" ry="47" fill="#000000" opacity="0.07" filter={`url(#${shadowId})`} />
-                        <path d="M125 438 480 265 835 438 480 612Z" className="mini-room-floor" />
-                        <path d="M125 438 480 612 480 629 125 455Z" fill="#D6C8AF" />
-                        <path d="M480 612 835 438 835 455 480 629Z" fill="#BCAE96" />
-                        <path d="M125 196 480 25 480 270 125 443Z" className="mini-room-wall-left" />
-                        <path d="M480 25 835 196 835 443 480 270Z" className="mini-room-wall-right" />
-                        <path d="M125 196 480 25 835 196" fill="none" stroke="#FFFFFF" strokeWidth="9" strokeLinejoin="round" />
-                        <path d="M125 196V443L480 615 835 443V196" fill="none" stroke="#FFFFFF" strokeWidth="5" strokeLinejoin="round" />
-                        <path d="M480 28V270" fill="none" stroke="#000000" strokeOpacity="0.06" strokeWidth="2" />
-                        <g fill="none" stroke="#BCAE96" strokeOpacity="0.31" strokeWidth="1.5">
-                            <path d="m186 466 354-173M250 497l354-173M315 529l354-173M380 560l354-173M445 592l354-173" />
-                            <path d="m216 398 355 173M304 355l355 173M393 312l355 173" />
-                        </g>
-                        <path d="m131 436 349-170 349 170" fill="none" stroke="#C7BBA6" strokeWidth="8" />
-
-                        {/* [커튼과 작은 무대 / Curtains and a small stage] */}
-                        <path d="m165 426 260-126 88 43-260 127Z" fill="#D6C6A7" />
-                        <path d="m165 426 88 44v15l-88-44Z" fill="#B79D78" />
-                        <path d="m253 470 260-127v15L253 485Z" fill="#C4AA83" />
-                        <g transform="matrix(1 -.485 0 1 125 196)">
-                            <path d="M47 232V94C47 38 298 38 298 94V232Z" fill="#C4AA83" />
-                            <path d="M58 232V96C58 52 287 52 287 96V232Z" fill="#292923" />
-                            <path d="M67 232V102C67 66 278 66 278 102V232Z" fill="#1C211E" />
-                            <path d="M67 102C108 112 143 98 172 88c29 10 64 24 106 14V85C228 63 116 63 67 85Z" className="mini-room-curtain" />
-                            <path d="M67 94c25 17 31 63 6 115l-6 23V94Z" className="mini-room-curtain" />
-                            <path d="M278 94c-25 17-31 63-6 115l6 23V94Z" className="mini-room-curtain" />
-                            <path d="M67 104c14 19 17 62 6 105M278 104c-14 19-17 62-6 105" fill="none" stroke="#000000" strokeOpacity="0.17" strokeWidth="7" />
-                            <path d="M68 192h20M258 192h20" stroke="#F7D549" strokeWidth="5" />
-                            <path d="M80 232h185" stroke="#7F826C" strokeWidth="3" />
-                            <g className="mini-room-glow">
-                                <ellipse cx="173" cy="165" rx="79" ry="81" fill={`url(#${lightId})`} />
-                                <path d="m143 93-32 139h125L202 93Z" fill="#F7D549" opacity="0.09" />
-                            </g>
-                            <ellipse cx="173" cy="227" rx="53" ry="8" fill="#000000" opacity="0.3" />
-                            <path d="M162 189h23v38h-23Z" fill="#D8D6C8" />
-                            <ellipse cx="173.5" cy="189" rx="21" ry="8" fill="#F7F7F5" />
-                            <circle cx="173" cy="163" r="23" fill="#F7D549" />
-                            <path d="M173 140a23 23 0 0 1 0 46Z" fill="#DFC044" />
-                            <path d="M103 59v14M242 59v14" stroke="#34352D" strokeWidth="3" />
-                            <rect x="92" y="68" width="24" height="12" rx="4" fill="#34352D" />
-                            <rect x="230" y="68" width="24" height="12" rx="4" fill="#34352D" />
-                            <path d="M96 80h16M234 80h16" className="mini-room-light-strip" strokeWidth="3" />
-                        </g>
-
-                        {/* [실제 세종 공연 포스터 갤러리 / Gallery of actual Sejong programme posters] */}
-                        <g transform="matrix(1 .485 0 1 480 25)">
-                            <path d="M28 46h297" stroke="#5E625C" strokeWidth="3" />
-                            {posters.map((program, index) => {
-                                const x = 42 + index * 94;
-                                return (
-                                    <g key={program.id}>
-                                        <path d={`M${x + 35} 47v23`} stroke="#8F9189" strokeWidth="1.5" />
-                                        <rect x={x + 3} y="74" width="76" height="110" fill="#000000" opacity="0.08" />
-                                        <rect x={x - 3} y="67" width="80" height="116" rx="1" fill="#484B43" />
-                                        <image href={mediaPath(program.image)} x={x} y="70" width="74" height="110" preserveAspectRatio="xMidYMid slice" />
-                                    </g>
-                                );
-                            })}
-                            <path d="M30 205h296v6H30Z" fill="#D2C1A2" />
-                            <path d="M30 211h296v6H30Z" fill="#B7A285" />
-                            <path d="M48 217v11M307 217v11" stroke="#8B8170" strokeWidth="4" />
-                            <path d="M67 199h60v6H67Z" fill="#F7D549" />
-                            <path d="M75 194h53v5H75Z" fill="#FFFFFF" />
-                            <path d="M265 183h25l-3 22h-19Z" fill="#F7F7F5" />
-                            <path d="M277 183v-21m0 11c-18 2-21-11-21-11 13-3 21 2 21 11Zm0-5c18-1 18-16 18-16-13 1-18 7-18 16Z" fill="#596F60" stroke="#596F60" strokeWidth="2" />
-                        </g>
-
-                        {/* [취향을 위한 의자와 책 / A chair and books for a quiet moment] */}
-                        <ellipse cx="511" cy="492" rx="110" ry="44" fill="#F7F7F5" transform="rotate(26 511 492)" />
-                        <ellipse cx="511" cy="492" rx="94" ry="32" fill="none" stroke="#D9D9D4" strokeWidth="2" transform="rotate(26 511 492)" />
-                        <path d="m490 484-5 40m45-22 16 27m-17-66 5 35" fill="none" stroke="#555951" strokeWidth="8" strokeLinecap="round" />
-                        <path d="M465 424c-4-33 45-35 73-18l18 13c9 7 14 17 11 29l-13 50c-3 12-18 14-29 9l-48-23c-9-4-14-14-12-24Z" className="mini-room-chair-back" />
-                        <path d="M466 430c5-19 36-18 58-6l21 12c6 4 9 10 7 17l-9 35c-2 7-10 8-17 5l-46-22c-8-4-12-10-12-18Z" className="mini-room-chair" />
-                        <path d="m473 470 45 22c13 7 29 4 35-4l-3 14c-3 9-15 12-27 6l-47-22c-7-3-11-9-10-15Z" fill="#258AA5" />
-                        <path d="m454 464 18 8m65 32 18-5" stroke="#244B53" strokeWidth="8" strokeLinecap="round" />
-                        <path d="m608 449 37-18 35 17-37 18Z" fill="#F7F7F5" />
-                        <path d="m608 449 35 17v8l-35-17Z" fill="#BFC3BC" />
-                        <path d="m643 466 37-18v8l-37 18Z" fill="#E0E2DC" />
-                        <path d="m607 444 37-18 34 16-37 18Z" fill="#F7D549" />
-                        <path d="m607 444 34 16v6l-34-16Z" fill="#D5B535" />
-                        <path d="m641 460 37-18v6l-37 18Z" fill="#EBCF62" />
-
-                        {/* [독서등과 식물 / Reading lamp and plants] */}
-                        <ellipse cx="682" cy="411" rx="29" ry="13" fill="#000000" opacity="0.07" />
-                        <ellipse cx="677" cy="401" rx="23" ry="10" fill="#4D5148" />
-                        <path d="M677 398V288c0-10-7-17-17-17h-20" fill="none" stroke="#5C6055" strokeWidth="5" />
-                        <path d="M616 288c0-24 37-24 37 0Z" fill="#F7D549" />
-                        <ellipse cx="634.5" cy="288" rx="18.5" ry="5" fill="#E5C63A" />
-                        <g className="mini-room-glow">
-                            <ellipse cx="635" cy="325" rx="65" ry="83" fill={`url(#${lightId})`} />
-                            <ellipse cx="634.5" cy="288" rx="15" ry="3.5" fill="#FFFFFF" />
-                        </g>
-                        <ellipse cx="739" cy="464" rx="35" ry="16" fill="#000000" opacity="0.08" />
-                        <path d="M715 411h46l-6 49c-1 12-32 12-34 0Z" fill="#E4DDD0" />
-                        <ellipse cx="738" cy="411" rx="23" ry="10" fill="#F7F7F5" />
-                        <ellipse cx="738" cy="410" rx="18" ry="7" fill="#A69B83" />
-                        <path d="M738 412v-78m0 49-17-23m17 9 21-27" fill="none" stroke="#52674E" strokeWidth="4" strokeLinecap="round" />
-                        <path d="M737 358c-37 6-45-32-45-32 31-6 46 8 45 32Z" fill="#6D8466" />
-                        <path d="M739 340c-8-35 20-51 20-51 16 27 8 48-20 51Z" fill="#819777" />
-                        <path d="M739 380c29 7 42-21 42-21-26-10-39-1-42 21Z" fill="#5B7555" />
-                        <path d="M724 395c-28-3-29-29-29-29 25-2 35 9 29 29Z" fill="#91A185" />
-                    </svg>
+                    <MiniRoomArtwork instanceId={instanceId} programs={posters} lightOn={lightOn} />
                 </div>
                 <figcaption className="mini-room-caption">
                     <p>{hasFavorites ? "관심 공연을 포스터로 걸어 두었어요." : "아직 관심 공연이 없어, 세종의 추천 공연을 걸어 두었어요."}</p>

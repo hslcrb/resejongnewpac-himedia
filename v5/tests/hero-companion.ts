@@ -30,15 +30,16 @@ try {
     await page.waitForFunction(() => document.querySelector(".hero-clock")?.textContent === "13:00:00");
     await page.getByRole("button", { name: "자동 재생 일시정지", exact: true }).click();
 
-    await check("the first view displays one featured work with distinct detail and booking destinations", async () => {
-        assert.equal(await page.locator('.season-slide[aria-hidden="false"]').count(), 1);
+    await check("the first view keeps one main work and exposes both neighbouring program names", async () => {
+        assert.equal(await page.locator('.season-slide.is-active').count(), 1);
+        assert.equal(await page.locator('.season-slide[data-preview] .season-peer-title').count(), 2);
         const active = page.locator(".season-slide.is-active");
         assert.equal(await active.getByRole("link", { name: "상세보기", exact: true }).getAttribute("href"), "/v5/programs/dance/");
         assert.equal(await active.getByRole("link", { name: "예매하기", exact: true }).getAttribute("href"), "/v5/booking/dance/");
         assert.ok((await active.locator(".season-description").innerText()).length > 10);
         const viewport = await page.locator(".season-stage").boundingBox();
         const slide = await active.boundingBox();
-        assert.ok(viewport && slide && Math.abs(viewport.width - slide.width) < 1);
+        assert.ok(viewport && slide && viewport.width - slide.width > 80);
     });
     await check("the clock uses Seoul time, ticks independently and links the actual next official release", async () => {
         await page.clock.runFor(1100);

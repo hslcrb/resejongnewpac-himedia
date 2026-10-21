@@ -98,7 +98,7 @@ export default function useAccountIdentity() {
             const persisted = clearDemoSession(browserStorage());
             applyUser(null);
             window.dispatchEvent(new Event("sejong:account-identity"));
-            if (!persisted) throw new Error("로그아웃했습니다. 브라우저 저장소에 반영하지 못해 새로고침하면 체험 계정이 다시 표시될 수 있습니다.");
+            if (!persisted) throw new Error("로그아웃했습니다. 브라우저 저장소에 반영하지 못해 새로고침하면 프로필이 다시 표시될 수 있습니다.");
         });
     }, [applyUser]);
 

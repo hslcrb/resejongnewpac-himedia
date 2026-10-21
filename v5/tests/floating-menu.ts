@@ -286,7 +286,7 @@ try {
             await page.goto(new URL("design-rules/#components/floating-menu", base).href, {
                 waitUntil: "networkidle",
             });
-            const button = page.getByRole("button", { name: "전체 메뉴 체험하기" });
+            const button = page.getByRole("button", { name: "전체 메뉴 열기", exact: true }).last();
             await button.click();
             await panel().waitFor();
             assert.equal(

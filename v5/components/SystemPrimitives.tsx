@@ -10,7 +10,7 @@ import Icon from "./Icon";
 // 네이티브 속성과 ref를 보존하며 제품 화면과 문서가 같은 토큰을 사용합니다.
 // Preserve native attributes and refs while product and documentation share tokens.
 export type SystemControlStyle = {
-    variant?: "primary" | "secondary" | "accent" | "highlight" | "quiet" | "inverse" | "inverse-outline";
+    variant?: "primary" | "secondary" | "accent" | "highlight" | "quiet" | "inverse" | "inverse-outline" | "inverse-quiet";
     context?: "default" | "flow";
     shape?: "rounded" | "circle" | "pill";
 };

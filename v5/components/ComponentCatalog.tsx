@@ -66,7 +66,7 @@ export default function ComponentCatalog() {
             <h3>같은 컨트롤, 서로 다른 역할</h3>
             <div className="component-actions">
                 <SystemLink href="/programs">프로그램으로 이동 <Icon name="arrow" size={20} /></SystemLink>
-                <SystemIconButton aria-label="공통 아이콘 버튼 체험" onClick={() => showSmallNotification("공통 아이콘 버튼으로 실행했어요.")}><Icon name="plus" /></SystemIconButton>
+                <SystemIconButton aria-label="공통 아이콘 버튼 확인" onClick={() => showSmallNotification("공통 아이콘 버튼으로 실행했어요.")}><Icon name="plus" /></SystemIconButton>
             </div>
             <SystemCheckbox checked={consent} onChange={event => setConsent(event.target.checked)} label="실제 화면과 같은 체크박스입니다" />
 
@@ -91,7 +91,7 @@ export default function ComponentCatalog() {
 
             {/* [마이페이지의 실제 조합 / Actual account component composition] */}
             <h3>개인 공간과 관람 기록</h3>
-            <p>마이페이지에서 사용하는 동일한 구현입니다. 아래는 예시 데이터이며 실제 회원 등급이나 예매 기록이 아닙니다. 예제 노트는 페이지를 떠나면 초기화됩니다.</p>
+            <p>마이페이지에서 사용하는 동일한 구현입니다. 미리보기에는 예시 데이터를 사용하며, 노트는 페이지를 떠나면 초기화됩니다.</p>
             <div className="component-actions">{([{id:"paper",label:"종이빛"},{id:"sky",label:"하늘빛"},{id:"sun",label:"햇살빛"}] as const).map(theme => <SystemButton variant="secondary" key={theme.id} aria-pressed={roomTheme === theme.id} onClick={() => setRoomTheme(theme.id)}>{theme.label}</SystemButton>)}</div>
             <AccountMiniRoom name="관람객" message="관람의 기록과 좋아하는 것들을 모아요." theme={roomTheme} lightOn={roomLight} programs={PROGRAMS.slice(0, 3)} hasFavorites={false} onToggleLight={() => setRoomLight(value => !value)} />
             <AccountMembershipCard name="관람객" message="나의 취향을 발견하는 중" mode="guest" counts={{upcoming:0,favorites:0,notes:accountNotes.length}} onEdit={() => setPreview("account-experience")} onLogout={() => {}} />

@@ -41,10 +41,10 @@ export default function SignupPage() {
             localStorage.setItem("sejong-v4:profile", JSON.stringify(createDemoProfile(newProfile)));
             localStorage.setItem("sejong-v4:session", JSON.stringify({ active: true }));
             window.dispatchEvent(new CustomEvent("sejong:account-identity", { detail: { action: "demo-sign-in" } }));
-            showToast("이 브라우저의 체험 계정을 만들었습니다.");
+            showToast("프로필을 만들었습니다.");
             router.push("/account");
         } catch {
-            setErrorMessage("회원가입 처리 중 오류가 발생했습니다.");
+            setErrorMessage("프로필을 저장하지 못했습니다. 브라우저 저장소를 확인해 주세요.");
         }
     };
 
@@ -58,12 +58,11 @@ export default function SignupPage() {
                         <span aria-hidden="true">/</span>
                         <Link href="/account">마이페이지</Link>
                         <span aria-hidden="true">/</span>
-                        <span aria-current="page">회원가입</span>
+                        <span aria-current="page">프로필 만들기</span>
                     </nav>
                     <div className="page-title-row">
                         <div>
-                            <p className="eyebrow">MY SEJONG</p>
-                            <h1>체험 계정 만들기</h1>
+                            <h1>프로필 만들기</h1>
                             <p className="page-description">이 브라우저에서 나의 공간과 관람노트를 만들어 보세요.</p>
                         </div>
                     </div>
@@ -87,15 +86,14 @@ export default function SignupPage() {
                             height={680}
                             alt="세종대극장의 객석"
                         />
-                        <span className="account-auth-caption">세종대극장 객석. 공연장 정보는 방문 안내에 정리되어 있습니다.</span>
                     </section>
 
                     <form className="flow-panel" data-account-auth="signup" onSubmit={handleSubmit} noValidate>
-                        <h2>체험 계정 만들기</h2>
+                        <h2>프로필 만들기</h2>
                         <p className="flow-fineprint">
-                            입력한 정보는 이 브라우저에만 저장됩니다. 실제 회원가입이나 본인 인증이 아니며, 공식 세종문화회관 계정과 연결되지 않습니다.
+                            이름과 연락처를 저장해 나의 공간과 관람노트를 관리하세요.
                         </p>
-                        <p className="flow-fineprint">실제 계정 연결은 <Link href="/account/login">Google 로그인</Link>을 이용해 주세요.</p>
+                        <p className="flow-fineprint">계정으로 로그인하려면 <Link href="/account/login">Google 로그인</Link>을 이용하세요.</p>
 
                         {errorMessage && (
                             <SystemNotice variant="flow" error className="flow-error" id="flow-error" tabIndex={-1}>
@@ -157,7 +155,7 @@ export default function SignupPage() {
                         />
 
                         <SystemButton context="flow" className="flow-button-full" type="submit">
-                            체험 계정 만들기
+                            프로필 만들기
                             <svg className="material-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                 <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
