@@ -5,6 +5,7 @@ import Link from "next/link";
 import { SystemButton, SystemCheckbox, SystemField, SystemNotice } from "../../../components/SystemPrimitives";
 import { useRouter } from "next/navigation";
 import { showToast } from "../../../components/Toast";
+import { createDemoProfile } from "../../../src/lib/supabase.ts";
 
 export default function SignupPage() {
     const router = useRouter();
@@ -37,9 +38,10 @@ export default function SignupPage() {
                 email: email.trim(),
                 phone: phone.trim(),
             };
-            localStorage.setItem("sejong-v4:profile", JSON.stringify(newProfile));
+            localStorage.setItem("sejong-v4:profile", JSON.stringify(createDemoProfile(newProfile)));
             localStorage.setItem("sejong-v4:session", JSON.stringify({ active: true }));
-            showToast("회원가입이 완료되었습니다.");
+            window.dispatchEvent(new CustomEvent("sejong:account-identity", { detail: { action: "demo-sign-in" } }));
+            showToast("이 브라우저의 체험 계정을 만들었습니다.");
             router.push("/account");
         } catch {
             setErrorMessage("회원가입 처리 중 오류가 발생했습니다.");
@@ -61,8 +63,8 @@ export default function SignupPage() {
                     <div className="page-title-row">
                         <div>
                             <p className="eyebrow">MY SEJONG</p>
-                            <h1>회원가입</h1>
-                            <p className="page-description">예매 내역과 관심 프로그램을 관리하는 페이지입니다.</p>
+                            <h1>체험 계정 만들기</h1>
+                            <p className="page-description">이 브라우저에서 나의 공간과 관람노트를 만들어 보세요.</p>
                         </div>
                     </div>
                 </div>
@@ -72,9 +74,9 @@ export default function SignupPage() {
                 <div className="account-auth-layout">
                     <section className="account-auth-intro" aria-labelledby="account-intro-title">
                         <h2 id="account-intro-title">
-                            회원으로 가입하면
+                            나만의 공간에서
                             <br />
-                            예매가 더 편해집니다.
+                            다음 관람을 준비해요.
                         </h2>
                         <p>관심 가는 프로그램을 모으고, 다음 관람을 준비해 보세요.</p>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -89,10 +91,11 @@ export default function SignupPage() {
                     </section>
 
                     <form className="flow-panel" data-account-auth="signup" onSubmit={handleSubmit} noValidate>
-                        <h2>회원가입</h2>
+                        <h2>체험 계정 만들기</h2>
                         <p className="flow-fineprint">
-                            세종문화회관 회원 서비스 이용을 위한 기본 정보를 입력해 주세요.
+                            입력한 정보는 이 브라우저에만 저장됩니다. 실제 회원가입이나 본인 인증이 아니며, 공식 세종문화회관 계정과 연결되지 않습니다.
                         </p>
+                        <p className="flow-fineprint">실제 계정 연결은 <Link href="/account/login">Google 로그인</Link>을 이용해 주세요.</p>
 
                         {errorMessage && (
                             <SystemNotice variant="flow" error className="flow-error" id="flow-error" tabIndex={-1}>
@@ -146,7 +149,7 @@ export default function SignupPage() {
 
                         <SystemCheckbox
                             className="flow-consent"
-                            label={<span>개인정보 수집 및 이용에 동의합니다. <strong>(필수)</strong></span>}
+                            label={<span>입력한 정보를 이 브라우저에 저장하는 데 동의합니다. <strong>(필수)</strong></span>}
                             name="consent"
                             required
                             checked={consent}
@@ -154,7 +157,7 @@ export default function SignupPage() {
                         />
 
                         <SystemButton context="flow" className="flow-button-full" type="submit">
-                            가입하기
+                            체험 계정 만들기
                             <svg className="material-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                 <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>

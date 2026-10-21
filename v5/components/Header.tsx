@@ -9,10 +9,12 @@ import { SystemField, SystemIconButton } from "./SystemPrimitives";
 import SystemDialog from "./SystemDialog";
 import type { PanelPoint } from "../src/lib/floating-panel";
 import { warmPanelSnapshot } from "../src/lib/panel-snapshot";
+import useAccountIdentity from "./useAccountIdentity";
 
 export default function Header() {
     const pathname = usePathname();
     const router = useRouter();
+    const { isLoggedIn } = useAccountIdentity();
     const [searchOpen, setSearchOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
@@ -106,12 +108,11 @@ export default function Header() {
                 </nav>
 
                 <div className="masthead-actions">
-                    <Link href="/account/login" className="account-link">
-                        로그인
-                    </Link>
-                    <Link href="/account/signup" className="account-link signup-link">
-                        회원가입
-                    </Link>
+                    {/* [실제 세션과 체험 계정 공통 진입 / Shared access for real sessions and demo accounts] */}
+                    {isLoggedIn ? <Link href="/account" className="account-link">마이페이지</Link> : <>
+                        <Link href="/account/login" className="account-link">로그인</Link>
+                        <Link href="/account/signup" className="account-link signup-link">회원가입</Link>
+                    </>}
                     <Link href="/english" className="english-link" lang="en">
                         EN
                     </Link>

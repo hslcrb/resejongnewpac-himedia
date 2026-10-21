@@ -1,13 +1,69 @@
 import { createClient } from "@supabase/supabase-js";
 import type { SupabaseClient, User, AuthChangeEvent, Session } from "@supabase/supabase-js";
+import type { UserProfile } from "../../types/sejong.ts";
 
-// 환경변수에서 Supabase 설정값 취득
+// [계정 식별과 체험 데이터 분리 / Account identity and demo data separation]
+export type AccountMode = "loading" | "demo" | "oauth" | "guest";
+export interface AccountIdentitySnapshot {
+    profile: UserProfile;
+    isLoggedIn: boolean;
+    mode: AccountMode;
+    ready: boolean;
+    identityId: string;
+}
+
+export function resolveAccountIdentity(user: User | null, storage: Pick<Storage, "getItem"> | null): AccountIdentitySnapshot {
+    const text = (value: unknown) => typeof value === "string" ? value.trim() : "";
+    if (user?.id) {
+        const metadata = user.user_metadata || {};
+        return {
+            profile: {
+                name: text(metadata.full_name) || text(metadata.name) || text(user.email?.split("@")[0]) || "관람객",
+                email: text(user.email), phone: text(metadata.phone) || text(user.phone),
+            },
+            isLoggedIn: true, mode: "oauth", ready: true, identityId: user.id,
+        };
+    }
+    try {
+        const session = JSON.parse(storage?.getItem("sejong-v4:session") || "null");
+        const profile = JSON.parse(storage?.getItem("sejong-v4:profile") || "null");
+        if (session?.active === true && text(profile?.name) && text(profile?.email)) {
+            return { profile: { name: text(profile.name), email: text(profile.email), phone: text(profile.phone) }, isLoggedIn: true, mode: "demo", ready: true, identityId: `demo:${text(profile.localId) || text(profile.email).toLowerCase()}` };
+        }
+    } catch { /* 저장소 차단 시 게스트 유지 / Keep guest state when storage is unavailable. */ }
+    return { profile: { name: "", email: "", phone: "" }, isLoggedIn: false, mode: "guest", ready: true, identityId: "guest" };
+}
+
+// [체험 계정의 안정적인 식별자 / Stable local demo identity]
+export function createDemoProfile(profile: UserProfile, previousRaw: string | null = null): UserProfile & { localId: string } {
+    let previous: { email?: unknown; localId?: unknown } | null = null;
+    try { previous = JSON.parse(previousRaw || "null"); } catch { /* 손상된 값은 새 계정으로 시작 / Start fresh for damaged storage. */ }
+    const previousEmail = typeof previous?.email === "string" ? previous.email.trim().toLowerCase() : "";
+    const previousId = typeof previous?.localId === "string" ? previous.localId.trim() : "";
+    const localId = previousEmail && previousEmail === profile.email.trim().toLowerCase()
+        ? previousId || previousEmail
+        : globalThis.crypto?.randomUUID?.() || `local-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+    return { ...profile, localId };
+}
+
+// [브라우저 공개 설정 검증 / Browser public configuration validation]
+export function isPublicSupabaseKey(key: string): boolean {
+    if (key.startsWith("sb_publishable_")) return true;
+    if (key.startsWith("sb_secret_")) return false;
+    try {
+        const payload = key.split(".")[1];
+        return JSON.parse(globalThis.atob(payload.replace(/-/g, "+").replace(/_/g, "/"))).role === "anon";
+    } catch {
+        return false;
+    }
+}
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
 export const isSupabaseConfigured = Boolean(
     supabaseUrl &&
-    supabaseAnonKey &&
+    isPublicSupabaseKey(supabaseAnonKey) &&
     supabaseUrl !== "https://your-project-id.supabase.co"
 );
 
@@ -17,14 +73,38 @@ export const supabase: SupabaseClient | null = isSupabaseConfigured
           auth: {
               persistSession: true,
               autoRefreshToken: true,
-              detectSessionInUrl: true,
+              detectSessionInUrl: false,
+              flowType: "pkce",
           },
       })
     : null;
 
-/**
- * 소셜 OAuth 로그인 실행 (Google, Kakao, GitHub 등 다중 프로바이더 지원)
- */
+// [고정 OAuth 복귀 경로와 제공자 상태 / Fixed OAuth callback and provider availability]
+export function getAccountCallbackUrl(origin: string): string {
+    const url = new URL(origin);
+    const local = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+    if ((url.protocol !== "https:" && !(local && url.protocol === "http:")) || url.username || url.password || url.search || url.hash || url.pathname !== "/") {
+        throw new Error("로그인을 시작한 사이트 주소를 확인해 주세요.");
+    }
+    return new URL("/v5/account/callback/", url.origin).href;
+}
+
+export function isGoogleOAuthEnabled(settings: unknown): boolean {
+    return Boolean(settings && typeof settings === "object" && "external" in settings &&
+        settings.external && typeof settings.external === "object" &&
+        "google" in settings.external && settings.external.google === true);
+}
+
+export async function getGoogleOAuthAvailability(signal?: AbortSignal): Promise<boolean> {
+    if (!isSupabaseConfigured) return false;
+    const response = await fetch(`${supabaseUrl}/auth/v1/settings`, {
+        headers: { apikey: supabaseAnonKey }, signal, cache: "no-store",
+    });
+    if (!response.ok) throw new Error("로그인 서비스 연결을 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    return isGoogleOAuthEnabled(await response.json());
+}
+
+// [소셜 로그인과 세션 / Social sign-in and sessions]
 export async function signInWithOAuthProvider(
     provider: "google" | "kakao" | "github" = "google",
     redirectTo?: string
@@ -33,15 +113,17 @@ export async function signInWithOAuthProvider(
         throw new Error("Supabase 환경 변수가 설정되지 않았습니다. .env.local을 확인해 주세요.");
     }
 
-    const targetUrl = redirectTo || (typeof window !== "undefined" ? window.location.origin + "/v5/account" : "");
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const callbackUrl = getAccountCallbackUrl(origin);
+    // A caller-supplied URL cannot turn this helper into an open redirect.
+    if (redirectTo && new URL(redirectTo, origin).origin !== origin) {
+        throw new Error("다른 사이트로 이동하는 로그인 요청은 사용할 수 없습니다.");
+    }
+    const targetUrl = callbackUrl;
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
             redirectTo: targetUrl,
-            queryParams: provider === "google" ? {
-                access_type: "offline",
-                prompt: "consent",
-            } : {},
         },
     });
 
@@ -59,7 +141,7 @@ export async function signInWithGoogle(redirectTo?: string) {
 export async function signOut(): Promise<void> {
     if (!supabase) return;
     const { error } = await supabase.auth.signOut();
-    if (error) console.error("Supabase 로그아웃 오류:", error);
+    if (error) throw error;
 }
 
 /**

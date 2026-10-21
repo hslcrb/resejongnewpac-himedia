@@ -5,21 +5,47 @@ import Link from "next/link";
 import { SystemButton, SystemCheckbox, SystemField, SystemNotice } from "../../../components/SystemPrimitives";
 import { useRouter } from "next/navigation";
 import { showToast } from "../../../components/Toast";
+import { createDemoProfile, getGoogleOAuthAvailability, isSupabaseConfigured, signInWithGoogle } from "../../../src/lib/supabase.ts";
 
 export default function LoginPage() {
     const router = useRouter();
     const [name, setName] = useState("관람객");
     const [email, setEmail] = useState("visitor@example.com");
-    const [consent, setConsent] = useState(true);
+    const [consent, setConsent] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [googleStatus, setGoogleStatus] = useState<"checking" | "enabled" | "disabled" | "unavailable">("checking");
+    const [oauthPending, setOauthPending] = useState(false);
+
+    // [실제 제공자 설정 확인과 Google 로그인 / Runtime provider check and Google sign-in]
+    useEffect(() => {
+        let mounted = true;
+        const controller = new AbortController();
+        const timeout = window.setTimeout(() => controller.abort(), 10_000);
+        void getGoogleOAuthAvailability(controller.signal)
+            .then(enabled => { if (mounted && !controller.signal.aborted) setGoogleStatus(enabled ? "enabled" : "disabled"); })
+            .catch(() => { if (mounted) setGoogleStatus("unavailable"); })
+            .finally(() => window.clearTimeout(timeout));
+        return () => { mounted = false; controller.abort(); window.clearTimeout(timeout); };
+    }, []);
+
+    const handleGoogleSignIn = async () => {
+        if (googleStatus !== "enabled" || oauthPending) return;
+        setErrorMessage("");
+        setOauthPending(true);
+        try { await signInWithGoogle(); }
+        catch (error) {
+            setErrorMessage(error instanceof Error ? error.message : "Google 로그인 요청을 시작하지 못했습니다. 다시 시도해 주세요.");
+            setOauthPending(false);
+        }
+    };
 
     useEffect(() => {
         try {
             const rawProfile = localStorage.getItem("sejong-v4:profile");
             if (rawProfile) {
                 const parsed = JSON.parse(rawProfile);
-                if (parsed.name) setName(parsed.name);
-                if (parsed.email) setEmail(parsed.email);
+                if (typeof parsed?.name === "string") setName(parsed.name);
+                if (typeof parsed?.email === "string") setEmail(parsed.email);
             }
         } catch {}
     }, []);
@@ -47,9 +73,10 @@ export default function LoginPage() {
                 email: email.trim(),
                 phone: "",
             };
-            localStorage.setItem("sejong-v4:profile", JSON.stringify(newProfile));
+            localStorage.setItem("sejong-v4:profile", JSON.stringify(createDemoProfile(newProfile, localStorage.getItem("sejong-v4:profile"))));
             localStorage.setItem("sejong-v4:session", JSON.stringify({ active: true }));
-            showToast("로그인되었습니다.");
+            window.dispatchEvent(new CustomEvent("sejong:account-identity", { detail: { action: "demo-sign-in" } }));
+            showToast("이 브라우저의 체험 계정으로 로그인했습니다.");
             router.push("/account");
         } catch {
             setErrorMessage("로그인 처리 중 오류가 발생했습니다.");
@@ -101,8 +128,23 @@ export default function LoginPage() {
                     <form className="flow-panel" data-account-auth="login" onSubmit={handleSubmit} noValidate>
                         <h2>로그인</h2>
                         <p className="flow-fineprint">
-                            세종문화회관 회원 서비스입니다.
+                            Google 계정으로 연결하거나, 이 브라우저에서 체험해 보세요.
                         </p>
+
+                        <SystemButton context="flow" variant="secondary" className="flow-button-full" type="button" onClick={handleGoogleSignIn}
+                            disabled={googleStatus !== "enabled" || oauthPending} aria-describedby="google-login-status" aria-busy={oauthPending}>
+                            {oauthPending ? "Google로 이동 중…" : "Google로 계속하기"}
+                        </SystemButton>
+                        <p className="flow-fineprint" id="google-login-status" role="status" aria-live="polite">
+                            {googleStatus === "checking" ? "Google 로그인 연결을 확인하고 있습니다."
+                                : googleStatus === "enabled" ? "Google에서 본인 확인 후 마이페이지로 돌아옵니다."
+                                : googleStatus === "unavailable" ? "로그인 서비스에 연결하지 못했습니다. 잠시 후 다시 접속해 주세요."
+                                : isSupabaseConfigured ? "Google 로그인은 현재 준비 중입니다. 아래 체험 계정을 이용할 수 있습니다."
+                                : "현재 Google 로그인 연결을 준비하고 있습니다."}
+                        </p>
+
+                        <h3>체험 계정</h3>
+                        <p className="flow-fineprint">입력한 정보와 활동은 이 브라우저에 저장됩니다.</p>
 
                         {errorMessage && (
                             <SystemNotice variant="flow" error className="flow-error" id="flow-error" tabIndex={-1}>
@@ -143,7 +185,7 @@ export default function LoginPage() {
 
                         <SystemCheckbox
                             className="flow-consent"
-                            label={<span>개인정보 수집 및 이용에 동의합니다. <strong>(필수)</strong></span>}
+                            label={<span>입력한 정보를 이 브라우저에 저장하는 데 동의합니다. <strong>(필수)</strong></span>}
                             name="consent"
                             required
                             checked={consent}
@@ -151,7 +193,7 @@ export default function LoginPage() {
                         />
 
                         <SystemButton context="flow" className="flow-button-full" type="submit">
-                            로그인
+                            체험으로 로그인
                             <svg className="material-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                 <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>

@@ -151,7 +151,7 @@ try {
             localStorage.setItem("sejong-v4:session", '{"active":true}');
         });
         await page.goto(new URL("account/", base).href, { waitUntil: "networkidle" });
-        await page.getByRole("button", { name: "관심 프로그램 (1)", exact: true }).click();
+        await page.getByRole("tab", { name: "관심 프로그램 (1)", exact: true }).click();
         await loadedImages(page);
         assert.ok((await page.locator(".account-list img").first().getAttribute("src"))!.includes("/official/ilmu-poster.jpg"));
     });

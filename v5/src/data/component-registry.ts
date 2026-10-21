@@ -36,6 +36,11 @@ export const COMPONENT_REGISTRY: readonly ComponentDefinition[] = [
     { id: "booking-calendar", name: "BookingCalendar", source: "components/HomeBookingControls.tsx", exportName: "BookingCalendar", kind: "ui", guide: "components/registry", purpose: "일곱 열을 유지하는 일정 선택 달력" },
     { id: "booking-choice", name: "BookingProgramChoice", source: "components/HomeBookingControls.tsx", exportName: "BookingProgramChoice", kind: "ui", guide: "components/registry", purpose: "포스터와 회차를 포함한 프로그램 선택 타일" },
     { id: "booking-invitation", name: "BookingInvitation", source: "components/BookingInvitation.tsx", exportName: "default", kind: "ui", guide: "motion/scroll", purpose: "문구를 보존하는 스크롤 기반 글자 등장" },
+    { id: "account-mini-room", name: "AccountMiniRoom", source: "components/AccountMiniRoom.tsx", exportName: "default", kind: "ui", guide: "components/registry", purpose: "실제 관심 공연 포스터와 조명·세 가지 빛깔을 조합한 개인 공연장", variants: ["paper", "sky", "sun", "light-on", "light-off"] },
+    { id: "account-membership", name: "AccountMembershipCard", source: "components/AccountPanels.tsx", exportName: "AccountMembershipCard", kind: "ui", guide: "components/registry", purpose: "프로필·관람 통계와 공식 멤버십 안내", variants: ["guest", "demo", "oauth"] },
+    { id: "account-ticket", name: "AccountTicket", source: "components/AccountPanels.tsx", exportName: "AccountTicket", kind: "ui", guide: "components/registry", purpose: "관람 일정과 좌석을 담는 공통 체험 티켓", variants: ["compact", "full", "cancelled"] },
+    { id: "account-diary", name: "AccountDiary", source: "components/AccountPanels.tsx", exportName: "AccountDiary", kind: "ui", guide: "components/registry", purpose: "공연·날짜·감상을 묶어 남기는 개인 관람노트" },
+    { id: "account-experience", name: "AccountExperience", source: "components/AccountExperience.tsx", exportName: "default", kind: "structure", guide: "components/registry", purpose: "인증 상태와 공통 컴포넌트를 조합한 마이페이지", previewRoute: "/v5/account/" },
     { id: "glass", name: "LiquidGlass", source: "components/LiquidGlass.tsx", exportName: "default", kind: "ui", guide: "components/liquid-glass", purpose: "굴절·흐림·반사를 공유하는 유리 표면", variants: ["surface", "drawer", "hero"] },
     { id: "floating-panel", name: "FloatingPanel", source: "components/FloatingPanel.tsx", exportName: "default", kind: "ui", guide: "components/floating-menu", purpose: "초점·위치·WebGL 모션을 관리하는 비차단 창", variants: ["floating", "drawer"] },
     { id: "floating-menu", name: "FloatingMenu", source: "components/FloatingMenu.tsx", exportName: "default", kind: "ui", guide: "components/floating-menu", purpose: "FloatingPanel을 사용하는 실제 전체 메뉴", parent: "floating-panel" },
@@ -59,7 +64,6 @@ export const COMPONENT_REGISTRY: readonly ComponentDefinition[] = [
 
 // [일반 컨트롤로 바꾸지 않는 공간 조작 / Explicit spatial-control exceptions]
 export const CONTROL_EXCEPTIONS = [
-    { source: "app/account/page.tsx", tag: "button", part: "account-statistic", owner: "AccountPage", reason: "통계와 문장을 포함한 대시보드 카드 전체가 이동을 실행하는 복합 조작" },
     { source: "app/booking/[id]/BookingClient.tsx", tag: "button", part: "seat", owner: "BookingClient", reason: "36px 좌석 배치의 공간 관계와 키보드 좌석 선택을 보존" },
     { source: "components/HomeBookingControls.tsx", tag: "button", part: "calendar-day", owner: "BookingCalendar", reason: "320px 화면에서도 일곱 열과 날짜의 공간 관계를 유지하는 달력 셀" },
     { source: "components/HomeBookingControls.tsx", tag: "button", part: "program-choice", owner: "BookingProgramChoice", reason: "포스터·공연명·장소·회차를 포함하는 프로그램 선택 타일" },

@@ -1,0 +1,208 @@
+/* [개인 공연장 표면과 테마 / Personal theatre surface and themes] */
+.account-mini-room {
+    --mini-room-wall-left: #F0EFE9;
+    --mini-room-wall-right: #E4E5DD;
+    --mini-room-floor: #E9DFCD;
+    --mini-room-curtain: #C36D15;
+    --mini-room-chair: #54C8E8;
+    --mini-room-chair-back: #399BB4;
+    min-width: 0;
+    color: var(--text-primary);
+}
+
+.account-mini-room[data-theme="sky"] {
+    --mini-room-wall-left: #E6F2F3;
+    --mini-room-wall-right: #D5E7E8;
+    --mini-room-curtain: #405F63;
+}
+
+.account-mini-room[data-theme="sun"] {
+    --mini-room-wall-left: #FAF0CE;
+    --mini-room-wall-right: #EDE0B4;
+    --mini-room-curtain: #A65827;
+}
+
+/* [제목과 공통 컨트롤 배치 / Heading and shared-control layout] */
+.mini-room-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-6);
+    margin-bottom: var(--space-4);
+}
+
+.mini-room-header h2 {
+    margin: 0;
+    font-size: var(--text-subheading);
+    font-weight: var(--weight-heading);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-heading);
+    word-break: keep-all;
+}
+
+.mini-room-actions {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.mini-room-actions img {
+    display: block;
+}
+
+/* [한마디와 반응형 등각 투영 장면 / Personal note and responsive isometric scene] */
+.mini-room-figure {
+    margin: 0;
+}
+
+.mini-room-scene {
+    position: relative;
+    isolation: isolate;
+    min-width: 0;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-media);
+    background: var(--surface-subtle);
+}
+
+.mini-room-note {
+    position: absolute;
+    z-index: 1;
+    top: var(--space-8);
+    left: var(--space-8);
+    width: 29%;
+    max-width: 17rem;
+    margin: 0;
+    padding-left: var(--space-4);
+    border-left: 2px solid var(--border-default);
+    overflow-wrap: anywhere;
+}
+
+.mini-room-note p {
+    margin: 0 0 var(--space-3);
+    font-size: var(--text-lead);
+    font-weight: var(--weight-label);
+    line-height: var(--leading-label);
+    word-break: keep-all;
+}
+
+.mini-room-note cite {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    font-style: normal;
+    line-height: var(--leading-label);
+}
+
+.mini-room-scene[data-note-layout="flow"] .mini-room-note {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: auto;
+    max-width: none;
+    margin: var(--space-8) var(--space-8) 0;
+}
+
+.mini-room-art {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 96 / 65;
+}
+
+.mini-room-wall-left {
+    fill: var(--mini-room-wall-left);
+}
+
+.mini-room-wall-right {
+    fill: var(--mini-room-wall-right);
+}
+
+.mini-room-floor {
+    fill: var(--mini-room-floor);
+}
+
+.mini-room-curtain {
+    fill: var(--mini-room-curtain);
+}
+
+.mini-room-chair {
+    fill: var(--mini-room-chair);
+}
+
+.mini-room-chair-back {
+    fill: var(--mini-room-chair-back);
+}
+
+/* [실제 조명 상태의 부드러운 전환 / Gentle transition for the actual light state] */
+.mini-room-glow {
+    opacity: 100%;
+    transition: opacity var(--duration-panel) var(--ease-standard);
+}
+
+.mini-room-light-strip {
+    stroke: var(--color-yellow);
+    transition: stroke var(--duration-panel) var(--ease-standard);
+}
+
+.account-mini-room[data-light="off"] .mini-room-glow {
+    opacity: 0%;
+}
+
+.account-mini-room[data-light="off"] .mini-room-light-strip {
+    stroke: #72766B;
+}
+
+/* [정확한 포스터 출처와 조명 상태 / Honest poster context and light status] */
+.mini-room-caption {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    line-height: var(--leading-label);
+}
+
+.mini-room-caption p {
+    margin: 0;
+    word-break: keep-all;
+}
+
+.mini-room-light-status {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* [작은 화면에서 한마디를 독립된 흐름으로 / Keep the note in normal flow on small screens] */
+@media (max-width: 640px) {
+    .mini-room-header {
+        flex-wrap: wrap;
+        gap: var(--space-4);
+    }
+
+    .mini-room-note {
+        position: relative;
+        top: auto;
+        left: auto;
+        width: auto;
+        max-width: none;
+        margin: var(--space-6) var(--space-6) 0;
+    }
+
+    .mini-room-art {
+        margin-top: var(--space-2);
+    }
+
+    .mini-room-caption {
+        flex-wrap: wrap;
+        gap: var(--space-2) var(--space-4);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mini-room-glow,
+    .mini-room-light-strip {
+        transition: none;
+    }
+}

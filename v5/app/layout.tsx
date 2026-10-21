@@ -32,6 +32,8 @@ import "../styles/small-notification-modal.css";
 import "../styles/hero-companion.css";
 import "../styles/system-primitives.css";
 import "../styles/component-catalog.css";
+import "../styles/account-mini-room.css";
+import "../styles/account-space.css";
 
 export const metadata = {
     title: "세종문화회관 - 공연·전시·교육, 예매와 이용 안내 (Next.js & TypeScript)",

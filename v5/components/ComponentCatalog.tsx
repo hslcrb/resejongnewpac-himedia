@@ -12,6 +12,10 @@ import SeasonBanner from "./SeasonBanner";
 import { BookingCalendar, BookingProgramChoice } from "./HomeBookingControls";
 import { SystemButton, SystemCheckbox, SystemField, SystemIconButton, SystemLink } from "./SystemPrimitives";
 import Icon from "./Icon";
+import AccountMiniRoom from "./AccountMiniRoom";
+import { AccountDiary, AccountMembershipCard, AccountTicket } from "./AccountPanels";
+import { validateAccountNote } from "../src/lib/account-space.ts";
+import type { AccountNote, AccountTheme } from "../src/lib/account-space.ts";
 import { showSmallNotification } from "./SmallNotificationModal";
 
 const kinds = { ui: "재사용 UI", structure: "구조·페이지 연결", internal: "내부 지원", demo: "문서 도구" };
@@ -27,6 +31,9 @@ export default function ComponentCatalog() {
     const [date, setDate] = useState("2026-10-21");
     const [selected, setSelected] = useState(false);
     const [consent, setConsent] = useState(false);
+    const [roomLight, setRoomLight] = useState(true);
+    const [roomTheme, setRoomTheme] = useState<AccountTheme>("paper");
+    const [accountNotes, setAccountNotes] = useState<AccountNote[]>([]);
     const entries = COMPONENT_REGISTRY.filter(entry => `${entry.name} ${entry.purpose} ${entry.source}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
     const previewEntry = COMPONENT_REGISTRY.find(entry => entry.id === preview);
 
@@ -81,6 +88,15 @@ export default function ComponentCatalog() {
             </div>
             <p className="ds-caption">일반 버튼의 규격을 좌석·달력·복합 선택 타일에 강제로 적용하지 않습니다. 아래 예외는 소유 구현과 이유를 검사하며, 파일 전체를 예외로 두지 않습니다.</p>
             <ul className="component-exceptions">{CONTROL_EXCEPTIONS.map(exception => <li key={`${exception.source}-${exception.part}`}><strong>{exception.owner} · {exception.part}</strong><span>{exception.reason}</span></li>)}</ul>
+
+            {/* [마이페이지의 실제 조합 / Actual account component composition] */}
+            <h3>개인 공간과 관람 기록</h3>
+            <p>마이페이지에서 사용하는 동일한 구현입니다. 아래는 예시 데이터이며 실제 회원 등급이나 예매 기록이 아닙니다. 예제 노트는 페이지를 떠나면 초기화됩니다.</p>
+            <div className="component-actions">{([{id:"paper",label:"종이빛"},{id:"sky",label:"하늘빛"},{id:"sun",label:"햇살빛"}] as const).map(theme => <SystemButton variant="secondary" key={theme.id} aria-pressed={roomTheme === theme.id} onClick={() => setRoomTheme(theme.id)}>{theme.label}</SystemButton>)}</div>
+            <AccountMiniRoom name="관람객" message="관람의 기록과 좋아하는 것들을 모아요." theme={roomTheme} lightOn={roomLight} programs={PROGRAMS.slice(0, 3)} hasFavorites={false} onToggleLight={() => setRoomLight(value => !value)} />
+            <AccountMembershipCard name="관람객" message="나의 취향을 발견하는 중" mode="guest" counts={{upcoming:0,favorites:0,notes:accountNotes.length}} onEdit={() => setPreview("account-experience")} onLogout={() => {}} />
+            <AccountTicket variant="compact" program={PROGRAMS[0]} booking={{id:"GUIDE-SAMPLE",programId:PROGRAMS[0].id,title:PROGRAMS[0].title,date:"2026-11-20",time:"19:30",venue:PROGRAMS[0].venue || "세종문화회관",seats:["A1"],total:70000,reference:"GUIDE"}} />
+            <AccountDiary programs={PROGRAMS} notes={accountNotes} today="2026-10-21" onSave={draft => { const value = validateAccountNote(draft, new Set(PROGRAMS.map(program => program.id)), "2026-10-21"); if (!value) return false; setAccountNotes(current => [{...value,id:crypto.randomUUID()},...current]); return true; }} onDelete={id => setAccountNotes(current => current.filter(note => note.id !== id))} />
 
             <h3>구조와 전체 페이지 경험</h3>
             <p>헤더·푸터·문맥 메뉴·위로 가기·기관 소개는 실제 경로에서 확인합니다. 선택하면 같은 제품 화면을 미리 불러옵니다.</p>

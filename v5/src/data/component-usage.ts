@@ -1,17 +1,68 @@
 // [컴포넌트 사용처의 생성 자료 / Generated component usage]
 // scripts/audit-component-system.ts --write로 갱신합니다. / Regenerate with scripts/audit-component-system.ts --write.
 export const COMPONENT_USAGE = {
+    "account-diary": {
+        "status": "product",
+        "productUses": [
+            "components/AccountExperience.tsx#AccountExperience"
+        ],
+        "guideUses": [
+            "components/ComponentCatalog.tsx#ComponentCatalog"
+        ]
+    },
+    "account-experience": {
+        "status": "product",
+        "productUses": [
+            "app/account/applications/page.tsx#AccountApplicationsPage",
+            "app/account/bookings/page.tsx#AccountBookingsPage",
+            "app/account/favorites/page.tsx#AccountFavoritesPage",
+            "app/account/page.tsx#AccountPage",
+            "app/account/profile/page.tsx#AccountProfilePage"
+        ],
+        "guideUses": []
+    },
+    "account-membership": {
+        "status": "product",
+        "productUses": [
+            "components/AccountExperience.tsx#AccountExperience"
+        ],
+        "guideUses": [
+            "components/ComponentCatalog.tsx#ComponentCatalog"
+        ]
+    },
+    "account-mini-room": {
+        "status": "product",
+        "productUses": [
+            "components/AccountExperience.tsx#spacePanel"
+        ],
+        "guideUses": [
+            "components/ComponentCatalog.tsx#ComponentCatalog"
+        ]
+    },
+    "account-ticket": {
+        "status": "product",
+        "productUses": [
+            "components/AccountExperience.tsx#bookingsPanel",
+            "components/AccountExperience.tsx#spacePanel"
+        ],
+        "guideUses": [
+            "components/ComponentCatalog.tsx#ComponentCatalog"
+        ]
+    },
     "badge": {
         "status": "product",
         "productUses": [
-            "app/account/page.tsx#AccountPage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
             "app/page.tsx#HomePage",
             "app/programs/[id]/ProgramDetailClient.tsx#ProgramDetailClient",
+            "components/AccountPanels.tsx#AccountMembershipCard",
+            "components/AccountPanels.tsx#AccountTicket",
             "components/ProgramCard.tsx#ProgramCard"
         ],
         "guideUses": [
             "app/design-rules/page.tsx#renderChapter",
+            "components/AccountPanels.tsx#AccountMembershipCard",
+            "components/AccountPanels.tsx#AccountTicket",
             "components/ProgramCard.tsx#ProgramCard"
         ]
     },
@@ -53,11 +104,16 @@ export const COMPONENT_USAGE = {
         "status": "product",
         "productUses": [
             "app/account/login/page.tsx#LoginPage",
-            "app/account/page.tsx#AccountPage",
             "app/account/recovery/page.tsx#RecoveryPage",
             "app/account/signup/page.tsx#SignupPage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
             "app/page.tsx#HomePage",
+            "components/AccountExperience.tsx#AccountExperience",
+            "components/AccountExperience.tsx#profilePanel",
+            "components/AccountMiniRoom.tsx#AccountMiniRoom",
+            "components/AccountPanels.tsx#AccountDiary",
+            "components/AccountPanels.tsx#AccountMembershipCard",
+            "components/AccountPanels.tsx#AccountTicket",
             "components/ContextMenu.tsx#ContextMenu",
             "components/FloatingPanel.tsx#PanelSurface",
             "components/HomeBookingControls.tsx#BookingCalendar",
@@ -67,6 +123,10 @@ export const COMPONENT_USAGE = {
         "guideUses": [
             "app/design-rules/page.tsx#DesignRulesPage",
             "app/design-rules/page.tsx#renderChapter",
+            "components/AccountMiniRoom.tsx#AccountMiniRoom",
+            "components/AccountPanels.tsx#AccountDiary",
+            "components/AccountPanels.tsx#AccountMembershipCard",
+            "components/AccountPanels.tsx#AccountTicket",
             "components/ComponentCatalog.tsx#ComponentCatalog",
             "components/FloatingPanel.tsx#PanelSurface",
             "components/HomeBookingControls.tsx#BookingCalendar",
@@ -78,13 +138,22 @@ export const COMPONENT_USAGE = {
         "status": "product",
         "productUses": [
             "app/[...slug]/page.tsx#CatalogDynamicPage",
-            "app/account/page.tsx#AccountPage",
+            "app/account/callback/page.tsx#AccountCallbackPage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
             "app/page.tsx#HomePage",
             "app/programs/[id]/ProgramDetailClient.tsx#ProgramDetailClient",
+            "components/AccountExperience.tsx#bookingsPanel",
+            "components/AccountExperience.tsx#favoritesPanel",
+            "components/AccountExperience.tsx#profilePanel",
+            "components/AccountExperience.tsx#servicesPanel",
+            "components/AccountExperience.tsx#spacePanel",
+            "components/AccountPanels.tsx#AccountMembershipCard",
+            "components/AccountPanels.tsx#AccountTicket",
             "components/HeroSlide.tsx#HeroSlide"
         ],
         "guideUses": [
+            "components/AccountPanels.tsx#AccountMembershipCard",
+            "components/AccountPanels.tsx#AccountTicket",
             "components/ComponentCatalog.tsx#ComponentCatalog",
             "components/HeroSlide.tsx#HeroSlide"
         ]
@@ -117,6 +186,7 @@ export const COMPONENT_USAGE = {
     "dialog": {
         "status": "product",
         "productUses": [
+            "components/AccountExperience.tsx#AccountExperience",
             "components/Header.tsx#Header"
         ],
         "guideUses": [
@@ -142,21 +212,26 @@ export const COMPONENT_USAGE = {
             "app/booking/[id]/BookingClient.tsx#BookingClient",
             "app/page.tsx#HomePage",
             "app/programs/page.tsx#ProgramsPage",
+            "components/AccountExperience.tsx#AccountExperience",
+            "components/AccountExperience.tsx#profilePanel",
+            "components/AccountPanels.tsx#AccountDiary",
             "components/Footer.tsx#Footer",
             "components/Header.tsx#Header"
         ],
         "guideUses": [
             "app/design-rules/page.tsx#DesignRulesPage",
             "app/design-rules/page.tsx#renderChapter",
+            "components/AccountPanels.tsx#AccountDiary",
             "components/ComponentCatalog.tsx#ComponentCatalog"
         ]
     },
     "filter-button": {
         "status": "product",
         "productUses": [
-            "app/account/page.tsx#AccountPage",
             "app/page.tsx#HomePage",
-            "app/programs/page.tsx#ProgramsPage"
+            "app/programs/page.tsx#ProgramsPage",
+            "components/AccountExperience.tsx#AccountExperience",
+            "components/AccountExperience.tsx#bookingsPanel"
         ],
         "guideUses": []
     },
@@ -249,6 +324,14 @@ export const COMPONENT_USAGE = {
         "status": "product",
         "productUses": [
             "app/page.tsx#HomePage",
+            "components/AccountExperience.tsx#bookingsPanel",
+            "components/AccountExperience.tsx#favoritesPanel",
+            "components/AccountExperience.tsx#profilePanel",
+            "components/AccountExperience.tsx#servicesPanel",
+            "components/AccountExperience.tsx#spacePanel",
+            "components/AccountPanels.tsx#AccountDiary",
+            "components/AccountPanels.tsx#AccountMembershipCard",
+            "components/AccountPanels.tsx#AccountTicket",
             "components/ContextMenu.tsx#ContextMenu",
             "components/FloatingMenu.tsx#FloatingMenu",
             "components/FloatingPanel.tsx#PanelSurface",
@@ -265,6 +348,9 @@ export const COMPONENT_USAGE = {
         "guideUses": [
             "app/design-rules/page.tsx#DesignRulesPage",
             "app/design-rules/page.tsx#renderChapter",
+            "components/AccountPanels.tsx#AccountDiary",
+            "components/AccountPanels.tsx#AccountMembershipCard",
+            "components/AccountPanels.tsx#AccountTicket",
             "components/ComponentCatalog.tsx#ComponentCatalog",
             "components/FloatingMenu.tsx#FloatingMenu",
             "components/FloatingPanel.tsx#PanelSurface",
@@ -283,6 +369,8 @@ export const COMPONENT_USAGE = {
         "status": "product",
         "productUses": [
             "app/page.tsx#HomePage",
+            "components/AccountMiniRoom.tsx#AccountMiniRoom",
+            "components/AccountPanels.tsx#AccountDiary",
             "components/FloatingPanel.tsx#PanelSurface",
             "components/Header.tsx#Header",
             "components/HomeBookingControls.tsx#BookingCalendar",
@@ -290,6 +378,8 @@ export const COMPONENT_USAGE = {
             "components/ReturnTop.tsx#ReturnTop"
         ],
         "guideUses": [
+            "components/AccountMiniRoom.tsx#AccountMiniRoom",
+            "components/AccountPanels.tsx#AccountDiary",
             "components/ComponentCatalog.tsx#ComponentCatalog",
             "components/FloatingPanel.tsx#PanelSurface",
             "components/HomeBookingControls.tsx#BookingCalendar",
@@ -306,13 +396,18 @@ export const COMPONENT_USAGE = {
     "notice": {
         "status": "product",
         "productUses": [
+            "app/account/callback/page.tsx#AccountCallbackPage",
             "app/account/login/page.tsx#LoginPage",
             "app/account/recovery/page.tsx#RecoveryPage",
-            "app/account/signup/page.tsx#SignupPage"
+            "app/account/signup/page.tsx#SignupPage",
+            "components/AccountExperience.tsx#AccountExperience",
+            "components/AccountExperience.tsx#profilePanel",
+            "components/AccountPanels.tsx#AccountDiary"
         ],
         "guideUses": [
             "app/design-rules/page.tsx#DesignRulesPage",
-            "app/design-rules/page.tsx#renderChapter"
+            "app/design-rules/page.tsx#renderChapter",
+            "components/AccountPanels.tsx#AccountDiary"
         ]
     },
     "notification-host": {
@@ -326,7 +421,9 @@ export const COMPONENT_USAGE = {
         "status": "product",
         "productUses": [
             "app/page.tsx#HomePage",
-            "app/programs/page.tsx#ProgramsPage"
+            "app/programs/page.tsx#ProgramsPage",
+            "components/AccountExperience.tsx#favoritesPanel",
+            "components/AccountExperience.tsx#spacePanel"
         ],
         "guideUses": [
             "app/design-rules/page.tsx#renderChapter"
@@ -379,8 +476,10 @@ export const COMPONENT_USAGE = {
         "guideUses": []
     },
     "tabs": {
-        "status": "guide-only",
-        "productUses": [],
+        "status": "product",
+        "productUses": [
+            "components/AccountExperience.tsx#AccountExperience"
+        ],
         "guideUses": [
             "app/design-rules/page.tsx#renderChapter"
         ]
@@ -397,8 +496,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 38,
-    "product": 35,
-    "documentationOnly": 3,
+    "total": 43,
+    "product": 41,
+    "documentationOnly": 2,
     "unused": 0
 } as const;
