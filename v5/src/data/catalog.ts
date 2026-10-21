@@ -1,4 +1,5 @@
 import type { Program, Venue, Notice, NavItem, PageMeta } from "../../types/sejong.ts";
+import { OFFICIAL_PAGE_META } from "./official.ts";
 
 const page = (path: string, title: string, group: string, description = "", type = "content"): PageMeta => ({
     path,
@@ -29,6 +30,7 @@ export const NAV: NavItem[] = [
             ["기획·시즌 프로그램", "/programs/season"],
             ["백스테이지 투어", "/programs/tour"],
             ["세종·충무공 이야기", "/programs/history"],
+            ["데이티켓·정오티켓", "/programs/day-ticket"],
         ],
     },
     {
@@ -42,6 +44,8 @@ export const NAV: NavItem[] = [
             ["대관절차", "/rental/process"],
             ["대관신청", "/rental/apply"],
             ["대관문의", "/rental/contact"],
+            ["강의실·야외·물품 대여", "/rental/classrooms"],
+            ["티켓판매·광고", "/rental/ticket-sales"],
         ],
     },
     {
@@ -55,6 +59,7 @@ export const NAV: NavItem[] = [
             ["장애인 이용안내", "/visit/accessibility"],
             ["관람 유의사항", "/visit/etiquette"],
             ["고객지원", "/visit/support"],
+            ["좌석배치도", "/visit/seating"],
         ],
     },
     {
@@ -67,6 +72,7 @@ export const NAV: NavItem[] = [
             ["뉴스레터·세종문화N", "/news/newsletter"],
             ["멤버십", "/news/membership"],
             ["세종 굿즈", "/news/goods"],
+            ["티켓오픈안내", "/news/ticket-open"],
         ],
     },
     {
@@ -92,6 +98,7 @@ export const PAGES: PageMeta[] = [
     ]),
     ...[
         ["/programs/booking-guide", "예매안내", "programs"],
+        ["/apply/education", "교육 신청 체험", "programs"],
         ["/programs/education/apply-guide", "교육 신청안내", "programs"],
         ["/programs/season/sejong", "2026 세종시즌", "programs"],
         ["/programs/season/sync-next", "Sync Next", "programs"],
@@ -151,6 +158,13 @@ export const PAGES: PageMeta[] = [
         ["/english", "English visitor guide", "utility"],
     ].map(([path, title, group]) => page(path, title, group)),
 ];
+
+// [누락된 공식 안내 등록 / Register previously missing public services]
+for (const item of OFFICIAL_PAGE_META) {
+    const existing = PAGES.find((registered) => registered.path === item.path);
+    if (existing) Object.assign(existing, item);
+    else PAGES.push(item);
+}
 
 export const VENUES: Venue[] = [
     {

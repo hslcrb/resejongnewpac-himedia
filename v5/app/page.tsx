@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import { FEATURED_SEASON } from "../src/data/featured-season";
 import { PROGRAMS, NOTICES } from "../src/data/catalog";
 import ProgramCard from "../components/ProgramCard";
 import Icon from "../components/Icon";
-import VioletQuickMenu from "../components/VioletQuickMenu";
+import SeasonalStage from "../components/SeasonalStage";
+import HomeExperiences from "../components/HomeExperiences";
 import HomeAnchorNavigation from "../components/HomeAnchorNavigation";
 import {
     seoulToday,
@@ -18,41 +20,7 @@ import {
 import type { Program } from "../types/sejong.ts";
 
 // 히어로 캐러셀 슬라이드 데이터
-const features = [
-    {
-        id: "dance",
-        theme: "dance",
-        label: "2026 세종시즌 · 서울시무용단",
-        title: "오래된 춤의 걸음,\n지금의 무대.",
-        name: "서울시무용단 〈일무〉",
-        date: "2026.10.20 - 10.25",
-        venue: "세종대극장",
-        image: "hero-dance.png",
-        alt: "금빛 무대에서 춤추는 무용수의 리뉴얼 콘셉트 이미지",
-    },
-    {
-        id: "carmen",
-        theme: "opera",
-        label: "2026 세종시즌 · 서울시오페라단",
-        title: "자유롭게 사랑하고,\n자유롭게 떠나는 카르멘.",
-        name: "서울시오페라단 〈카르멘〉",
-        date: "2026.10.15 - 10.18",
-        venue: "세종대극장",
-        image: "poster-carmen.svg",
-        alt: "오페라 카르멘 콘셉트 포스터",
-    },
-    {
-        id: "light",
-        theme: "light",
-        label: "전시 · 빛과 공간",
-        title: "빛의 각도에 따라\n달라지는 공간.",
-        name: "빛이 머무는 자리",
-        date: "2026.10.01 - 11.15",
-        venue: "세종미술관",
-        image: "poster-light.svg",
-        alt: "빛이 머무는 자리 전시 콘셉트 포스터",
-    },
-];
+const features = FEATURED_SEASON;
 
 // 방문 안내 데이터
 const visitGuides = [
@@ -115,56 +83,7 @@ export default function HomePage() {
 
     // 2. 히어로 캐러셀 상태
     const [heroActive, setHeroActive] = useState(0);
-    const [dragX, setDragX] = useState(0);
-    const [isMoving, setIsMoving] = useState(false);
-    const [isPaused, setIsPaused] = useState(false);
-    const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
-    const [progress, setProgress] = useState(0);
-    const stageRef = useRef<HTMLDivElement>(null);
-    const heroMoveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const moveHero = (dir: 1 | -1) => {
-        if (isMoving) return;
-        setIsMoving(true);
-        setProgress(0);
-
-        const stage = stageRef.current;
-        const slideEl = stage?.querySelector(".season-slide");
-        const step = slideEl ? slideEl.getBoundingClientRect().width + 24 : 1224;
-
-        setDragX(-dir * step);
-
-        heroMoveTimer.current = setTimeout(() => {
-            setHeroActive((prev) => (prev + dir + features.length) % features.length);
-            setIsMoving(false);
-            setDragX(0);
-            heroMoveTimer.current = null;
-        }, 750);
-    };
-
-    useEffect(() => () => {
-        if (heroMoveTimer.current) clearTimeout(heroMoveTimer.current);
-    }, []);
-
-    // 캐러셀 자동 재생 (3500ms)
-    useEffect(() => {
-        if (isPaused || isMoving || isQuickMenuOpen) return;
-        const interval = 50;
-        const totalDuration = 3500;
-        const timer = setInterval(() => {
-            setProgress((prev) => {
-                if (prev >= 1) {
-                    moveHero(1);
-                    return 0;
-                }
-                return prev + interval / totalDuration;
-            });
-        }, interval);
-
-        return () => clearInterval(timer);
-    }, [isPaused, isMoving, heroActive, isQuickMenuOpen]);
-
-    // 3. 캘린더 빠른 예매 위젯 상태
     const [bookingDate, setBookingDate] = useState(today);
     const [bookingMonth, setBookingMonth] = useState(today.slice(0, 7));
     const [selectedProgramId, setSelectedProgramId] = useState<string>("");
@@ -265,13 +184,7 @@ export default function HomePage() {
     const resolveHomeAnchor = (id: string) => {
         const featureIndex = features.findIndex(feature => id === `home-feature-${feature.id}`);
         if (featureIndex >= 0) {
-            if (heroMoveTimer.current) clearTimeout(heroMoveTimer.current);
-            heroMoveTimer.current = null;
             setHeroActive(featureIndex);
-            setIsMoving(false);
-            setDragX(0);
-            setProgress(0);
-            setIsPaused(true);
             return true;
         }
 
@@ -328,147 +241,10 @@ export default function HomePage() {
     };
 
     return (
-        <div className="home-v4-wrap" id="home" data-home-anchor>
+        <div className="home-v4-wrap glass-home" id="home" data-home-anchor>
             <HomeAnchorNavigation resolveAnchor={resolveHomeAnchor} />
-            <h1 className="sr-only">세종문화회관 - 공연·전시·교육 일정, 예매와 이용 안내</h1>
+            <SeasonalStage features={features} active={heroActive} onSelect={setHeroActive} />
 
-            {/* 1. 시즌 히어로 캐러셀 (Season Hero Carousel) */}
-            <section
-                className="season-hero"
-                id="featured-season"
-                data-home-anchor
-                aria-label="주요 프로그램"
-                aria-roledescription="캐러셀"
-            >
-                <div
-                    className="season-stage"
-                    ref={stageRef}
-                    onMouseEnter={() => setIsPaused(true)}
-                    onMouseLeave={() => setIsPaused(false)}
-                >
-                    <div
-                        className={`season-track${isMoving ? " is-moving" : ""}`}
-                        style={{
-                            "--drag-x": `${dragX}px`,
-                            "--carousel-duration": "750ms",
-                        } as React.CSSProperties}
-                    >
-                        {[-2, -1, 0, 1, 2].map((offset) => {
-                            const slideIndex = (heroActive + offset + features.length) % features.length;
-                            const item = features[slideIndex];
-                            const isCurrent = offset === 0;
-                            const imgPath = `/v5/assets/images/${item.image}`;
-
-                            return (
-                                <article
-                                    key={`${item.id}-${offset}`}
-                                    className={`card card--hero season-slide season-${item.theme}${
-                                        isCurrent ? " is-active" : ""
-                                    }`}
-                                    data-card="hero"
-                                    data-feature={item.id}
-                                    id={isCurrent ? `home-feature-${item.id}` : undefined}
-                                    data-home-anchor={isCurrent ? "" : undefined}
-                                    aria-hidden={!isCurrent}
-                                >
-                                    <Link
-                                        className="season-card-link"
-                                        href={`/programs/${item.id}`}
-                                        draggable={false}
-                                        tabIndex={isCurrent ? 0 : -1}
-                                        aria-label={`${item.name} 자세히 보기`}
-                                    >
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img
-                                            className="season-image"
-                                            src={imgPath}
-                                            alt={item.alt}
-                                            width={1672}
-                                            height={941}
-                                            draggable={false}
-                                            loading={isCurrent ? "eager" : "lazy"}
-                                            onError={(e) => {
-                                                const target = e.currentTarget;
-                                                if (target.src.includes("/v5/assets/")) {
-                                                    target.src = target.src.replace("/v5/assets/", "/assets/");
-                                                }
-                                            }}
-                                        />
-                                        <div className="season-copy">
-                                            <p className="season-label">{item.label}</p>
-                                            <h2>
-                                                {item.title.split("\n").map((line, idx) => (
-                                                    <React.Fragment key={idx}>
-                                                        {line}
-                                                        {idx < item.title.split("\n").length - 1 && <br />}
-                                                    </React.Fragment>
-                                                ))}
-                                            </h2>
-                                            <p className="season-name">{item.name}</p>
-                                            <p className="season-meta">
-                                                {item.date}
-                                                <span>{item.venue}</span>
-                                            </p>
-                                            <span className="button button--yellow">
-                                                공연·전시 자세히 보기 <Icon name="arrow" size={20} />
-                                            </span>
-                                        </div>
-                                    </Link>
-                                </article>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                {/* 캐러셀 툴바 & 컨트롤 */}
-                <div className="season-toolbar container">
-                    <p>2026 세종시즌 · 지금 상연 중</p>
-                    <div className="season-controls" id="home-feature-controls" data-home-anchor role="group" aria-label="주요 프로그램 제어">
-                        <span className="season-pagination" aria-hidden="true">
-                            <span>{String(heroActive + 1).padStart(2, "0")}</span>
-                            <span className="season-pagination-total"> / 03</span>
-                        </span>
-                        <span className="season-progress" aria-hidden="true">
-                            <i style={{ transform: `scaleX(${progress})` }} />
-                        </span>
-                        <button
-                            type="button"
-                            id="home-feature-previous"
-                            className="round-button"
-                            onClick={() => moveHero(-1)}
-                            aria-label="이전 프로그램"
-                        >
-                            <Icon name="back" size={24} />
-                        </button>
-                        <button
-                            type="button"
-                            id="home-feature-next"
-                            className="round-button"
-                            onClick={() => moveHero(1)}
-                            aria-label="다음 프로그램"
-                        >
-                            <Icon name="arrow" size={24} />
-                        </button>
-                        <button
-                            type="button"
-                            id="home-feature-playback"
-                            className="round-button"
-                            onClick={() => setIsPaused(!isPaused)}
-                            aria-label={isPaused ? "자동 재생 시작" : "자동 재생 일시정지"}
-                            aria-pressed={isPaused}
-                        >
-                            <Icon name={isPaused ? "play" : "pause"} size={24} />
-                        </button>
-                        <span className="sr-only" aria-live="polite">
-                            {heroActive + 1} / {features.length}, {features[heroActive].name}
-                        </span>
-                    </div>
-                </div>
-            </section>
-
-            <VioletQuickMenu heroId="featured-season" onOpenChange={setIsQuickMenuOpen} />
-
-            {/* 2. 목적별 빠른 진입 (Quick Pathways) */}
             <nav className="home-pathways container" id="home-pathways" data-home-anchor aria-label="이용 목적별 바로가기">
                 <Link href="/programs" id="home-pathway-programs" data-home-anchor>
                     <Icon name="calendar" size={26} />
@@ -500,7 +276,6 @@ export default function HomePage() {
             <section className="home-booking container" id="quick-booking" data-home-anchor aria-labelledby="quick-booking-heading">
                 <div className="section-heading">
                     <div>
-                        <p className="home-section-label">날짜로 찾는 예술</p>
                         <h2 id="quick-booking-heading">언제 만나볼까요?</h2>
                         <p className="section-description">관람할 날을 고르면, 그날의 예술이 보여요.</p>
                     </div>
@@ -731,11 +506,8 @@ export default function HomePage() {
             <section className="home-programs container" id="discover-programs" data-home-anchor aria-labelledby="discover-heading">
                 <div className="section-heading">
                     <div>
-                        <p className="home-section-label">프로그램</p>
                         <h2 id="discover-heading">
-                            공연·전시·교육
-                            <br />
-                            전체 일정을 확인하세요.
+                            지금, 만나고 싶은 무대
                         </h2>
                         <p className="section-description">오늘 열리는 무대부터 다음 달 일정까지.</p>
                     </div>
@@ -793,6 +565,8 @@ export default function HomePage() {
             </section>
 
             {/* 5. 방문 안내와 호버 미리보기 (Visit Guide with Photographic Previews) */}
+            <HomeExperiences />
+
             <section className="home-visit container" id="plan-your-visit" data-home-anchor aria-labelledby="visit-heading">
                 <figure className="visit-photograph" id="home-visit-preview" data-home-anchor aria-label="방문 안내 미리보기">
                     {visitGuides.map((guide) => (
@@ -873,7 +647,6 @@ export default function HomePage() {
             <section className="home-news container" id="sejong-news" data-home-anchor aria-labelledby="news-heading">
                 <div className="section-heading">
                     <div>
-                        <p className="home-section-label">새로운 소식</p>
                         <h2 id="news-heading">소식과 참여</h2>
                         <p className="section-description">공지와 티켓오픈, 대관공고 소식.</p>
                     </div>
@@ -915,9 +688,9 @@ export default function HomePage() {
                     <aside className="membership-feature" id="home-membership" data-home-anchor aria-labelledby="membership-heading">
                         <p className="membership-label">세종 멤버십</p>
                         <h3 id="membership-heading">
-                            자주 관람한다면,
+                            예술과 조금 더
                             <br />
-                            멤버십이 유리합니다.
+                            가까워지는 방법.
                         </h3>
                         <p>
                             등급별 예매 할인과 초대 공연 혜택

@@ -2,3 +2,7 @@
 node_modules/
 .DS_Store
 __pycache__/
+
+# Keep the complete static export alongside its deployed root mirror.
+!out/
+!out/**

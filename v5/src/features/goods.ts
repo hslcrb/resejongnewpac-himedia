@@ -165,6 +165,7 @@ function orderHistory(query) {
 }
 
 export function renderGoods(path, query = new URLSearchParams()) {
+    if (path === "/news/goods/vendor") return null;
     if (path !== basePath && !path.startsWith(basePath + "/")) return null;
     if (path === basePath) return shell(path, "세종 굿즈", "무대의 기억을 일상으로 가져오세요.", collection());
     if (path === basePath + "/cart") return shell(path, "굿즈 장바구니", "선택한 상품과 예시 금액을 확인하세요.", cart(query.get("step") === "review"));

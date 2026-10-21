@@ -1,6 +1,7 @@
 import type { Program } from "../../types/sejong.ts";
 
 const memory = new Map<string, any>();
+const memoryOnly = new Set<string>();
 
 export const esc = (value: any): string =>
     String(value ?? "").replace(
@@ -58,8 +59,12 @@ export function filterPrograms(
 }
 
 export function readStore<T = any>(key: string, fallback: T): T {
-    if (memory.has(key)) return memory.get(key);
+    // [React·기존 화면·다른 탭의 저장 일관성 / Consistent state across React, legacy views and tabs]
+    // 정상 저장소는 항상 새로 읽고, 저장에 실패한 값만 메모리를 우선합니다.
+    // Read persistent storage fresh; only failed writes take precedence in memory.
+    if (memoryOnly.has(key)) return memory.get(key);
     try {
+        if (!globalThis.localStorage) return memory.has(key) ? memory.get(key) : fallback;
         const raw = globalThis.localStorage?.getItem("sejong-v4:" + key);
         if (!raw) return fallback;
         const value = JSON.parse(raw);
@@ -73,15 +78,17 @@ export function readStore<T = any>(key: string, fallback: T): T {
             return fallback;
         return value;
     } catch {
-        return fallback;
+        return memory.has(key) ? memory.get(key) : fallback;
     }
 }
 
 export function writeStore(key: string, value: any): boolean {
     memory.set(key, value);
+    memoryOnly.add(key);
     try {
         if (!globalThis.localStorage) return false;
         globalThis.localStorage.setItem("sejong-v4:" + key, JSON.stringify(value));
+        memoryOnly.delete(key);
         return true;
     } catch {
         return false;

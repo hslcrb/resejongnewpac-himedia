@@ -1,0 +1,1270 @@
+/* [빛과 재료의 공통 언어 / Shared language of light and material]
+   색, 곡률, 유리 표면을 실제 정보 위계에 맞춰 적용합니다.
+   Materials support information hierarchy without obscuring content. */
+:root {
+    --color-black: #18342e;
+    --color-gray-050: #f6f5f1;
+    --color-gray-300: #d9dfd8;
+    --color-gray-600: #5d6b64;
+    --color-yellow: #e4d29e;
+    --radius: 20px;
+    --radius-media: 22px;
+    --radius-banner: 32px;
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --glass-fill: rgb(255 255 255 / 65%);
+    --glass-edge: rgb(255 255 255 / 85%);
+    --glass-shadow: 0 16px 50px rgb(33 55 45 / 7%), inset 0 1px 0 rgb(255 255 255 / 95%);
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 120px;
+}
+
+body {
+    background: var(--background-page);
+    color: var(--text-primary);
+}
+
+::selection {
+    background: #d9e7dc;
+    color: #18342e;
+}
+
+.button {
+    border-radius: 999px;
+}
+
+.text-link {
+    text-underline-offset: 6px;
+}
+
+/* [첫 장면 / Opening scene]
+   실제 공연장 사진과 읽기 쉬운 타이포, 고정된 유리 조작부를 구성합니다.
+   A real venue photograph anchors typography and fixed glass controls. */
+.stage-experience {
+    position: relative;
+    isolation: isolate;
+    min-height: 720px;
+    height: min(820px, calc(100svh - 124px));
+    margin: 0 24px;
+    overflow: hidden;
+    border-radius: 32px;
+    background: #18342e;
+    color: #fff;
+    display: grid;
+    grid-template-columns: 1fr 370px;
+    align-items: center;
+    gap: 60px;
+    padding: 62px max(38px, calc((100vw - 1260px) / 2)) 148px;
+}
+
+.stage-backdrop,
+.stage-shade {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+}
+
+.stage-backdrop {
+    object-fit: cover;
+    object-position: center 43%;
+    opacity: 80%;
+    animation: stage-arrive 1800ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.stage-shade {
+    z-index: -1;
+    background: linear-gradient(90deg, rgb(6 24 20 / 92%) 0%, rgb(8 27 22 / 64%) 42%, rgb(7 23 19 / 10%) 75%), linear-gradient(0deg, rgb(4 22 17 / 85%), transparent 50%);
+}
+
+.stage-location {
+    font-size: 18px;
+    margin: 0 0 30px;
+    letter-spacing: 0.03em;
+    color: #ede9dc;
+}
+
+.stage-introduction h1 {
+    font-size: clamp(50px, 5.4vw, 84px);
+    line-height: 1.17;
+    font-weight: 480;
+    letter-spacing: -0.065em;
+    word-break: keep-all;
+    margin: 0;
+}
+
+.stage-introduction h1 span {
+    color: #e7d9b1;
+}
+
+.stage-description {
+    margin: 28px 0 32px;
+    font-size: 20px;
+    line-height: 1.7;
+    color: #e2e5dc;
+}
+
+.stage-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 36px;
+    padding: 14px 22px;
+    min-height: 56px;
+    border: 1px solid rgb(255 255 255 / 55%);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 10%);
+    backdrop-filter: blur(16px);
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 20%);
+    font-size: 18px;
+    transition: background 180ms;
+}
+
+.stage-primary:hover {
+    background: rgb(255 255 255 / 23%);
+}
+
+.stage-programme {
+    align-self: center;
+    min-width: 0;
+    border-radius: 28px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgb(255 255 255 / 22%), rgb(255 255 255 / 7%));
+    border: 1px solid rgb(255 255 255 / 38%);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 35%), 0 24px 60px rgb(0 0 0 / 18%);
+    backdrop-filter: blur(28px) saturate(125%);
+    -webkit-backdrop-filter: blur(28px) saturate(125%);
+    touch-action: pan-y;
+}
+
+.stage-programme-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    font-size: 16px;
+}
+
+.stage-programme-heading > a {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+}
+
+.stage-feature.season-slide {
+    position: static;
+    width: auto;
+    height: auto;
+    min-height: 0;
+    flex: none;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    transform: none;
+    box-shadow: none;
+    opacity: 100%;
+    animation: glass-content-in 500ms ease both;
+}
+
+.stage-feature-image {
+    display: block;
+    position: relative;
+    height: 198px;
+    overflow: hidden;
+    border-radius: 16px;
+    background: #17251e;
+}
+
+.stage-feature-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    animation: glass-content-in 500ms ease both;
+}
+
+.stage-feature-image > span {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 85%);
+    color: #18342e;
+    backdrop-filter: blur(12px);
+}
+
+.stage-feature-copy {
+    padding: 20px 2px 12px;
+    min-height: 158px;
+}
+
+.stage-feature-copy p {
+    font-size: 16px;
+    margin: 0 0 7px;
+    color: #ebe9df;
+}
+
+.stage-feature-copy h2 {
+    font-size: 24px;
+    line-height: 1.4;
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    margin-bottom: 10px;
+}
+
+.stage-feature-copy > span {
+    display: inline-block;
+    font-size: 16px;
+    margin-right: 12px;
+    color: #e8e6df;
+}
+
+.stage-controls {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding-top: 6px;
+    border-top: 1px solid rgb(255 255 255 / 25%);
+}
+
+.stage-controls > button {
+    display: grid;
+    place-items: center;
+    flex: 0 0 42px;
+    min-height: 48px;
+    color: #fff;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+}
+
+.stage-controls > button:hover,
+.stage-programme-heading > a:hover {
+    background: rgb(255 255 255 / 15%);
+}
+
+.stage-count {
+    white-space: nowrap;
+    font-size: 16px;
+    font-variant-numeric: tabular-nums;
+}
+
+.stage-count span {
+    color: #d8dcd5;
+}
+
+.stage-segments {
+    display: flex;
+    gap: 5px;
+    flex: 1;
+    margin-inline: 10px;
+}
+
+.stage-segments button {
+    display: flex;
+    align-items: center;
+    position: relative;
+    flex: 1;
+    height: 48px;
+    border: 0;
+    padding: 0;
+    background: transparent;
+}
+
+.stage-segments button::before,
+.stage-segments i {
+    content: "";
+    position: absolute;
+    height: 3px;
+    width: 100%;
+    border-radius: 3px;
+    background: rgb(255 255 255 / 28%);
+}
+
+.stage-segments .is-active i {
+    background: #e7d9b1;
+    transform-origin: left;
+}
+
+.stage-segments .is-playing {
+    animation: stage-progress 6500ms linear both;
+}
+
+.stage-dock {
+    position: absolute;
+    left: max(38px, calc((100vw - 1260px) / 2));
+    bottom: 34px;
+    display: flex;
+    padding: 8px;
+    border-radius: 999px;
+    background: rgb(241 244 234 / 84%);
+    color: #18342e;
+    border: 1px solid rgb(255 255 255 / 70%);
+    box-shadow: inset 0 1px 0 #fff, 0 10px 28px rgb(0 0 0 / 15%);
+    backdrop-filter: blur(24px);
+}
+
+.stage-dock a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 550;
+    transition: background 180ms;
+}
+
+.stage-dock a:hover {
+    background: #fff;
+}
+
+.stage-scroll {
+    position: absolute;
+    right: 44px;
+    bottom: 55px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 16px;
+    color: #e6e9df;
+}
+
+.stage-scroll svg {
+    rotate: 90deg;
+}
+
+/* [홈의 리듬과 일정 / Homepage rhythm and calendar]
+   포스터 목록, 유리 달력, 열린 목록을 서로 다른 밀도로 배치합니다.
+   Posters, a glass calendar and open lists have distinct visual rhythms. */
+.glass-home .home-pathways {
+    padding-block: 32px;
+    gap: 44px;
+    border-color: #d7ddd5;
+}
+
+.glass-home .home-pathways > a {
+    padding: 10px 0;
+}
+
+.glass-home .home-pathways > a:hover {
+    color: #42694f;
+}
+
+.glass-home .home-booking {
+    padding-block: 100px 70px;
+    display: grid;
+    grid-template-columns: 0.68fr 1.7fr;
+    align-items: start;
+    gap: 60px;
+}
+
+.glass-home .home-booking .section-heading {
+    display: block;
+    margin-top: 34px;
+}
+
+.glass-home .section-heading h2,
+.glass-home .home-booking .section-heading h2,
+.glass-home #discover-programs .section-heading h2,
+.glass-home #sejong-news .section-heading h2 {
+    font-size: clamp(34px, 3.4vw, 52px);
+    font-weight: 540;
+    line-height: 1.22;
+    letter-spacing: -0.055em;
+}
+
+.glass-home .home-booking .section-description {
+    max-width: 250px;
+    margin-bottom: 32px;
+}
+
+.glass-home .quick-booking-layout {
+    grid-template-columns: 1fr 1.12fr;
+    gap: 26px;
+    margin-top: 0;
+    padding: 26px;
+    border-radius: 28px;
+    border: 1px solid #fff;
+    background: linear-gradient(145deg, rgb(255 255 255 / 95%), rgb(226 234 223 / 66%));
+    box-shadow: var(--glass-shadow);
+}
+
+.glass-home .quick-calendar-heading h3 {
+    font-size: 26px;
+    font-weight: 500;
+    letter-spacing: -0.04em;
+}
+
+.glass-home .quick-month-controls {
+    gap: 0;
+}
+
+.glass-home .quick-month-controls button {
+    min-width: 40px;
+    border-radius: 50%;
+    border: 0;
+    background: transparent;
+}
+
+.glass-home .quick-date {
+    min-width: 0;
+    min-height: 48px;
+    aspect-ratio: auto;
+    border-radius: 50%;
+    font-size: 16px;
+    border: 1px solid transparent;
+}
+
+.glass-home .quick-date.is-selected {
+    background: #244a3e;
+    border-color: #244a3e;
+    color: #fff;
+    box-shadow: 0 4px 10px rgb(24 52 46 / 17%);
+}
+
+.glass-home .quick-date.is-today:not(.is-selected) {
+    border-color: #7a8b7e;
+    background: rgb(255 255 255 / 65%);
+}
+
+.glass-home .quick-booking-choices {
+    border-left: 1px solid rgb(24 52 46 / 12%);
+    padding-left: 24px;
+}
+
+.glass-home .quick-day-heading {
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 14px;
+}
+
+.glass-home .quick-day-heading h3 {
+    font-weight: 550;
+    font-size: 24px;
+}
+
+.glass-home .quick-program-list {
+    max-height: 234px;
+    scrollbar-width: thin;
+    scrollbar-color: #9aa99c transparent;
+}
+
+.glass-home .quick-program {
+    padding: 12px;
+    gap: 12px;
+    border-radius: 16px;
+    background: rgb(255 255 255 / 46%);
+    border: 1px solid rgb(255 255 255 / 65%);
+}
+
+.glass-home .quick-program.is-selected {
+    border-color: #6b8e78;
+    background: #fff;
+}
+
+.glass-home .quick-program img {
+    width: 48px;
+    height: 64px;
+    border-radius: 6px;
+}
+
+.glass-home .quick-program-copy strong {
+    font-size: 18px;
+}
+
+.glass-home .quick-program-copy > span {
+    font-size: 16px;
+}
+
+.glass-home .quick-program-check {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+}
+
+.glass-home .quick-selection-fields {
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.glass-home .quick-selection-fields select {
+    background: rgb(255 255 255 / 80%);
+    border: 1px solid #cad4c8;
+    border-radius: 10px;
+    font-size: 16px;
+    padding-inline: 10px;
+}
+
+.glass-home .quick-booking-action {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.glass-home .quick-booking-action p {
+    font-size: 16px;
+}
+
+.glass-home #discover-programs {
+    padding-block: 60px 100px;
+}
+
+.glass-home .program-choice,
+.glass-home .home-news-filters {
+    display: flex;
+    width: fit-content;
+    flex-wrap: wrap;
+    padding: 5px;
+    gap: 4px;
+    border-radius: 999px;
+    border: 1px solid #fff;
+    background: rgb(255 255 255 / 60%);
+    box-shadow: inset 0 1px 1px #fff, 0 3px 16px rgb(33 55 45 / 4%);
+}
+
+.glass-home .program-choice button,
+.glass-home .home-news-filters button {
+    border: 0;
+    background: transparent;
+    border-radius: 999px;
+    min-height: 46px;
+    padding: 10px 22px;
+    font-size: 16px;
+    color: #53685c;
+}
+
+.glass-home .program-choice button.is-selected,
+.glass-home .home-news-filters button[aria-pressed="true"] {
+    color: #fff;
+    background: #244a3e;
+    box-shadow: 0 3px 10px rgb(24 52 46 / 12%);
+}
+
+.glass-home .home-program-grid {
+    gap: 36px;
+    margin-top: 36px;
+}
+
+.glass-home .home-season-link {
+    border: 0;
+    padding: 28px 0;
+    margin-top: 44px;
+    border-top: 1px solid #d8ded4;
+    border-bottom: 1px solid #d8ded4;
+    border-radius: 0;
+    background: transparent;
+}
+
+/* [경험 전환 / Experience switcher] */
+.home-experiences {
+    padding-block: 88px 100px;
+    color: #f7f6ef;
+    background: #18342e;
+}
+
+.experience-section-heading {
+    display: flex;
+    justify-content: space-between;
+    gap: 32px;
+    align-items: flex-start;
+    margin-bottom: 44px;
+}
+
+.experience-section-heading h2 {
+    font-size: clamp(36px, 4.3vw, 64px);
+    font-weight: 450;
+    letter-spacing: -0.06em;
+    line-height: 1.25;
+}
+
+.experience-section-heading p {
+    font-size: 20px;
+    color: #c7d1c7;
+    line-height: 1.65;
+}
+
+.experience-switcher {
+    display: grid;
+    grid-template-columns: 0.75fr 1.5fr;
+    gap: 70px;
+}
+
+.experience-tabs {
+    display: flex;
+    flex-direction: column;
+}
+
+.experience-tabs button {
+    display: flex;
+    align-items: center;
+    text-align: left;
+    gap: 20px;
+    padding: 25px 6px;
+    min-height: 92px;
+    border: 0;
+    border-bottom: 1px solid rgb(232 241 227 / 20%);
+    background: transparent;
+    color: #b8c6bc;
+    font-size: 22px;
+    line-height: 1.4;
+    transition: color 180ms, background 180ms;
+}
+
+.experience-tabs button[aria-selected="true"] {
+    color: #e8d8a9;
+    background: linear-gradient(90deg, rgb(255 255 255 / 4%), transparent);
+}
+
+.experience-tabs svg {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.experience-tab-number {
+    font-size: 16px;
+    color: #9aac9e;
+    font-variant-numeric: tabular-nums;
+}
+
+.experience-panel {
+    position: relative;
+    overflow: hidden;
+    min-height: 420px;
+    border-radius: 24px;
+    background: #223f34;
+}
+
+.experience-panel > img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: glass-content-in 500ms ease both;
+}
+
+.experience-panel-copy {
+    position: relative;
+    margin: 140px 24px 24px;
+    padding: 28px;
+    border-radius: 20px;
+    background: rgb(16 35 29 / 78%);
+    border: 1px solid rgb(255 255 255 / 30%);
+    backdrop-filter: blur(24px);
+    animation: glass-content-in 400ms ease both;
+}
+
+.experience-panel-copy > svg {
+    float: right;
+    color: #e7d9b1;
+}
+
+.experience-panel-copy h3 {
+    font-size: 30px;
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    padding-right: 35px;
+    line-height: 1.4;
+}
+
+.experience-panel-copy p {
+    font-size: 18px;
+    line-height: 1.7;
+    color: #e0e6dd;
+    max-width: 450px;
+    margin: 14px 0 24px;
+}
+
+.experience-panel-copy a {
+    display: inline-flex;
+    align-items: center;
+    gap: 32px;
+    min-height: 48px;
+    font-size: 18px;
+    color: #e8d8a9;
+}
+
+/* [방문과 소식 / Visit and news] */
+.glass-home .home-visit {
+    padding-block: 110px;
+    gap: 80px;
+    align-items: center;
+}
+
+.glass-home .visit-photograph {
+    position: relative;
+    border-radius: 140px 140px 24px 24px;
+    min-height: 540px;
+    box-shadow: 0 24px 50px rgb(27 47 35 / 9%);
+    overflow: hidden;
+}
+
+.glass-home .visit-photograph img[data-visit-image] {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    aspect-ratio: auto;
+    object-fit: cover;
+}
+
+.glass-home .visit-photograph img[data-visit-kind="illustration"] {
+    object-fit: contain;
+    background: #e7ebe2;
+    padding: 20px;
+}
+
+.glass-home .visit-editorial h2 {
+    font-size: clamp(36px, 3.7vw, 54px);
+    font-weight: 500;
+    letter-spacing: -0.05em;
+    line-height: 1.25;
+}
+
+.glass-home .visit-link-list a {
+    border-color: #d8dfd5;
+    padding-block: 20px;
+}
+
+.glass-home .visit-link-list a.is-previewed {
+    color: #416d50;
+}
+
+.glass-home .visit-hover-rail {
+    display: none;
+}
+
+.glass-home .visit-links-layout {
+    display: block;
+}
+
+.glass-home #sejong-news {
+    padding-block: 36px 100px;
+}
+
+.glass-home .home-news-layout {
+    grid-template-columns: 1.7fr 1fr;
+    gap: 60px;
+    margin-top: 36px;
+}
+
+.glass-home .news-editorial-list > a {
+    padding-block: 24px;
+    border-color: #d9dfd5;
+}
+
+.glass-home .news-editorial-list h3 {
+    font-weight: 550;
+    font-size: 20px;
+}
+
+.glass-home .membership-feature {
+    position: relative;
+    overflow: hidden;
+    padding: 36px;
+    border-radius: 28px;
+    border: 1px solid #fff;
+    background: linear-gradient(140deg, #e6eadb, #f2efdf 58%, #d9e5dc);
+    box-shadow: var(--glass-shadow);
+}
+
+.glass-home .membership-feature h3 {
+    font-size: 32px;
+    line-height: 1.35;
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    margin-top: 40px;
+}
+
+.glass-home .home-participation {
+    gap: 32px;
+    margin-top: 48px;
+    border-top: 1px solid #d9dfd5;
+    padding-top: 24px;
+}
+
+.glass-home .home-identity {
+    background: #e6ece3;
+    color: #18342e;
+    border-radius: 48px 48px 0 0;
+    margin-inline: 24px;
+    padding-block: 90px;
+}
+
+.glass-home .home-identity h2 {
+    font-size: clamp(46px, 5vw, 76px);
+    font-weight: 450;
+    letter-spacing: -0.06em;
+}
+
+.glass-home .identity-description,
+.glass-home .identity-channel > span > span {
+    color: #53685c;
+}
+
+.glass-home .home-institution-links a {
+    color: #18342e;
+    border-color: #a6b6a6;
+}
+
+/* [공통 내부 화면의 부드러운 표면 / Shared information surfaces] */
+.page-heading h1,
+.page-hero h1 {
+    font-weight: 550;
+    letter-spacing: -0.055em;
+}
+
+.info-card,
+.service-card,
+.form-panel,
+.booking-summary,
+.notice-card {
+    border-radius: 22px;
+    border-color: #dce3d8;
+}
+
+.service-page-host .flow-panel,
+.service-page-host .flow-summary {
+    border-radius: 26px;
+    border: 1px solid #fff;
+    box-shadow: var(--glass-shadow);
+    background: rgb(255 255 255 / 74%);
+}
+
+.service-page-host .flow-steps {
+    padding: 18px 24px;
+    background: rgb(231 237 224 / 60%);
+    border-radius: 22px;
+}
+
+/* [내부 안내 화면의 공통 위계 / Shared hierarchy of service pages] */
+.service-page-host .page-heading {
+    padding-top: 32px;
+    background: transparent;
+}
+
+.service-page-host .page-title-row h1 {
+    font-weight: 520;
+    letter-spacing: -0.055em;
+}
+
+.service-page-host .subnav {
+    gap: 6px;
+    padding: 8px;
+    background: rgb(255 255 255 / 62%);
+    border: 1px solid #fff;
+    border-radius: 24px;
+    box-shadow: var(--glass-shadow);
+    scrollbar-width: thin;
+}
+
+.service-page-host .subnav a {
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 999px;
+    font-weight: 500;
+    color: #53685c;
+}
+
+.service-page-host .subnav a.active {
+    background: #244a3e;
+    color: #fff;
+}
+
+.service-page-host .subnav a.active::after {
+    content: none;
+}
+
+.service-page-host .subnav a:hover:not(.active) {
+    background: #e8eee4;
+}
+
+.service-page-host .official-directory-search,
+.service-page-host .official-tool,
+.service-page-host .newsletter-subscribe {
+    background: linear-gradient(135deg, rgb(255 255 255 / 90%), rgb(229 236 224 / 70%));
+    box-shadow: var(--glass-shadow);
+    border: 1px solid #fff;
+    border-radius: 26px;
+}
+
+.service-page-host .button--dark,
+.glass-home .button--dark {
+    background: #244a3e;
+    color: #fff;
+    border-color: #244a3e;
+}
+
+.service-page-host .button--dark:hover:not(:disabled),
+.glass-home .button--dark:hover:not(:disabled) {
+    background: #3b5d4a;
+    border-color: #3b5d4a;
+}
+
+@keyframes glass-content-in {
+    from { opacity: 25%; }
+    to { opacity: 100%; }
+}
+
+@keyframes stage-arrive {
+    from { transform: scale(1.035); opacity: 55%; }
+    to { transform: scale(1); opacity: 80%; }
+}
+
+@keyframes stage-progress {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+/* [화면 크기에 맞춘 재구성 / Responsive recomposition] */
+@media (min-width: 1600px) {
+    .stage-experience {
+        grid-template-columns: 1fr 400px;
+        gap: 120px;
+    }
+}
+
+@media (max-width: 1180px) {
+    .stage-experience {
+        grid-template-columns: 1fr 330px;
+        gap: 34px;
+        padding-inline: 40px;
+    }
+    .stage-dock {
+        left: 40px;
+    }
+    .stage-dock a {
+        padding-inline: 16px;
+    }
+    .stage-scroll {
+        display: none;
+    }
+    .glass-home .home-booking {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    .glass-home .home-booking .section-heading {
+        display: flex;
+        margin: 0;
+    }
+    .glass-home .home-booking .section-description {
+        max-width: none;
+        margin-bottom: 0;
+    }
+    .glass-home .quick-booking-layout {
+        padding: 32px;
+        gap: 40px;
+    }
+    .glass-home .home-visit,
+    .experience-switcher {
+        gap: 40px;
+    }
+    .glass-home .home-news-layout {
+        gap: 32px;
+    }
+}
+
+@media (max-width: 800px) {
+    .stage-experience {
+        margin-inline: 16px;
+        border-radius: 24px;
+        height: auto;
+        min-height: 0;
+        grid-template-columns: 1fr;
+        padding: 48px 32px 130px;
+        gap: 36px;
+    }
+    .stage-introduction h1 {
+        font-size: clamp(48px, 8vw, 70px);
+    }
+    .stage-shade {
+        background: linear-gradient(90deg, rgb(8 27 22 / 88%), rgb(8 27 22 / 35%)), linear-gradient(0deg, #122c23, transparent);
+    }
+    .stage-programme {
+        display: grid;
+        grid-template-columns: 1fr;
+        max-width: 540px;
+        width: 100%;
+        padding: 16px;
+    }
+    .stage-feature.season-slide {
+        display: grid;
+        grid-template-columns: 0.75fr 1fr;
+        align-items: center;
+        gap: 18px;
+    }
+    .stage-feature-image {
+        height: 164px;
+    }
+    .stage-feature-copy {
+        padding: 0;
+        min-height: 0;
+    }
+    .stage-feature-copy h2 {
+        font-size: 22px;
+    }
+    .stage-controls {
+        margin-top: 14px;
+    }
+    .stage-dock {
+        left: 32px;
+        right: 32px;
+        bottom: 28px;
+        justify-content: space-around;
+    }
+    .stage-dock a {
+        padding-inline: 12px;
+    }
+    .glass-home .home-pathways {
+        gap: 20px;
+    }
+    .glass-home .home-pathways > a > svg:first-child {
+        display: none;
+    }
+    .glass-home .home-booking {
+        padding-top: 70px;
+    }
+    .glass-home .quick-booking-layout {
+        padding: 22px;
+        gap: 24px;
+    }
+    .glass-home .home-program-grid {
+        gap: 24px;
+    }
+    .experience-switcher {
+        grid-template-columns: 1fr;
+        gap: 26px;
+    }
+    .experience-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 24px;
+    }
+    .experience-tabs button {
+        min-height: 72px;
+        padding-block: 18px;
+        font-size: 20px;
+    }
+    .glass-home .home-visit {
+        padding-block: 80px;
+        gap: 40px;
+    }
+    .glass-home .visit-photograph {
+        min-height: 390px;
+    }
+    .glass-home .home-news-layout {
+        grid-template-columns: 1fr;
+    }
+    .glass-home .membership-feature h3 {
+        margin-top: 22px;
+    }
+}
+
+@media (max-width: 560px) {
+    .stage-experience {
+        margin-inline: 10px;
+        padding: 40px 22px 126px;
+        gap: 30px;
+    }
+    .stage-location {
+        margin-bottom: 22px;
+        font-size: 16px;
+    }
+    .stage-introduction h1 {
+        font-size: clamp(39px, 10.8vw, 59px);
+        line-height: 1.2;
+    }
+    .stage-description {
+        margin-block: 20px 24px;
+        font-size: 18px;
+    }
+    .stage-primary {
+        font-size: 16px;
+        gap: 25px;
+    }
+    .stage-programme {
+        padding: 14px;
+        border-radius: 22px;
+    }
+    .stage-programme-heading {
+        margin-bottom: 8px;
+    }
+    .stage-feature.season-slide {
+        grid-template-columns: 85px 1fr;
+        gap: 14px;
+    }
+    .stage-feature-image {
+        height: 132px;
+        border-radius: 12px;
+    }
+    .stage-feature-image img {
+        object-position: 65% center;
+    }
+    .stage-feature-image > span {
+        width: 34px;
+        height: 34px;
+        bottom: 6px;
+        right: 6px;
+    }
+    .stage-feature-copy h2 {
+        font-size: 20px;
+    }
+    .stage-feature-copy p {
+        line-height: 1.4;
+    }
+    .stage-dock {
+        left: 16px;
+        right: 16px;
+        bottom: 23px;
+        padding: 6px 2px;
+        border-radius: 24px;
+    }
+    .stage-dock a {
+        flex-direction: column;
+        gap: 5px;
+        padding: 8px 4px;
+        font-size: 16px;
+        font-weight: 500;
+    }
+    .glass-home .home-pathways {
+        grid-template-columns: 1fr;
+        gap: 0;
+        padding-block: 16px;
+    }
+    .glass-home .home-pathways > a {
+        min-height: 76px;
+        border-bottom: 1px solid #e1e5dc;
+    }
+    .glass-home .home-pathways > a:last-child {
+        border: 0;
+    }
+    .glass-home .home-pathways > a > svg:first-child {
+        display: block;
+    }
+    .glass-home .home-booking {
+        padding-block: 60px 30px;
+        gap: 28px;
+    }
+    .glass-home .home-booking .section-heading {
+        display: block;
+    }
+    .glass-home .home-booking .section-heading > a {
+        display: inline-flex;
+        margin-top: 20px;
+    }
+    .glass-home .quick-booking-layout {
+        grid-template-columns: 1fr;
+        padding: 20px 16px;
+        gap: 28px;
+        border-radius: 24px;
+    }
+    .glass-home .quick-calendar-grid {
+        gap: 2px;
+    }
+    .glass-home .quick-booking-choices {
+        padding: 22px 0 0;
+        border-left: 0;
+        border-top: 1px solid #d4ded0;
+    }
+    .glass-home .quick-date {
+        min-height: 44px;
+    }
+    .glass-home #discover-programs {
+        padding-block: 40px 60px;
+    }
+    .glass-home .program-choice {
+        border-radius: 24px;
+    }
+    .glass-home .program-choice button,
+    .glass-home .home-news-filters button {
+        padding-inline: 13px;
+    }
+    .glass-home .home-program-grid {
+        gap: 28px 18px;
+    }
+    .glass-home .home-season-link {
+        margin-top: 32px;
+    }
+    .home-experiences {
+        padding-block: 60px;
+    }
+    .experience-section-heading {
+        display: block;
+        margin-bottom: 26px;
+    }
+    .experience-section-heading p {
+        margin-top: 20px;
+        font-size: 18px;
+    }
+    .experience-tabs {
+        gap: 0 14px;
+    }
+    .experience-tabs button {
+        font-size: 18px;
+        gap: 10px;
+    }
+    .experience-tabs svg {
+        width: 18px;
+    }
+    .experience-tab-number {
+        display: none;
+    }
+    .experience-panel {
+        min-height: 0;
+        border-radius: 20px;
+    }
+    .experience-panel-copy {
+        padding: 22px;
+        margin: 140px 14px 14px;
+    }
+    .experience-panel-copy h3 {
+        font-size: 26px;
+    }
+    .glass-home .home-visit {
+        padding-block: 60px;
+    }
+    .glass-home .visit-photograph {
+        min-height: 300px;
+        border-radius: 90px 90px 20px 20px;
+    }
+    .glass-home .home-news-filters {
+        border-radius: 24px;
+    }
+    .glass-home .membership-feature {
+        padding: 28px;
+    }
+    .glass-home .home-identity {
+        margin-inline: 10px;
+        padding-block: 60px;
+        border-radius: 30px 30px 0 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .stage-backdrop,
+    .stage-feature.season-slide,
+    .stage-feature-image img,
+    .stage-segments .is-playing,
+    .experience-panel > img,
+    .experience-panel-copy { animation: none; }
+}
+
+@supports not (backdrop-filter: blur(20px)) {
+    .stage-programme { background: #294037; }
+    .stage-dock { background: #e9ede1; }
+    .experience-panel-copy { background: #18342e; }
+}
