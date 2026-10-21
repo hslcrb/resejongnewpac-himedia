@@ -6,7 +6,7 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 32px;
     padding-block: 36px;
-    border-bottom: 1px solid #deded9;
+    border-bottom: 1px solid var(--color-detail-deded9);
 }
 
 .home-pathways > a {
@@ -14,7 +14,7 @@
     align-items: center;
     gap: 18px;
     min-height: 72px;
-    color: #202220;
+    color: var(--color-detail-202220);
 }
 
 .home-pathways > a > span {
@@ -24,7 +24,7 @@
 .home-pathways strong,
 .home-participation strong {
     display: block;
-    font-size: 20px;
+    font-size: max(var(--text-min), 20px);
     font-weight: 650;
     line-height: 1.5;
 }
@@ -33,15 +33,15 @@
 .home-participation small {
     display: block;
     margin-top: 5px;
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     line-height: 1.6;
-    color: #63655e;
+    color: var(--color-detail-63655e);
 }
 
 .home-section-label {
     margin-bottom: 18px;
-    color: #5d625c;
-    font-size: 16px;
+    color: var(--color-detail-5d625c);
+    font-size: max(var(--text-min), 16px);
     font-weight: 600;
     line-height: 1.6;
 }
@@ -55,7 +55,7 @@
 .home-booking .section-heading h2,
 #discover-programs .section-heading h2,
 #sejong-news .section-heading h2 {
-    font-size: clamp(36px, 4vw, 58px);
+    font-size: max(var(--text-min), clamp(36px, 4vw, 58px));
     line-height: 1.2;
     letter-spacing: -0.045em;
     font-weight: 650;
@@ -66,7 +66,7 @@
 #discover-programs .section-description,
 #sejong-news .section-description {
     margin-top: 22px;
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     line-height: 1.7;
 }
 
@@ -105,9 +105,6 @@
     grid-template-columns: minmax(360px, 0.86fr) minmax(0, 1.14fr);
     gap: 64px;
     margin-top: 44px;
-    padding: 40px;
-    background: #f5f5f1;
-    border-radius: 24px;
 }
 
 .quick-calendar,
@@ -126,7 +123,7 @@
 }
 
 .quick-calendar-heading h3 {
-    font-size: 28px;
+    font-size: max(var(--text-min), 28px);
     font-weight: 650;
     letter-spacing: -0.025em;
 }
@@ -144,11 +141,11 @@
     min-width: 48px;
     min-height: 48px;
     padding: 8px;
-    border: 1px solid #deded9;
+    border: 1px solid var(--color-detail-deded9);
     border-radius: 50%;
-    background: #fff;
-    font-size: 16px;
-    color: #292d29;
+    background: var(--color-white);
+    font-size: max(var(--text-min), 16px);
+    color: var(--color-detail-292d29);
 }
 
 .quick-calendar-week,
@@ -160,8 +157,8 @@
 .quick-calendar-week span {
     padding-block: 10px;
     text-align: center;
-    font-size: 16px;
-    color: #646961;
+    font-size: max(var(--text-min), 16px);
+    color: var(--color-detail-646961);
 }
 
 .quick-calendar-grid {
@@ -180,10 +177,10 @@
     align-items: center;
     justify-content: center;
     min-width: 0;
-    border: 1px solid transparent;
+    border: 1px solid var(--color-detail-j5afio);
     border-radius: 50%;
-    color: #282d28;
-    font-size: 18px;
+    color: var(--color-detail-282d28);
+    font-size: max(var(--text-min), 18px);
     font-weight: 500;
 }
 
@@ -193,8 +190,8 @@
 }
 
 .quick-date.is-selected {
-    background: #262b27;
-    color: #fff;
+    background: var(--color-detail-262b27);
+    color: var(--color-white);
 }
 
 .quick-date i,
@@ -216,9 +213,9 @@
     gap: 10px;
     align-items: center;
     margin-top: 20px;
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     line-height: 1.6;
-    color: #5c635b;
+    color: var(--color-detail-5c635b);
 }
 
 .quick-native-date {
@@ -227,14 +224,14 @@
 
 .quick-day-heading p,
 .quick-day-heading > span {
-    font-size: 16px;
-    color: #61685f;
+    font-size: max(var(--text-min), 16px);
+    color: var(--color-detail-61685f);
     line-height: 1.6;
 }
 
 .quick-day-heading h3 {
     margin-top: 3px;
-    font-size: 26px;
+    font-size: max(var(--text-min), 26px);
     font-weight: 650;
     line-height: 1.4;
     letter-spacing: -0.025em;
@@ -257,16 +254,16 @@
     gap: 20px;
     width: 100%;
     padding: 16px;
-    border: 1px solid #e1e3dc;
+    border: 1px solid var(--color-detail-e1e3dc);
     border-radius: 12px;
-    background: #fff;
-    color: #252a25;
+    background: var(--color-white);
+    color: var(--color-detail-252a25);
     text-align: left;
 }
 
 .quick-program.is-selected {
-    border-color: #303a31;
-    box-shadow: inset 0 0 0 1px #303a31;
+    border-color: var(--color-detail-303a31);
+    box-shadow: inset 0 0 0 1px var(--color-detail-303a31);
 }
 
 .quick-program:disabled {
@@ -287,13 +284,13 @@
     flex: 1;
     min-width: 0;
     gap: 3px;
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     line-height: 1.5;
 }
 
 .quick-program-copy strong {
     margin-bottom: 4px;
-    font-size: 20px;
+    font-size: max(var(--text-min), 20px);
     font-weight: 650;
     line-height: 1.4;
     word-break: keep-all;
@@ -301,11 +298,11 @@
 }
 
 .quick-program-category {
-    color: #697064;
+    color: var(--color-detail-697064);
 }
 
 .quick-program-check {
-    font-size: 24px;
+    font-size: max(var(--text-min), 24px);
     width: 24px;
     text-align: center;
 }
@@ -319,7 +316,7 @@
 
 .quick-selection-fields label,
 .quick-native-date {
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     line-height: 1.6;
     font-weight: 600;
 }
@@ -332,16 +329,16 @@
     min-height: 52px;
     margin-top: 8px;
     padding: 12px;
-    border: 1px solid #d5d9d0;
+    border: 1px solid var(--color-detail-d5d9d0);
     border-radius: 8px;
-    background: #fff;
-    color: #2f372f;
+    background: var(--color-white);
+    color: var(--color-detail-2f372f);
     font: inherit;
 }
 
 .quick-selection-fields select:disabled {
-    color: #73776e;
-    background: #eceee8;
+    color: var(--color-detail-73776e);
+    background: var(--color-detail-eceee8);
 }
 
 .quick-booking-action {
@@ -353,28 +350,28 @@
 }
 
 .quick-booking-action p {
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     line-height: 1.5;
-    color: #525c50;
+    color: var(--color-detail-525c50);
 }
 
 .quick-booking-action .button {
     flex-shrink: 0;
     min-height: 52px;
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
 }
 
 .quick-booking-action button:disabled {
-    background: #dde1d7;
-    color: #61685e;
+    background: var(--color-detail-dde1d7);
+    color: var(--color-detail-61685e);
     cursor: default;
 }
 
 .quick-booking-note {
     margin-top: 20px;
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     line-height: 1.7;
-    color: #656a61;
+    color: var(--color-detail-656a61);
 }
 
 .quick-empty {
@@ -383,7 +380,7 @@
 }
 
 .quick-empty h4 {
-    font-size: 24px;
+    font-size: max(var(--text-min), 24px);
     line-height: 1.4;
     font-weight: 650;
     word-break: keep-all;
@@ -391,13 +388,13 @@
 
 .quick-empty p {
     margin-block: 16px 24px;
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     line-height: 1.7;
 }
 
 /* [발견과 지속적인 참여 / Discovery and continued participation] */
 #discover-programs {
-    border-top: 1px solid #deded9;
+    border-top: 1px solid var(--color-detail-deded9);
 }
 
 #discover-programs .program-choice {
@@ -415,29 +412,29 @@
     gap: 32px;
     margin-top: 44px;
     padding: 32px 0;
-    border-block: 1px solid #d9dcd4;
+    border-block: 1px solid var(--color-detail-d9dcd4);
 }
 
 .home-season-link strong {
     display: block;
     margin-bottom: 10px;
-    font-size: 26px;
+    font-size: max(var(--text-min), 26px);
     line-height: 1.4;
     font-weight: 650;
     letter-spacing: -0.025em;
 }
 
 .home-season-link > span > span {
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     line-height: 1.7;
-    color: #63695f;
+    color: var(--color-detail-63695f);
 }
 
 .home-season-link > span:last-child {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     line-height: 1.6;
     flex-shrink: 0;
 }
@@ -456,15 +453,15 @@
 .home-news-filters button {
     min-height: 48px;
     padding: 8px 4px;
-    border-bottom: 2px solid transparent;
-    color: #666d62;
-    font-size: 18px;
+    border-bottom: 2px solid var(--color-detail-j5afio);
+    color: var(--color-detail-666d62);
+    font-size: max(var(--text-min), 18px);
     line-height: 1.5;
 }
 
 .home-news-filters button[aria-pressed="true"] {
-    border-color: #252c25;
-    color: #252c25;
+    border-color: var(--color-detail-252c25);
+    color: var(--color-detail-252c25);
     font-weight: 650;
 }
 
@@ -503,34 +500,33 @@
     gap: 32px;
     margin-top: 64px;
     padding-top: 24px;
-    border-top: 1px solid rgb(255 255 255 / 25%);
+    border-top: 1px solid var(--color-detail-15oygyo);
 }
 
 .home-institution-links a {
-    color: #fff;
-    font-size: 18px;
+    color: var(--color-white);
+    font-size: max(var(--text-min), 18px);
     line-height: 1.6;
 }
 
 @media (hover: hover) {
     .quick-date:not(.is-selected):hover {
-        background: #e4e8df;
+        background: var(--color-detail-e4e8df);
     }
 
     .quick-program:not(:disabled):hover {
-        border-color: #737e6e;
+        border-color: var(--color-detail-737e6e);
     }
 
     .home-pathways a:hover strong,
     .home-participation a:hover strong {
-        color: #5d6c58;
+        color: var(--color-detail-5d6c58);
     }
 }
 
 @media (max-width: 1100px) {
     .quick-booking-layout {
         gap: 32px;
-        padding: 28px;
         grid-template-columns: minmax(340px, 0.9fr) minmax(0, 1.1fr);
     }
 
@@ -562,7 +558,7 @@
     }
 
     .quick-booking-choices {
-        border-top: 1px solid #dce0d5;
+        border-top: 1px solid var(--color-detail-dce0d5);
         padding-top: 28px;
     }
 
@@ -600,7 +596,7 @@
     }
 
     .home-pathways > a + a {
-        border-top: 1px solid #e1e3dc;
+        border-top: 1px solid var(--color-detail-e1e3dc);
     }
 
     .home-participation {
@@ -614,8 +610,6 @@
 
     .quick-booking-layout {
         margin-top: 32px;
-        padding: 24px 16px;
-        border-radius: 18px;
     }
 
     .quick-calendar-heading {
@@ -623,7 +617,7 @@
     }
 
     .quick-calendar-heading h3 {
-        font-size: 24px;
+        font-size: max(var(--text-min), 24px);
     }
 
     .quick-calendar-grid {
@@ -650,7 +644,7 @@
     }
 
     .quick-program-copy strong {
-        font-size: 20px;
+        font-size: max(var(--text-min), 20px);
     }
 
     .quick-selection-fields {
@@ -679,7 +673,7 @@
     #discover-programs .program-choice button {
         min-height: 48px;
         padding-inline: 16px;
-        font-size: 16px;
+        font-size: max(var(--text-min), 16px);
     }
 
     .home-news-filters {
@@ -687,7 +681,7 @@
     }
 
     .home-news-filters button {
-        font-size: 16px;
+        font-size: max(var(--text-min), 16px);
     }
 
     .home-institution-links {

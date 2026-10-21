@@ -66,12 +66,12 @@
 }
 .glass-menu-brand {
     margin: 0 0 var(--space-1);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: var(--weight-label);
 }
 .glass-menu-header h2 {
     margin: 0;
-    font-size: var(--text-title);
+    font-size: max(var(--text-min), var(--text-title));
     line-height: var(--leading-heading);
     letter-spacing: var(--tracking-heading);
     font-weight: var(--weight-heading);
@@ -96,10 +96,10 @@
     padding: var(--space-2) var(--space-3);
     border: 0;
     border-radius: var(--radius-pill);
-    background: transparent;
+    background: var(--color-detail-j5afio);
     color: inherit;
     font: inherit;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: var(--weight-action);
     cursor: pointer;
 }
@@ -122,7 +122,7 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
-    scrollbar-color: rgb(0 0 0 / 30%) transparent;
+    scrollbar-color: var(--color-detail-139beaa) var(--color-detail-j5afio);
     border-radius: 0 0 var(--radius-dialog) var(--radius-dialog);
 }
 .glass-menu-content a {
@@ -139,17 +139,17 @@
     display: grid;
     gap: var(--space-2);
     padding: var(--space-4) 0 var(--space-5);
-    border-block: 1px solid rgb(0 0 0 / 14%);
+    border-block: 1px solid var(--color-detail-ycvx6o);
 }
 .glass-menu-journeys span {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-label);
 }
 .glass-menu-journeys strong {
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    font-size: var(--text-heading);
+    font-size: max(var(--text-min), var(--text-heading));
     font-weight: var(--weight-title);
     line-height: var(--leading-heading);
     letter-spacing: var(--tracking-heading);
@@ -170,14 +170,14 @@
     align-items: center;
     min-height: var(--control-size);
     padding-block: var(--space-2);
-    font-size: var(--text-menu-link);
+    font-size: max(var(--text-min), var(--text-menu-link));
     line-height: var(--leading-label);
     font-weight: var(--weight-label);
     overflow-wrap: anywhere;
 }
 .glass-menu-columns .glass-menu-title {
     margin-bottom: var(--space-2);
-    font-size: var(--text-menu-group);
+    font-size: max(var(--text-min), var(--text-menu-group));
     font-weight: var(--weight-heading);
     line-height: var(--leading-heading);
     letter-spacing: var(--tracking-heading);
@@ -188,13 +188,13 @@
     gap: 0 var(--space-6);
     margin-top: var(--space-6);
     padding-top: var(--space-3);
-    border-top: 1px solid rgb(0 0 0 / 14%);
+    border-top: 1px solid var(--color-detail-ycvx6o);
 }
 .glass-menu-utilities a {
     display: inline-flex;
     align-items: center;
     min-height: var(--control-size);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: var(--weight-label);
 }
 .glass-menu a:hover {
@@ -207,7 +207,7 @@
 }
 .glass-menu-move:hover:not([aria-pressed="true"]),
 .glass-menu-actions .round-button:hover {
-    background: rgb(255 255 255 / 60%);
+    background: var(--color-detail-14lw51r);
 }
 
 @media (max-width: 1100px) {
@@ -222,7 +222,7 @@
         gap: var(--space-2);
     }
     .glass-menu-header h2 {
-        font-size: var(--text-heading);
+        font-size: max(var(--text-min), var(--text-heading));
     }
     .glass-menu-content {
         padding: 0 var(--space-5) var(--space-4);
@@ -245,14 +245,14 @@
         border-top: 0;
     }
     .glass-menu-journeys strong {
-        font-size: var(--text-subheading);
+        font-size: max(var(--text-min), var(--text-subheading));
     }
     .glass-menu-columns {
         grid-template-columns: 1fr;
         gap: 0;
     }
     .glass-menu-columns .glass-menu-title {
-        font-size: var(--text-item-title);
+        font-size: max(var(--text-min), var(--text-item-title));
     }
     .glass-menu-utilities {
         display: grid;
@@ -260,7 +260,7 @@
         gap: 0;
     }
     .glass-menu-journeys span { display: none; }
-    .glass-menu-journeys strong { font-size: var(--text-item-title); }
+    .glass-menu-journeys strong { font-size: max(var(--text-min), var(--text-item-title)); }
     .glass-menu-group { border-bottom: 1px solid var(--border-default); }
     .glass-menu-group summary {
         display: flex;
@@ -268,7 +268,7 @@
         align-items: center;
         min-height: 64px;
         gap: var(--space-3);
-        font-size: var(--text-item-title);
+        font-size: max(var(--text-min), var(--text-item-title));
         font-weight: var(--weight-heading);
         cursor: pointer;
         list-style: none;
@@ -277,7 +277,7 @@
     .glass-menu-group summary svg { transition: transform 180ms var(--ease-out); }
     .glass-menu-group[open] summary svg { transform: rotate(90deg); }
     .glass-menu-group-links { display: grid; padding: 0 0 var(--space-4) var(--space-3); }
-    .glass-menu-group-links a { font-size: var(--text-body); }
+    .glass-menu-group-links a { font-size: max(var(--text-min), var(--text-body)); }
     .glass-menu-group-links .glass-menu-overview { color: var(--text-secondary); }
 }
 @media (prefers-reduced-motion: reduce) {

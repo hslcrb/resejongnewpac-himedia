@@ -166,15 +166,15 @@ export default function ContextMenu() {
     }
 
     return createPortal(
-        <div
+        <div data-text="body"
             ref={shellRef}
             className={ContextMenuStyles.shell}
             role="menu"
             aria-label="페이지 바로가기 메뉴"
             style={{ left: menu.x, top: menu.y }}
         >
-            <div className={ContextMenuStyles.list}>
-                <SystemButton variant="quiet"
+            <div data-text="body" className={ContextMenuStyles.list}>
+                <SystemButton data-text="action" variant="quiet"
                     style={{ justifyContent: "flex-start" }}
                     type="button"
                     role="menuitem"
@@ -185,7 +185,7 @@ export default function ContextMenu() {
                     새로 고침
                 </SystemButton>
                 {actions.map((action) => (
-                    <SystemButton variant="quiet"
+                    <SystemButton data-text="action" variant="quiet"
                         style={{ justifyContent: "flex-start" }}
                         key={action.label}
                         type="button"
@@ -200,7 +200,7 @@ export default function ContextMenu() {
                         {action.label}
                     </SystemButton>
                 ))}
-                <SystemButton variant="quiet"
+                <SystemButton data-text="action" variant="quiet"
                     style={{ justifyContent: "flex-start" }}
                     type="button"
                     role="menuitem"
@@ -211,7 +211,7 @@ export default function ContextMenu() {
                     <Icon name="undo" size={20} />
                     이전 페이지로
                 </SystemButton>
-                <SystemButton variant="quiet"
+                <SystemButton data-text="action" variant="quiet"
                     style={{ justifyContent: "flex-start" }}
                     type="button"
                     role="menuitem"
@@ -225,7 +225,7 @@ export default function ContextMenu() {
             {linkLocation && (
                 <>
                     <div className={ContextMenuStyles.divider} aria-hidden="true" />
-                    <span className={ContextMenuStyles.location}>
+                    <span data-text="body" className={ContextMenuStyles.location}>
                         {linkLocation.host}
                         {linkLocation.pathname}
                     </span>

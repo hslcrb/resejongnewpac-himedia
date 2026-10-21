@@ -17,12 +17,15 @@ interface ProgramCardProps {
 export default function ProgramCard({ program }: ProgramCardProps) {
     const isFavorite = useFavorites().includes(program.id);
 
-    const handleFavorite = (e: React.MouseEvent) => {
+    const handleFavorite = async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        const { saved, persisted } = toggleFavorite(program.id);
-        const message = saved ? "관심 프로그램에 저장했어요." : "관심 프로그램에서 삭제했어요.";
-        showSmallNotification(message + (persisted ? "" : " (이 창에서만 유지)"));
+        try {
+            const { saved } = await toggleFavorite(program.id);
+            showSmallNotification(saved ? "관심 프로그램에 저장했어요." : "관심 프로그램에서 삭제했어요.");
+        } catch (error) {
+            showSmallNotification(error instanceof Error ? error.message : "관심 프로그램을 저장하지 못했습니다.");
+        }
     };
 
     // 포스터 이미지 경로 안전 취득
@@ -32,7 +35,7 @@ export default function ProgramCard({ program }: ProgramCardProps) {
 
     return (
         <article className="card card--poster program-card" data-card="poster">
-            <Link
+            <Link data-text="action"
                 href={`/programs/${program.id}`}
                 className="card-poster-link"
                 draggable={false}
@@ -55,27 +58,27 @@ export default function ProgramCard({ program }: ProgramCardProps) {
                             }
                         }}
                     />
-                    <SystemBadge tone="info" className="poster-tag">
+                    <SystemBadge data-text="meta" tone="info" className="poster-tag">
                         {program.category || "공연"}
                     </SystemBadge>
                 </div>
 
                 <div className="program-card-meta">
-                    <span>{program.genre || "클래식"}</span>
-                    <span>{program.status || "예매중"}</span>
+                    <span data-text="body">{program.genre || "클래식"}</span>
+                    <span data-text="body">{program.status || "예매중"}</span>
                 </div>
 
-                <h3>{program.title}</h3>
+                <h3 data-text="subheading">{program.title}</h3>
 
-                <p className="program-card-date">
+                <p data-text="caption" className="program-card-date">
                     {formatDate(program.start)} - {formatDate(program.end)}
                 </p>
 
-                <p className="program-card-venue">{program.venue}</p>
+                <p data-text="body" className="program-card-venue">{program.venue}</p>
             </Link>
 
             <div className="card-poster-actions">
-                <SystemIconButton
+                <SystemIconButton data-text="action"
                     variant={isFavorite ? "highlight" : "secondary"}
                     type="button"
                     className={`favorite-button ${isFavorite ? "selected" : ""}`}

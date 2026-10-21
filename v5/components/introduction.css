@@ -1,50 +1,50 @@
-.sejong-intro{--iv:#d3ff35;position:relative;background:#101011;color:#fff;overflow:clip;font-family:inherit}
+.sejong-intro{--iv:var(--color-detail-d3ff35);position:relative;background:var(--color-detail-101011);color:var(--color-white);overflow:clip;font-family:inherit}
 .sejong-intro *{box-sizing:border-box}
 .sejong-intro a,.sejong-intro button{cursor:pointer}
-.sejong-intro :focus-visible{outline:3px solid #ffe26b;outline-offset:5px}
+.sejong-intro :focus-visible{outline:3px solid var(--color-detail-ffe26b);outline-offset:5px}
 .sejong-intro .intro-panel{position:relative;isolation:isolate;min-height:100svh;display:flex;align-items:center;padding:clamp(7rem,11vw,12rem) max(6vw,calc((100vw - 1400px)/2));overflow:hidden}
-.sejong-intro .intro-kicker{display:block;font-size:clamp(.66rem,1vw,.85rem);font-weight:800;letter-spacing:.22em}
-.sejong-intro h1,.sejong-intro h2{font-size:clamp(3.7rem,9.4vw,10.8rem);line-height:1.03;letter-spacing:-.075em;font-weight:900;margin:.7em 0 .27em;word-break:keep-all}
+.sejong-intro .intro-kicker{display:block;font-size:max(var(--text-min), clamp(.66rem,1vw,.85rem));font-weight:800;letter-spacing:.22em}
+.sejong-intro h1,.sejong-intro h2{font-size:max(var(--text-min), clamp(3.7rem,9.4vw,10.8rem));line-height:1.03;letter-spacing:-.075em;font-weight:900;margin:.7em 0 .27em;word-break:keep-all}
 .sejong-intro h1 em,.sejong-intro h2 em{font-style:normal;color:var(--iv)}
-.sejong-intro p{font-size:clamp(1rem,1.5vw,1.32rem);line-height:1.9;word-break:keep-all}
+.sejong-intro p{font-size:max(var(--text-min), clamp(1rem,1.5vw,1.32rem));line-height:1.9;word-break:keep-all}
 .sejong-intro .intro-copy{position:relative;z-index:3;max-width:940px}
-.sejong-intro .intro-copy>a,.sejong-intro .intro-actions a{display:inline-flex;margin-top:1.8rem;padding:1rem 1.55rem;border:1px solid #ffffff65;border-radius:999px;color:#fff;text-decoration:none;backdrop-filter:blur(8px);transition:background .2s,transform .2s}
-.sejong-intro .intro-copy>a:hover,.sejong-intro .intro-actions a:hover{background:#ffffff28;transform:translateY(-3px)}
-.sejong-intro .intro-cover{background:radial-gradient(ellipse at 85% 25%,#6e0758 0%,transparent 45%),radial-gradient(ellipse at 5% 95%,#1836c8 0%,transparent 45%),#110f16}
-.sejong-intro .intro-grid{position:absolute;inset:0;opacity:.25;background-image:linear-gradient(#fff2 1px,transparent 1px),linear-gradient(90deg,#fff2 1px,transparent 1px);background-size:6vw 6vw;transform:perspective(1000px) rotateX(6deg) scale(1.2)}
-.sejong-intro .intro-wash{position:absolute;width:min(80vw,1000px);aspect-ratio:1;right:-26vw;top:4%;border-radius:45% 55% 60% 40%;background:conic-gradient(from 30deg,#f75d89,#f7be39,#5f39f9,#173dd1,#f75d89);mix-blend-mode:screen;opacity:.5;filter:blur(65px);animation:intro-turn 28s linear infinite}
+.sejong-intro .intro-copy>a,.sejong-intro .intro-actions a{display:inline-flex;margin-top:1.8rem;padding:1rem 1.55rem;border:1px solid var(--color-detail-ffffff65);border-radius:999px;color:var(--color-white);text-decoration:none;backdrop-filter:blur(8px);transition:background .2s,transform .2s}
+.sejong-intro .intro-copy>a:hover,.sejong-intro .intro-actions a:hover{background:var(--color-detail-ffffff28);transform:translateY(-3px)}
+.sejong-intro .intro-cover{background:radial-gradient(ellipse at 85% 25%,var(--color-detail-6e0758) 0%,var(--color-detail-j5afio) 45%),radial-gradient(ellipse at 5% 95%,var(--color-detail-1836c8) 0%,var(--color-detail-j5afio) 45%),var(--color-detail-110f16)}
+.sejong-intro .intro-grid{position:absolute;inset:0;opacity:.25;background-image:linear-gradient(var(--color-detail-ffffff22) 1px,var(--color-detail-j5afio) 1px),linear-gradient(90deg,var(--color-detail-ffffff22) 1px,var(--color-detail-j5afio) 1px);background-size:6vw 6vw;transform:perspective(1000px) rotateX(6deg) scale(1.2)}
+.sejong-intro .intro-wash{position:absolute;width:min(80vw,1000px);aspect-ratio:1;right:-26vw;top:4%;border-radius:45% 55% 60% 40%;background:conic-gradient(from 30deg,var(--color-detail-f75d89),var(--color-detail-f7be39),var(--color-detail-5f39f9),var(--color-detail-173dd1),var(--color-detail-f75d89));mix-blend-mode:screen;opacity:.5;filter:blur(65px);animation:intro-turn 28s linear infinite}
 .sejong-intro .intro-title-wrap{position:relative;z-index:2}
-.sejong-intro .intro-stamp{font-size:.75rem;letter-spacing:.27em;color:#fff9}
-.sejong-intro .intro-down{margin-top:3rem;background:none;color:#fff;border:none;letter-spacing:.18em;font-weight:700;font-size:.8rem;padding:.8rem 0}
-.sejong-intro .intro-down span{font-size:1.5rem;margin-left:1.5rem}
-.sejong-intro .intro-vertical{position:absolute;right:1.5rem;top:40%;writing-mode:vertical-rl;letter-spacing:.35em;font-size:.7rem;color:#ffffff80}
-.sejong-intro .intro-pulse{background:#121a9c}
-.sejong-intro .intro-marquee{position:absolute;top:9%;white-space:nowrap;left:-5%;width:110%;font-weight:900;opacity:.16;font-size:clamp(3rem,11vw,10rem);animation:intro-slide 24s linear infinite}
+.sejong-intro .intro-stamp{font-size:max(var(--text-min), .75rem);letter-spacing:.27em;color:var(--color-detail-ffffff99)}
+.sejong-intro .intro-down{margin-top:3rem;background:none;color:var(--color-white);border:none;letter-spacing:.18em;font-weight:700;font-size:max(var(--text-min), .8rem);padding:.8rem 0}
+.sejong-intro .intro-down span{font-size:max(var(--text-min), 1.5rem);margin-left:1.5rem}
+.sejong-intro .intro-vertical{position:absolute;right:1.5rem;top:40%;writing-mode:vertical-rl;letter-spacing:.35em;font-size:max(var(--text-min), .7rem);color:var(--color-detail-ffffff80)}
+.sejong-intro .intro-pulse{background:var(--color-detail-121a9c)}
+.sejong-intro .intro-marquee{position:absolute;top:9%;white-space:nowrap;left:-5%;width:110%;font-weight:900;opacity:.16;font-size:max(var(--text-min), clamp(3rem,11vw,10rem));animation:intro-slide 24s linear infinite}
 .sejong-intro .intro-ribbons{position:absolute;right:-11%;top:-20%;width:65%;height:145%;transform:rotate(-24deg);pointer-events:none}
-.sejong-intro .ribbon{position:absolute;top:0;width:11%;height:130%;border-radius:55%;filter:drop-shadow(1vw 1vw .3vw #0004);animation:intro-ribbon 7s ease-in-out infinite alternate}
-.sejong-intro .ribbon-gold{background:#f5be38;left:9%}.sejong-intro .ribbon-red{background:#ff477a;left:25%}.sejong-intro .ribbon-blue{background:#4dcefa;left:41%}.sejong-intro .ribbon-green{background:#d6f83f;left:57%}.sejong-intro .ribbon-cream{background:#f9f5e8;left:73%}
-.sejong-intro .intro-pulse .intro-copy{max-width:760px;text-shadow:0 2px 35px #1114}
-.sejong-intro .intro-space{background:#080808}
+.sejong-intro .ribbon{position:absolute;top:0;width:11%;height:130%;border-radius:55%;filter:drop-shadow(1vw 1vw .3vw var(--color-detail-00000044));animation:intro-ribbon 7s ease-in-out infinite alternate}
+.sejong-intro .ribbon-gold{background:var(--color-detail-f5be38);left:9%}.sejong-intro .ribbon-red{background:var(--color-detail-ff477a);left:25%}.sejong-intro .ribbon-blue{background:var(--color-detail-4dcefa);left:41%}.sejong-intro .ribbon-green{background:var(--color-detail-d6f83f);left:57%}.sejong-intro .ribbon-cream{background:var(--color-detail-f9f5e8);left:73%}
+.sejong-intro .intro-pulse .intro-copy{max-width:760px;text-shadow:0 2px 35px var(--color-detail-11111144)}
+.sejong-intro .intro-space{background:var(--color-detail-080808)}
 .sejong-intro .intro-photo{position:absolute;inset:0;background:url('/v5/assets/images/sejong-ilmu-video.jpg') center/cover no-repeat;filter:saturate(.5) contrast(1.18);transform:scale(1.08);animation:intro-zoom 22s ease-in-out infinite alternate}
-.sejong-intro .intro-photo-shade{position:absolute;inset:0;background:linear-gradient(90deg,#000e 0%,#0007 65%,#0007),linear-gradient(0deg,#0008,transparent)}
-.sejong-intro .intro-last{background:#eaff54;color:#111;min-height:100svh}
-.sejong-intro .intro-last h2 em{color:#e72a65}
-.sejong-intro .intro-last .intro-actions a{border-color:#1118;color:#111}
-.sejong-intro .intro-orbit{position:absolute;right:-16vw;top:2%;width:65vw;aspect-ratio:1;border:2px solid #1113;border-radius:50%;animation:intro-turn 40s linear infinite}
-.sejong-intro .intro-orbit i{position:absolute;inset:13%;border:2px dashed #1114;border-radius:50%}.sejong-intro .intro-orbit i:nth-child(2){inset:28%;background:#fa4388}.sejong-intro .intro-orbit i:nth-child(3){inset:46%;background:#121a9c}
-.sejong-intro .intro-credit{position:absolute;bottom:2rem;left:6vw;font-size:.7rem;letter-spacing:.15em}
-.sejong-intro .intro-progress{position:fixed;z-index:70;height:3px;top:0;left:0;right:0;background:#fff3}.sejong-intro .intro-progress>div{height:100%;background:var(--iv);transition:width .4s}
+.sejong-intro .intro-photo-shade{position:absolute;inset:0;background:linear-gradient(90deg,var(--color-detail-000000ee) 0%,var(--color-detail-00000077) 65%,var(--color-detail-00000077)),linear-gradient(0deg,var(--color-detail-00000088),var(--color-detail-j5afio))}
+.sejong-intro .intro-last{background:var(--color-detail-eaff54);color:var(--color-detail-111111);min-height:100svh}
+.sejong-intro .intro-last h2 em{color:var(--color-detail-e72a65)}
+.sejong-intro .intro-last .intro-actions a{border-color:var(--color-detail-11111188);color:var(--color-detail-111111)}
+.sejong-intro .intro-orbit{position:absolute;right:-16vw;top:2%;width:65vw;aspect-ratio:1;border:2px solid var(--color-detail-11111133);border-radius:50%;animation:intro-turn 40s linear infinite}
+.sejong-intro .intro-orbit i{position:absolute;inset:13%;border:2px dashed var(--color-detail-11111144);border-radius:50%}.sejong-intro .intro-orbit i:nth-child(2){inset:28%;background:var(--color-detail-fa4388)}.sejong-intro .intro-orbit i:nth-child(3){inset:46%;background:var(--color-detail-121a9c)}
+.sejong-intro .intro-credit{position:absolute;bottom:2rem;left:6vw;font-size:max(var(--text-min), .7rem);letter-spacing:.15em}
+.sejong-intro .intro-progress{position:fixed;z-index:70;height:3px;top:0;left:0;right:0;background:var(--color-detail-ffffff33)}.sejong-intro .intro-progress>div{height:100%;background:var(--iv);transition:width .4s}
 .sejong-intro .intro-rail{position:fixed;z-index:70;right:clamp(.5rem,2vw,2rem);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:1.3rem}
-.sejong-intro .intro-rail button{display:flex;align-items:center;gap:.5rem;border:0;background:transparent;color:white;padding:.3rem}
-.sejong-intro .intro-rail button span{width:10px;height:10px;border-radius:50%;border:1px solid #fff9;background:transparent;transition:transform .3s,background .3s}.sejong-intro .intro-rail button .on{background:#fff;transform:scale(1.6)}.sejong-intro .intro-rail small{font-size:.6rem}
-body.sejong-intro-active .renewal-header{position:fixed;z-index:75;left:0;right:0;top:0;background:rgba(255,255,255,.06);backdrop-filter:blur(22px) saturate(155%);-webkit-backdrop-filter:blur(22px) saturate(155%);box-shadow:inset 0 1px #fff3;border-color:#ffffff30;transition:opacity .22s,transform .22s}
+.sejong-intro .intro-rail button{display:flex;align-items:center;gap:.5rem;border:0;background:var(--color-detail-j5afio);color:var(--color-white);padding:.3rem}
+.sejong-intro .intro-rail button span{width:10px;height:10px;border-radius:50%;border:1px solid var(--color-detail-ffffff99);background:var(--color-detail-j5afio);transition:transform .3s,background .3s}.sejong-intro .intro-rail button .on{background:var(--color-white);transform:scale(1.6)}.sejong-intro .intro-rail small{font-size:max(var(--text-min), .6rem)}
+body.sejong-intro-active .renewal-header{position:fixed;z-index:75;left:0;right:0;top:0;background:var(--color-detail-163phft);backdrop-filter:blur(22px) saturate(155%);-webkit-backdrop-filter:blur(22px) saturate(155%);box-shadow:inset 0 1px var(--color-detail-ffffff33);border-color:var(--color-detail-ffffff30);transition:opacity .22s,transform .22s}
 body.sejong-intro-active.sejong-intro-scrolled .renewal-header{opacity:0;transform:translateY(-110%);pointer-events:none}body.sejong-intro-active.sejong-intro-scrolled .renewal-header:focus-within{opacity:1;transform:none;pointer-events:auto}
 body.sejong-intro-active #main{padding-top:0!important}
 body.sejong-intro-active .renewal-footer{opacity:0;transform:translateY(25px);transition:opacity .24s ease,transform .24s ease}
 body.sejong-intro-active.sejong-intro-end .renewal-footer{opacity:1;transform:none}
 body.sejong-intro-active .renewal-footer:not(:focus-within){pointer-events:none}
 body.sejong-intro-active.sejong-intro-end .renewal-footer{pointer-events:auto}
-::selection{background:transparent!important;color:inherit!important}::-moz-selection{background:transparent!important;color:inherit!important}
+::selection{background:var(--color-detail-j5afio)!important;color:inherit!important}::-moz-selection{background:var(--color-detail-j5afio)!important;color:inherit!important}
 @keyframes intro-turn{to{transform:rotate(360deg)}}@keyframes intro-ribbon{to{transform:translateX(3vw) rotate(4deg) scaleX(.94)}}@keyframes intro-slide{to{transform:translateX(-22%)}}@keyframes intro-zoom{to{transform:scale(1.23) translateX(-1.5%)}}
-@media(max-width:720px){.sejong-intro .intro-panel{padding:9rem 7vw 5rem;min-height:95svh}.sejong-intro h1,.sejong-intro h2{font-size:clamp(3.05rem,12vw,5.8rem)}.sejong-intro .intro-rail{right:.45rem;gap:.7rem}.sejong-intro .intro-rail small{display:none}.sejong-intro .intro-ribbons{opacity:.42;right:-23%;width:85%}.sejong-intro .intro-orbit{width:110vw;right:-60vw;top:25%}.sejong-intro .intro-cover .intro-wash{right:-75vw;width:140vw}.sejong-intro .intro-vertical{display:none}}
+@media(max-width:720px){.sejong-intro .intro-panel{padding:9rem 7vw 5rem;min-height:95svh}.sejong-intro h1,.sejong-intro h2{font-size:max(var(--text-min), clamp(3.05rem,12vw,5.8rem))}.sejong-intro .intro-rail{right:.45rem;gap:.7rem}.sejong-intro .intro-rail small{display:none}.sejong-intro .intro-ribbons{opacity:.42;right:-23%;width:85%}.sejong-intro .intro-orbit{width:110vw;right:-60vw;top:25%}.sejong-intro .intro-cover .intro-wash{right:-75vw;width:140vw}.sejong-intro .intro-vertical{display:none}}
 @media(prefers-reduced-motion:reduce){.sejong-intro *, .sejong-intro *::before,.sejong-intro *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}

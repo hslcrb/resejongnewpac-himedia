@@ -27,7 +27,7 @@ export default function HeroSlide({ feature, active, entering = false, preview, 
             data-home-anchor={active ? "" : undefined}
             aria-hidden={!active && !preview}
         >
-            <div className="season-card-link">
+            <div data-text="body" className="season-card-link">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     className="season-image"
@@ -44,30 +44,30 @@ export default function HeroSlide({ feature, active, entering = false, preview, 
                     }}
                 />
                 <div className="season-copy" aria-hidden={!active}>
-                    <p className="season-label">{feature.label}</p>
-                    <h2>{feature.title.split("\n").map((line, index, lines) => (
+                    <p data-text="label" className="season-label">{feature.label}</p>
+                    <h2 data-text="heading">{feature.title.split("\n").map((line, index, lines) => (
                         <Fragment key={index}>{line}{index < lines.length - 1 && <br />}</Fragment>
                     ))}</h2>
-                    <p className="season-name">{feature.name}</p>
-                    <p className="season-meta">{feature.date}<span>{feature.venue}</span></p>
-                    <p className="season-description">{feature.description}</p>
+                    <p data-text="body" className="season-name">{feature.name}</p>
+                    <p data-text="caption" className="season-meta">{feature.date}<span data-text="body">{feature.venue}</span></p>
+                    <p data-text="body" className="season-description">{feature.description}</p>
                     <div className="season-actions">
-                        <SystemLink variant="inverse" href={`/programs/${feature.id}`} tabIndex={active ? 0 : -1} draggable={false}>
+                        <SystemLink data-text="action" variant="inverse" href={`/programs/${feature.id}`} tabIndex={active ? 0 : -1} draggable={false}>
                             상세보기 <Icon name="arrow" size={20} />
                         </SystemLink>
-                        <SystemLink variant="inverse-outline" href={`/booking/${feature.id}`} tabIndex={active ? 0 : -1} draggable={false}>
+                        <SystemLink data-text="action" variant="inverse-outline" href={`/booking/${feature.id}`} tabIndex={active ? 0 : -1} draggable={false}>
                             예매하기 <Icon name="ticket" size={20} />
                         </SystemLink>
                     </div>
                 </div>
-                {preview && <SystemButton
+                {preview && <SystemButton data-text="action"
                     variant="inverse-quiet"
                     className="season-peer-title"
                     aria-label={`${feature.name} ${preview === "previous" ? "이전" : "다음"} 슬라이드로 보기`}
                     onClick={onSelect}
                 >
                     <Icon name={preview === "previous" ? "back" : "arrow"} size={24} />
-                    <strong>{feature.programTitle}</strong>
+                    <strong data-text="item-title">{feature.programTitle}</strong>
                 </SystemButton>}
             </div>
         </article>

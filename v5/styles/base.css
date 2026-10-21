@@ -15,7 +15,7 @@ body {
     background: var(--paper);
     color: var(--ink);
     font-family: var(--font);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     font-weight: var(--weight-body);
     line-height: var(--leading-body);
     letter-spacing: var(--tracking-body);
@@ -31,7 +31,7 @@ button, input, select, textarea {
 }
 
 button, a, input, select, textarea {
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: var(--color-detail-j5afio);
 }
 
 button {
@@ -100,8 +100,8 @@ section[id], main[id] {
 }
 
 ::selection {
-    color: var(--ink, #000000);
-    background: var(--yellow, #f7d549);
+    color: var(--ink, var(--color-black));
+    background: var(--yellow, var(--color-yellow));
 }
 
 .skip-link {
@@ -110,7 +110,7 @@ section[id], main[id] {
 
 .eyebrow {
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: 650;
     letter-spacing: 0.09em;
 }

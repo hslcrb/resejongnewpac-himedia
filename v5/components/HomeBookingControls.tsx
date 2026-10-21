@@ -23,22 +23,22 @@ export function BookingCalendar({ month, selectedDate, today, programs, dateLabe
     return (
         <div className="quick-calendar" id="home-booking-calendar" data-home-anchor data-component="BookingCalendar">
             <div className="quick-calendar-heading">
-                <h3 id="quick-month" aria-live="polite">{month.replace("-", ". ")}</h3>
+                <h3 data-text="subheading" id="quick-month" aria-live="polite">{month.replace("-", ". ")}</h3>
                 <div className="quick-month-controls">
-                    <SystemIconButton id="home-booking-previous-month" onClick={() => onMonthChange(moveMonth(month, -1))} aria-label="이전 달"><Icon name="back" size={20} /></SystemIconButton>
-                    <SystemButton variant="quiet" id="home-booking-today" onClick={() => { onMonthChange(today.slice(0, 7)); onDateChange(today); }}>오늘</SystemButton>
-                    <SystemIconButton id="home-booking-next-month" onClick={() => onMonthChange(moveMonth(month, 1))} aria-label="다음 달"><Icon name="arrow" size={20} /></SystemIconButton>
+                    <SystemIconButton data-text="action" id="home-booking-previous-month" onClick={() => onMonthChange(moveMonth(month, -1))} aria-label="이전 달"><Icon name="back" size={20} /></SystemIconButton>
+                    <SystemButton data-text="action" variant="quiet" id="home-booking-today" onClick={() => { onMonthChange(today.slice(0, 7)); onDateChange(today); }}>오늘</SystemButton>
+                    <SystemIconButton data-text="action" id="home-booking-next-month" onClick={() => onMonthChange(moveMonth(month, 1))} aria-label="다음 달"><Icon name="arrow" size={20} /></SystemIconButton>
                 </div>
             </div>
-            <div className="quick-calendar-week" aria-hidden="true">{["일", "월", "화", "수", "목", "금", "토"].map(day => <span key={day}>{day}</span>)}</div>
-            <div className="quick-calendar-grid" role="group" aria-labelledby="quick-month">
+            <div data-text="body" className="quick-calendar-week" aria-hidden="true">{["일", "월", "화", "수", "목", "금", "토"].map(day => <span data-text="body" key={day}>{day}</span>)}</div>
+            <div data-text="body" className="quick-calendar-grid" role="group" aria-labelledby="quick-month">
                 {monthDates(month).map((date, index) => {
                     if (!date) return <span key={`blank-${index}`} className="quick-calendar-blank" aria-hidden="true" />;
                     const count = programsForDate([...programs], date).length;
                     const current = date === today;
                     const selected = date === selectedDate;
                     return (
-                        <button
+                        <button data-text="caption"
                             key={date}
                             id={`home-booking-date-${date}`}
                             data-home-anchor
@@ -50,12 +50,12 @@ export function BookingCalendar({ month, selectedDate, today, programs, dateLabe
                             aria-current={current ? "date" : undefined}
                             className={`quick-date${selected ? " is-selected" : ""}${current ? " is-today" : ""}`}
                         >
-                            <span>{Number(date.slice(-2))}</span>{count > 0 && <i aria-hidden="true" />}
+                            <span data-text="body">{Number(date.slice(-2))}</span>{count > 0 && <i aria-hidden="true" />}
                         </button>
                     );
                 })}
             </div>
-            <p className="quick-calendar-key"><i aria-hidden="true" />프로그램이 있는 날</p>
+            <p data-text="body" className="quick-calendar-key"><i aria-hidden="true" />프로그램이 있는 날</p>
         </div>
     );
 }
@@ -65,7 +65,7 @@ export function BookingProgramChoice({ program, selected, available, past, onSel
     program: Program; selected: boolean; available: boolean; past: boolean; onSelect: () => void;
 }) {
     return (
-        <button
+        <button data-text="action"
             id={`home-booking-program-${program.id}`}
             data-home-anchor
             data-component="BookingProgramChoice"
@@ -83,10 +83,10 @@ export function BookingProgramChoice({ program, selected, available, past, onSel
                 event.currentTarget.src = mediaPath();
             }} />
             <span className="quick-program-copy">
-                <span className="quick-program-category">{program.category} · {available ? program.status : past ? "지난 일정" : program.status}</span>
-                <strong>{program.title}</strong><span>{program.venue}</span><span>{program.times?.join(" · ")}</span>
+                <span data-text="caption" className="quick-program-category">{program.category} · {available ? program.status : past ? "지난 일정" : program.status}</span>
+                <strong data-text="item-title">{program.title}</strong><span data-text="body">{program.venue}</span><span data-text="body">{program.times?.join(" · ")}</span>
             </span>
-            <span className="quick-program-check" aria-hidden="true">{selected ? "✓" : "+"}</span>
+            <span data-text="body" className="quick-program-check" aria-hidden="true">{selected ? "✓" : "+"}</span>
         </button>
     );
 }

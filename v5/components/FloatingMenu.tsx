@@ -47,20 +47,20 @@ export default function FloatingMenu({
         >
             <div className="glass-menu-content">
                 <div className="glass-menu-journeys">
-                    <a href="/v5/visit/plan/">
-                        <span>관람할 날부터 이동 안내까지</span>
-                        <strong>
+                    <a data-text="action" href="/v5/visit/plan/">
+                        <span data-text="body">관람할 날부터 이동 안내까지</span>
+                        <strong data-text="item-title">
                             방문 계획 <Icon name="arrow" size={28} />
                         </strong>
                     </a>
-                    <a href="/v5/rental/compare/">
-                        <span>공간 조건을 한눈에 비교</span>
-                        <strong>
+                    <a data-text="action" href="/v5/rental/compare/">
+                        <span data-text="body">공간 조건을 한눈에 비교</span>
+                        <strong data-text="item-title">
                             대관 공간 비교 <Icon name="arrow" size={28} />
                         </strong>
                     </a>
                 </div>
-                <nav className="glass-menu-columns" aria-label="전체 메뉴">
+                <nav data-text="body" className="glass-menu-columns" aria-label="전체 메뉴">
                     {NAV.map((group) => drawer ? (
                         <SystemDisclosure
                             appearance="plain"
@@ -68,20 +68,20 @@ export default function FloatingMenu({
                             key={group.id}
                             summary={<>{group.title} <Icon name="chevron" size={24} /></>}
                         >
-                            <div className="glass-menu-group-links">
-                                <a className="glass-menu-overview" href={`/v5${group.path}/`}>{group.title} 전체</a>
+                            <div data-text="body" className="glass-menu-group-links">
+                                <a data-text="action" className="glass-menu-overview" href={`/v5${group.path}/`}>{group.title} 전체</a>
                                 {group.items.map(([label, path]) => (
-                                    <a key={path} href={`/v5${path}/`}>{label}</a>
+                                    <a data-text="action" key={path} href={`/v5${path}/`}>{label}</a>
                                 ))}
                             </div>
                         </SystemDisclosure>
                     ) : (
-                        <div key={group.id}>
-                            <a className="glass-menu-title" href={`/v5${group.path}/`}>
+                        <div data-text="body" key={group.id}>
+                            <a data-text="action" className="glass-menu-title" href={`/v5${group.path}/`}>
                                 {group.title}
                             </a>
                             {group.items.map(([label, path]) => (
-                                <a key={path} href={`/v5${path}/`}>
+                                <a data-text="action" key={path} href={`/v5${path}/`}>
                                     {label}
                                 </a>
                             ))}
@@ -89,11 +89,11 @@ export default function FloatingMenu({
                     ))}
                 </nav>
                 <nav className="glass-menu-utilities" aria-label="개인 서비스">
-                    <a href="/v5/account/">마이페이지</a>
-                    <a href="/v5/account/">예매내역</a>
-                    <a href="/v5/account/">관심 프로그램</a>
-                    <a href="/v5/sitemap/">사이트맵</a>
-                    <a href="/v5/english/" lang="en">
+                    <a data-text="action" href="/v5/account/">마이페이지</a>
+                    <a data-text="action" href="/v5/account/">예매내역</a>
+                    <a data-text="action" href="/v5/account/">관심 프로그램</a>
+                    <a data-text="action" href="/v5/sitemap/">사이트맵</a>
+                    <a data-text="action" href="/v5/english/" lang="en">
                         English guide
                     </a>
                 </nav>

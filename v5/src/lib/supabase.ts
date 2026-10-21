@@ -12,7 +12,7 @@ export interface AccountIdentitySnapshot {
     identityId: string;
 }
 
-export function resolveAccountIdentity(user: User | null, storage: Pick<Storage, "getItem"> | null): AccountIdentitySnapshot {
+export function resolveAccountIdentity(user: User | null, _storage: Pick<Storage, "getItem"> | null = null): AccountIdentitySnapshot {
     const text = (value: unknown) => typeof value === "string" ? value.trim() : "";
     if (user?.id) {
         const metadata = user.user_metadata || {};
@@ -24,13 +24,6 @@ export function resolveAccountIdentity(user: User | null, storage: Pick<Storage,
             isLoggedIn: true, mode: "oauth", ready: true, identityId: user.id,
         };
     }
-    try {
-        const session = JSON.parse(storage?.getItem("sejong-v4:session") || "null");
-        const profile = JSON.parse(storage?.getItem("sejong-v4:profile") || "null");
-        if (session?.active === true && text(profile?.name) && text(profile?.email)) {
-            return { profile: { name: text(profile.name), email: text(profile.email), phone: text(profile.phone) }, isLoggedIn: true, mode: "demo", ready: true, identityId: `demo:${text(profile.localId) || text(profile.email).toLowerCase()}` };
-        }
-    } catch { /* 저장소 차단 시 게스트 유지 / Keep guest state when storage is unavailable. */ }
     return { profile: { name: "", email: "", phone: "" }, isLoggedIn: false, mode: "guest", ready: true, identityId: "guest" };
 }
 
@@ -135,6 +128,17 @@ export async function signInWithGoogle(redirectTo?: string) {
     return signInWithOAuthProvider("google", redirectTo);
 }
 
+// [이메일 소유 확인을 거친 실제 로그인 / Real sign-in after verifying email ownership]
+export async function requestEmailSignIn(email: string, options: { createUser?: boolean; name?: string; phone?: string } = {}) {
+    if (!supabase) throw new Error("로그인 서비스에 연결하지 못했습니다.");
+    const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: {
+        shouldCreateUser: options.createUser === true,
+        emailRedirectTo: getAccountCallbackUrl(window.location.origin),
+        ...(options.createUser ? { data: { name: options.name?.trim(), full_name: options.name?.trim(), phone: options.phone?.trim() } } : {}),
+    } });
+    if (error) throw new Error("로그인 링크를 보내지 못했습니다. 이메일 주소를 확인하고 잠시 후 다시 시도해 주세요.");
+}
+
 /**
  * 로그아웃
  */
@@ -162,71 +166,4 @@ export function onAuthStateChange(callback: (event: AuthChangeEvent, session: Se
         callback(event, session);
     });
     return () => subscription.unsubscribe();
-}
-
-/**
- * 1. 프로필 정보 동기화 (profiles 테이블)
- */
-export async function syncUserProfile(profileData: { name?: string; phone?: string }) {
-    if (!supabase) return null;
-    const user = await getCurrentUser();
-    if (!user) return null;
-
-    const { data, error } = await supabase
-        .from("profiles")
-        .upsert({
-            id: user.id,
-            email: user.email,
-            name: profileData.name || "",
-            phone: profileData.phone || "",
-            updated_at: new Date().toISOString(),
-        }, { onConflict: "id" })
-        .select()
-        .single();
-
-    if (error) console.warn("Supabase 프로필 동기화 안내:", error.message);
-    return data;
-}
-
-/**
- * 2. 예매 내역 저장 (bookings 테이블)
- */
-export async function saveBookingToDb(booking: Record<string, any>) {
-    if (!supabase) return null;
-    const user = await getCurrentUser();
-
-    const { data, error } = await supabase
-        .from("bookings")
-        .insert([{
-            ...booking,
-            user_id: user?.id || null,
-            created_at: new Date().toISOString(),
-        }])
-        .select()
-        .single();
-
-    if (error) console.warn("Supabase 예매 저장 안내:", error.message);
-    return data;
-}
-
-/**
- * 3. 관심 프로그램 (favorites 테이블) 동기화
- */
-export async function syncFavoritesToDb(programIds: string[]) {
-    if (!supabase) return null;
-    const user = await getCurrentUser();
-    if (!user) return null;
-
-    const { data, error } = await supabase
-        .from("favorites")
-        .upsert({
-            user_id: user.id,
-            program_ids: programIds,
-            updated_at: new Date().toISOString(),
-        }, { onConflict: "user_id" })
-        .select()
-        .single();
-
-    if (error) console.warn("Supabase 관심목록 동기화 안내:", error.message);
-    return data;
 }

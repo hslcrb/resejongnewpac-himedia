@@ -1,5 +1,7 @@
 "use client";
 
+import SystemSurface from "../components/SystemSurface";
+
 import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { PROGRAMS, NOTICES } from "../src/data/catalog";
@@ -10,7 +12,7 @@ import HomeAnchorNavigation from "../components/HomeAnchorNavigation";
 import HeroCarousel from "../components/HeroCarousel";
 import type { HeroCarouselHandle } from "../components/HeroCarousel";
 import SeasonBanner from "../components/SeasonBanner";
-import BookingInvitation from "../components/BookingInvitation";
+import { SystemText } from "../components/SystemText";
 import { BookingCalendar, BookingProgramChoice } from "../components/HomeBookingControls";
 import { SystemButton, SystemLink, SystemField, SystemFilterButton, SystemBadge } from "../components/SystemPrimitives";
 import { OFFICIAL_MEDIA } from "../src/data/official-media";
@@ -244,7 +246,7 @@ export default function HomePage() {
     return (
         <div className="home-v4-wrap" id="home" data-home-anchor>
             <HomeAnchorNavigation resolveAnchor={resolveHomeAnchor} />
-            <h1 className="sr-only">세종문화회관 - 공연·전시·교육 일정, 예매와 이용 안내</h1>
+            <h1 data-text="title" className="sr-only">세종문화회관 - 공연·전시·교육 일정, 예매와 이용 안내</h1>
 
             <HeroCarousel ref={heroRef} externalPaused={isQuickMenuOpen} />
 
@@ -252,27 +254,27 @@ export default function HomePage() {
 
             {/* 2. 목적별 빠른 진입 (Quick Pathways) */}
             <nav className="home-pathways container" id="home-pathways" data-home-anchor aria-label="이용 목적별 바로가기">
-                <Link href="/programs" id="home-pathway-programs" data-home-anchor>
+                <Link data-text="action" href="/programs" id="home-pathway-programs" data-home-anchor>
                     <Icon name="calendar" size={26} />
                     <span>
-                        <strong>일정·예매</strong>
-                        <small>공연·전시·교육 살펴보기</small>
+                        <strong data-text="item-title">일정·예매</strong>
+                        <small data-text="caption">공연·전시·교육 살펴보기</small>
                     </span>
                     <Icon name="arrow" size={22} />
                 </Link>
-                <Link href="/visit/group" id="home-pathway-group" data-home-anchor>
+                <Link data-text="action" href="/visit/group" id="home-pathway-group" data-home-anchor>
                     <Icon name="ticket" size={26} />
                     <span>
-                        <strong>단체 관람</strong>
-                        <small>단체관람 안내와 신청</small>
+                        <strong data-text="item-title">단체 관람</strong>
+                        <small data-text="caption">단체관람 안내와 신청</small>
                     </span>
                     <Icon name="arrow" size={22} />
                 </Link>
-                <Link href="/rental" id="home-pathway-rental" data-home-anchor>
+                <Link data-text="action" href="/rental" id="home-pathway-rental" data-home-anchor>
                     <Icon name="pin" size={26} />
                     <span>
-                        <strong>대관</strong>
-                        <small>대관 시설과 일정 확인</small>
+                        <strong data-text="item-title">대관</strong>
+                        <small data-text="caption">대관 시설과 일정 확인</small>
                     </span>
                     <Icon name="arrow" size={22} />
                 </Link>
@@ -282,30 +284,31 @@ export default function HomePage() {
             <section className="home-booking container" id="quick-booking" data-home-anchor aria-labelledby="quick-booking-heading">
                 <div className="section-heading">
                     <div>
-                        <BookingInvitation text="관람 예약" />
-                        <p className="section-description">관람할 날을 고르면, 그날의 예술이 보여요.</p>
+                        {/* 정적 예약 제목 / Static booking heading */}
+                        <SystemText as="h2" variant="heading" id="quick-booking-heading" className="booking-invitation">관람 예약</SystemText>
+                        <p data-text="body" className="section-description">관람할 날을 고르면, 그날의 예술이 보여요.</p>
                     </div>
-                    <Link className="text-link" href="/programs?view=calendar" id="home-booking-full-calendar" data-home-anchor>
+                    <Link data-text="action" className="text-link" href="/programs?view=calendar" id="home-booking-full-calendar" data-home-anchor>
                         전체 일정 <Icon name="arrow" size={20} />
                     </Link>
                 </div>
 
-                <div className="quick-booking-layout">
+                <SystemSurface as="div" variant="inset" padding="lg" radius="dialog" className="quick-booking-layout">
                     {/* 달력 영역 */}
                     <BookingCalendar month={bookingMonth} selectedDate={bookingDate} today={today} programs={PROGRAMS} dateLabel={dateLabel} onMonthChange={setBookingMonth} onDateChange={handleDateSelect} />
 
                     {/* 선택 프로그램 및 회차 선택 영역 */}
-                    <div className="quick-booking-choices" id="home-booking-programs" data-home-anchor>
+                    <div data-text="body" className="quick-booking-choices" id="home-booking-programs" data-home-anchor>
                         <div className="quick-day-heading">
                             <div>
-                                <p>선택한 날짜</p>
-                                <h3 id="home-booking-day-heading">{dateLabel(bookingDate)}</h3>
+                                <p data-text="body">선택한 날짜</p>
+                                <h3 data-text="subheading" id="home-booking-day-heading">{dateLabel(bookingDate)}</h3>
                             </div>
-                            <span>{programsOnBookingDate.length}개 프로그램</span>
+                            <span data-text="body">{programsOnBookingDate.length}개 프로그램</span>
                         </div>
 
                         {programsOnBookingDate.length > 0 ? (
-                            <div className="quick-program-list" role="group" aria-label="프로그램 선택">
+                            <div data-text="body" className="quick-program-list" role="group" aria-label="프로그램 선택">
                                 {programsOnBookingDate.map((prog: any) => {
                                     const available = canSelectProgram(prog) && bookingDate >= today;
                                     const isSelected = selectedProgramId === prog.id;
@@ -314,46 +317,46 @@ export default function HomePage() {
                             </div>
                         ) : (
                             <div className="quick-empty">
-                                <h4>등록된 프로그램이 없는 날이에요.</h4>
-                                <p>달력에 점이 있는 날짜를 선택하거나 전체 일정을 살펴보세요.</p>
-                                <Link className="text-link" href={`/programs?view=calendar&month=${bookingMonth}`}>
+                                <h4 data-text="item-title">등록된 프로그램이 없는 날이에요.</h4>
+                                <p data-text="body">달력에 점이 있는 날짜를 선택하거나 전체 일정을 살펴보세요.</p>
+                                <Link data-text="action" className="text-link" href={`/programs?view=calendar&month=${bookingMonth}`}>
                                     전체 일정 보기 <Icon name="arrow" size={20} />
                                 </Link>
                             </div>
                         )}
 
                         <div className="quick-selection-fields" id="home-booking-options" data-home-anchor role="group" aria-label="회차와 인원 선택">
-                            <SystemField as="select" label="회차"
+                            <SystemField data-text="body" as="select" label="회차"
                                     id="quick-time"
                                     value={selectedTime}
                                     onChange={(e) => setSelectedTime(e.target.value)}
                                     disabled={!selectedProgram}
                                 >
-                                    <option value="">
+                                    <option data-text="label" value="">
                                         {selectedProgram ? "회차를 선택하세요" : "프로그램을 먼저 선택하세요"}
                                     </option>
                                     {(selectedProgram?.times || []).map((t: string) => (
-                                        <option key={t} value={t}>
+                                        <option data-text="label" key={t} value={t}>
                                             {t}
                                         </option>
                                     ))}
                                 </SystemField>
-                            <SystemField as="select" label="인원"
+                            <SystemField data-text="body" as="select" label="인원"
                                     id="quick-participants"
                                     value={participants}
                                     onChange={(e) => setParticipants(Number(e.target.value))}
                                     disabled={!selectedProgram}
                                 >
                                     {[1, 2, 3, 4].map((count) => (
-                                        <option key={count} value={count}>
+                                        <option data-text="label" key={count} value={count}>
                                             {count}명
                                         </option>
                                     ))}
                                 </SystemField>
                         </div>
 
-                        <div className="quick-booking-action" id="home-booking-action" data-home-anchor>
-                            <p>
+                        <div data-text="body" className="quick-booking-action" id="home-booking-action" data-home-anchor>
+                            <p data-text="body">
                                 {isBookingValid && selectedProgram ? (
                                     <>
                                         {selectedProgram.title}
@@ -365,17 +368,17 @@ export default function HomePage() {
                                 )}
                             </p>
                             {isBookingValid ? (
-                                <SystemLink className="button button--dark" href={bookingDestinationUrl}>
+                                <SystemLink data-text="action" className="button button--dark" href={bookingDestinationUrl}>
                                     {bookingButtonLabel} <Icon name="arrow" size={20} />
                                 </SystemLink>
                             ) : (
-                                <SystemButton className="button button--dark" type="button" disabled>
+                                <SystemButton data-text="action" className="button button--dark" type="button" disabled>
                                     예매·신청
                                 </SystemButton>
                             )}
                         </div>
                     </div>
-                </div>
+                </SystemSurface>
 
             </section>
 
@@ -383,18 +386,18 @@ export default function HomePage() {
             <section className="home-programs container" id="discover-programs" data-home-anchor aria-labelledby="discover-heading">
                 <div className="section-heading">
                     <div>
-                        <h2 id="discover-heading">관람 일정</h2>
-                        <p className="section-description">오늘 열리는 무대부터 다음 달 일정까지.</p>
+                        <h2 data-text="heading" id="discover-heading">관람 일정</h2>
+                        <p data-text="body" className="section-description">오늘 열리는 무대부터 다음 달 일정까지.</p>
                     </div>
-                    <Link className="text-link" href="/programs" id="home-program-all" data-home-anchor>
+                    <Link data-text="action" className="text-link" href="/programs" id="home-program-all" data-home-anchor>
                         모든 프로그램 <Icon name="arrow" size={20} />
                     </Link>
                 </div>
 
                 <div className="program-filter-row">
-                    <div className="program-choice" id="home-program-filters" data-home-anchor role="group" aria-label="프로그램 분류">
+                    <div data-text="body" className="program-choice" id="home-program-filters" data-home-anchor role="group" aria-label="프로그램 분류">
                         {categories.map((cat) => (
-                            <SystemFilterButton selected={selectedCategory === cat}
+                            <SystemFilterButton data-text="action" selected={selectedCategory === cat}
                                 key={cat}
                                 id={`home-program-category-${programCategoryIds[cat]}`}
                                 data-home-anchor
@@ -407,12 +410,12 @@ export default function HomePage() {
                             </SystemFilterButton>
                         ))}
                     </div>
-                    <Link className="calendar-link" href="/programs?view=calendar" id="home-program-calendar" data-home-anchor>
+                    <Link data-text="action" className="calendar-link" href="/programs?view=calendar" id="home-program-calendar" data-home-anchor>
                         <Icon name="calendar" size={18} /> 일정으로 보기
                     </Link>
                 </div>
 
-                <div className="home-program-grid" id="home-program-results" data-home-anchor>
+                <div data-text="body" className="home-program-grid" id="home-program-results" data-home-anchor>
                     {filteredPrograms.length > 0 ? (
                         filteredPrograms.map((program) => (
                             <div key={program.id} id={`home-program-${program.id}`} className="home-program-anchor" data-home-anchor>
@@ -420,9 +423,9 @@ export default function HomePage() {
                             </div>
                         ))
                     ) : (
-                        <p className="selection-empty">
+                        <p data-text="body" className="selection-empty">
                             이 분류의 다음 일정은 아직 확정 전입니다.{" "}
-                            <Link href="/programs">전체 프로그램을 살펴보세요.</Link>
+                            <Link data-text="action" href="/programs">전체 프로그램을 살펴보세요.</Link>
                         </p>
                     )}
                 </div>
@@ -451,20 +454,20 @@ export default function HomePage() {
                 </figure>
 
                 <div className="visit-editorial">
-                    <h2 id="visit-heading">오시는 길</h2>
-                    <p className="visit-description">
+                    <h2 data-text="heading" id="visit-heading">오시는 길</h2>
+                    <p data-text="body" className="visit-description">
                         지하철 광화문역 출구 안내부터 주차.
                         <br />
                         접근성 서비스와 관람 예절까지 정리했습니다.
                     </p>
-                    <Link className="text-link home-visit-planner" href="/visit/plan" id="home-visit-planner" data-home-anchor>
+                    <Link data-text="action" className="text-link home-visit-planner" href="/visit/plan" id="home-visit-planner" data-home-anchor>
                         방문 계획 만들기 <Icon name="arrow" size={20} />
                     </Link>
 
                     <div className="visit-links-layout">
-                        <div className="visit-link-list">
+                        <div data-text="body" className="visit-link-list">
                             {visitGuides.map((guide) => (
-                                <Link
+                                <Link data-text="action"
                                     key={guide.id}
                                     id={`home-visit-${guide.id}`}
                                     data-home-anchor
@@ -475,15 +478,15 @@ export default function HomePage() {
                                     className={activeVisitId === guide.id ? "is-previewed" : ""}
                                 >
                                     <span>
-                                        <strong>{guide.title}</strong>
-                                        <small>{guide.description}</small>
+                                        <strong data-text="item-title">{guide.title}</strong>
+                                        <small data-text="caption">{guide.description}</small>
                                     </span>
                                     <Icon name="arrow" size={22} />
                                 </Link>
                             ))}
                         </div>
                         <div className="visit-hover-rail" aria-hidden="true">
-                            <div className="visit-hover-preview">
+                            <div data-text="body" className="visit-hover-preview">
                                 {visitGuides.map((guide) => (
                                     /* eslint-disable-next-line @next/next/no-img-element */
                                     <img
@@ -508,20 +511,20 @@ export default function HomePage() {
             <section className="home-news container" id="sejong-news" data-home-anchor aria-labelledby="news-heading">
                 <div className="section-heading">
                     <div>
-                        <p className="home-section-label">새로운 소식</p>
-                        <h2 id="news-heading">소식과 참여</h2>
-                        <p className="section-description">공지와 티켓오픈, 대관공고 소식.</p>
+                        <p data-text="label" className="home-section-label">새로운 소식</p>
+                        <h2 data-text="heading" id="news-heading">소식과 참여</h2>
+                        <p data-text="body" className="section-description">공지와 티켓오픈, 대관공고 소식.</p>
                     </div>
-                    <Link href="/news" className="text-link" id="home-news-all" data-home-anchor>
+                    <Link data-text="action" href="/news" className="text-link" id="home-news-all" data-home-anchor>
                         소식 전체 보기 <Icon name="arrow" size={20} />
                     </Link>
                 </div>
 
                 <div className="home-news-layout">
                     <div>
-                        <div className="home-news-filters" id="home-news-filters" data-home-anchor role="group" aria-label="소식 분류">
+                        <div data-text="body" className="home-news-filters" id="home-news-filters" data-home-anchor role="group" aria-label="소식 분류">
                             {newsCategories.map((cat) => (
-                                <SystemFilterButton selected={newsCategory === cat}
+                                <SystemFilterButton data-text="action" selected={newsCategory === cat}
                                     key={cat}
                                     id={`home-news-category-${newsCategoryIds[cat]}`}
                                     data-home-anchor
@@ -533,12 +536,12 @@ export default function HomePage() {
                                 </SystemFilterButton>
                             ))}
                         </div>
-                        <div className="news-editorial-list" id="home-news-results" data-home-anchor>
+                        <div data-text="body" className="news-editorial-list" id="home-news-results" data-home-anchor>
                             {filteredNotices.map((notice) => (
-                                <Link key={notice.id} href={`/news/notices/${notice.id}`} id={`home-notice-${notice.id}`} data-home-anchor>
-                                    <SystemBadge appearance="plain" className="news-category">{notice.category}</SystemBadge>
-                                    <h3>{notice.title}</h3>
-                                    <time dateTime={notice.date}>
+                                <Link data-text="action" key={notice.id} href={`/news/notices/${notice.id}`} id={`home-notice-${notice.id}`} data-home-anchor>
+                                    <SystemBadge data-text="caption" appearance="plain" className="news-category">{notice.category}</SystemBadge>
+                                    <h3 data-text="subheading">{notice.title}</h3>
+                                    <time data-text="meta" dateTime={notice.date}>
                                         {notice.date.replaceAll("-", ".")}
                                     </time>
                                     <Icon name="arrow" size={22} />
@@ -548,42 +551,42 @@ export default function HomePage() {
                     </div>
 
                     <aside className="membership-feature" id="home-membership" data-home-anchor aria-labelledby="membership-heading">
-                        <p className="membership-label">세종 멤버십</p>
-                        <h3 id="membership-heading">
+                        <p data-text="label" className="membership-label">세종 멤버십</p>
+                        <h3 data-text="subheading" id="membership-heading">
                             자주 관람한다면,
                             <br />
                             멤버십이 유리합니다.
                         </h3>
-                        <p>
+                        <p data-text="body">
                             등급별 예매 할인과 초대 공연 혜택
                             <br />
                             지금 확인해 보세요.
                         </p>
-                        <Link className="text-link" href="/news/membership" id="home-membership-details" data-home-anchor>
+                        <Link data-text="action" className="text-link" href="/news/membership" id="home-membership-details" data-home-anchor>
                             멤버십 알아보기 <Icon name="arrow" size={22} />
                         </Link>
                     </aside>
                 </div>
 
                 <nav className="home-participation" id="home-participation" data-home-anchor aria-label="문화예술 참여">
-                    <Link href="/news/events" id="home-participation-events" data-home-anchor>
+                    <Link data-text="action" href="/news/events" id="home-participation-events" data-home-anchor>
                         <span>
-                            <strong>이벤트</strong>
-                            <small>진행 중인 이벤트와 당첨자 발표</small>
+                            <strong data-text="item-title">이벤트</strong>
+                            <small data-text="caption">진행 중인 이벤트와 당첨자 발표</small>
                         </span>
                         <Icon name="arrow" size={22} />
                     </Link>
-                    <Link href="/news/newsletter" id="home-participation-newsletter" data-home-anchor>
+                    <Link data-text="action" href="/news/newsletter" id="home-participation-newsletter" data-home-anchor>
                         <span>
-                            <strong>뉴스레터 · 세종문화N</strong>
-                            <small>공연·전시 소식을 이메일로 받아보세요</small>
+                            <strong data-text="item-title">뉴스레터 · 세종문화N</strong>
+                            <small data-text="caption">공연·전시 소식을 이메일로 받아보세요</small>
                         </span>
                         <Icon name="arrow" size={22} />
                     </Link>
-                    <Link href="/about/donation" id="home-participation-donation" data-home-anchor>
+                    <Link data-text="action" href="/about/donation" id="home-participation-donation" data-home-anchor>
                         <span>
-                            <strong>문화예술 후원</strong>
-                            <small>후원 방법과 참여 안내</small>
+                            <strong data-text="item-title">문화예술 후원</strong>
+                            <small data-text="caption">후원 방법과 참여 안내</small>
                         </span>
                         <Icon name="arrow" size={22} />
                     </Link>
@@ -594,22 +597,22 @@ export default function HomePage() {
             <section className="home-identity" id="our-identity" data-home-anchor aria-labelledby="identity-heading">
                 <div className="container identity-layout">
                     <div>
-                        <h2 id="identity-heading">
+                        <h2 data-text="heading" id="identity-heading">
                             서울의 중심,
                             <br />
                             예술의 다음.
                         </h2>
-                        <p className="identity-description">
+                        <p data-text="body" className="identity-description">
                             하늘과 땅, 그리고 사람.
                             <br />
                             서로 다른 우리가 예술로 만나는 곳입니다.
                         </p>
-                        <Link className="identity-link" href="/about" id="home-identity-about" data-home-anchor>
+                        <Link data-text="action" className="identity-link" href="/about" id="home-identity-about" data-home-anchor>
                             세종문화회관을 소개합니다 <Icon name="arrow" size={23} />
                         </Link>
                     </div>
 
-                    <Link
+                    <Link data-text="action"
                         href="/about/introduction/ci"
                         id="home-identity-marks"
                         data-home-anchor
@@ -618,36 +621,36 @@ export default function HomePage() {
                     >
                         <div className="identity-channel channel-sky" id="home-identity-sky" data-home-anchor>
                             <i />
-                            <span>
-                                天<span>하늘</span>
+                            <span data-text="body">
+                                天<span data-text="body">하늘</span>
                             </span>
                         </div>
                         <div className="identity-channel channel-earth" id="home-identity-earth" data-home-anchor>
                             <i />
-                            <span>
-                                地<span>땅</span>
+                            <span data-text="body">
+                                地<span data-text="body">땅</span>
                             </span>
                         </div>
                         <div className="identity-channel channel-human" id="home-identity-human" data-home-anchor>
                             <i />
-                            <span>
-                                人<span>사람</span>
+                            <span data-text="body">
+                                人<span data-text="body">사람</span>
                             </span>
                         </div>
                     </Link>
                 </div>
 
                 <nav className="home-institution-links container" id="home-institution" data-home-anchor aria-label="기관 이야기">
-                    <Link href="/about/companies" id="home-institution-companies" data-home-anchor>
+                    <Link data-text="action" href="/about/companies" id="home-institution-companies" data-home-anchor>
                         서울시예술단 <Icon name="arrow" size={20} />
                     </Link>
-                    <Link href="/about/esg" id="home-institution-esg" data-home-anchor>
+                    <Link data-text="action" href="/about/esg" id="home-institution-esg" data-home-anchor>
                         지속가능한 예술 <Icon name="arrow" size={20} />
                     </Link>
-                    <Link href="/about/disclosure" id="home-institution-disclosure" data-home-anchor>
+                    <Link data-text="action" href="/about/disclosure" id="home-institution-disclosure" data-home-anchor>
                         정보공개 <Icon name="arrow" size={20} />
                     </Link>
-                    <Link href="/about/partners" id="home-institution-partners" data-home-anchor>
+                    <Link data-text="action" href="/about/partners" id="home-institution-partners" data-home-anchor>
                         협력과 협찬 <Icon name="arrow" size={20} />
                     </Link>
                 </nav>

@@ -340,7 +340,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
 
     const renderLink = (item: VioletQuickMenuItem, index: number) => {
         const angle = radians(index * STEP - 90);
-        return <Link
+        return <Link data-text="action"
             key={item.id}
             ref={node => { linksRef.current[index] = node; }}
             href={item.href}
@@ -358,7 +358,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
                 }
             }}
             onClick={event => onNavigate(event, item)}
-        ><span className={styles.menuLabel}><Icon name={item.icon} size={24} /><span>{item.label}</span></span></Link>;
+        ><span className={styles.menuLabel}><Icon name={item.icon} size={24} /><span data-text="body">{item.label}</span></span></Link>;
     };
 
     return <div ref={rootRef} className={styles.experience} data-violet-menu data-placement={placement} data-visible={visible} data-state={open ? "open" : "closed"} data-sleeping={sleeping || !visible} aria-hidden={!visible}>
@@ -377,7 +377,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
             onBlur={event => { if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) closeMenu(false, false); }}
         >
             <div className={styles.panel} aria-hidden={!open}>
-                <p className={styles.instruction} id={hintId}>원을 돌려 고르고, 눌러서 이동해요</p>
+                <p data-text="body" className={styles.instruction} id={hintId}>원을 돌려 고르고, 눌러서 이동해요</p>
                 <nav id={menuId} aria-label="원형 퀵메뉴" aria-describedby={hintId}>
                     <div
                         className={styles.wheel}
@@ -400,22 +400,22 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
                         <LiquidSurface />
                         <VioletFur awake={visible && open && !sleeping} animated={!reducedMotion && !sleeping} expanded interaction={interaction} />
                         <span className={styles.coatLight} aria-hidden="true" />
-                        <div className={styles.rotor}>
+                        <div data-text="body" className={styles.rotor}>
                             <svg className={styles.slices} viewBox="0 0 400 400" aria-hidden="true">
                                 {items.map((item, index) => <path key={item.id} className={styles.slice} d={sectorPath(index)} data-selected={selected === index} />)}
                             </svg>
                             {items.map(renderLink)}
                         </div>
                         <span className={styles.marker} aria-hidden="true" />
-                        <Link href={current.href} prefetch={false} className={styles.current} data-violet-current data-no-drag tabIndex={open ? 0 : -1} onClick={event => onNavigate(event, current)} aria-label={`${current.label}로 이동`}>
-                            <strong>{current.label}</strong>
+                        <Link data-text="action" href={current.href} prefetch={false} className={styles.current} data-violet-current data-no-drag tabIndex={open ? 0 : -1} onClick={event => onNavigate(event, current)} aria-label={`${current.label}로 이동`}>
+                            <strong data-text="item-title">{current.label}</strong>
                             <Icon name="diagonal" size={19} />
                         </Link>
-                        <span className="sr-only" aria-live="polite" aria-atomic="true">{open && !dragging ? `선택한 메뉴: ${current.label}.` : ""}</span>
+                        <span data-text="body" className="sr-only" aria-live="polite" aria-atomic="true">{open && !dragging ? `선택한 메뉴: ${current.label}.` : ""}</span>
                     </div>
                 </nav>
             </div>
-            <button
+            <button data-text="action"
                 data-system-part="violet-toggle"
                 ref={toggleRef}
                 type="button"
@@ -435,12 +435,12 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
             >
                 <LiquidSurface />
                 <VioletFur awake={visible && !open && !sleeping} animated={!reducedMotion && !sleeping} interaction={interaction} />
-                <span className={styles.coatLight} aria-hidden="true" />
+                <span data-text="body" className={styles.coatLight} aria-hidden="true" />
                 {open ? <Icon name="close" size={21} /> : <span className={styles.toggleLabel} aria-hidden="true">
                     <svg className={styles.spark} viewBox="0 0 24 24" fill="none"><path d="M12 1C12 8 8 12 1 12C8 12 12 16 12 23C12 16 16 12 23 12C16 12 12 8 12 1Z" fill="currentColor" /><circle cx="21" cy="3" r="1.3" fill="currentColor" /></svg>
-                    <span>QUICK</span>
+                    <span data-text="body">QUICK</span>
                 </span>}
-                <span className={styles.closedHint} aria-hidden="true">돌려서 둘러보기</span>
+                <span data-text="body" className={styles.closedHint} aria-hidden="true">돌려서 둘러보기</span>
             </button>
         </div>
     </div>;

@@ -5,7 +5,7 @@
 .section-description {
     margin: 1rem 0 0;
     color: var(--muted);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
 }
 
 .desktop-nav a[aria-current] {
@@ -63,7 +63,7 @@
    Introduce the season through typography and a destination rather than a broad color field. */
 .card--banner {
     color: var(--ink);
-    background: #f3f4f4;
+    background: var(--color-detail-f3f4f4);
 }
 
 .card-banner-link {
@@ -72,14 +72,14 @@
 }
 
 .card--banner h2 {
-    font-size: clamp(1.75rem, 2.8vw, 2.5rem);
+    font-size: max(var(--text-min), clamp(1.75rem, 2.8vw, 2.5rem));
     font-weight: var(--weight-title);
 }
 
 .invitation-art {
     min-width: 16rem;
     padding-left: 2.5rem;
-    border-left: 1px solid #d6dadd;
+    border-left: 1px solid var(--color-detail-d6dadd);
 }
 
 .invitation-art i {
@@ -87,11 +87,11 @@
 }
 
 .invitation-art > span {
-    font-size: 5rem;
+    font-size: max(var(--text-min), 5rem);
 }
 
 .invitation-art b {
-    font-size: 1.25rem;
+    font-size: max(var(--text-min), 1.25rem);
     line-height: 1.4;
     letter-spacing: 0;
 }
@@ -157,7 +157,7 @@
     overflow: hidden;
     border-radius: 0.3125rem;
     background: var(--paper);
-    box-shadow: 0 0.5rem 1.5rem rgb(17 20 38 / 10%);
+    box-shadow: 0 0.5rem 1.5rem var(--color-detail-1jm8av);
 }
 
 .visit-hover-preview img {
@@ -221,7 +221,7 @@
 }
 
 .news-editorial-list h3 {
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
     line-height: 1.5;
 }
 
@@ -240,25 +240,25 @@
     align-items: flex-start;
     padding: clamp(1.5rem, 2.8vw, 2.5rem);
     border-radius: var(--radius-banner);
-    background: #f3f4f4;
+    background: var(--color-detail-f3f4f4);
 }
 
 .membership-label {
     margin: 0 0 1.5rem;
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .membership-feature h3 {
     margin: 0 0 1.5rem;
-    font-size: clamp(1.75rem, 2.2vw, 2.25rem);
+    font-size: max(var(--text-min), clamp(1.75rem, 2.2vw, 2.25rem));
     font-weight: var(--weight-title);
     line-height: 1.4;
 }
 
 .membership-feature > p:not(.membership-label) {
     margin: 0 0 2rem;
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     color: var(--muted);
 }
 
@@ -269,11 +269,11 @@
 
 @media (hover: hover) and (pointer: fine) {
     .button--yellow:hover {
-        background: #30343a;
+        background: var(--color-detail-30343a);
     }
 
     .card--hero .button--yellow:hover {
-        background: #edf0f2;
+        background: var(--color-detail-edf0f2);
     }
 }
 

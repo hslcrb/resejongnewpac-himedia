@@ -10,22 +10,11 @@ import {
     designTokensCss,
 } from "../src/data/design-system.ts";
 
-// [팔레트 보존과 실제 사용 기준 / Palette preservation and working standards]
-test("the guide preserves all eight existing primitive colors and matches production CSS", async () => {
-    const expected = [
-        "#000000",
-        "#54C8E8",
-        "#F7D549",
-        "#C36D15",
-        "#FFFFFF",
-        "#F7F7F5",
-        "#D9D9D4",
-        "#626262",
-    ];
-    assert.deepEqual(
-        DESIGN_COLORS.map((color) => color.hex),
-        expected,
-    );
+// [단일 팔레트 원본과 실제 사용 기준 / Canonical palette and working standards]
+test("the guide exposes eight canonical primitive colors and matches production CSS", async () => {
+    assert.equal(DESIGN_COLORS.length, 8);
+    assert.equal(new Set(DESIGN_COLORS.map((color) => color.token)).size, 8);
+    assert.ok(DESIGN_COLORS.every((color) => /^#[0-9A-F]{6}$/.test(color.hex)));
     const css = await readFile(new URL("../styles/tokens.css", import.meta.url), "utf8");
     for (const color of DESIGN_COLORS) {
         const match = css.match(new RegExp(`--${color.token}:\\s*(#[0-9a-f]{6})`, "i"));

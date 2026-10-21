@@ -53,7 +53,7 @@ export default function Header() {
     return (
         <header id="header" className="renewal-header">
             <div className="masthead container">
-                <Link href="/" className="sejong-brand" aria-label="세종문화회관 홈">
+                <Link data-text="action" href="/" className="sejong-brand" aria-label="세종문화회관 홈">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         className="sejong-wordmark"
@@ -71,12 +71,12 @@ export default function Header() {
                     />
                 </Link>
 
-                <nav className="desktop-nav" aria-label="주 메뉴">
+                <nav data-text="body" className="desktop-nav" aria-label="주 메뉴">
                     {NAV.map((item: any) => {
                         const active =
                             pathname === item.path || pathname.startsWith(item.path + "/");
                         return (
-                            <Link
+                            <Link data-text="action"
                                 key={item.id}
                                 href={item.path}
                                 data-nav={item.id}
@@ -89,16 +89,16 @@ export default function Header() {
                     })}
                 </nav>
 
-                <div className="masthead-actions">
+                <div data-text="body" className="masthead-actions">
                     {/* [실제 세션과 체험 계정 공통 진입 / Shared access for real sessions and demo accounts] */}
-                    {isLoggedIn ? <Link href="/account" className="account-link">마이페이지</Link> : <>
-                        <Link href="/account/login" className="account-link">로그인</Link>
-                        <Link href="/account/signup" className="account-link signup-link">프로필 만들기</Link>
+                    {isLoggedIn ? <Link data-text="action" href="/account" className="account-link">마이페이지</Link> : <>
+                        <Link data-text="action" href="/account/login" className="account-link">로그인</Link>
+                        <Link data-text="action" href="/account/signup" className="account-link signup-link">프로필 만들기</Link>
                     </>}
-                    <Link href="/english" className="english-link" lang="en">
+                    <Link data-text="action" href="/english" className="english-link" lang="en">
                         EN
                     </Link>
-                    <SystemIconButton
+                    <SystemIconButton data-text="action"
                         ref={searchTrigger}
                         type="button"
                         onClick={() => {
@@ -120,7 +120,7 @@ export default function Header() {
                             <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                         </svg>
                     </SystemIconButton>
-                    <SystemIconButton
+                    <SystemIconButton data-text="action"
                         ref={menuTrigger}
                         type="button"
                         onClick={() => {
@@ -162,7 +162,7 @@ export default function Header() {
                 aria-labelledby="search-heading"
             >
                 <div className="dialog-top">
-                    <SystemIconButton
+                    <SystemIconButton data-text="action"
                         type="button"
                         onClick={() => setSearchOpen(false)}
                         aria-label="검색 닫기"
@@ -178,9 +178,9 @@ export default function Header() {
                         </svg>
                     </SystemIconButton>
                 </div>
-                <h2 id="search-heading">어떤 예술을 찾고 계세요?</h2>
+                <h2 data-text="heading" id="search-heading">어떤 예술을 찾고 계세요?</h2>
                 <form className="site-search" onSubmit={handleSearchSubmit}>
-                    <SystemField
+                    <SystemField data-text="body"
                         ref={searchField}
                         label="검색어"
                         labelHidden
@@ -194,7 +194,7 @@ export default function Header() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
-                    <SystemIconButton type="submit" aria-label="검색">
+                    <SystemIconButton data-text="action" type="submit" aria-label="검색">
                         <svg
                             className="material-icon"
                             width="22"
@@ -206,10 +206,10 @@ export default function Header() {
                         </svg>
                     </SystemIconButton>
                 </form>
-                <div className="search-terms">
-                    <span>추천 검색어</span>
+                <div data-text="body" className="search-terms">
+                    <span data-text="body">추천 검색어</span>
                     {["일무", "클래식", "주차", "대관"].map((term) => (
-                        <Link key={term} href={`/search?q=${encodeURIComponent(term)}`}>
+                        <Link data-text="action" key={term} href={`/search?q=${encodeURIComponent(term)}`}>
                             {term}
                         </Link>
                     ))}

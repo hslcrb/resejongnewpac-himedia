@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { chromium } from "playwright";
+import { chromium, expect } from "playwright/test";
 import { COMPONENT_REGISTRY } from "../src/data/component-registry.ts";
 import { COMPONENT_COUNTS } from "../src/data/component-usage.ts";
 
@@ -9,11 +9,33 @@ import { COMPONENT_COUNTS } from "../src/data/component-usage.ts";
 const base = (process.argv[2] || "http://127.0.0.1:3000/v5/").replace(/\/?$/, "/");
 const directory = path.resolve(".local-reports/component-unification");
 fs.mkdirSync(directory, { recursive: true });
-const browser = await chromium.connectOverCDP(process.env.SEJONG_TEST_CDP || "http://127.0.0.1:9223");
+const browser = await chromium.launch();
 const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, timezoneId: "Asia/Seoul" });
 const page = await context.newPage();
 const results: { name: string; passed: boolean; error?: string }[] = [];
 const errors: string[] = [];
+// [실제 이메일 발송을 막는 OTP 제공자 / OTP provider that cannot send real email]
+const environment = fs.readFileSync(".env.local", "utf8");
+const backend = environment.match(/^NEXT_PUBLIC_SUPABASE_URL=["']?([^\r\n"']+)/m)?.[1];
+if (!backend) throw new Error("The public Supabase URL is required to mock email authentication.");
+const otpRequests: Record<string, unknown>[] = [];
+let otpGate = Promise.resolve();
+const holdOtp = () => {
+    let release!: () => void;
+    otpGate = new Promise<void>(resolve => { release = resolve; });
+    return release;
+};
+await context.route(url => url.origin === new URL(backend).origin, async route => {
+    const url = new URL(route.request().url());
+    if (url.pathname === "/auth/v1/settings") return route.fulfill({ json: { external: { google: false } } });
+    if (url.pathname === "/auth/v1/otp") {
+        otpRequests.push(route.request().postDataJSON());
+        await otpGate;
+        return route.fulfill({ json: {} });
+    }
+    errors.push(`Unexpected backend request: ${url.pathname}`);
+    return route.fulfill({ status: 500, json: { message: "Unexpected fixture endpoint" } });
+});
 page.on("pageerror", error => errors.push(error.message));
 page.on("console", message => {
     if (message.type() === "error" && /hydration|uncaught|invalid.*prop|cannot.*contain/i.test(message.text())) errors.push(message.text());
@@ -69,9 +91,11 @@ try {
         assert.equal(await page.locator("[data-component-record]").count(), COMPONENT_REGISTRY.length);
         assert.equal(Number(await page.locator('[data-count="total"]').innerText()), COMPONENT_COUNTS.total);
         assert.equal(Number(await page.locator('[data-count="unused"]').innerText()), 0);
-        for (const id of ["hero-companion", "header", "footer", "context-menu", "return-top", "introduction", "booking-invitation"]) {
+        for (const id of ["hero-companion", "header", "footer", "context-menu", "return-top", "introduction"]) {
             assert.match(await page.locator(`[data-component-record="${id}"]`).innerText(), /제품 연결/);
         }
+        assert.match(await page.locator('[data-component-record="booking-invitation"]').innerText(), /Deprecated/);
+        assert.match(await page.locator('[data-component-record="booking-invitation"]').innerText(), /가이드 전용/);
         await page.getByLabel("컴포넌트 검색", { exact: true }).fill("HeroCompanion");
         assert.equal(await page.locator("[data-component-record]").count(), 1);
         await page.getByLabel("컴포넌트 검색", { exact: true }).fill("");
@@ -107,13 +131,15 @@ try {
             assert.ok(await page.locator(".program-card").count() > 0);
         });
     }
-    await check("home patterns and the scroll heading are connected without changing wording or anchors", async () => {
+    await check("home patterns retain their anchors and the booking heading is static shared text", async () => {
         await go();
         assert.equal(await page.locator('[data-component="HeroSlide"]').count(), 5);
         assert.equal(await page.locator('[data-component="BookingCalendar"]').count(), 1);
         assert.equal(await page.locator('[data-component="SeasonBanner"]').count(), 1);
-        assert.equal(await page.locator("#quick-booking-heading").getAttribute("aria-label"), "관람 예약");
-        assert.equal(await page.locator("#quick-booking-heading .booking-invitation-letter").count(), 4);
+        assert.equal(await page.locator("#quick-booking-heading").innerText(), "관람 예약");
+        assert.equal(await page.locator("#quick-booking-heading").getAttribute("data-text"), "heading");
+        assert.equal(await page.locator("#quick-booking-heading .booking-invitation-letter").count(), 0);
+        assert.equal(await page.locator("#quick-booking-heading").evaluate(element => element.getAnimations({ subtree: true }).length), 0);
         assert.deepEqual((({ minHeight, radius }) => [minHeight, radius])(await metrics("#home-booking-today")), ["48px", "8px"]);
         assert.equal(await page.locator('.hero-time-glass[data-glass-variant="hero"]').count(), 1);
         for (const width of [1440, 390]) {
@@ -142,7 +168,7 @@ try {
         await page.waitForFunction(() => document.body.style.overflow === "");
         assert.ok(await trigger.evaluate(element => document.activeElement === element));
     });
-    await check("signup validates and persists the same profile through shared fields, consent and actions", async () => {
+    await check("signup validates shared fields and awaits an OTP request that allows account creation", async () => {
         await go("account/signup/");
         const submit = page.locator('main form button[type="submit"]');
         await submit.click();
@@ -150,16 +176,35 @@ try {
         await page.locator("#flow-name").fill("컴포넌트 검증");
         await page.locator("#flow-email").fill("component@example.com");
         await page.locator('main form input[type="checkbox"]').check();
-        await submit.click();
-        await page.waitForURL(/\/account\/$/);
-        assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem("sejong-v4:profile") || "{}").email), "component@example.com");
+        const before = otpRequests.length;
+        const release = holdOtp();
+        try {
+            await submit.click();
+            await expect.poll(() => otpRequests.length).toBe(before + 1);
+            await expect(submit).toBeDisabled();
+            await expect(page.locator('.flow-info-box[role="status"]')).toHaveCount(0);
+            assert.equal(otpRequests.at(-1)?.create_user, true);
+            assert.equal(otpRequests.at(-1)?.email, "component@example.com");
+        } finally { release(); }
+        await expect(page.locator('.flow-info-box[role="status"]')).toContainText("이메일로 로그인 링크를 보냈습니다.");
+        assert.ok(new URL(page.url()).pathname.endsWith("/account/signup/"));
+        assert.equal(await page.evaluate(() => localStorage.getItem("sejong-v4:profile")), null);
+        assert.equal(await page.evaluate(() => localStorage.getItem("sejong-v4:session")), null);
     });
     await check("recovery retains its accessible result and flow field", async () => {
         await go("account/recovery/");
         await page.locator("#flow-email").fill("component@example.com");
-        await page.locator('main form button[type="submit"]').click();
-        await page.locator('[role="status"].flow-info-box').waitFor();
-        assert.ok((await page.locator('[role="status"].flow-info-box').innerText()).length > 10);
+        const submit = page.locator('main form button[type="submit"]');
+        const before = otpRequests.length;
+        const release = holdOtp();
+        try {
+            await submit.click();
+            await expect.poll(() => otpRequests.length).toBe(before + 1);
+            await expect(submit).toBeDisabled();
+            await expect(page.locator('.flow-info-box[role="status"]')).toHaveCount(0);
+            assert.equal(otpRequests.at(-1)?.create_user, false);
+        } finally { release(); }
+        await expect(page.locator('[role="status"].flow-info-box')).toContainText("이메일로 로그인 링크를 보냈습니다.");
         assert.equal((await metrics("#flow-email")).minHeight, "54px");
     });
     await check("booking fields retain date/time control and the seat map uses documented spatial controls", async () => {

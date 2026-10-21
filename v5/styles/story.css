@@ -2,11 +2,11 @@
    기존 foundation을 사용하며 이 파일은 story 소유 요소만 다룹니다.
    Reuse the existing foundation and keep this layer scoped to story elements. */
 .sejong-story {
-    --story-ink: #161a21;
-    --story-muted: #555e69;
-    --story-accent: #08627b;
+    --story-ink: var(--color-detail-161a21);
+    --story-muted: var(--color-detail-555e69);
+    --story-accent: var(--color-detail-08627b);
     color: var(--story-ink);
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     line-height: 1.75;
 }
 
@@ -27,11 +27,11 @@
 }
 
 .sejong-story h2 {
-    font-size: clamp(36px, 4.5vw, 64px);
+    font-size: max(var(--text-min), clamp(36px, 4.5vw, 64px));
 }
 
 .sejong-story h3 {
-    font-size: clamp(26px, 2.2vw, 32px);
+    font-size: max(var(--text-min), clamp(26px, 2.2vw, 32px));
     font-weight: 650;
     line-height: 1.4;
 }
@@ -43,14 +43,14 @@
 .sejong-story figcaption {
     margin-top: 12px;
     color: var(--story-muted);
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     line-height: 1.6;
 }
 
 .sejong-story .story-kicker {
     margin-bottom: 24px;
     color: var(--story-muted);
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     font-weight: 600;
 }
 
@@ -61,7 +61,7 @@
 
 .story-opening h1 {
     max-width: 1100px;
-    font-size: clamp(48px, 6.8vw, 100px);
+    font-size: max(var(--text-min), clamp(48px, 6.8vw, 100px));
 }
 
 .story-opening-bottom {
@@ -75,7 +75,7 @@
 .story-opening-bottom p {
     max-width: 680px;
     color: var(--story-muted);
-    font-size: 20px;
+    font-size: max(var(--text-min), 20px);
 }
 
 .story-scroll-button {
@@ -87,9 +87,9 @@
     min-height: 48px;
     padding: 8px 0;
     border: 0;
-    background: transparent;
+    background: var(--color-detail-j5afio);
     color: var(--story-ink);
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     font-weight: 600;
 }
 
@@ -149,7 +149,7 @@
     min-height: 48px;
     padding-block: 10px;
     color: inherit;
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     font-weight: 600;
     line-height: 1.5;
     text-decoration: none;
@@ -169,7 +169,7 @@
 
 .story-experience-list > article {
     padding-block: 44px;
-    border-top: 1px solid #d4d9de;
+    border-top: 1px solid var(--color-detail-d4d9de);
 }
 
 .story-experience-list > article:first-child {
@@ -199,7 +199,7 @@
 }
 
 .story-spaces {
-    background: #f3f5f7;
+    background: var(--color-detail-f3f5f7);
 }
 
 .story-section-heading {
@@ -229,7 +229,7 @@
     margin-bottom: 12px;
     padding: 0;
     color: var(--story-muted);
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
 }
 
 .story-space-choice {
@@ -250,7 +250,7 @@
 
 .story-space-choice span {
     color: var(--story-ink);
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     font-weight: 600;
 }
 
@@ -273,7 +273,7 @@
 }
 
 .story-space-illustration img {
-    background: #e9edf0;
+    background: var(--color-detail-e9edf0);
     object-fit: contain;
 }
 
@@ -282,7 +282,7 @@
 }
 
 .story-space-copy h3 {
-    font-size: clamp(30px, 3vw, 42px);
+    font-size: max(var(--text-min), clamp(30px, 3vw, 42px));
 }
 
 .story-space-copy > p:not(.story-kicker) {
@@ -291,7 +291,7 @@
 }
 
 .story-space-copy .story-space-use {
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
 }
 
 .story-space-copy .story-link {
@@ -314,7 +314,7 @@
     gap: 12px 32px;
     margin-top: 40px;
     padding-top: 24px;
-    border-top: 1px solid #d4d9de;
+    border-top: 1px solid var(--color-detail-d4d9de);
 }
 
 .story-company-stage {
@@ -329,7 +329,7 @@
     height: auto;
     aspect-ratio: 4 / 3;
     object-fit: contain;
-    background: #000000;
+    background: var(--color-black);
 }
 
 .story-company-list {
@@ -342,7 +342,7 @@
 }
 
 .story-company-list li {
-    border-bottom: 1px solid #d4d9de;
+    border-bottom: 1px solid var(--color-detail-d4d9de);
 }
 
 .story-company-list a {
@@ -357,17 +357,17 @@
 
 .story-company-list a > span:first-child {
     flex: 1;
-    font-size: 20px;
+    font-size: max(var(--text-min), 20px);
     font-weight: 600;
 }
 
 .story-company-genre {
     color: var(--story-muted);
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
 }
 
 .story-history {
-    background: #f7f6f3;
+    background: var(--color-detail-f7f6f3);
 }
 
 .story-timeline {
@@ -378,7 +378,7 @@
 
 .story-timeline li {
     padding-block: 40px;
-    border-top: 1px solid #d5d3ce;
+    border-top: 1px solid var(--color-detail-d5d3ce);
 }
 
 .story-timeline li:first-child {
@@ -392,7 +392,7 @@
 
 .story-timeline .story-year {
     margin-bottom: 20px;
-    font-size: clamp(52px, 6.5vw, 88px);
+    font-size: max(var(--text-min), clamp(52px, 6.5vw, 88px));
     font-weight: 500;
     letter-spacing: -0.06em;
     line-height: 1;
@@ -400,7 +400,7 @@
 }
 
 .story-timeline h3 {
-    font-size: 24px;
+    font-size: max(var(--text-min), 24px);
 }
 
 .story-timeline p:not(.story-year) {
@@ -409,9 +409,9 @@
 }
 
 .story-identity {
-    --story-muted: #c1c8d0;
-    color: #ffffff;
-    background: #171b22;
+    --story-muted: var(--color-detail-c1c8d0);
+    color: var(--color-white);
+    background: var(--color-detail-171b22);
 }
 
 .story-identity .story-link {
@@ -454,7 +454,7 @@
 
 .story-identity-channel strong {
     display: block;
-    font-size: 26px;
+    font-size: max(var(--text-min), 26px);
     font-weight: 500;
 }
 
@@ -462,7 +462,7 @@
     display: block;
     margin-top: 8px;
     color: var(--story-muted);
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
 }
 
 .story-value-links {
@@ -478,13 +478,13 @@
     justify-content: space-between;
     gap: 24px;
     padding-block: 32px;
-    border-top: 1px solid #d4d9de;
+    border-top: 1px solid var(--color-detail-d4d9de);
     color: inherit;
     text-decoration: none;
 }
 
 .story-value-links h3 {
-    font-size: 26px;
+    font-size: max(var(--text-min), 26px);
 }
 
 .story-value-links p {
@@ -499,13 +499,13 @@
     gap: 20px 32px;
     margin-top: 88px;
     padding-top: 48px;
-    border-top: 1px solid #d4d9de;
+    border-top: 1px solid var(--color-detail-d4d9de);
 }
 
 .story-closing > p {
     flex: 1 1 100%;
     margin-bottom: 12px;
-    font-size: clamp(28px, 3vw, 40px);
+    font-size: max(var(--text-min), clamp(28px, 3vw, 40px));
     font-weight: 600;
     letter-spacing: -0.04em;
 }
@@ -518,20 +518,20 @@
     min-height: 56px;
     padding: 14px 24px;
     background: var(--story-ink);
-    color: #ffffff;
-    font-size: 18px;
+    color: var(--color-white);
+    font-size: max(var(--text-min), 18px);
     font-weight: 600;
     line-height: 1.5;
     text-decoration: none;
 }
 
 .sejong-story :is(a, button, input):focus-visible {
-    outline: 3px solid #087895;
+    outline: 3px solid var(--color-detail-087895);
     outline-offset: 5px;
 }
 
 .story-identity a:focus-visible {
-    outline-color: #72d6f1;
+    outline-color: var(--color-detail-72d6f1);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -547,7 +547,7 @@
     }
 
     .story-primary-link:hover {
-        background: #303a47;
+        background: var(--color-detail-303a47);
     }
 }
 
@@ -593,7 +593,7 @@
     }
 
     .story-opening h1 {
-        font-size: clamp(42px, 8.2vw, 60px);
+        font-size: max(var(--text-min), clamp(42px, 8.2vw, 60px));
     }
 
     .story-opening-bottom {
@@ -602,7 +602,7 @@
     }
 
     .story-opening-bottom p {
-        font-size: 18px;
+        font-size: max(var(--text-min), 18px);
     }
 
     .sejong-story .story-kicker {
@@ -637,7 +637,7 @@
 
     .story-experience-list > article:first-child {
         padding-top: 32px;
-        border-top: 1px solid #d4d9de;
+        border-top: 1px solid var(--color-detail-d4d9de);
     }
 
     .story-space-picker {
@@ -667,11 +667,11 @@
     }
 
     .story-identity-channel strong {
-        font-size: 22px;
+        font-size: max(var(--text-min), 22px);
     }
 
     .story-identity-channel > span:last-child {
-        font-size: 16px;
+        font-size: max(var(--text-min), 16px);
     }
 
     .story-value-links {

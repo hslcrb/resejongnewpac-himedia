@@ -38,11 +38,11 @@ export const SystemTabs = forwardRef<HTMLDivElement, SystemTabsProps>(function S
         onValueChange(next);
         buttons.current.get(next)?.focus();
     }
-    return <div {...props} ref={ref} className={`ds-tab-group ${className}`.trim()} data-component="tabs">
-        <div className={`ds-tabs ${tabListClassName}`.trim()} role="tablist" aria-label={label} aria-labelledby={labelledBy} aria-orientation={orientation}>
-            {items.map((item) => <button key={item.id} ref={(element) => { if (element) buttons.current.set(item.id, element); else buttons.current.delete(item.id); }} type="button" role="tab" id={tabId(item.id)} aria-controls={panelId(item.id)} aria-selected={selected === item.id} tabIndex={selected === item.id ? 0 : -1} disabled={item.disabled} onClick={() => onValueChange(item.id)} onKeyDown={(event) => handleKey(event, item.id)}>{item.label}</button>)}
+    return <div data-text="body" {...props} ref={ref} className={`ds-tab-group ${className}`.trim()} data-component="tabs">
+        <div data-text="body" className={`ds-tabs ${tabListClassName}`.trim()} role="tablist" aria-label={label} aria-labelledby={labelledBy} aria-orientation={orientation}>
+            {items.map((item) => <button data-text="action" key={item.id} ref={(element) => { if (element) buttons.current.set(item.id, element); else buttons.current.delete(item.id); }} type="button" role="tab" id={tabId(item.id)} aria-controls={panelId(item.id)} aria-selected={selected === item.id} tabIndex={selected === item.id ? 0 : -1} disabled={item.disabled} onClick={() => onValueChange(item.id)} onKeyDown={(event) => handleKey(event, item.id)}>{item.label}</button>)}
         </div>
-        {items.map((item) => <div key={item.id} id={panelId(item.id)} role="tabpanel" aria-labelledby={tabId(item.id)} hidden={selected !== item.id} tabIndex={0} className={`ds-tabpanel ${panelClassName}`.trim()}>{item.content}</div>)}
+        {items.map((item) => <div data-text="body" key={item.id} id={panelId(item.id)} role="tabpanel" aria-labelledby={tabId(item.id)} hidden={selected !== item.id} tabIndex={0} className={`ds-tabpanel ${panelClassName}`.trim()}>{item.content}</div>)}
     </div>;
 });
 
@@ -51,5 +51,5 @@ export type SystemDisclosureProps = DetailsHTMLAttributes<HTMLDetailsElement> & 
 export const SystemDisclosure = forwardRef<HTMLDetailsElement, SystemDisclosureProps>(function SystemDisclosure(
     { summary, children, className = "", summaryClassName, appearance = "default", ...props }, ref,
 ) {
-    return <details {...props} ref={ref} className={`${appearance === "plain" ? "ds-disclosure-plain" : "ds-disclosure"} ${className}`.trim()} data-component="disclosure" data-appearance={appearance}><summary className={summaryClassName}>{summary}</summary>{children}</details>;
+    return <details data-text="body" {...props} ref={ref} className={`${appearance === "plain" ? "ds-disclosure-plain" : "ds-disclosure"} ${className}`.trim()} data-component="disclosure" data-appearance={appearance}><summary data-text="label" className={summaryClassName}>{summary}</summary>{children}</details>;
 });

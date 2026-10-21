@@ -1,29 +1,29 @@
 ﻿/* [개인 공연장 소재와 테마 / Personal theatre materials and themes] */
 .account-mini-room {
-    --mini-room-wall-left: #EDEFE1;
-    --mini-room-wall-right: #DFE5D4;
-    --mini-room-curtain: #C36D15;
-    --mini-room-chair: #54C8E8;
-    --mini-room-scene: #F4F3EB;
-    --mini-room-scene-light: #FFFCED;
+    --mini-room-wall-left: var(--color-detail-edefe1);
+    --mini-room-wall-right: var(--color-detail-dfe5d4);
+    --mini-room-curtain: var(--color-ochre);
+    --mini-room-chair: var(--color-sky);
+    --mini-room-scene: var(--color-detail-f4f3eb);
+    --mini-room-scene-light: var(--color-detail-fffced);
     min-width: 0;
     color: var(--text-primary);
 }
 
 .account-mini-room[data-theme="sky"] {
-    --mini-room-wall-left: #E2EEF0;
-    --mini-room-wall-right: #CEDFE0;
-    --mini-room-curtain: #527C7D;
-    --mini-room-scene: #EFF5F3;
-    --mini-room-scene-light: #F7F9EC;
+    --mini-room-wall-left: var(--color-detail-e2eef0);
+    --mini-room-wall-right: var(--color-detail-cedfe0);
+    --mini-room-curtain: var(--color-detail-527c7d);
+    --mini-room-scene: var(--color-detail-eff5f3);
+    --mini-room-scene-light: var(--color-detail-f7f9ec);
 }
 
 .account-mini-room[data-theme="sun"] {
-    --mini-room-wall-left: #F6EDCB;
-    --mini-room-wall-right: #E8D9AC;
-    --mini-room-curtain: #B86939;
-    --mini-room-scene: #F8F2E4;
-    --mini-room-scene-light: #FFF8DC;
+    --mini-room-wall-left: var(--color-detail-f6edcb);
+    --mini-room-wall-right: var(--color-detail-e8d9ac);
+    --mini-room-curtain: var(--color-detail-b86939);
+    --mini-room-scene: var(--color-detail-f8f2e4);
+    --mini-room-scene-light: var(--color-detail-fff8dc);
 }
 
 /* [제목과 공통 컨트롤 배치 / Heading and shared-control layout] */
@@ -37,7 +37,7 @@
 
 .mini-room-header h2 {
     margin: 0;
-    font-size: var(--text-subheading);
+    font-size: max(var(--text-min), var(--text-subheading));
     font-weight: var(--weight-heading);
     line-height: var(--leading-heading);
     letter-spacing: var(--tracking-heading);
@@ -90,7 +90,7 @@
 
 .mini-room-note p {
     margin: 0 0 var(--space-3);
-    font-size: var(--text-lead);
+    font-size: max(var(--text-min), var(--text-lead));
     font-weight: var(--weight-label);
     line-height: var(--leading-label);
     word-break: keep-all;
@@ -98,7 +98,7 @@
 
 .mini-room-note cite {
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-style: normal;
     line-height: var(--leading-label);
 }
@@ -134,22 +134,22 @@
 }
 
 .mini-room-light-strip {
-    stroke: #FFF2BA;
+    stroke: var(--color-detail-fff2ba);
     transition: stroke var(--duration-panel) var(--ease-standard);
 }
 
 .mini-room-lampshade {
-    fill: #F7E7B2;
+    fill: var(--color-detail-f7e7b2);
     transition: fill var(--duration-panel) var(--ease-standard);
 }
 
 .mini-room-bulb {
-    fill: #FFF5CB;
+    fill: var(--color-detail-fff5cb);
     transition: fill var(--duration-panel) var(--ease-standard);
 }
 
 .mini-room-dusk {
-    fill: #283D48;
+    fill: var(--color-detail-283d48);
     opacity: 0%;
     pointer-events: none;
     transition: opacity var(--duration-panel) var(--ease-standard);
@@ -160,15 +160,15 @@
 }
 
 .account-mini-room[data-light="off"] .mini-room-light-strip {
-    stroke: #7A806A;
+    stroke: var(--color-detail-7a806a);
 }
 
 .account-mini-room[data-light="off"] .mini-room-lampshade {
-    fill: #D4C9A8;
+    fill: var(--color-detail-d4c9a8);
 }
 
 .account-mini-room[data-light="off"] .mini-room-bulb {
-    fill: #AA9D79;
+    fill: var(--color-detail-aa9d79);
 }
 
 .account-mini-room[data-light="off"] .mini-room-dusk {
@@ -183,7 +183,7 @@
     gap: var(--space-4);
     margin-top: var(--space-4);
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-label);
 }
 

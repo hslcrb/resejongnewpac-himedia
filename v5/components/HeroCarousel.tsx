@@ -187,7 +187,7 @@ const HeroCarousel = forwardRef<HeroCarouselHandle, { externalPaused?: boolean }
             onDragStart={event => event.preventDefault()}
             onClickCapture={event => { if (performance.now() < suppressClickUntil.current) { event.preventDefault(); event.stopPropagation(); } }}
         >
-            <div className={`season-track${direction ? " is-moving" : ""}${returning ? " is-returning" : ""}`} style={{ "--drag-x": `${dragX}px` } as CSSProperties}>
+            <div data-text="body" className={`season-track${direction ? " is-moving" : ""}${returning ? " is-returning" : ""}`} style={{ "--drag-x": `${dragX}px` } as CSSProperties}>
                 {[-2, -1, 0, 1, 2].map(offset => <HeroSlide
                     key={offset}
                     feature={HOME_FEATURES[(active + offset + count) % count]}
@@ -200,19 +200,19 @@ const HeroCarousel = forwardRef<HeroCarouselHandle, { externalPaused?: boolean }
         </div>
 
         <div className="hero-neighbor-navigation container" role="group" aria-label="양옆 프로그램">
-            <SystemButton variant="quiet" onClick={() => move(-1)} aria-label={`${previous.name} 이전 슬라이드로 보기`}><Icon name="back" size={20} /><span>{previous.programTitle}</span></SystemButton>
-            <SystemButton variant="quiet" onClick={() => move(1)} aria-label={`${next.name} 다음 슬라이드로 보기`}><span>{next.programTitle}</span><Icon name="arrow" size={20} /></SystemButton>
+            <SystemButton data-text="action" variant="quiet" onClick={() => move(-1)} aria-label={`${previous.name} 이전 슬라이드로 보기`}><Icon name="back" size={20} /><span data-text="body">{previous.programTitle}</span></SystemButton>
+            <SystemButton data-text="action" variant="quiet" onClick={() => move(1)} aria-label={`${next.name} 다음 슬라이드로 보기`}><span data-text="body">{next.programTitle}</span><Icon name="arrow" size={20} /></SystemButton>
         </div>
         <HeroCompanion />
         <div className="season-toolbar container">
-            <p>이번 달의 문화예술</p>
+            <p data-text="body">이번 달의 문화예술</p>
             <div className="season-controls" id="home-feature-controls" data-home-anchor role="group" aria-label="주요 프로그램 제어">
-                <span className="season-pagination" aria-hidden="true"><span>{String(active + 1).padStart(2, "0")}</span><span className="season-pagination-total"> / {String(count).padStart(2, "0")}</span></span>
+                <span className="season-pagination" aria-hidden="true"><span data-text="body">{String(active + 1).padStart(2, "0")}</span><span data-text="body" className="season-pagination-total"> / {String(count).padStart(2, "0")}</span></span>
                 <span className="season-progress" aria-hidden="true"><i style={{ transform: `scaleX(${progress})` }} /></span>
-                <SystemIconButton id="home-feature-previous" className="round-button" onClick={() => move(-1)} aria-label="이전 프로그램"><Icon name="back" size={24} /></SystemIconButton>
-                <SystemIconButton id="home-feature-next" className="round-button" onClick={() => move(1)} aria-label="다음 프로그램"><Icon name="arrow" size={24} /></SystemIconButton>
-                <SystemIconButton id="home-feature-playback" className="round-button" onClick={() => { if (paused) setFocused(false); setPaused(value => !value); }} aria-label={paused ? "자동 재생 시작" : "자동 재생 일시정지"} aria-pressed={paused}><Icon name={paused ? "play" : "pause"} size={24} /></SystemIconButton>
-                <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
+                <SystemIconButton data-text="action" id="home-feature-previous" className="round-button" onClick={() => move(-1)} aria-label="이전 프로그램"><Icon name="back" size={24} /></SystemIconButton>
+                <SystemIconButton data-text="action" id="home-feature-next" className="round-button" onClick={() => move(1)} aria-label="다음 프로그램"><Icon name="arrow" size={24} /></SystemIconButton>
+                <SystemIconButton data-text="action" id="home-feature-playback" className="round-button" onClick={() => { if (paused) setFocused(false); setPaused(value => !value); }} aria-label={paused ? "자동 재생 시작" : "자동 재생 일시정지"} aria-pressed={paused}><Icon name={paused ? "play" : "pause"} size={24} /></SystemIconButton>
+                <span data-text="body" className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
             </div>
         </div>
     </section>;

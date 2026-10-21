@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import LiquidGlass from "./LiquidGlass";
+import { textAttributes } from "./SystemText";
 
 export type SmallNotificationModalProps = { open: boolean; message: string; id?: string };
 
@@ -11,11 +13,11 @@ export default function SmallNotificationModal({ open, message, id }: SmallNotif
     useEffect(() => setMounted(true), []);
     if (!mounted) return null;
     return createPortal(
-        <div id={id} className={`toast small-notification-modal${open ? " visible" : ""}`}
+        <LiquidGlass id={id} variant="black" className={`toast small-notification-modal${open ? " visible" : ""}`}
             data-component="알림소형모달" role="status" aria-live="polite" aria-atomic="true"
             aria-hidden={!open || undefined}>
-            {message}
-        </div>, document.body,
+            <span {...textAttributes("body")}>{message}</span>
+        </LiquidGlass>, document.body,
     );
 }
 

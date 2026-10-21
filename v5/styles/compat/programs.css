@@ -7,7 +7,7 @@
 .program-category-tabs {
   display: flex;
   gap: 36px;
-  border-bottom: 1px solid #deded8;
+  border-bottom: 1px solid var(--color-detail-deded8);
   margin-bottom: 36px;
   overflow: auto;
 }
@@ -15,50 +15,50 @@
   position: relative;
   flex: none;
   padding: 0 0 19px;
-  font-size: 19px;
+  font-size: max(var(--text-min), 19px);
   font-weight: 600;
-  color: #777;
+  color: var(--color-detail-777777);
 }
 .program-category-tabs a.active {
-  color: #161616;
+  color: var(--color-detail-161616);
 }
 .program-category-tabs a.active:after {
   position: absolute;
   content: "";
   height: 3px;
-  background: #171717;
+  background: var(--color-detail-171717);
   bottom: 0;
   left: 0;
   right: 0;
 }
 .program-filter {
   padding: 28px 32px;
-  background: #f5f5f1;
+  background: var(--color-detail-f5f5f1);
   border-radius: 14px;
 }
 .program-filter__search > label {
   display: block;
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   font-weight: 600;
   margin-bottom: 10px;
 }
 .program-filter__search > div {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #bfbfba;
+  border-bottom: 1px solid var(--color-detail-bfbfba);
   gap: 14px;
 }
 .program-filter__search input {
   width: 100%;
   padding: 11px 0 15px;
-  background: transparent;
+  background: var(--color-detail-j5afio);
   border: 0;
-  font-size: 20px;
+  font-size: max(var(--text-min), 20px);
   outline-offset: 4px;
-  color: #171717;
+  color: var(--color-detail-171717);
 }
 .program-filter__search input::placeholder {
-  color: #8a8a84;
+  color: var(--color-detail-8a8a84);
 }
 .program-filter__row {
   display: flex;
@@ -70,19 +70,19 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   flex: 1;
   min-width: 0;
 }
 .program-filter select,
 .program-filter input[type="date"] {
   width: 100%;
-  border: 1px solid #d6d6d0;
+  border: 1px solid var(--color-detail-d6d6d0);
   border-radius: 6px;
-  background: #fff;
-  color: #333;
+  background: var(--color-white);
+  color: var(--color-detail-333333);
   font: inherit;
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   padding: 0 14px;
   height: 48px;
 }
@@ -94,7 +94,7 @@
   background: none;
   text-decoration: underline;
   text-underline-offset: 4px;
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   padding: 16px 5px;
   cursor: pointer;
   white-space: nowrap;
@@ -107,15 +107,15 @@
   margin: 40px 0 24px;
 }
 .program-results-toolbar p {
-  font-size: var(--text-sm);
-  color: #60605b;
+  font-size: max(var(--text-min), var(--text-sm));
+  color: var(--color-detail-60605b);
 }
 .program-results-toolbar strong {
-  color: #161616;
+  color: var(--color-detail-161616);
 }
 .program-view-switch {
   display: flex;
-  border: 1px solid #dadad4;
+  border: 1px solid var(--color-detail-dadad4);
   border-radius: 7px;
   overflow: hidden;
 }
@@ -124,12 +124,12 @@
   align-items: center;
   gap: 7px;
   padding: 11px 15px;
-  color: #777;
-  font-size: var(--text-sm);
+  color: var(--color-detail-777777);
+  font-size: max(var(--text-min), var(--text-sm));
 }
 .program-view-switch a.active {
-  background: #1b1b1b;
-  color: #fff;
+  background: var(--color-detail-1b1b1b);
+  color: var(--color-white);
 }
 .program-results-grid {
   display: grid;
@@ -140,8 +140,8 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  color: #767670;
-  font-size: var(--text-sm);
+  color: var(--color-detail-767670);
+  font-size: max(var(--text-min), var(--text-sm));
   line-height: 1.7;
   margin: 28px 0;
 }
@@ -151,20 +151,20 @@
 }
 .program-help {
   margin-top: 70px;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--color-detail-dddddd);
   padding-top: 35px;
   display: flex;
   justify-content: space-between;
   gap: 40px;
 }
 .program-help h2 {
-  font-size: 26px;
+  font-size: max(var(--text-min), 26px);
   letter-spacing: -1px;
   margin: 12px 0;
 }
 .program-help p {
-  font-size: var(--text-sm);
-  color: #757570;
+  font-size: max(var(--text-min), var(--text-sm));
+  color: var(--color-detail-757570);
 }
 .program-help > div:last-child {
   display: flex;
@@ -181,17 +181,17 @@
   margin-bottom: 28px;
 }
 .program-results-heading h2 {
-  font-size: 28px;
+  font-size: max(var(--text-min), 28px);
   letter-spacing: -1px;
   margin: 8px 0 0;
 }
 .program-results-heading > span {
-  color: #73736d;
-  font-size: var(--text-sm);
+  color: var(--color-detail-73736d);
+  font-size: max(var(--text-min), var(--text-sm));
   margin-left: auto;
 }
 .program-calendar {
-  border: 1px solid #deded7;
+  border: 1px solid var(--color-detail-deded7);
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 48px;
@@ -207,11 +207,11 @@
 .program-calendar__top h2 {
   font-family: Arial, sans-serif;
   letter-spacing: -1px;
-  font-size: 32px;
+  font-size: max(var(--text-min), 32px);
   margin: 0;
 }
 .program-calendar__top h2 span {
-  color: #999;
+  color: var(--color-detail-999999);
   margin: 0 4px;
 }
 .program-calendar__arrow {
@@ -219,7 +219,7 @@
   place-items: center;
   width: 38px;
   height: 38px;
-  border: 1px solid #dfdfd8;
+  border: 1px solid var(--color-detail-dfdfd8);
   border-radius: 50%;
 }
 .program-calendar__arrow:first-child svg {
@@ -228,10 +228,10 @@
 .program-calendar__today {
   position: absolute;
   right: 28px;
-  border: 1px solid #d8d8d2;
+  border: 1px solid var(--color-detail-d8d8d2);
   border-radius: 5px;
   padding: 8px 16px;
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
 }
 .program-calendar__week,
 .program-calendar__grid {
@@ -239,25 +239,25 @@
   grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 .program-calendar__week {
-  background: #f5f5f1;
-  border-top: 1px solid #e1e1da;
-  border-bottom: 1px solid #e1e1da;
+  background: var(--color-detail-f5f5f1);
+  border-top: 1px solid var(--color-detail-e1e1da);
+  border-bottom: 1px solid var(--color-detail-e1e1da);
   text-align: center;
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   padding: 12px 0;
 }
 .program-calendar__week span:first-child {
-  color: #b95749;
+  color: var(--color-detail-b95749);
 }
 .program-calendar__week span:last-child {
-  color: #4c6894;
+  color: var(--color-detail-4c6894);
 }
 .program-calendar__day,
 .program-calendar__blank {
   min-height: 103px;
   padding: 13px 15px;
-  border-right: 1px solid #ecece6;
-  border-bottom: 1px solid #ecece6;
+  border-right: 1px solid var(--color-detail-ecece6);
+  border-bottom: 1px solid var(--color-detail-ecece6);
   position: relative;
 }
 .program-calendar__day:nth-child(7n),
@@ -265,27 +265,27 @@
   border-right: 0;
 }
 .program-calendar__blank {
-  background: #fafaf7;
+  background: var(--color-detail-fafaf7);
 }
 .program-calendar__day:hover {
-  background: #f6f6e7;
+  background: var(--color-detail-f6f6e7);
 }
 .program-calendar__day.is-selected {
-  background: #fff3a2;
-  outline: 2px solid #1b1b1b;
+  background: var(--color-detail-fff3a2);
+  outline: 2px solid var(--color-detail-1b1b1b);
   outline-offset: -2px;
   z-index: 1;
 }
 .program-calendar__number {
   display: inline-grid;
   place-items: center;
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   min-width: 27px;
   height: 27px;
 }
 .program-calendar__day.is-today .program-calendar__number {
-  background: #1b1b1b;
-  color: #fff;
+  background: var(--color-detail-1b1b1b);
+  color: var(--color-white);
   border-radius: 50%;
 }
 .program-calendar__event {
@@ -293,25 +293,25 @@
   align-items: center;
   gap: 6px;
   margin-top: 14px;
-  font-size: var(--text-sm);
-  color: #67675e;
+  font-size: max(var(--text-min), var(--text-sm));
+  color: var(--color-detail-67675e);
   white-space: nowrap;
 }
 .program-calendar__dot {
   height: 5px;
   width: 5px;
   border-radius: 50%;
-  background: #aea00c;
+  background: var(--color-detail-aea00c);
   flex: none;
 }
 .program-calendar__none {
-  color: #c6c6bf;
+  color: var(--color-detail-c6c6bf);
 }
 .program-calendar__hint {
   padding: 13px 20px;
   margin: 0;
-  font-size: var(--text-sm);
-  color: #77776e;
+  font-size: max(var(--text-min), var(--text-sm));
+  color: var(--color-detail-77776e);
 }
 .program-detail-hero {
   display: grid;
@@ -322,7 +322,7 @@
 }
 .program-detail-poster {
   padding: 26px;
-  background: #f0f0eb;
+  background: var(--color-detail-f0f0eb);
   border-radius: var(--radius-media);
   align-self: start;
 }
@@ -338,57 +338,57 @@
   display: flex;
   gap: 9px;
   align-items: center;
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   margin-bottom: 20px;
 }
 .program-detail-labels > span {
   padding: 6px 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--color-detail-cccccc);
   border-radius: 3px;
 }
 .program-detail-labels .program-status {
-  border-color: #ece4a7;
-  background: #fff8ca;
-  color: #5f5316;
+  border-color: var(--color-detail-ece4a7);
+  background: var(--color-detail-fff8ca);
+  color: var(--color-detail-5f5316);
 }
 .program-detail-summary h2 {
-  font-size: 42px;
+  font-size: max(var(--text-min), 42px);
   line-height: 1.26;
   letter-spacing: -1.9px;
   margin: 0 0 18px;
   word-break: keep-all;
 }
 .program-detail-intro {
-  color: #74746d;
-  font-size: var(--text-sm);
+  color: var(--color-detail-74746d);
+  font-size: max(var(--text-min), var(--text-sm));
   line-height: 1.8;
   word-break: keep-all;
   margin-bottom: 29px;
 }
 .program-detail-meta {
   margin: 0;
-  border-top: 1px solid #222;
+  border-top: 1px solid var(--color-detail-222222);
   padding-top: 18px;
 }
 .program-detail-meta > div {
   display: flex;
   gap: 16px;
   padding: 9px 0;
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   line-height: 1.5;
 }
 .program-detail-meta dt {
   width: 75px;
   flex: none;
-  color: #7c7c76;
+  color: var(--color-detail-7c7c76);
 }
 .program-detail-meta dd {
   margin: 0;
-  color: #222;
+  color: var(--color-detail-222222);
 }
 .program-meta-caption {
-  color: #8a8a83;
-  font-size: var(--text-sm);
+  color: var(--color-detail-8a8a83);
+  font-size: max(var(--text-min), var(--text-sm));
 }
 .program-detail-cta {
   display: flex;
@@ -405,28 +405,28 @@
   min-height: 58px;
   display: grid;
   place-items: center;
-  border: 1px solid #d5d5cd;
+  border: 1px solid var(--color-detail-d5d5cd);
   border-radius: 6px;
-  background: #fff;
+  background: var(--color-white);
   cursor: pointer;
   flex: none;
 }
 .program-icon-button.is-saved {
-  color: #c64c3d;
-  background: #fff1ed;
-  border-color: #e6b7ad;
+  color: var(--color-detail-c64c3d);
+  background: var(--color-detail-fff1ed);
+  border-color: var(--color-detail-e6b7ad);
 }
 .program-icon-button.is-saved svg {
   fill: currentColor;
 }
 .program-share {
   padding: 18px;
-  background: #f5f5ef;
+  background: var(--color-detail-f5f5ef);
   border-radius: 6px;
   margin-top: 16px;
 }
 .program-share label {
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   display: block;
   margin-bottom: 8px;
 }
@@ -438,22 +438,22 @@
   min-width: 0;
   width: 100%;
   padding: 10px;
-  font-size: var(--text-sm);
-  border: 1px solid #d1d1c8;
+  font-size: max(var(--text-min), var(--text-sm));
+  border: 1px solid var(--color-detail-d1d1c8);
   border-radius: 3px;
 }
 .program-share button {
   border: 0;
-  background: #1a1a1a;
-  color: #fff;
+  background: var(--color-detail-1a1a1a);
+  color: var(--color-white);
   padding: 8px 14px;
   cursor: pointer;
   flex: none;
   border-radius: 3px;
 }
 .program-share p {
-  font-size: var(--text-sm);
-  color: #727268;
+  font-size: max(var(--text-min), var(--text-sm));
+  color: var(--color-detail-727268);
   margin-bottom: 0;
 }
 .program-detail-content {
@@ -462,20 +462,20 @@
 .program-detail-tabs {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--color-detail-dddddd);
   position: relative;
 }
 .program-detail-tabs button {
   padding: 20px 10px;
   background: none;
   border: 0;
-  font-size: 17px;
-  color: #85857d;
+  font-size: max(var(--text-min), 17px);
+  color: var(--color-detail-85857d);
   position: relative;
   cursor: pointer;
 }
 .program-detail-tabs button[aria-selected="true"] {
-  color: #191919;
+  color: var(--color-detail-191919);
   font-weight: 700;
 }
 .program-detail-tabs button[aria-selected="true"]:after {
@@ -485,7 +485,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: #191919;
+  background: var(--color-detail-191919);
 }
 .program-tab-panel {
   padding: 54px 0 20px;
@@ -502,20 +502,20 @@
   align-items: center;
 }
 .program-editorial h2 {
-  font-size: 33px;
+  font-size: max(var(--text-min), 33px);
   line-height: 1.35;
   letter-spacing: -1.3px;
   margin: 14px 0 25px;
   word-break: keep-all;
 }
 .program-editorial p {
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   line-height: 1.9;
-  color: #74746e;
+  color: var(--color-detail-74746e);
 }
 .program-editorial .program-editorial__lead {
-  font-size: 20px;
-  color: #333;
+  font-size: max(var(--text-min), 20px);
+  color: var(--color-detail-333333);
   line-height: 1.8;
   word-break: keep-all;
 }
@@ -526,14 +526,14 @@
   margin-top: 24px;
 }
 .program-tag-row span {
-  font-size: var(--text-sm);
-  background: #f4f4ed;
+  font-size: max(var(--text-min), var(--text-sm));
+  background: var(--color-detail-f4f4ed);
   border-radius: 3px;
   padding: 8px 11px;
-  color: #66665c;
+  color: var(--color-detail-66665c);
 }
 .program-quote {
-  background: #f5f4eb;
+  background: var(--color-detail-f5f4eb);
   min-height: 290px;
   padding: 30px 40px;
   border-radius: 8px;
@@ -543,40 +543,40 @@
 }
 .program-quote > span:first-child {
   font-family: Georgia, serif;
-  font-size: 70px;
+  font-size: max(var(--text-min), 70px);
   height: 55px;
-  color: #b2a780;
+  color: var(--color-detail-b2a780);
 }
 .program-quote p {
-  font-size: 29px;
+  font-size: max(var(--text-min), 29px);
   line-height: 1.6;
   letter-spacing: -1px;
-  color: #33332f;
+  color: var(--color-detail-33332f);
   margin: 0 0 25px;
 }
 .program-quote > .eyebrow {
-  color: #9a998d;
-  font-size: var(--text-sm);
+  color: var(--color-detail-9a998d);
+  font-size: max(var(--text-min), var(--text-sm));
 }
 .program-panel-title {
-  font-size: 27px;
+  font-size: max(var(--text-min), 27px);
   letter-spacing: -1px;
   margin: 0 0 30px;
 }
 .program-details-table {
-  border-top: 2px solid #1e1e1b;
+  border-top: 2px solid var(--color-detail-1e1e1b);
   margin: 0;
 }
 .program-details-table > div {
   display: grid;
   grid-template-columns: 180px 1fr;
-  border-bottom: 1px solid #dfdfd7;
-  font-size: var(--text-sm);
+  border-bottom: 1px solid var(--color-detail-dfdfd7);
+  font-size: max(var(--text-min), var(--text-sm));
   line-height: 1.8;
 }
 .program-details-table dt {
   padding: 20px 24px;
-  background: #f5f5ef;
+  background: var(--color-detail-f5f5ef);
   font-weight: 600;
 }
 .program-details-table dd {
@@ -585,30 +585,30 @@
 }
 .program-details-table small {
   display: block;
-  color: #88887e;
-  font-size: var(--text-sm);
+  color: var(--color-detail-88887e);
+  font-size: max(var(--text-min), var(--text-sm));
   margin-top: 5px;
 }
 .program-info-box {
-  background: #f5f5ef;
+  background: var(--color-detail-f5f5ef);
   padding: 30px 34px;
   border-radius: 8px;
   margin: 35px 0;
 }
 .program-info-box h3 {
-  font-size: 20px;
+  font-size: max(var(--text-min), 20px);
   letter-spacing: -0.5px;
   margin: 0 0 16px;
 }
 .program-info-box p {
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   line-height: 1.85;
-  color: #727269;
+  color: var(--color-detail-727269);
 }
 .program-info-box .program-cast-name {
-  font-size: 23px;
+  font-size: max(var(--text-min), 23px);
   font-weight: 600;
-  color: #20201c;
+  color: var(--color-detail-20201c);
   margin-bottom: 8px;
 }
 .program-info-columns {
@@ -617,20 +617,20 @@
   gap: 32px 48px;
 }
 .program-info-columns article h3 {
-  font-size: 21px;
+  font-size: max(var(--text-min), 21px);
   letter-spacing: -0.5px;
   margin: 10px 0 16px;
 }
 .program-info-columns article p {
-  color: #72726b;
-  font-size: var(--text-sm);
+  color: var(--color-detail-72726b);
+  font-size: max(var(--text-min), var(--text-sm));
   line-height: 1.9;
   word-break: keep-all;
 }
 .program-simple-list {
   padding-left: 20px;
-  color: #6e6e64;
-  font-size: var(--text-sm);
+  color: var(--color-detail-6e6e64);
+  font-size: max(var(--text-min), var(--text-sm));
   line-height: 2.1;
 }
 .program-simple-list li {
@@ -640,22 +640,22 @@
   display: flex;
   align-items: center;
   gap: 24px;
-  background: #f7f6ee;
+  background: var(--color-detail-f7f6ee);
   padding: 26px 30px;
   margin-bottom: 36px;
   border-radius: 7px;
 }
 .program-price-block > span:first-child {
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
 }
 .program-price-block strong {
-  font-size: 32px;
+  font-size: max(var(--text-min), 32px);
   letter-spacing: -1px;
   margin-left: auto;
 }
 .program-price-block > span:last-child {
-  font-size: var(--text-sm);
-  color: #89897e;
+  font-size: max(var(--text-min), var(--text-sm));
+  color: var(--color-detail-89897e);
 }
 .program-panel-actions {
   display: flex;
@@ -667,7 +667,7 @@
 .program-info-icon {
   width: 56px;
   height: 56px;
-  background: #f5f5e9;
+  background: var(--color-detail-f5f5e9);
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -676,7 +676,7 @@
 .program-related {
   margin-top: 75px;
   padding-top: 40px;
-  border-top: 1px solid #dcdcd4;
+  border-top: 1px solid var(--color-detail-dcdcd4);
 }
 .program-related .program-results-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -684,7 +684,7 @@
 }
 .program-back-link {
   text-align: center;
-  border-top: 1px solid #deded6;
+  border-top: 1px solid var(--color-detail-deded6);
   margin-top: 60px;
   padding-top: 28px;
 }
@@ -703,7 +703,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  color: #1b1b18;
+  color: var(--color-detail-1b1b18);
 }
 .program-season-tile > div:first-child {
   display: flex;
@@ -713,11 +713,11 @@
 }
 .program-season-number {
   font-family: Arial, sans-serif;
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   opacity: 0.5;
 }
 .program-season-tile h2 {
-  font-size: 38px;
+  font-size: max(var(--text-min), 38px);
   line-height: 1.35;
   letter-spacing: -1.5px;
   margin: 36px 0 44px;
@@ -728,23 +728,23 @@
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   font-weight: 600;
 }
 .program-season-tile--yellow {
-  background: #f6db55;
+  background: var(--color-detail-f6db55);
 }
 .program-season-tile--purple {
-  background: #d6c2ec;
+  background: var(--color-detail-d6c2ec);
 }
 .program-season-tile--green {
-  background: #cdddac;
+  background: var(--color-detail-cdddac);
 }
 .program-season-tile--pink {
-  background: #f2ccca;
+  background: var(--color-detail-f2ccca);
 }
 .program-season-tile--blue {
-  background: #b5d9e9;
+  background: var(--color-detail-b5d9e9);
 }
 .program-season-sub {
   margin-top: 72px;
@@ -758,11 +758,11 @@
   padding: 28px;
 }
 .program-season-grid--three .program-season-tile h2 {
-  font-size: 28px;
+  font-size: max(var(--text-min), 28px);
   letter-spacing: -1px;
 }
 .program-season-grid--three .eyebrow {
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
 }
 .program-season-banner {
   border-radius: 14px;
@@ -772,7 +772,7 @@
   overflow: hidden;
 }
 .program-season-banner h2 {
-  font-size: 62px;
+  font-size: max(var(--text-min), 62px);
   line-height: 1.25;
   letter-spacing: -3px;
   margin: 34px 0;
@@ -781,12 +781,12 @@
   word-break: keep-all;
 }
 .program-season-banner > p {
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   position: relative;
   z-index: 1;
 }
 .program-season-banner__mark {
-  font-size: 320px;
+  font-size: max(var(--text-min), 320px);
   font-weight: 900;
   font-family: Arial, sans-serif;
   position: absolute;
@@ -801,15 +801,15 @@
   gap: 60px;
 }
 .program-season-story h2 {
-  font-size: 26px;
+  font-size: max(var(--text-min), 26px);
   letter-spacing: -1px;
   margin: 0 0 18px;
 }
 .program-season-story p {
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
 }
 .program-section-title {
-  font-size: 34px;
+  font-size: max(var(--text-min), 34px);
   letter-spacing: -1.3px;
   margin: 13px 0 36px;
 }
@@ -823,25 +823,25 @@
   counter-reset: steps;
 }
 .program-guide-steps li {
-  border-top: 1px solid #242420;
+  border-top: 1px solid var(--color-detail-242420);
   padding: 23px 0 10px;
   position: relative;
 }
 .program-guide-steps li > span {
   font-family: Arial, sans-serif;
-  font-size: 42px;
+  font-size: max(var(--text-min), 42px);
   font-weight: 500;
   letter-spacing: -1px;
-  color: #b1aa85;
+  color: var(--color-detail-b1aa85);
 }
 .program-guide-steps h3 {
-  font-size: 21px;
+  font-size: max(var(--text-min), 21px);
   letter-spacing: -0.6px;
   margin: 22px 0 12px;
 }
 .program-guide-steps p {
-  font-size: var(--text-sm);
-  color: #77776d;
+  font-size: max(var(--text-min), var(--text-sm));
+  color: var(--color-detail-77776d);
   line-height: 1.8;
   margin: 0;
   word-break: keep-all;
@@ -850,15 +850,15 @@
   margin-top: 68px;
 }
 .program-guide-section > h2 {
-  font-size: 29px;
+  font-size: max(var(--text-min), 29px);
   letter-spacing: -1px;
   margin: 0 0 30px;
 }
 .program-guide-faq {
-  border-top: 1px solid #262623;
+  border-top: 1px solid var(--color-detail-262623);
 }
 .program-guide-faq details {
-  border-bottom: 1px solid #d9d9d1;
+  border-bottom: 1px solid var(--color-detail-d9d9d1);
 }
 .program-guide-faq summary {
   display: flex;
@@ -867,7 +867,7 @@
   gap: 20px;
   padding: 22px 4px;
   list-style: none;
-  font-size: 16px;
+  font-size: max(var(--text-min), 16px);
   cursor: pointer;
 }
 .program-guide-faq summary::-webkit-details-marker {
@@ -881,9 +881,9 @@
   transform: rotate(45deg);
 }
 .program-guide-faq details > p {
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   line-height: 1.9;
-  color: #75756b;
+  color: var(--color-detail-75756b);
   padding: 0 35px 24px 4px;
   margin: 0;
 }
@@ -898,7 +898,7 @@
   min-height: 430px;
   overflow: hidden;
   border-radius: 12px;
-  background: #ece9df;
+  background: var(--color-detail-ece9df);
 }
 .program-feature__image img {
   width: 100%;
@@ -907,14 +907,14 @@
   object-fit: cover;
 }
 .program-feature__copy h2 {
-  font-size: 37px;
+  font-size: max(var(--text-min), 37px);
   line-height: 1.35;
   letter-spacing: -1.6px;
   margin: 20px 0;
 }
 .program-feature__copy > p {
-  font-size: var(--text-sm);
-  color: #77776d;
+  font-size: max(var(--text-min), var(--text-sm));
+  color: var(--color-detail-77776d);
   line-height: 1.8;
   word-break: keep-all;
 }
@@ -923,14 +923,14 @@
 }
 .program-history-hero {
   padding: 56px 60px;
-  background: #e9e2d3;
+  background: var(--color-detail-e9e2d3);
   border-radius: 12px;
   position: relative;
   overflow: hidden;
   min-height: 450px;
 }
 .program-history-hero h2 {
-  font-size: 48px;
+  font-size: max(var(--text-min), 48px);
   line-height: 1.35;
   letter-spacing: -2px;
   margin: 27px 0;
@@ -938,16 +938,16 @@
   z-index: 1;
 }
 .program-history-hero p {
-  font-size: 16px;
+  font-size: max(var(--text-min), 16px);
   line-height: 1.9;
-  color: #646052;
+  color: var(--color-detail-646052);
   position: relative;
   z-index: 1;
 }
 .program-history-type {
   font-family: serif;
   position: absolute;
-  font-size: 120px;
+  font-size: max(var(--text-min), 120px);
   right: -15px;
   bottom: 30px;
   writing-mode: vertical-rl;
@@ -957,7 +957,7 @@
   letter-spacing: 16px;
 }
 .program-history-type span {
-  font-size: 90px;
+  font-size: max(var(--text-min), 90px);
   display: block;
 }
 .program-history-stories {
@@ -967,20 +967,20 @@
   margin-top: 55px;
 }
 .program-history-stories article > span {
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   letter-spacing: 1.2px;
-  color: #a6a08c;
+  color: var(--color-detail-a6a08c);
 }
 .program-history-stories h2 {
-  font-size: 33px;
+  font-size: max(var(--text-min), 33px);
   letter-spacing: -1px;
   margin: 18px 0 20px;
 }
 .program-history-stories p,
 .program-history-stories li {
-  font-size: var(--text-sm);
+  font-size: max(var(--text-min), var(--text-sm));
   line-height: 1.9;
-  color: #77776d;
+  color: var(--color-detail-77776d);
 }
 .program-history-stories ul {
   padding-left: 20px;
@@ -992,7 +992,7 @@
 .program-detail-tabs button:focus-visible,
 .program-icon-button:focus-visible,
 .program-season-tile:focus-visible {
-  outline: 3px solid #796516;
+  outline: 3px solid var(--color-detail-796516);
   outline-offset: 4px;
 }
 @media (min-width: 1500px) {
@@ -1001,7 +1001,7 @@
     max-width: 1150px;
   }
   .program-detail-summary h2 {
-    font-size: 46px;
+    font-size: max(var(--text-min), 46px);
   }
   .program-detail-poster {
     padding: 35px;
@@ -1015,7 +1015,7 @@
     gap: 40px;
   }
   .program-detail-summary h2 {
-    font-size: 34px;
+    font-size: max(var(--text-min), 34px);
   }
   .program-editorial {
     gap: 35px;
@@ -1024,19 +1024,19 @@
     padding: 30px;
   }
   .program-quote p {
-    font-size: 25px;
+    font-size: max(var(--text-min), 25px);
   }
   .program-season-tile h2 {
-    font-size: 33px;
+    font-size: max(var(--text-min), 33px);
   }
   .program-season-grid--three .program-season-tile {
     padding: 25px 23px;
   }
   .program-season-grid--three .program-season-tile h2 {
-    font-size: 24px;
+    font-size: max(var(--text-min), 24px);
   }
   .program-calendar__count {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-calendar__day,
   .program-calendar__blank {
@@ -1047,16 +1047,16 @@
     gap: 32px;
   }
   .program-feature__copy h2 {
-    font-size: 31px;
+    font-size: max(var(--text-min), 31px);
   }
   .program-guide-steps {
     gap: 18px;
   }
   .program-guide-steps h3 {
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
   }
   .program-season-banner h2 {
-    font-size: 54px;
+    font-size: max(var(--text-min), 54px);
   }
 }
 @media (max-width: 760px) {
@@ -1065,14 +1065,14 @@
     margin-bottom: 25px;
   }
   .program-category-tabs a {
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     padding-bottom: 16px;
   }
   .program-filter {
     padding: 22px 20px;
   }
   .program-filter__search input {
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
   }
   .program-filter__row {
     display: grid;
@@ -1098,7 +1098,7 @@
     gap: 12px;
   }
   .program-view-switch a {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     padding: 10px;
     gap: 4px;
   }
@@ -1106,7 +1106,7 @@
     width: 15px;
   }
   .program-results-toolbar p {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-results-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1118,7 +1118,7 @@
     flex-direction: column;
   }
   .program-help h2 {
-    font-size: 23px;
+    font-size: max(var(--text-min), 23px);
   }
   .program-help > div:last-child {
     flex-direction: row;
@@ -1127,20 +1127,20 @@
     gap: 20px;
   }
   .program-help .text-link {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-results-heading h2 {
-    font-size: 24px;
+    font-size: max(var(--text-min), 24px);
   }
   .program-results-heading > .text-link {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-calendar__top {
     gap: 15px;
     padding: 20px 10px;
   }
   .program-calendar__top h2 {
-    font-size: 27px;
+    font-size: max(var(--text-min), 27px);
   }
   .program-calendar__arrow {
     height: 32px;
@@ -1149,7 +1149,7 @@
   .program-calendar__today {
     position: static;
     padding: 6px 10px;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     margin-left: 5px;
   }
   .program-calendar__day,
@@ -1158,7 +1158,7 @@
     padding: 8px;
   }
   .program-calendar__number {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     min-width: 24px;
     height: 24px;
   }
@@ -1170,11 +1170,11 @@
     justify-content: center;
   }
   .program-calendar__none {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: 5px;
   }
   .program-calendar__hint {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     padding: 12px 16px;
     line-height: 1.7;
   }
@@ -1192,7 +1192,7 @@
     padding: 24px;
   }
   .program-detail-summary h2 {
-    font-size: 34px;
+    font-size: max(var(--text-min), 34px);
     letter-spacing: -1.2px;
   }
   .program-detail-summary {
@@ -1202,7 +1202,7 @@
     margin-bottom: 16px;
   }
   .program-detail-intro {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-detail-cta .button {
     min-height: 54px;
@@ -1215,7 +1215,7 @@
     margin-top: 45px;
   }
   .program-detail-tabs button {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     padding: 19px 5px;
   }
   .program-tab-panel {
@@ -1226,22 +1226,22 @@
     gap: 26px;
   }
   .program-editorial h2 {
-    font-size: 28px;
+    font-size: max(var(--text-min), 28px);
     margin: 14px 0 20px;
   }
   .program-editorial .program-editorial__lead {
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
   }
   .program-quote {
     min-height: 235px;
     padding: 28px;
   }
   .program-quote p {
-    font-size: 25px;
+    font-size: max(var(--text-min), 25px);
   }
   .program-details-table > div {
     grid-template-columns: 110px 1fr;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-details-table dt {
     padding: 16px;
@@ -1250,7 +1250,7 @@
     padding: 16px;
   }
   .program-panel-title {
-    font-size: 24px;
+    font-size: max(var(--text-min), 24px);
     margin-bottom: 23px;
   }
   .program-info-box {
@@ -1262,7 +1262,7 @@
     grid-template-columns: 1fr;
   }
   .program-info-columns article h3 {
-    font-size: 20px;
+    font-size: max(var(--text-min), 20px);
     margin: 0 0 12px;
   }
   .program-info-icon {
@@ -1275,7 +1275,7 @@
     flex-wrap: wrap;
   }
   .program-price-block strong {
-    font-size: 28px;
+    font-size: max(var(--text-min), 28px);
   }
   .program-price-block > span:last-child {
     width: 100%;
@@ -1285,10 +1285,10 @@
     gap: 18px;
   }
   .program-panel-actions .button {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-panel-actions .text-link {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-related {
     margin-top: 45px;
@@ -1308,15 +1308,15 @@
     min-height: 285px;
   }
   .program-season-tile h2 {
-    font-size: 27px;
+    font-size: max(var(--text-min), 27px);
     letter-spacing: -1px;
     margin: 30px 0;
   }
   .program-season-tile .eyebrow {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-season-tile__bottom {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-season-tile__bottom svg {
     width: 24px;
@@ -1332,28 +1332,28 @@
     padding: 26px;
   }
   .program-season-grid--three .program-season-tile h2 {
-    font-size: 29px;
+    font-size: max(var(--text-min), 29px);
   }
   .program-season-banner {
     padding: 34px 32px;
     min-height: 330px;
   }
   .program-season-banner h2 {
-    font-size: 40px;
+    font-size: max(var(--text-min), 40px);
     letter-spacing: -1.5px;
     margin: 30px 0;
   }
   .program-season-banner__mark {
     right: 10px;
     top: 20px;
-    font-size: 250px;
+    font-size: max(var(--text-min), 250px);
   }
   .program-season-story {
     gap: 25px;
     margin: 36px 0 40px;
   }
   .program-season-story h2 {
-    font-size: 23px;
+    font-size: max(var(--text-min), 23px);
   }
   .program-guide-steps {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1361,31 +1361,31 @@
     margin-top: 24px;
   }
   .program-guide-steps li > span {
-    font-size: 35px;
+    font-size: max(var(--text-min), 35px);
   }
   .program-guide-steps h3 {
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     margin: 16px 0 11px;
   }
   .program-guide-steps p {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-section-title {
-    font-size: 29px;
+    font-size: max(var(--text-min), 29px);
   }
   .program-guide-section {
     margin-top: 43px;
   }
   .program-guide-section > h2 {
-    font-size: 25px;
+    font-size: max(var(--text-min), 25px);
     margin-bottom: 25px;
   }
   .program-guide-faq summary {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     padding: 19px 2px;
   }
   .program-guide-faq details > p {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-feature {
     grid-template-columns: 1fr;
@@ -1400,30 +1400,30 @@
     max-height: 350px;
   }
   .program-feature__copy h2 {
-    font-size: 33px;
+    font-size: max(var(--text-min), 33px);
   }
   .program-history-hero {
     padding: 35px 28px;
     min-height: 400px;
   }
   .program-history-hero h2 {
-    font-size: 35px;
+    font-size: max(var(--text-min), 35px);
     letter-spacing: -1.3px;
     margin: 26px 0;
   }
   .program-history-hero p {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-history-hero p br {
     display: none;
   }
   .program-history-type {
-    font-size: 80px;
+    font-size: max(var(--text-min), 80px);
     right: -25px;
     bottom: 15px;
   }
   .program-history-type span {
-    font-size: 60px;
+    font-size: max(var(--text-min), 60px);
   }
   .program-history-stories {
     grid-template-columns: 1fr;
@@ -1431,12 +1431,12 @@
     margin-top: 35px;
   }
   .program-history-stories h2 {
-    font-size: 28px;
+    font-size: max(var(--text-min), 28px);
     margin: 15px 0;
   }
   .program-history-stories p,
   .program-history-stories li {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
 }
 @media (max-width: 460px) {
@@ -1447,7 +1447,7 @@
     min-height: 290px;
   }
   .program-season-tile h2 {
-    font-size: 32px;
+    font-size: max(var(--text-min), 32px);
   }
   .program-calendar__top {
     gap: 12px;
@@ -1458,22 +1458,22 @@
     padding: 6px;
   }
   .program-calendar__number {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-calendar__week {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-detail-summary h2 {
-    font-size: 30px;
+    font-size: max(var(--text-min), 30px);
   }
   .program-results-heading {
     gap: 12px;
   }
   .program-results-heading h2 {
-    font-size: 21px;
+    font-size: max(var(--text-min), 21px);
   }
   .program-detail-tabs button {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
   }
   .program-details-table > div {
     grid-template-columns: 95px 1fr;
@@ -1487,16 +1487,16 @@
     min-height: 300px;
   }
   .program-season-banner h2 {
-    font-size: 34px;
+    font-size: max(var(--text-min), 34px);
   }
   .program-history-hero h2 {
-    font-size: 30px;
+    font-size: max(var(--text-min), 30px);
   }
   .program-guide-steps {
     gap: 20px 18px;
   }
   .program-guide-steps h3 {
-    font-size: 17px;
+    font-size: max(var(--text-min), 17px);
   }
 }
 @media (prefers-reduced-motion: reduce) {

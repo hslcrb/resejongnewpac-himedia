@@ -53,6 +53,3 @@ export function accountBookingSummary<T extends { date: string; time: string; st
     const upcoming = active.filter(booking => booking.date >= today).sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
     return { next: upcoming[0], upcoming: upcoming.length, cancelled: bookings.length - active.length, visited: active.filter(booking => booking.date < today).length };
 }
-export function persistAccountValue(key: string, value: unknown): boolean {
-    try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch { return false; }
-}

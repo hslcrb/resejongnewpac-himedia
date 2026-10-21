@@ -17,11 +17,11 @@ export default function ProgramDetailClient({ program }: ProgramDetailClientProp
     return (
         <div className="container page-layout program-detail-page">
             <nav className="page-layout-breadcrumbs" aria-label="현재 위치">
-                <Link href="/">홈</Link>
-                <span aria-hidden="true">/</span>
-                <Link href="/programs">프로그램</Link>
-                <span aria-hidden="true">/</span>
-                <span aria-current="page">{program.title}</span>
+                <Link data-text="action" href="/">홈</Link>
+                <span data-text="body" aria-hidden="true">/</span>
+                <Link data-text="action" href="/programs">프로그램</Link>
+                <span data-text="body" aria-hidden="true">/</span>
+                <span data-text="body" aria-current="page">{program.title}</span>
             </nav>
 
             <article className="program-detail-page-grid">
@@ -43,38 +43,38 @@ export default function ProgramDetailClient({ program }: ProgramDetailClientProp
                 <div className="program-detail-page-summary">
                     <header className="page-layout-heading">
                         <div className="page-layout-actions">
-                            <SystemBadge tone="info">{program.category}</SystemBadge>
-                            <SystemBadge>{program.genre}</SystemBadge>
+                            <SystemBadge data-text="meta" tone="info">{program.category}</SystemBadge>
+                            <SystemBadge data-text="meta">{program.genre}</SystemBadge>
                         </div>
-                        <h1>{program.title}</h1>
+                        <h1 data-text="title">{program.title}</h1>
                     </header>
 
                     <dl className="page-layout-facts program-detail-page-facts">
-                        <dt>일시</dt>
-                        <dd>{program.start} ~ {program.end}</dd>
-                        <dt>장소</dt>
-                        <dd>{program.venue}</dd>
-                        <dt>가격</dt>
-                        <dd>
+                        <dt data-text="label">일시</dt>
+                        <dd data-text="body">{program.start} ~ {program.end}</dd>
+                        <dt data-text="label">장소</dt>
+                        <dd data-text="body">{program.venue}</dd>
+                        <dt data-text="label">가격</dt>
+                        <dd data-text="body">
                             {typeof program.price === "number"
                                 ? `${program.price.toLocaleString("ko-KR")}원`
                                 : (program.price || "VIP석 100,000원 / R석 80,000원 / S석 50,000원")}
                         </dd>
-                        <dt>시간</dt>
-                        <dd>{program.time || "평일 19:30 / 주말 15:00, 19:00"}</dd>
+                        <dt data-text="label">시간</dt>
+                        <dd data-text="body">{program.time || "평일 19:30 / 주말 15:00, 19:00"}</dd>
                     </dl>
 
                     <section className="page-layout-prose program-detail-page-description" aria-labelledby="program-description-heading">
-                        <h2 id="program-description-heading">프로그램 소개</h2>
-                        <p>{program.description}</p>
+                        <h2 data-text="heading" id="program-description-heading">프로그램 소개</h2>
+                        <p data-text="body">{program.description}</p>
                     </section>
 
                     {/* [공통 예매 이동 조작 / Shared booking navigation actions] */}
                     <div className="page-layout-actions program-detail-page-actions">
-                        <SystemLink context="flow" href={`/booking/${program.id}`}>
+                        <SystemLink data-text="action" context="flow" href={`/booking/${program.id}`}>
                             예매하기
                         </SystemLink>
-                        <SystemLink context="flow" variant="secondary" href="/programs">
+                        <SystemLink data-text="action" context="flow" variant="secondary" href="/programs">
                             목록으로
                         </SystemLink>
                     </div>

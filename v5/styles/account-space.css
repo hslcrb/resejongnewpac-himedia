@@ -16,7 +16,7 @@
     gap: var(--space-3);
     margin-bottom: var(--space-8);
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-label);
 }
 
@@ -27,7 +27,7 @@
 .account-page-heading h1 {
     margin: 0 0 var(--space-4);
     color: var(--text-primary);
-    font-size: var(--text-title);
+    font-size: max(var(--text-min), var(--text-title));
     font-weight: var(--weight-heading);
     line-height: var(--leading-heading);
     letter-spacing: var(--tracking-heading);
@@ -36,7 +36,7 @@
 .account-page-heading > .container > p {
     margin: 0;
     color: var(--text-secondary);
-    font-size: var(--text-lead);
+    font-size: max(var(--text-min), var(--text-lead));
     line-height: var(--leading-body);
     word-break: keep-all;
 }
@@ -50,8 +50,6 @@
 
 .account-profile-aside {
     min-width: 0;
-    padding-right: var(--space-6);
-    border-right: 1px solid var(--border-default);
 }
 
 .account-main {
@@ -60,7 +58,7 @@
 
 .account-loading {
     padding-block: var(--space-12);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: var(--leading-body);
 }
 
@@ -88,13 +86,13 @@
     border-radius: var(--radius-pill);
     background: var(--accent-highlight);
     color: var(--text-primary);
-    font-size: var(--text-subheading);
+    font-size: max(var(--text-min), var(--text-subheading));
     font-weight: var(--weight-heading);
 }
 
 .account-identity h2 {
     margin: var(--space-2) 0 0;
-    font-size: var(--text-heading);
+    font-size: max(var(--text-min), var(--text-heading));
     font-weight: var(--weight-heading);
     line-height: var(--leading-heading);
     letter-spacing: var(--tracking-heading);
@@ -104,7 +102,7 @@
 .account-identity h2 span {
     display: block;
     margin-top: var(--space-2);
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
     font-weight: var(--weight-label);
     letter-spacing: var(--tracking-body);
 }
@@ -112,7 +110,7 @@
 .account-status-message {
     margin: 0;
     color: var(--text-secondary);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: var(--leading-body);
     overflow-wrap: anywhere;
     word-break: keep-all;
@@ -135,13 +133,13 @@
 
 .account-profile-counts dt {
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-label);
 }
 
 .account-profile-counts dd {
     margin: 0;
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
     font-weight: var(--weight-heading);
     line-height: var(--leading-label);
     white-space: nowrap;
@@ -149,13 +147,13 @@
 
 .account-profile-counts dd span {
     margin-left: var(--space-1);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: var(--weight-body);
 }
 
 .account-membership-guide h3 {
     margin: 0 0 var(--space-2);
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
     font-weight: var(--weight-title);
     line-height: var(--leading-label);
 }
@@ -163,7 +161,7 @@
 .account-membership-guide p {
     margin: 0 0 var(--space-3);
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-body);
     word-break: keep-all;
 }
@@ -208,7 +206,7 @@
 .account-section-heading h2 {
     margin: 0;
     color: var(--text-primary);
-    font-size: var(--text-subheading);
+    font-size: max(var(--text-min), var(--text-subheading));
     font-weight: var(--weight-heading);
     line-height: var(--leading-heading);
     letter-spacing: var(--tracking-heading);
@@ -218,7 +216,7 @@
 .account-section-heading p {
     margin: var(--space-2) 0 0;
     color: var(--text-secondary);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: var(--leading-body);
     word-break: keep-all;
 }
@@ -230,7 +228,7 @@
     gap: var(--space-2);
     min-height: var(--control-size);
     color: var(--text-primary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: var(--weight-action);
     line-height: var(--leading-label);
     text-underline-offset: 0.2em;
@@ -239,7 +237,7 @@
 .account-section-heading > span {
     flex-shrink: 0;
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-label);
 }
 
@@ -273,7 +271,7 @@
 }
 
 .account-ticket-date strong {
-    font-size: var(--text-heading);
+    font-size: max(var(--text-min), var(--text-heading));
     font-weight: var(--weight-heading);
     line-height: var(--leading-heading);
     letter-spacing: var(--tracking-heading);
@@ -281,7 +279,7 @@
 
 .account-ticket-date span {
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-label);
 }
 
@@ -301,7 +299,7 @@
 .account-ticket-body h3 {
     margin: var(--space-3) 0 var(--space-2);
     color: var(--text-primary);
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
     font-weight: var(--weight-title);
     line-height: var(--leading-label);
     word-break: keep-all;
@@ -321,7 +319,7 @@
 .account-ticket-body p {
     margin: var(--space-1) 0 0;
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-label);
     overflow-wrap: anywhere;
 }
@@ -349,7 +347,7 @@
 .account-local-note {
     margin: var(--space-4) 0 0;
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-body);
     word-break: keep-all;
 }
@@ -379,7 +377,7 @@
 .account-empty h3 {
     margin: 0 0 var(--space-2);
     color: var(--text-primary);
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
     font-weight: var(--weight-title);
     line-height: var(--leading-label);
     word-break: keep-all;
@@ -389,7 +387,7 @@
 .account-empty p {
     margin: 0;
     color: var(--text-secondary);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: var(--leading-body);
     word-break: keep-all;
 }
@@ -411,7 +409,7 @@
     padding-block: var(--space-6);
     border-top: 1px solid var(--border-default);
     color: var(--text-secondary);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: var(--leading-body);
     word-break: keep-all;
 }
@@ -444,7 +442,7 @@
 .account-note-form-footer p {
     margin: 0;
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-label);
     word-break: keep-all;
 }
@@ -479,7 +477,7 @@
 .account-note time,
 .account-note-preview time {
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-label);
 }
 
@@ -487,7 +485,7 @@
 .account-note-preview h3 {
     margin: var(--space-3) 0;
     color: var(--text-primary);
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
     font-weight: var(--weight-title);
     line-height: var(--leading-label);
     word-break: keep-all;
@@ -497,7 +495,7 @@
 .account-note-preview p {
     margin: 0;
     color: var(--text-primary);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: var(--leading-body);
     white-space: pre-wrap;
     overflow-wrap: anywhere;
@@ -526,7 +524,7 @@
 .account-service-list h3 {
     margin: 0 0 var(--space-2);
     color: var(--text-primary);
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
     font-weight: var(--weight-title);
     line-height: var(--leading-label);
 }
@@ -535,7 +533,7 @@
     max-width: 34rem;
     margin: 0;
     color: var(--text-secondary);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: var(--leading-body);
     word-break: keep-all;
 }
@@ -547,7 +545,7 @@
 /* [공통 모달 안의 내용 배치 / Content layout inside shared dialogs] */
 .account-dialog-heading h2 {
     margin: 0 0 var(--space-3);
-    font-size: var(--text-subheading);
+    font-size: max(var(--text-min), var(--text-subheading));
     font-weight: var(--weight-heading);
     line-height: var(--leading-heading);
     letter-spacing: var(--tracking-heading);
@@ -556,7 +554,7 @@
 .account-dialog-heading p {
     margin: 0;
     color: var(--text-secondary);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: var(--leading-body);
     word-break: keep-all;
 }
@@ -571,7 +569,7 @@
 .account-theme-picker legend {
     padding: 0;
     margin-bottom: var(--space-3);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     font-weight: var(--weight-label);
     line-height: var(--leading-label);
 }

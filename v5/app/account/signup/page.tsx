@@ -1,29 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 import Link from "next/link";
 import { SystemButton, SystemCheckbox, SystemField, SystemNotice } from "../../../components/SystemPrimitives";
-import { useRouter } from "next/navigation";
-import { showToast } from "../../../components/Toast";
-import { createDemoProfile } from "../../../src/lib/supabase.ts";
+import { SystemSurface } from "../../../components/SystemSurface";
+import { requestEmailSignIn } from "../../../src/lib/supabase.ts";
 
 export default function SignupPage() {
-    const router = useRouter();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [consent, setConsent] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [pending, setPending] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    // [이메일 인증으로 만드는 계정 / Create an account through email verification]
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        if (pending) return;
         setErrorMessage("");
+        setSuccessMessage("");
 
         if (!name.trim()) {
             setErrorMessage("이름을 입력해 주세요.");
             return;
         }
-        if (!email.trim() || !email.includes("@")) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
             setErrorMessage("유효한 이메일을 입력해 주세요.");
             return;
         }
@@ -32,19 +36,14 @@ export default function SignupPage() {
             return;
         }
 
+        setPending(true);
         try {
-            const newProfile = {
-                name: name.trim(),
-                email: email.trim(),
-                phone: phone.trim(),
-            };
-            localStorage.setItem("sejong-v4:profile", JSON.stringify(createDemoProfile(newProfile)));
-            localStorage.setItem("sejong-v4:session", JSON.stringify({ active: true }));
-            window.dispatchEvent(new CustomEvent("sejong:account-identity", { detail: { action: "demo-sign-in" } }));
-            showToast("프로필을 만들었습니다.");
-            router.push("/account");
+            await requestEmailSignIn(email.trim(), { createUser: true, name: name.trim(), phone: phone.trim() });
+            setSuccessMessage("이메일로 로그인 링크를 보냈습니다.");
         } catch {
-            setErrorMessage("프로필을 저장하지 못했습니다. 브라우저 저장소를 확인해 주세요.");
+            setErrorMessage("가입 링크를 보내지 못했습니다. 이메일을 확인하고 잠시 후 다시 시도해 주세요.");
+        } finally {
+            setPending(false);
         }
     };
 
@@ -54,16 +53,16 @@ export default function SignupPage() {
             <section className="page-heading" id="page-heading">
                 <div className="container">
                     <nav className="breadcrumbs" aria-label="현재 위치">
-                        <Link href="/">홈</Link>
-                        <span aria-hidden="true">/</span>
-                        <Link href="/account">마이페이지</Link>
-                        <span aria-hidden="true">/</span>
-                        <span aria-current="page">프로필 만들기</span>
+                        <Link data-text="action" href="/">홈</Link>
+                        <span data-text="body" aria-hidden="true">/</span>
+                        <Link data-text="action" href="/account">마이페이지</Link>
+                        <span data-text="body" aria-hidden="true">/</span>
+                        <span data-text="body" aria-current="page">회원가입</span>
                     </nav>
                     <div className="page-title-row">
                         <div>
-                            <h1>프로필 만들기</h1>
-                            <p className="page-description">이 브라우저에서 나의 공간과 관람노트를 만들어 보세요.</p>
+                            <h1 data-text="title">회원가입</h1>
+                            <p data-text="body" className="page-description">이메일을 확인하고 나의 공간과 관람노트를 이용하세요.</p>
                         </div>
                     </div>
                 </div>
@@ -72,12 +71,12 @@ export default function SignupPage() {
             <div className="container page-content flow-content">
                 <div className="account-auth-layout">
                     <section className="account-auth-intro" aria-labelledby="account-intro-title">
-                        <h2 id="account-intro-title">
+                        <h2 data-text="heading" id="account-intro-title">
                             나만의 공간에서
                             <br />
                             다음 관람을 준비해요.
                         </h2>
-                        <p>관심 가는 프로그램을 모으고, 다음 관람을 준비해 보세요.</p>
+                        <p data-text="body">관심 가는 프로그램을 모으고, 다음 관람을 준비해 보세요.</p>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             className="account-auth-photo"
@@ -88,24 +87,24 @@ export default function SignupPage() {
                         />
                     </section>
 
-                    <form className="flow-panel" data-account-auth="signup" onSubmit={handleSubmit} noValidate>
-                        <h2>프로필 만들기</h2>
-                        <p className="flow-fineprint">
-                            이름과 연락처를 저장해 나의 공간과 관람노트를 관리하세요.
+                    <SystemSurface as="form" variant="panel" padding="lg" className="flow-panel" data-account-auth="signup" onSubmit={handleSubmit} noValidate>
+                        <h2 data-text="heading">회원가입</h2>
+                        <p data-text="body" className="flow-fineprint">
+                            가입할 이메일로 보낸 링크를 열면 계정을 사용할 수 있습니다.
                         </p>
-                        <p className="flow-fineprint">계정으로 로그인하려면 <Link href="/account/login">Google 로그인</Link>을 이용하세요.</p>
+                        <p data-text="body" className="flow-fineprint">이미 가입했다면 <Link data-text="action" href="/account/login">로그인</Link>을 이용하세요.</p>
 
                         {errorMessage && (
-                            <SystemNotice variant="flow" error className="flow-error" id="flow-error" tabIndex={-1}>
+                            <SystemNotice data-text="body" variant="flow" error className="flow-error" id="flow-error" tabIndex={-1}>
                                 {errorMessage}
                             </SystemNotice>
                         )}
 
-                        <SystemField
+                        <SystemField data-text="body"
                             variant="flow"
                             outerClassName="form-field"
-                            label={<>이름 <span className="flow-required" aria-hidden="true">*</span>
-                                <span className="sr-only">필수</span></>}
+                            label={<>이름 <span data-text="body" className="flow-required" aria-hidden="true">*</span>
+                                <span data-text="body" className="sr-only">필수</span></>}
                             id="flow-name"
                             name="name"
                             required
@@ -115,13 +114,14 @@ export default function SignupPage() {
                             placeholder="이름을 입력해 주세요"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
+                            disabled={pending}
                         />
 
-                        <SystemField
+                        <SystemField data-text="body"
                             variant="flow"
                             outerClassName="form-field"
-                            label={<>이메일 <span className="flow-required" aria-hidden="true">*</span>
-                                <span className="sr-only">필수</span></>}
+                            label={<>이메일 <span data-text="body" className="flow-required" aria-hidden="true">*</span>
+                                <span data-text="body" className="sr-only">필수</span></>}
                             id="flow-email"
                             name="email"
                             required
@@ -130,12 +130,13 @@ export default function SignupPage() {
                             placeholder="name@example.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            disabled={pending}
                         />
 
-                        <SystemField
+                        <SystemField data-text="body"
                             variant="flow"
                             outerClassName="form-field"
-                            label={<>연락처 <span className="flow-optional">(선택)</span></>}
+                            label={<>연락처 <span data-text="body" className="flow-optional">(선택)</span></>}
                             id="flow-phone"
                             name="phone"
                             autoComplete="tel"
@@ -143,28 +144,32 @@ export default function SignupPage() {
                             placeholder="010-0000-0000"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
+                            disabled={pending}
                         />
 
-                        <SystemCheckbox
+                        <SystemCheckbox data-text="label"
                             className="flow-consent"
-                            label={<span>입력한 정보를 이 브라우저에 저장하는 데 동의합니다. <strong>(필수)</strong></span>}
+                            label={<span data-text="body">회원가입을 위한 개인정보 수집 및 이용에 동의합니다. <strong data-text="item-title">(필수)</strong></span>}
                             name="consent"
                             required
                             checked={consent}
                             onChange={(e) => setConsent(e.target.checked)}
+                            disabled={pending}
                         />
 
-                        <SystemButton context="flow" className="flow-button-full" type="submit">
-                            프로필 만들기
+                        <SystemButton data-text="action" context="flow" className="flow-button-full" type="submit" disabled={pending} aria-busy={pending}>
+                            {pending ? "가입 링크 전송 중…" : "이메일로 가입 링크 받기"}
                             <svg className="material-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                 <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
                         </SystemButton>
 
+                        {successMessage && <SystemNotice data-text="body" variant="flow" className="flow-info-box">{successMessage} 받은 이메일의 링크를 열어 가입을 완료해 주세요.</SystemNotice>}
+
                         <div className="account-auth-links">
-                            <Link href="/account/login">로그인으로 돌아가기</Link>
+                            <Link data-text="action" href="/account/login">로그인으로 돌아가기</Link>
                         </div>
-                    </form>
+                    </SystemSurface>
                 </div>
             </div>
         </div>

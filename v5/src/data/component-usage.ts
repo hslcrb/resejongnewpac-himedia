@@ -91,10 +91,8 @@ export const COMPONENT_USAGE = {
         "guideUses": []
     },
     "booking-invitation": {
-        "status": "product",
-        "productUses": [
-            "app/page.tsx#HomePage"
-        ],
+        "status": "guide-only",
+        "productUses": [],
         "guideUses": [
             "app/design-rules/page.tsx#renderChapter"
         ]
@@ -142,6 +140,7 @@ export const COMPONENT_USAGE = {
             "app/[...slug]/page.tsx#CatalogDynamicPage",
             "app/account/callback/page.tsx#AccountCallbackPage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
+            "app/not-found.tsx#NotFound",
             "app/page.tsx#HomePage",
             "app/programs/[id]/ProgramDetailClient.tsx#ProgramDetailClient",
             "components/AccountExperience.tsx#bookingsPanel",
@@ -163,7 +162,6 @@ export const COMPONENT_USAGE = {
     "checkbox": {
         "status": "product",
         "productUses": [
-            "app/account/login/page.tsx#LoginPage",
             "app/account/signup/page.tsx#SignupPage"
         ],
         "guideUses": [
@@ -266,7 +264,8 @@ export const COMPONENT_USAGE = {
         "status": "product",
         "productUses": [
             "components/FloatingPanel.tsx#PanelSurface",
-            "components/HeroCompanion.tsx#HeroCompanion"
+            "components/HeroCompanion.tsx#HeroCompanion",
+            "components/SmallNotificationModal.tsx#SmallNotificationModal"
         ],
         "guideUses": [
             "components/FloatingPanel.tsx#PanelSurface",
@@ -410,6 +409,7 @@ export const COMPONENT_USAGE = {
             "app/account/login/page.tsx#LoginPage",
             "app/account/recovery/page.tsx#RecoveryPage",
             "app/account/signup/page.tsx#SignupPage",
+            "app/booking/[id]/BookingClient.tsx#BookingClient",
             "components/AccountExperience.tsx#AccountExperience",
             "components/AccountExperience.tsx#profilePanel",
             "components/AccountPanels.tsx#AccountDiary"
@@ -485,10 +485,35 @@ export const COMPONENT_USAGE = {
         ],
         "guideUses": []
     },
+    "surface": {
+        "status": "product",
+        "productUses": [
+            "app/account/login/page.tsx#LoginPage",
+            "app/account/recovery/page.tsx#RecoveryPage",
+            "app/account/signup/page.tsx#SignupPage",
+            "app/booking/[id]/BookingClient.tsx#BookingClient",
+            "app/not-found.tsx#NotFound",
+            "app/page.tsx#HomePage",
+            "components/AccountExperience.tsx#AccountExperience"
+        ],
+        "guideUses": [
+            "app/design-rules/page.tsx#renderChapter"
+        ]
+    },
     "tabs": {
         "status": "product",
         "productUses": [
             "components/AccountExperience.tsx#AccountExperience"
+        ],
+        "guideUses": [
+            "app/design-rules/page.tsx#renderChapter"
+        ]
+    },
+    "text": {
+        "status": "product",
+        "productUses": [
+            "app/not-found.tsx#NotFound",
+            "app/page.tsx#HomePage"
         ],
         "guideUses": [
             "app/design-rules/page.tsx#renderChapter"
@@ -506,8 +531,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 44,
-    "product": 42,
-    "documentationOnly": 2,
+    "total": 46,
+    "product": 43,
+    "documentationOnly": 3,
     "unused": 0
 } as const;

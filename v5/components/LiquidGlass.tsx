@@ -28,6 +28,7 @@ const LiquidGlass = forwardRef<HTMLDivElement, LiquidGlassProps>(function Liquid
         <div
             {...props}
             ref={surfaceRef}
+            data-text="body"
             data-glass-variant={variant}
             className={`liquid-glass ${className}`.trim()}
             style={{ ...surfaceStyle, ...style }}

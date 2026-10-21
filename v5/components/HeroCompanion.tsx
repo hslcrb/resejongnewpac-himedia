@@ -38,19 +38,19 @@ function HeroCompanion() {
         <aside className="hero-companion" aria-label="티켓오픈과 현재 시각">
             <section className="hero-release-list" aria-labelledby="hero-release-heading">
                 <div className="hero-companion-heading">
-                    <h2 id="hero-release-heading">티켓오픈</h2>
-                    <a href={TICKET_OPENINGS_URL} target="_blank" rel="noreferrer" className="hero-companion-more" aria-label="티켓오픈 전체 안내 (새 창)">
+                    <h2 data-text="heading" id="hero-release-heading">티켓오픈</h2>
+                    <a data-text="action" href={TICKET_OPENINGS_URL} target="_blank" rel="noreferrer" className="hero-companion-more" aria-label="티켓오픈 전체 안내 (새 창)">
                         <Icon name="plus" size={24} />
                     </a>
                 </div>
                 <ul>
                     {TICKET_OPENINGS.map(item => (
-                        <li key={item.id}>
-                            <a href={item.href} target="_blank" rel="noreferrer">
-                                <strong>{item.title}</strong>
+                        <li data-text="body" key={item.id}>
+                            <a data-text="action" href={item.href} target="_blank" rel="noreferrer">
+                                <strong data-text="item-title">{item.title}</strong>
                                 <span className="hero-release-meta">
-                                    <time dateTime={item.opensAt}>{openingDateLabel(item.opensAt)}</time>
-                                    <span>{now === null ? "오픈 안내" : openingDayLabel(item.opensAt, now)}</span>
+                                    <time data-text="meta" dateTime={item.opensAt}>{openingDateLabel(item.opensAt)}</time>
+                                    <span data-text="body">{now === null ? "오픈 안내" : openingDayLabel(item.opensAt, now)}</span>
                                 </span>
                             </a>
                         </li>
@@ -60,24 +60,24 @@ function HeroCompanion() {
 
             <LiquidGlass className="hero-time-glass" variant="hero">
                 <div className="hero-clock-heading">
-                    <span>현재 시각 · 서울</span>
+                    <span data-text="body">현재 시각 · 서울</span>
                     <Icon name="clock" size={22} />
                 </div>
-                <time className="hero-clock" dateTime={now === null ? undefined : new Date(now).toISOString()} aria-label={now === null ? "현재 시각 확인 중" : `서울 현재 시각 ${seoulClock(now)}`}>
+                <time data-text="meta" className="hero-clock" dateTime={now === null ? undefined : new Date(now).toISOString()} aria-label={now === null ? "현재 시각 확인 중" : `서울 현재 시각 ${seoulClock(now)}`}>
                     {now === null ? "--:--:--" : seoulClock(now)}
                 </time>
-                <p className="hero-clock-date">{calendarDate}</p>
-                <div className="hero-next-release">
-                    <p>다음 티켓오픈 <span>{next && now !== null ? openingDayLabel(next.opensAt, now) : ""}</span></p>
+                <p data-text="caption" className="hero-clock-date">{calendarDate}</p>
+                <div data-text="body" className="hero-next-release">
+                    <p data-text="body">다음 티켓오픈 <span data-text="body">{next && now !== null ? openingDayLabel(next.opensAt, now) : ""}</span></p>
                     {next ? (
-                        <a href={next.href} target="_blank" rel="noreferrer" aria-label={`${next.title} 티켓오픈 안내 (새 창)`}>
-                            <time dateTime={next.opensAt}>{openingDateLabel(next.opensAt)}</time>
-                            <span><span>{next.title}</span><Icon name="diagonal" size={20} /></span>
+                        <a data-text="action" href={next.href} target="_blank" rel="noreferrer" aria-label={`${next.title} 티켓오픈 안내 (새 창)`}>
+                            <time data-text="meta" dateTime={next.opensAt}>{openingDateLabel(next.opensAt)}</time>
+                            <span><span data-text="body">{next.title}</span><Icon name="diagonal" size={20} /></span>
                         </a>
                     ) : (
-                        <a href={TICKET_OPENINGS_URL} target="_blank" rel="noreferrer">
-                            <strong>{now === null ? "일정을 확인하고 있어요" : "새로운 오픈 일정을 기다려 주세요"}</strong>
-                            <span><span>전체 티켓오픈 안내</span><Icon name="diagonal" size={20} /></span>
+                        <a data-text="action" href={TICKET_OPENINGS_URL} target="_blank" rel="noreferrer">
+                            <strong data-text="item-title">{now === null ? "일정을 확인하고 있어요" : "새로운 오픈 일정을 기다려 주세요"}</strong>
+                            <span><span data-text="body">전체 티켓오픈 안내</span><Icon name="diagonal" size={20} /></span>
                         </a>
                     )}
                 </div>

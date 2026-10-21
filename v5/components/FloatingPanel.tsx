@@ -129,12 +129,12 @@ function PanelSurface({
                 data-move-mode={(variant === "floating" && moveMode) || undefined}
             >
                 <div className="glass-menu-header floating-panel-header">
-                    <div>
-                        {eyebrow && <p className="glass-menu-brand">{eyebrow}</p>}
-                        <h2 id={`${labelId}-heading`}>{title}</h2>
+                    <div data-text="body">
+                        {eyebrow && <p data-text="body" className="glass-menu-brand">{eyebrow}</p>}
+                        <h2 data-text="heading" id={`${labelId}-heading`}>{title}</h2>
                     </div>
-                    <div className="glass-menu-actions">
-                        {variant === "floating" && <SystemButton
+                    <div data-text="body" className="glass-menu-actions">
+                        {variant === "floating" && <SystemButton data-text="action"
                             variant={moveMode ? "primary" : "quiet"}
                             shape="pill"
                             type="button"
@@ -153,9 +153,9 @@ function PanelSurface({
                                 alt=""
                                 aria-hidden="true"
                             />
-                            <span>이동</span>
+                            <span data-text="body">이동</span>
                         </SystemButton>}
-                        <SystemIconButton
+                        <SystemIconButton data-text="action"
                             ref={closeRef}
                             type="button"
                             onClick={onClose}
@@ -165,11 +165,11 @@ function PanelSurface({
                         </SystemIconButton>
                     </div>
                 </div>
-                <p id={`${labelId}-move-help`} className="sr-only">
+                <p data-text="body" id={`${labelId}-move-help`} className="sr-only">
                     {variant === "drawer" ? "왼쪽에 고정된 메뉴입니다. 목록을 스크롤하고 그룹을 펼쳐 탐색할 수 있습니다." :
                         "마우스로 글자나 여백을 잡아 옮길 수 있습니다. 터치에서는 제목을 잡거나 이동 버튼을 켜세요. 이동 버튼에서 방향키로 옮기고 Home 키로 처음 위치로 돌립니다."}
                 </p>
-                <span className="sr-only" role="status" aria-live="polite">
+                <span data-text="body" className="sr-only" role="status" aria-live="polite">
                     {announcement}
                 </span>
                 {children}

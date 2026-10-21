@@ -4,7 +4,7 @@ import { chromium } from "playwright";
 
 // [인접 작품과 넓은 지면의 실제 동작 / Real neighbour navigation and wide-layout behaviour]
 const base = (process.argv[2] || "http://127.0.0.1:3000/v5/").replace(/\/?$/, "/");
-const browser = await chromium.connectOverCDP("http://127.0.0.1:9223");
+const browser = await chromium.launch();
 const context = await browser.newContext({ viewport: { width: 1920, height: 1080 }, reducedMotion: "reduce" });
 const page = await context.newPage();
 const directory = ".local-reports/hero-layout";
@@ -15,6 +15,24 @@ page.on("pageerror", error => errors.push(error.message));
 page.setDefaultTimeout(10000);
 const active = () => page.locator(".season-slide.is-active").getAttribute("data-feature");
 const go = (route = "") => page.goto(new URL(route, base).href, { waitUntil: "networkidle" });
+const settleViewport = async () => {
+    // [컨테이너 쿼리의 실제 재배치 완료 확인 / Wait for actual container-query reflow]
+    await page.waitForFunction(() => {
+        const stage = document.querySelector(".season-stage")?.getBoundingClientRect();
+        const card = document.querySelector(".season-slide.is-active")?.getBoundingClientRect();
+        if (!stage || !card) return true;
+        return card.width <= stage.width && card.left >= stage.left - 1 && card.right <= stage.right + 1
+            && Math.abs(card.left + card.width / 2 - stage.left - stage.width / 2) < 1;
+    }, undefined, { timeout: 2000 });
+};
+const tokenColor = (token: string) => page.evaluate(token => {
+    const sample = document.createElement("span");
+    sample.style.color = `var(${token})`;
+    document.body.append(sample);
+    const color = getComputedStyle(sample).color;
+    sample.remove();
+    return color;
+}, token);
 async function check(name: string, run: () => Promise<void>) {
     try { await run(); results.push({ name, passed: true }); console.log("PASS", name); }
     catch (error) { results.push({ name, passed: false, error: String(error) }); console.error("FAIL", name, String(error)); await page.screenshot({ path: `${directory}/failure-${results.length}.png` }); }
@@ -35,9 +53,10 @@ try {
         });
         assert.ok(metrics.main.left > 100 && metrics.main.right < metrics.stage.width - 100);
         assert.ok(metrics.main.width >= 1400 && metrics.main.width <= 1441);
+        const white = await tokenColor("--color-white");
         for (const peer of metrics.peers) {
             assert.ok(peer.left >= 0 && peer.right <= metrics.stage.width + 1, JSON.stringify(peer));
-            assert.equal(peer.color, "rgb(255, 255, 255)");
+            assert.equal(peer.color, white);
             assert.ok(peer.font >= 16);
         }
         await page.screenshot({ path: `${directory}/verified-hero-1920.png` });
@@ -56,6 +75,7 @@ try {
     });
     await check("phone peeks keep both titles in reachable navigation and both primary actions inside the card", async () => {
         await page.setViewportSize({ width: 320, height: 1000 });
+        await settleViewport();
         assert.equal(await page.locator(".hero-neighbor-navigation button:visible").count(), 2);
         assert.equal(await page.locator(".season-peer-title:visible").count(), 0);
         const geometry = await page.locator(".season-slide.is-active").evaluate(element => {
@@ -63,7 +83,7 @@ try {
             const actions = element.querySelector(".season-actions")!.getBoundingClientRect();
             return { frame: { left: frame.left, right: frame.right }, actions: { left: actions.left, right: actions.right } };
         });
-        assert.ok(geometry.frame.left >= 19 && geometry.frame.right <= 301);
+        assert.ok(geometry.frame.left >= 19 && geometry.frame.right <= 301, JSON.stringify(geometry));
         assert.ok(geometry.actions.left >= geometry.frame.left && geometry.actions.right <= geometry.frame.right + 1);
         await page.locator(".hero-neighbor-navigation button").last().click();
         assert.equal(await active(), "dance");
@@ -72,6 +92,7 @@ try {
     await check("horizontal dragging advances exactly one work and cancelled gestures return without navigation", async () => {
         await page.setViewportSize({ width: 1440, height: 1000 });
         await page.emulateMedia({ reducedMotion: "no-preference" });
+        await settleViewport();
         await page.getByRole("button", { name: "자동 재생 일시정지", exact: true }).click();
         const frame = (await page.locator(".season-slide.is-active").boundingBox())!;
         const x = frame.x + frame.width * 0.55;
@@ -123,7 +144,7 @@ try {
         const sample = page.locator(".ds-overlay-controls .ds-button-inverse-quiet");
         await sample.waitFor();
         const style = await sample.evaluate(element => { const css = getComputedStyle(element); return { color: css.color, radius: css.borderRadius, minHeight: css.minHeight }; });
-        assert.deepEqual(style, { color: "rgb(255, 255, 255)", radius: "8px", minHeight: "48px" });
+        assert.deepEqual(style, { color: await tokenColor("--color-white"), radius: "8px", minHeight: "48px" });
     });
     for (const route of ["", "programs/", "programs/dance/", "booking/dance/", "visit/directions/", "news/notices/", "account/", "account/login/", "design-rules/"]) {
         await check(`intrinsic layout, readable type and neutral copy across seven widths: ${route || "home"}`, async () => {
@@ -144,7 +165,7 @@ try {
             assert.doesNotMatch(await page.locator("body").innerText(), /체험\s?(계정|예매|프로필)|리뉴얼\s*시연|공식\s*사이트가\s*아닙|비공식|UNOFFICIAL/i);
         });
     }
-    await check("mobile seats scroll inside their map and the complete booking record remains usable", async () => {
+    await check("mobile seats retain their spatial controls and guests must log in before saving", async () => {
         for (const width of [320, 390]) {
             await page.setViewportSize({ width, height: 1000 });
             await go("booking/dance/");
@@ -162,10 +183,11 @@ try {
             await page.getByRole("button", { name: "선택 내용 확인", exact: true }).click();
             assert.match(await page.locator(".booking-page-review").innerText(), /A8, B1, C8, D1/);
             await page.getByRole("button", { name: "예매 기록 저장", exact: true }).click();
-            await page.locator("#booking-complete-heading").waitFor();
-            const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("sejong-v4:bookings") || "[]").at(-1));
-            assert.deepEqual(saved.seats, ["A8", "B1", "C8", "D1"]);
-            assert.equal(saved.programId, "dance");
+            await page.locator('.ds-notice[role="alert"]').waitFor();
+            assert.match(await page.locator('.ds-notice[role="alert"]').innerText(), /로그인한 뒤/);
+            assert.equal(await page.locator("#booking-complete-heading").count(), 0);
+            assert.equal(await page.evaluate(() => localStorage.getItem("sejong-v4:bookings")), null);
+            assert.match(await page.locator(".booking-page-review").innerText(), /A8, B1, C8, D1/);
         }
     });
     await check("content reflows with 200 percent text without a page-wide horizontal scroll", async () => {

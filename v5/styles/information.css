@@ -7,7 +7,7 @@
 
 .info-page p {
     color: var(--muted);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: 1.75;
 }
 
@@ -22,7 +22,7 @@
 }
 
 .info-section-heading h2 {
-    font-size: clamp(26px, 3vw, 38px);
+    font-size: max(var(--text-min), clamp(26px, 3vw, 38px));
     font-weight: 650;
 }
 
@@ -39,7 +39,7 @@
 .news-editorial-copy h2 {
     margin: 24px 0;
     font-family: var(--display-font);
-    font-size: clamp(34px, 4.1vw, 58px);
+    font-size: max(var(--text-min), clamp(34px, 4.1vw, 58px));
     font-weight: 600;
     line-height: 1.3;
     letter-spacing: -0.055em;
@@ -49,7 +49,7 @@
 .institution-story-heading > p,
 .news-editorial-copy > p {
     max-width: 440px;
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     line-height: 1.8;
 }
 
@@ -89,12 +89,12 @@
 .overview-quick-facts dt {
     margin-bottom: 10px;
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .overview-quick-facts dd {
     margin: 0;
-    font-size: 17px;
+    font-size: max(var(--text-min), 17px);
     font-weight: 600;
     line-height: 1.5;
     word-break: keep-all;
@@ -112,7 +112,7 @@
 .overview-help h2,
 .identity-story h2 {
     margin: 16px 0 20px;
-    font-size: clamp(29px, 3.2vw, 44px);
+    font-size: max(var(--text-min), clamp(29px, 3.2vw, 44px));
     font-weight: 650;
     line-height: 1.3;
 }
@@ -139,20 +139,20 @@
 .overview-service-number {
     padding-top: 6px;
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: 650;
     letter-spacing: 0.04em;
 }
 
 .overview-service h3 {
     margin: 0 0 10px;
-    font-size: 23px;
+    font-size: max(var(--text-min), 23px);
     font-weight: 650;
 }
 
 .overview-service p {
     margin: 0;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .overview-service > svg {
@@ -173,7 +173,7 @@
     align-items: center;
     margin-top: 72px;
     padding: clamp(28px, 4vw, 56px);
-    background: #eff8fa;
+    background: var(--color-detail-eff8fa);
 }
 
 .overview-help h2 {
@@ -184,8 +184,8 @@
     display: flex;
     justify-content: space-between;
     padding: 23px 0;
-    border-bottom: 1px solid #cbdcde;
-    font-size: 18px;
+    border-bottom: 1px solid var(--color-detail-cbdcde);
+    font-size: max(var(--text-min), 18px);
 }
 
 .overview-process {
@@ -204,18 +204,18 @@
 
 .overview-process li > span {
     color: var(--earth);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: 700;
 }
 
 .overview-process h3 {
     margin: 32px 0 14px;
-    font-size: 25px;
+    font-size: max(var(--text-min), 25px);
 }
 
 .overview-process .text-link {
     margin-top: 24px;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .overview-section-split {
@@ -261,20 +261,20 @@
     margin-top: 80px;
     padding: clamp(28px, 4vw, 56px);
     background: var(--ink);
-    color: white;
+    color: var(--color-white);
 }
 
 .identity-story h2 {
-    color: white;
+    color: var(--color-white);
 }
 
 .identity-story p {
-    color: #bfc4ca;
+    color: var(--color-detail-bfc4ca);
 }
 
 .identity-story .text-link {
     margin-top: 16px;
-    color: white;
+    color: var(--color-white);
 }
 
 .identity-story-channels {
@@ -296,12 +296,12 @@
 
 .identity-channel strong {
     margin: 26px 0 8px;
-    font-size: 20px;
+    font-size: max(var(--text-min), 20px);
 }
 
 .identity-channel small {
-    color: #bfc4ca;
-    font-size: var(--text-sm);
+    color: var(--color-detail-bfc4ca);
+    font-size: max(var(--text-min), var(--text-sm));
     letter-spacing: 0.04em;
 }
 
@@ -357,7 +357,7 @@
 
 .news-editorial-feature h3 {
     margin: 12px 0 0;
-    font-size: 25px;
+    font-size: max(var(--text-min), 25px);
     line-height: 1.45;
 }
 
@@ -377,7 +377,7 @@
 }
 
 .info-link-card p {
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
 }
 
 .info-tabs {
@@ -387,13 +387,13 @@
 
 .info-tabs a,
 .info-chips a {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .info-chips a[aria-current] {
     background: var(--ink);
     border-color: var(--ink);
-    color: white;
+    color: var(--color-white);
 }
 
 .info-note {
@@ -404,12 +404,12 @@
 
 .info-note p,
 .info-note strong {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .info-table,
 .info-facts > div {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .info-table thead,
@@ -435,18 +435,18 @@
     border-radius: 9px;
     background: var(--paper);
     color: var(--ink);
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
 }
 
 .faq-list summary {
     padding: 27px 0;
-    font-size: 19px;
+    font-size: max(var(--text-min), 19px);
     line-height: 1.5;
 }
 
 .faq-category {
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .faq-answer {
@@ -454,7 +454,7 @@
 }
 
 .faq-answer p {
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
 }
 
 .notice-row {
@@ -463,14 +463,14 @@
 }
 
 .notice-row h3 {
-    font-size: 19px;
+    font-size: max(var(--text-min), 19px);
     line-height: 1.5;
 }
 
 .notice-row time,
 .notice-category {
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .venue-row-image,
@@ -497,7 +497,7 @@
 
 .ci-specimen > small {
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     letter-spacing: 0.08em;
 }
 
@@ -517,17 +517,17 @@
 
 .identity-swatch h3 {
     margin: 18px 0 10px;
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
 }
 
 .identity-swatch p {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: 1.85;
     word-break: normal;
 }
 
 .identity-swatch-black {
-    --swatch: #000;
+    --swatch: var(--color-black);
 }
 
 .identity-swatch-sky {
@@ -543,7 +543,7 @@
 }
 
 .identity-swatch-white {
-    --swatch: #fff;
+    --swatch: var(--color-white);
 }
 
 .sitemap-group h2,
@@ -556,7 +556,7 @@
 .search-result p,
 .policy-content p,
 .english-grid p {
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     line-height: 1.75;
 }
 
@@ -564,7 +564,7 @@
     min-width: 0;
     min-height: 58px;
     border-radius: 10px;
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
 }
 
 @media (max-width: 1000px) {
@@ -611,13 +611,13 @@
     .overview-intro-copy > p,
     .institution-story-heading > p,
     .news-editorial-copy > p {
-        font-size: 16px;
+        font-size: max(var(--text-min), 16px);
     }
 
     .overview-intro-copy h2,
     .institution-story-heading h2,
     .news-editorial-copy h2 {
-        font-size: clamp(31px, 8vw, 42px);
+        font-size: max(var(--text-min), clamp(31px, 8vw, 42px));
     }
 
     .overview-quick-facts {
@@ -640,7 +640,7 @@
     }
 
     .overview-quick-facts dd {
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
     }
 
     .overview-services,
@@ -655,11 +655,11 @@
     }
 
     .overview-service h3 {
-        font-size: 21px;
+        font-size: max(var(--text-min), 21px);
     }
 
     .overview-service p {
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
     }
 
     .overview-section-heading {
@@ -672,7 +672,7 @@
 
     .overview-help-links .text-link {
         padding: 19px 0;
-        font-size: 16px;
+        font-size: max(var(--text-min), 16px);
     }
 
     .overview-process {
@@ -681,7 +681,7 @@
 
     .overview-process h3 {
         margin-top: 20px;
-        font-size: 23px;
+        font-size: max(var(--text-min), 23px);
     }
 
     .identity-story {
@@ -689,7 +689,7 @@
     }
 
     .identity-channel small {
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
     }
 
     .institution-story figure img {
@@ -698,7 +698,7 @@
     }
 
     .news-editorial-feature h3 {
-        font-size: 22px;
+        font-size: max(var(--text-min), 22px);
     }
 
     .identity-palette {
@@ -716,11 +716,11 @@
 
     .info-note p,
     .info-note strong {
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
     }
 
     .faq-list summary {
-        font-size: 17px;
+        font-size: max(var(--text-min), 17px);
     }
 
     .faq-answer {
@@ -728,15 +728,15 @@
     }
 
     .faq-answer p {
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
     }
 
     .notice-row h3 {
-        font-size: 17px;
+        font-size: max(var(--text-min), 17px);
     }
 
     .notice-row time {
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
     }
 }
 
@@ -746,5 +746,5 @@
 }
 @media (max-width: 600px) {
     .identity-story-channels { gap: 14px; }
-    .identity-channel strong { font-size: var(--text-body); }
+    .identity-channel strong { font-size: max(var(--text-min), var(--text-body)); }
 }

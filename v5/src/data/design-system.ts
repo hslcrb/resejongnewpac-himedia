@@ -87,10 +87,10 @@ export const CHAPTERS = [
         id: "motion",
         label: "모션",
         group: "화면 만들기",
-        description: "읽기와 조작을 돕는 속도, 스크롤에 반응하는 등장",
+        description: "읽기와 조작을 돕는 속도, 종료된 모션의 보존 예제",
         sections: [
             ["timing", "시간과 이징"],
-            ["scroll", "글자별 스크롤 등장"],
+            ["scroll", "글자별 스크롤 등장 · Deprecated"],
             ["quick-menu", "보라빛 퀵메뉴"],
         ],
     },

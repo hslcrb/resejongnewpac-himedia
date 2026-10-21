@@ -48,43 +48,41 @@ test("an SDK identity overrides a saved demo profile without changing its storag
     assert.equal(JSON.parse(saved.getItem("sejong-v4:profile")!).email, "demo@example.com");
 });
 
-test("a local demo session retains its identity and is never labeled OAuth", () => {
+test("a saved local profile never creates an authenticated identity", () => {
     assert.equal(typeof auth.resolveAccountIdentity, "function");
     assert.deepEqual(auth.resolveAccountIdentity(null, storage({ "sejong-v4:session": { active: true }, "sejong-v4:profile": { name: "관람객", email: "visitor@example.com", phone: "" } })), {
-        profile: { name: "관람객", email: "visitor@example.com", phone: "" },
-        identityId: "demo:visitor@example.com", isLoggedIn: true, mode: "demo", ready: true,
+        profile: { name: "", email: "", phone: "" },
+        identityId: "guest", isLoggedIn: false, mode: "guest", ready: true,
     });
 });
 
-test("different local profiles have separate space identities with normalized email", () => {
+test("changing a local email cannot switch the authenticated account", () => {
     const identity = (email: string) => auth.resolveAccountIdentity(null, storage({ "sejong-v4:session": { active: true }, "sejong-v4:profile": { name: "관람객", email, phone: "" } })).identityId;
-    assert.equal(identity(" First@Example.com "), "demo:first@example.com");
-    assert.equal(identity("first@example.com"), "demo:first@example.com");
-    assert.notEqual(identity("first@example.com"), identity("second@example.com"));
+    assert.equal(identity(" First@Example.com "), "guest");
+    assert.equal(identity("first@example.com"), "guest");
+    assert.equal(identity("second@example.com"), "guest");
 });
 
-test("demo registration creates a new identity while email edits and repeat sign-in keep it", () => {
+test("legacy profile IDs do not authorize DB access or replace an SDK identity", () => {
     const first = auth.createDemoProfile({name:"첫 계정",email:"first@example.com",phone:""});
     const second = auth.createDemoProfile({name:"다른 계정",email:"first@example.com",phone:""});
     assert.notEqual(first.localId, second.localId);
     const edited = {...first,email:"changed@example.com"};
     const identity = (profile: unknown) => auth.resolveAccountIdentity(null,storage({"sejong-v4:session":{active:true},"sejong-v4:profile":profile})).identityId;
-    assert.equal(identity(first), identity(edited));
+    assert.equal(identity(first), "guest");
+    assert.equal(identity(edited), "guest");
+    assert.equal(identity(second), "guest");
     assert.equal(auth.createDemoProfile(edited,JSON.stringify(edited)).localId,first.localId);
     assert.equal(auth.createDemoProfile({name:"기존",email:"old@example.com",phone:""},'{"email":"old@example.com"}').localId,"old@example.com");
 });
 
-// [차단된 저장소의 로그아웃과 SDK 변경 순서 / Logout with blocked storage and SDK mutation ordering]
-test("blocked logout persistence still keeps every mounted or remounted reader signed out", () => {
-    assert.equal(typeof account.clearDemoSession, "function");
+// [로컬 저장소를 신뢰하지 않는 계정과 SDK 변경 순서 / Untrusted local storage and SDK mutation ordering]
+test("mounted and remounted identity readers ignore a forged active local session", () => {
     const saved = { ...storage({ "sejong-v4:session": { active: true }, "sejong-v4:profile": { name: "체험", email: "demo@example.com", phone: "" } }), setItem() { throw new Error("writes blocked"); } };
-    assert.equal(account.activateDemoSession(saved), true);
-    assert.equal(account.readAccountIdentity(null, saved).mode, "demo");
-    assert.equal(account.clearDemoSession(saved), false);
     assert.equal(account.readAccountIdentity(null, saved).mode, "guest");
     assert.equal(account.readAccountIdentity(null, { getItem: saved.getItem }).mode, "guest");
-    assert.equal(account.activateDemoSession(saved), true);
-    assert.equal(account.readAccountIdentity(null, saved).mode, "demo");
+    const unreadable = { getItem() { throw new Error("reads blocked"); } };
+    assert.equal(account.readAccountIdentity(null, unreadable).mode, "guest");
 });
 
 test("a queued SDK profile response cannot restore a session after successful queued logout", async () => {

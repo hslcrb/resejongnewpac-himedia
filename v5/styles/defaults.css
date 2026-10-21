@@ -3,16 +3,16 @@
    New screens use this scale; supporting text never drops below 1rem. */
 
 html {
-    font-size: 100%;
+    font-size: max(var(--text-min), 100%);
 }
 
 body {
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: var(--leading-body);
 }
 
 small {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-label);
 }
 

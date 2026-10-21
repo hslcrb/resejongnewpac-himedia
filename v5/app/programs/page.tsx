@@ -21,27 +21,27 @@ export default function ProgramsPage() {
     });
 
     return (
-        <div className="container page-layout programs-page">
+        <div data-text="body" className="container page-layout programs-page">
             <nav className="page-layout-breadcrumbs" aria-label="현재 위치">
-                <Link href="/">홈</Link>
-                <span aria-hidden="true">/</span>
-                <span aria-current="page">프로그램 전체보기</span>
+                <Link data-text="action" href="/">홈</Link>
+                <span data-text="body" aria-hidden="true">/</span>
+                <span data-text="body" aria-current="page">프로그램 전체보기</span>
             </nav>
 
             <header className="page-layout-heading">
-                <h1>
+                <h1 data-text="title">
                     세종의 프로그램
                 </h1>
-                <p>
+                <p data-text="body">
                     서울시향, 서울시무용단, 서울시극단의 정기공연부터 기획전시와 예술아카데미까지.
                 </p>
             </header>
 
             {/* [공통 범주 필터와 검색 / Shared category filters and search] */}
             <div className="programs-page-controls">
-                <div className="page-layout-actions" role="group" aria-label="프로그램 분류">
+                <div data-text="body" className="page-layout-actions" role="group" aria-label="프로그램 분류">
                     {categories.map((cat) => (
-                        <SystemFilterButton
+                        <SystemFilterButton data-text="action"
                             key={cat}
                             selected={category === cat}
                             onClick={() => setCategory(cat)}
@@ -52,7 +52,7 @@ export default function ProgramsPage() {
                 </div>
 
                 <div className="programs-page-search">
-                    <SystemField
+                    <SystemField data-text="body"
                         id="program-query"
                         label="프로그램 검색"
                         labelHidden
@@ -66,17 +66,17 @@ export default function ProgramsPage() {
 
             {/* [남는 폭에 맞춰 늘어나는 카드 목록 / Cards that follow the available width] */}
             {filtered.length > 0 ? (
-                <div className="programs-page-grid">
+                <div data-text="body" className="programs-page-grid">
                     {filtered.map((program) => (
                         <ProgramCard key={program.id} program={program} />
                     ))}
                 </div>
             ) : (
                 <div className="page-layout-empty" role="status">
-                    <h2>
+                    <h2 data-text="heading">
                         검색 결과가 없습니다
                     </h2>
-                    <p>
+                    <p data-text="body">
                         다른 검색어를 입력하시거나 카테고리 필터를 변경해 보세요.
                     </p>
                 </div>

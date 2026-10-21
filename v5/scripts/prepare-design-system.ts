@@ -8,6 +8,7 @@ const check = process.argv.includes("--check");
 const tasks = [
     ["sync-design-tokens.ts", ...(check ? ["--check"] : [])],
     ["audit-component-system.ts", check ? "--check" : "--write"],
+    ["audit-visual-contract.ts"],
     ...(process.argv.includes("--build") ? [["clean-build.ts"]] : []),
 ];
 for (const [script, ...args] of tasks) {

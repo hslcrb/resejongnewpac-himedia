@@ -18,11 +18,11 @@
 }
 
 .menu-journeys span {
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     color: var(--muted);
 }
 .menu-journeys strong {
-    font-size: clamp(24px, 2.3vw, 36px);
+    font-size: max(var(--text-min), clamp(24px, 2.3vw, 36px));
     font-weight: 600;
     letter-spacing: -.04em;
 }
@@ -53,7 +53,7 @@
     align-items: center;
     gap: 10px;
     min-height: 48px;
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     color: var(--muted);
 }
 .discovery-types a[aria-current] {
@@ -62,7 +62,7 @@
     box-shadow: 0 2px var(--ink);
 }
 .discovery-types span {
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     font-variant-numeric: tabular-nums;
 }
 .discovery-group {
@@ -73,14 +73,14 @@
     border-bottom: 1px solid var(--line);
 }
 .discovery-group > h2 {
-    font-size: 26px;
+    font-size: max(var(--text-min), 26px);
     letter-spacing: -.035em;
     display: flex;
     align-items: baseline;
     gap: 12px;
 }
 .discovery-group > h2 > span {
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     font-weight: 400;
     color: var(--muted);
 }
@@ -113,18 +113,18 @@
     min-width: 0;
 }
 .discovery-results .search-result h3 {
-    font-size: 24px;
+    font-size: max(var(--text-min), 24px);
     font-weight: 600;
     letter-spacing: -.035em;
     margin-bottom: 10px;
 }
 .discovery-results .search-result p {
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     line-height: 1.6;
     color: var(--muted);
 }
 .discovery-results .search-result .discovery-detail {
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     margin-bottom: 4px;
 }
 .discovery-results .search-result > a > svg {
@@ -138,7 +138,7 @@
 }
 .discovery-suggestions h2 {
     grid-column: 1 / -1;
-    font-size: 28px;
+    font-size: max(var(--text-min), 28px);
     margin-bottom: 24px;
 }
 .discovery-suggestions a {
@@ -148,7 +148,7 @@
     min-height: 64px;
     border-bottom: 1px solid var(--line);
     gap: 12px;
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
 }
 .journey-entry {
     display: flex;
@@ -160,12 +160,12 @@
     border-block: 1px solid var(--line);
 }
 .journey-entry h2 {
-    font-size: clamp(26px, 3vw, 40px);
+    font-size: max(var(--text-min), clamp(26px, 3vw, 40px));
     letter-spacing: -.04em;
     margin-bottom: 10px;
 }
 .journey-entry p {
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     line-height: 1.7;
     color: var(--muted);
 }
@@ -174,7 +174,7 @@
 }
 .booking-party-note {
     margin-block: 16px;
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     line-height: 1.65;
 }
 
@@ -203,7 +203,7 @@
         height: 86px;
     }
     .discovery-results .search-result h3 {
-        font-size: 21px;
+        font-size: max(var(--text-min), 21px);
     }
     .discovery-results .search-result > a > svg {
         display: none;
@@ -212,7 +212,7 @@
         grid-template-columns: 1fr;
     }
     .discovery-suggestions h2 {
-        font-size: 24px;
+        font-size: max(var(--text-min), 24px);
     }
     .journey-entry {
         align-items: flex-start;

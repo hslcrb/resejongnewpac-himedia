@@ -15,7 +15,7 @@
     gap: 0.5rem;
     min-height: var(--control-size);
     padding-block: 0.75rem;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .goods-navigation a[aria-current="page"] {
@@ -27,7 +27,7 @@
 .goods-demo-note,
 .goods-detail-art > p {
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: 1.75;
 }
 
@@ -43,7 +43,7 @@
 
 .goods-product h3 {
     margin-block: 0.75rem;
-    font-size: var(--text-card-title);
+    font-size: max(var(--text-min), var(--text-card-title));
     font-weight: var(--weight-title);
 }
 
@@ -68,7 +68,7 @@
 
 .goods-detail-information h2 {
     margin-block: 0.75rem 1.5rem;
-    font-size: clamp(1.75rem, 3vw, 2.75rem);
+    font-size: max(var(--text-min), clamp(1.75rem, 3vw, 2.75rem));
 }
 
 .goods-description {
@@ -100,7 +100,7 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .goods-quantity select {
@@ -124,7 +124,7 @@
 
 .goods-selection-total strong,
 .goods-summary-total {
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
 }
 
 .goods-actions {
@@ -138,13 +138,13 @@
 .goods-actions .text-link,
 .goods-cart-amount .text-link {
     min-height: var(--control-size);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .goods-feedback {
     margin-top: 1.5rem;
     min-height: 1.75rem;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 /* [장바구니와 검토 단계 / Cart and review steps]
@@ -158,7 +158,7 @@
     margin: 0 0 2rem;
     list-style: none;
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .goods-order-steps [aria-current="step"] {
@@ -187,7 +187,7 @@
 }
 
 .goods-cart-art .goods-art > span {
-    font-size: 3rem;
+    font-size: max(var(--text-min), 3rem);
 }
 
 .goods-cart-art .goods-art > small {
@@ -197,12 +197,12 @@
 .goods-cart-information h2,
 .goods-order h2 {
     margin: 0 0 0.5rem;
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
 }
 
 .goods-cart-information p {
     margin-bottom: 0.75rem;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .goods-cart-amount {
@@ -244,7 +244,7 @@
     align-items: flex-start;
     gap: 0.75rem;
     margin-top: 1rem;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: 1.75;
 }
 
@@ -289,12 +289,12 @@
 
 .goods-order-heading p {
     overflow-wrap: anywhere;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     color: var(--muted);
 }
 
 .goods-order-status {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .goods-order-items {
@@ -324,7 +324,7 @@
     min-height: var(--control-size);
     padding-block: 0.75rem;
     cursor: pointer;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     text-decoration: underline;
     text-underline-offset: 0.25rem;
 }
@@ -390,7 +390,7 @@
     }
 
     .goods-cart-art .goods-art > span {
-        font-size: 2rem;
+        font-size: max(var(--text-min), 2rem);
     }
 
     .goods-actions .button {

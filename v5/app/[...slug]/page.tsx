@@ -16,7 +16,8 @@ export function generateStaticParams() {
                 !p.startsWith("design-rules") &&
                 p !== "about/introduction" &&
                 !p.startsWith("account") &&
-                p !== "programs"
+                p !== "programs" &&
+                !/^programs\/[^/]+$/.test(p)
             ) {
                 routes.add(p);
             }
@@ -56,38 +57,38 @@ export default function CatalogDynamicPage({
 
     return (
         <div className="container page-layout catalog-page">
-            <nav className="page-layout-breadcrumbs" aria-label="현재 위치">
-                <Link href="/">홈</Link>
+            <nav data-text="body" className="page-layout-breadcrumbs" aria-label="현재 위치">
+                <Link data-text="action" href="/">홈</Link>
                 {currentGroup && (
                     <>
-                        <span aria-hidden="true">/</span>
-                        <Link href={currentGroup.path}>{currentGroup.title}</Link>
+                        <span data-text="body" aria-hidden="true">/</span>
+                        <Link data-text="action" href={currentGroup.path}>{currentGroup.title}</Link>
                     </>
                 )}
-                <span aria-hidden="true">/</span>
-                <span aria-current="page">{title}</span>
+                <span data-text="body" aria-hidden="true">/</span>
+                <span data-text="body" aria-current="page">{title}</span>
             </nav>
 
-            <header className="page-layout-heading catalog-page-heading">
+            <header data-text="body" className="page-layout-heading catalog-page-heading">
                 {currentGroup && (
-                    <span className="catalog-page-category">
+                    <span data-text="caption" className="catalog-page-category">
                         {currentGroup.title.toUpperCase()}
                     </span>
                 )}
-                <h1>
+                <h1 data-text="title">
                     {title}
                 </h1>
-                <p>
+                <p data-text="body">
                     {description}
                 </p>
 
                 {/* [줄바꿈 가능한 하위 탐색 / Wrapping navigation within the current group] */}
                 {currentGroup && currentGroup.items && (
-                    <nav className="catalog-page-navigation page-layout-actions" aria-label={`${currentGroup.title} 메뉴`}>
+                    <nav data-text="body" className="catalog-page-navigation page-layout-actions" aria-label={`${currentGroup.title} 메뉴`}>
                         {currentGroup.items.map(([label, subPath]: [string, string]) => {
                             const active = path === subPath;
                             return (
-                                <SystemLink
+                                <SystemLink data-text="action"
                                     key={subPath}
                                     href={subPath}
                                     variant={active ? "primary" : "secondary"}
@@ -102,18 +103,18 @@ export default function CatalogDynamicPage({
             </header>
 
             {/* [정보 종류별 내용과 공통 행동 / Information content and shared navigation actions] */}
-            <section className="catalog-page-content">
+            <section data-text="body" className="catalog-page-content">
                 {venueMatch ? (
                     <div className="page-layout-prose">
-                        <h2>공간 세부 정보</h2>
+                        <h2 data-text="heading">공간 세부 정보</h2>
                         <dl className="page-layout-facts">
-                            <dt>수용 인원</dt>
-                            <dd>{venueMatch.capacity}석</dd>
-                            <dt>특징</dt>
-                            <dd>{venueMatch.description}</dd>
+                            <dt data-text="label">수용 인원</dt>
+                            <dd data-text="body">{venueMatch.capacity}석</dd>
+                            <dt data-text="label">특징</dt>
+                            <dd data-text="body">{venueMatch.description}</dd>
                         </dl>
                         <div className="page-layout-actions catalog-page-actions">
-                            <SystemLink href="/rental/guide">
+                            <SystemLink data-text="action" href="/rental/guide">
                                 대관 신청 및 가이드 보기 →
                             </SystemLink>
                         </div>
@@ -121,14 +122,14 @@ export default function CatalogDynamicPage({
                 ) : noticeMatch ? (
                     <div className="page-layout-prose">
                         <div className="catalog-page-meta">
-                            <span>구분: {noticeMatch.category}</span>
-                            <span>작성일: {noticeMatch.date}</span>
+                            <span data-text="body">구분: {noticeMatch.category}</span>
+                            <span data-text="body">작성일: {noticeMatch.date}</span>
                         </div>
                         <div>
-                            <p>{noticeMatch.content || "세종문화회관을 이용해 주시는 시민 여러분께 감사드립니다. 본 공지사항의 자세한 사항은 고객센터(02-399-1000)로 문의해 주시기 바랍니다."}</p>
+                            <p data-text="body">{noticeMatch.content || "세종문화회관을 이용해 주시는 시민 여러분께 감사드립니다. 본 공지사항의 자세한 사항은 고객센터(02-399-1000)로 문의해 주시기 바랍니다."}</p>
                         </div>
                         <div className="page-layout-actions catalog-page-actions">
-                            <SystemLink
+                            <SystemLink data-text="action"
                                 href="/news/notices"
                                 variant="secondary"
                             >
@@ -138,14 +139,14 @@ export default function CatalogDynamicPage({
                     </div>
                 ) : (
                     <div className="page-layout-prose">
-                        <h2>
+                        <h2 data-text="heading">
                             서비스 및 공간 안내
                         </h2>
-                        <p>
+                        <p data-text="body">
                             세종문화회관의 서비스와 공간을 페이지별로 정리한 안내입니다.
                         </p>
                         <div className="page-layout-actions catalog-page-actions">
-                            <SystemLink href="/programs" variant="primary">
+                            <SystemLink data-text="action" href="/programs" variant="primary">
                                 프로그램 보러가기 →
                             </SystemLink>
                         </div>

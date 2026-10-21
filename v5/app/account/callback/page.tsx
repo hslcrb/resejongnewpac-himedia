@@ -37,10 +37,10 @@ export default function AccountCallbackPage() {
     }, [router]);
 
     return <div className="flow-page account-page">
-        <section className="page-heading"><div className="container"><h1>Google 계정 연결</h1></div></section>
-        <div className="container page-content flow-content"><section className="flow-panel account-narrow" aria-busy={!error}>
-            {error ? <><SystemNotice error variant="flow">{error}</SystemNotice><SystemLink context="flow" href="/account/login">로그인으로 돌아가기</SystemLink></>
-                : <p role="status" aria-live="polite">로그인을 확인하고 있습니다. 잠시만 기다려 주세요.</p>}
+        <section className="page-heading"><div className="container"><h1 data-text="title">Google 계정 연결</h1></div></section>
+        <div className="container page-content flow-content"><section data-text="body" className="flow-panel account-narrow" aria-busy={!error}>
+            {error ? <><SystemNotice data-text="body" error variant="flow">{error}</SystemNotice><SystemLink data-text="action" context="flow" href="/account/login">로그인으로 돌아가기</SystemLink></>
+                : <p data-text="body" role="status" aria-live="polite">로그인을 확인하고 있습니다. 잠시만 기다려 주세요.</p>}
         </section></div>
     </div>;
 }

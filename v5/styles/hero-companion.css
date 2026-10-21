@@ -62,7 +62,7 @@
 
 .home-v4-wrap .season-copy h2 {
     margin-bottom: var(--space-8);
-    font-size: clamp(2.5rem, 3.7vw, 3.5rem);
+    font-size: max(var(--text-min), clamp(2.5rem, 3.7vw, 3.5rem));
 }
 
 .home-v4-wrap .season-meta {
@@ -72,7 +72,7 @@
 .season-description {
     max-width: 32rem;
     margin: 0 0 var(--space-8);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: var(--leading-body);
     text-wrap: pretty;
 }
@@ -100,7 +100,7 @@
     min-width: 0;
     padding: var(--space-3) 0;
     color: var(--text-inverse);
-    background: transparent;
+    background: var(--color-detail-j5afio);
     white-space: normal;
     text-align: left;
     transition: opacity var(--duration-feedback) ease;
@@ -115,7 +115,7 @@
 }
 
 .season-peer-title strong {
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
     font-weight: var(--weight-heading);
     line-height: var(--leading-label);
     overflow-wrap: anywhere;
@@ -140,9 +140,9 @@
 }
 
 .season-actions .season-booking-button {
-    border: 1px solid rgb(255 255 255 / 70%);
+    border: 1px solid var(--color-detail-xl0sze);
     color: var(--text-inverse);
-    background: rgb(0 0 0 / 20%);
+    background: var(--color-detail-1j5u0jr);
 }
 
 /* [참고의 흰 목록과 유리 시계 / A white information list and a glass clock]
@@ -189,7 +189,7 @@
 
 .hero-companion-heading h2 {
     margin: 0;
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
     font-weight: var(--weight-heading);
 }
 
@@ -220,7 +220,7 @@
 
 .hero-release-list strong {
     display: block;
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     font-weight: var(--weight-action);
     line-height: var(--leading-label);
 }
@@ -232,25 +232,25 @@
     gap: var(--space-1) var(--space-2);
     margin-top: var(--space-2);
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-label);
     font-variant-numeric: tabular-nums;
 }
 
 .hero-time-glass {
     padding: var(--space-6);
-    --glass-shadow: 0 8px 32px rgb(0 0 0 / 12%);
+    --glass-shadow: 0 8px 32px var(--color-detail-xx4fx2);
 }
 
 .hero-clock-heading {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: var(--weight-label);
 }
 
 .hero-clock {
     display: block;
     margin-top: var(--space-2);
-    font-size: 2.75rem;
+    font-size: max(var(--text-min), 2.75rem);
     font-weight: 550;
     line-height: 1.2;
     letter-spacing: -0.035em;
@@ -260,13 +260,13 @@
 .hero-clock-date {
     margin: var(--space-1) 0 0;
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .hero-next-release {
     margin-top: var(--space-5);
     padding-top: var(--space-4);
-    border-top: 1px solid rgb(0 0 0 / 16%);
+    border-top: 1px solid var(--color-detail-1ch9bqq);
 }
 
 .hero-next-release > p {
@@ -274,7 +274,7 @@
     justify-content: space-between;
     gap: var(--space-2);
     margin: 0 0 var(--space-2);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: var(--weight-action);
 }
 
@@ -288,7 +288,7 @@
 }
 
 .hero-next-release time {
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
     font-weight: var(--weight-heading);
     font-variant-numeric: tabular-nums;
 }
@@ -298,7 +298,7 @@
     align-items: flex-start;
     gap: var(--space-2);
     margin-top: var(--space-2);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-label);
 }
 
@@ -310,7 +310,7 @@
 @media (hover: hover) {
     .season-peer-title:hover {
         color: var(--text-inverse);
-        background: transparent;
+        background: var(--color-detail-j5afio);
     }
 
     .season-peer-title:hover strong {
@@ -329,7 +329,7 @@
     }
 
     .season-booking-button:hover {
-        background: rgb(0 0 0 / 40%);
+        background: var(--color-detail-1iq0iqd);
     }
 }
 
@@ -402,7 +402,7 @@
 
     .home-v4-wrap .season-copy h2 {
         margin-bottom: var(--space-6);
-        font-size: clamp(1.875rem, 7vw, 2.5rem);
+        font-size: max(var(--text-min), clamp(1.875rem, 7vw, 2.5rem));
     }
 
     .season-description {

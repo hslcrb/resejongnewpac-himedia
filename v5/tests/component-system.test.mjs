@@ -26,6 +26,18 @@ async function fixture(files, registry, run, extra = {}) {
 }
 
 // [컴포넌트 단위의 실제 도달 경로 / Real reachability at component scope]
+test("Next error and loading entry points reuse registered UI without being counted as shared components", async () => {
+    await fixture({
+        "components/Copy.tsx": "export default function Copy() { return <p>Readable content</p>; }",
+        "app/not-found.tsx": "import Copy from '../components/Copy'; export default function NotFound() { return <Copy />; }",
+        "app/loading.tsx": "import Copy from '../components/Copy'; export default function Loading() { return <Copy />; }",
+    }, [entry("copy", "components/Copy.tsx")], result => {
+        assert.deepEqual(result.issues, []);
+        assert.equal(result.usage.copy.status, "product");
+        assert.equal(result.counts.total, 1);
+    });
+});
+
 test("usage follows named exports, local render helpers and notification hosts without marking unused siblings", async () => {
     const files = {
         "components/Kit.tsx": `import { forwardRef, memo } from "react";

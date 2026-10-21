@@ -29,7 +29,7 @@ export default function ReturnTop() {
     if (!visible) return null;
 
     return (
-        <SystemIconButton
+        <SystemIconButton data-text="action"
             variant="secondary"
             className="return-top is-visible"
             type="button"

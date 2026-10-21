@@ -43,6 +43,18 @@ await context.route(`${backend}/auth/v1/user`,async route=>{
     await route.fulfill({json:user});
 });
 await context.route(url=>url.origin===backend&&url.pathname==="/auth/v1/logout",route=>route.fulfill({status:204}));
+// [OAuth 검증도 실제 DB에 접근하지 않음 / OAuth fixtures never contact a real member DB]
+let profileRow: Record<string, unknown> | null = null;
+await context.route(url=>url.origin===backend&&url.pathname.startsWith("/rest/v1/"),async route=>{
+    const table=new URL(route.request().url()).pathname.split("/").at(-1);
+    const single=route.request().headers().accept?.includes("application/vnd.pgrst.object+json");
+    if(table==="sejong_profiles"){
+        if(route.request().method()==="POST")profileRow=route.request().postDataJSON();
+        return route.fulfill({json:single?profileRow:profileRow?[profileRow]:[]});
+    }
+    if(route.request().method()!=="GET")throw new Error(`Unexpected member write in OAuth fixture: ${table}`);
+    return route.fulfill({json:single?null:[]});
+});
 async function check(name:string,run:()=>Promise<void>){try{await run();results.push({name,passed:true});console.log("PASS",name);}catch(error){results.push({name,passed:false,error:String(error)});console.error("FAIL",name,String(error));await page.screenshot({path:`${directory}/auth-failure-${results.length}.png`});}}
 let signedInState: Awaited<ReturnType<typeof context.storageState>>|undefined;
 try{
@@ -78,14 +90,15 @@ try{
         await page.locator('.account-layout[aria-busy="false"]').waitFor();
         assert.match(await page.locator(".account-identity h2").innerText(),/OAuth 검증/);
     });
-    await check("authenticated profile updates use the SDK and keep the provider email read-only",async()=>{
+    await check("authenticated profile updates use the member DB and keep the provider email read-only",async()=>{
         await page.getByRole("tab",{name:"회원정보",exact:true}).click();
         assert.ok(await page.locator("#account-profile-email").evaluate((element:HTMLInputElement)=>element.readOnly));
         await page.locator("#account-profile-name").fill("연결된 새 이름");
         await page.locator("#account-profile-phone").fill("010-0000-0000");
         await page.locator(".account-profile-form").getByRole("button",{name:/저장/}).click();
         await page.waitForFunction(()=>document.querySelector(".account-identity h2")?.textContent?.includes("연결된 새 이름"));
-        assert.equal(user.user_metadata.phone,"010-0000-0000");
+        assert.equal(profileRow?.phone,"010-0000-0000");
+        assert.equal(user.user_metadata.phone,"");
     });
     await check("a failed new code cannot succeed through an older stored real session",async()=>{
         assert.ok(signedInState);
@@ -126,51 +139,30 @@ try{
         assert.equal(new URL((await back.getAttribute("href"))!,origin).pathname,"/v5/account/login/");
         assert.equal(new URL(page.url()).origin,origin);
     });
-    await check("blocked storage still logs out the demo across remounts and explicit sign-in restores it",async()=>{
+    await check("forged local sessions remain guests and login requires actual email verification",async()=>{
         const isolated=await browser.newContext();
         const tab=await isolated.newPage();
+        await isolated.route(`${backend}/auth/v1/settings`,route=>route.fulfill({json:{external:{google:false}}}));
+        await isolated.route(url=>url.origin===backend&&url.pathname.startsWith("/rest/v1/"),()=>{throw new Error("A forged local identity attempted to read private DB records");});
         await tab.addInitScript(()=>{
-            const fixture=window as Window & {accountWritesBlocked?:boolean};
-            if(!localStorage.getItem("blocked-logout-seeded")){
-                localStorage.setItem("blocked-logout-seeded","true");
-                localStorage.setItem("sejong-v4:profile",JSON.stringify({name:"저장소 체험",email:"storage@example.com",phone:""}));
-                localStorage.setItem("sejong-v4:session",'{"active":true}');
-            }
-            const original=Storage.prototype.setItem;
-            Storage.prototype.setItem=function(key,value){if(fixture.accountWritesBlocked&&key==="sejong-v4:session")throw new DOMException("Blocked fixture","QuotaExceededError");return original.call(this,key,value);};
+            localStorage.setItem("sejong-v4:profile",JSON.stringify({name:"신뢰할 수 없는 로컬 이름",email:"forged@example.com",phone:""}));
+            localStorage.setItem("sejong-v4:session",'{"active":true}');
         });
         try {
             await tab.goto(new URL("account/",base).href,{waitUntil:"networkidle"});
             await tab.locator('.account-layout[aria-busy="false"]').waitFor();
-            await tab.evaluate(()=>{(window as Window & {accountWritesBlocked?:boolean}).accountWritesBlocked=true;});
-            await tab.locator(".account-identity").getByRole("button",{name:/로그아웃/}).click();
             await tab.locator("#header").getByRole("link",{name:"로그인",exact:true}).waitFor();
-            assert.match(await tab.locator('.account-main .ds-notice').innerText(),/로그아웃했습니다/);
-            await tab.locator("#header").getByRole("link",{name:"로그인",exact:true}).click();
-            await tab.waitForURL(new URL("account/login/",base).href);
-            await tab.goBack({waitUntil:"networkidle"});
-            await tab.waitForURL(new URL("account/",base).href);
+            assert.doesNotMatch(await tab.locator(".account-identity").innerText(),/신뢰할 수 없는 로컬 이름/);
+            await tab.reload({waitUntil:"networkidle"});
             await tab.locator('.account-layout[aria-busy="false"]').waitFor();
-            assert.match(await tab.locator(".account-identity").innerText(),/방문자 공간/);
-            await tab.locator("#header").getByRole("link",{name:"로그인",exact:true}).click();
-            await tab.evaluate(()=>{(window as Window & {accountWritesBlocked?:boolean}).accountWritesBlocked=false;});
-            await tab.locator("#flow-name").fill("다시 체험");
-            await tab.locator("#flow-email").fill("storage@example.com");
-            await tab.locator('[data-account-auth="login"] input[type="checkbox"]').check();
-            await tab.getByRole("button",{name:/프로필로 계속하기/}).click();
-            await tab.waitForURL(new URL("account/",base).href);
-            await tab.locator('.account-layout[aria-busy="false"]').waitFor();
-            assert.match(await tab.locator(".account-identity h2").innerText(),/다시 체험/);
+            await tab.goto(new URL("account/login/",base).href,{waitUntil:"networkidle"});
+            assert.equal(await tab.locator("#flow-name").count(),0);
+            assert.equal(await tab.locator('[data-account-auth="login"] input[type="checkbox"]').count(),0);
+            assert.equal(await tab.locator("#flow-email").inputValue(),"");
+            await tab.getByRole("button",{name:"이메일로 로그인 링크 받기",exact:true}).click();
+            await tab.locator('.ds-notice[role="alert"]').waitFor();
+            assert.ok(new URL(tab.url()).pathname.endsWith("/account/login/"));
         } finally {await isolated.close();}
-    });
-    await check("malformed stored login fields recover without a runtime error",async()=>{
-        await page.evaluate(()=>localStorage.setItem("sejong-v4:profile",JSON.stringify({name:123,email:{invalid:true}})));
-        await page.goto(new URL("account/login/",base).href,{waitUntil:"networkidle"});
-        assert.equal(await page.locator("#flow-name").inputValue(),"관람객");
-        assert.equal(await page.locator("#flow-email").inputValue(),"visitor@example.com");
-        assert.equal(await page.locator('[data-account-auth="login"] input[type="checkbox"]').isChecked(),false);
-        await page.getByRole("button",{name:/프로필로 계속하기/}).click();
-        await page.locator('.ds-notice[role="alert"]').waitFor();
     });
     await check("no browser runtime errors",async()=>assert.deepEqual(errors,[]));
 }finally{

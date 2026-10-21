@@ -1,0 +1,131 @@
+/* [공유 텍스트 역할과 최소 가독성 / Shared text roles and minimum readability]
+   src/data/design-tokens.ts에서 생성됩니다. / Generated from src/data/design-tokens.ts.
+   data-text는 기존 요소의 위계를 보존합니다. / Native data-text annotations preserve existing hierarchy. */
+:where([data-text]) {
+    --text-contract-minimum: var(--text-min);
+}
+
+:where(h5, h6, small, sub, sup) {
+    font-size: max(var(--text-min), 1em);
+}
+
+.system-text[data-text="display"] {
+    font-size: max(var(--text-min), var(--text-display));
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+}
+
+.system-text[data-text="title"] {
+    font-size: max(var(--text-min), var(--text-title));
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.035em;
+}
+
+.system-text[data-text="heading"] {
+    font-size: max(var(--text-min), var(--text-heading));
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.035em;
+}
+
+.system-text[data-text="subheading"] {
+    font-size: max(var(--text-min), var(--text-subheading));
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: -0.025em;
+}
+
+.system-text[data-text="item-title"] {
+    font-size: max(var(--text-min), var(--text-item-title));
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: -0.025em;
+}
+
+.system-text[data-text="lead"] {
+    font-size: max(var(--text-min), var(--text-lead));
+    font-weight: 400;
+    line-height: 1.7;
+    letter-spacing: -0.015em;
+}
+
+.system-text[data-text="body"] {
+    font-size: max(var(--text-min), var(--text-body));
+    font-weight: 400;
+    line-height: 1.7;
+    letter-spacing: -0.015em;
+}
+
+.system-text[data-text="label"] {
+    font-size: max(var(--text-min), var(--text-sm));
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: -0.015em;
+}
+
+.system-text[data-text="caption"] {
+    font-size: max(var(--text-min), var(--text-sm));
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: -0.015em;
+}
+
+.system-text[data-text="action"] {
+    font-size: max(var(--text-min), var(--text-action));
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: -0.015em;
+}
+
+.system-text[data-text="meta"] {
+    font-size: max(var(--text-min), var(--text-meta));
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: -0.015em;
+}
+
+.system-text[data-text-size="display"] {
+    font-size: max(var(--text-min), var(--text-display));
+}
+
+.system-text[data-text-size="title"] {
+    font-size: max(var(--text-min), var(--text-title));
+}
+
+.system-text[data-text-size="heading"] {
+    font-size: max(var(--text-min), var(--text-heading));
+}
+
+.system-text[data-text-size="subheading"] {
+    font-size: max(var(--text-min), var(--text-subheading));
+}
+
+.system-text[data-text-size="item-title"] {
+    font-size: max(var(--text-min), var(--text-item-title));
+}
+
+.system-text[data-text-size="lead"] {
+    font-size: max(var(--text-min), var(--text-lead));
+}
+
+.system-text[data-text-size="body"] {
+    font-size: max(var(--text-min), var(--text-body));
+}
+
+.system-text[data-text-size="label"] {
+    font-size: max(var(--text-min), var(--text-sm));
+}
+
+.system-text[data-text-size="caption"] {
+    font-size: max(var(--text-min), var(--text-sm));
+}
+
+.system-text[data-text-size="action"] {
+    font-size: max(var(--text-min), var(--text-action));
+}
+
+.system-text[data-text-size="meta"] {
+    font-size: max(var(--text-min), var(--text-meta));
+}

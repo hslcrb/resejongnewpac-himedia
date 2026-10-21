@@ -35,6 +35,8 @@ import "../styles/component-catalog.css";
 import "../styles/account-mini-room.css";
 import "../styles/account-space.css";
 import "../styles/page-layout.css";
+import "../styles/system-surface.css";
+import "../styles/typography.css";
 
 export const metadata = {
     title: "세종문화회관 | 공연·전시·교육",

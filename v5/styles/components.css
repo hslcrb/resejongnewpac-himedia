@@ -7,9 +7,9 @@
     justify-content: space-between;
     gap: 12px;
     padding: 6px var(--page-gutter, 32px);
-    background: #f5f6f8;
-    color: #626872;
-    font-size: var(--text-sm);
+    background: var(--color-detail-f5f6f8);
+    color: var(--color-detail-626872);
+    font-size: max(var(--text-min), var(--text-sm));
     letter-spacing: 0;
 }
 
@@ -60,7 +60,7 @@
 
 .desktop-nav a {
     padding-block: 32px;
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
     font-weight: 650;
     white-space: nowrap;
 }
@@ -78,7 +78,7 @@
 }
 
 .account-link, .english-link {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: 550;
     white-space: nowrap;
 }
@@ -97,7 +97,7 @@
     border: 0;
     border-radius: 50%;
     color: inherit;
-    background: transparent;
+    background: var(--color-detail-j5afio);
     transition: background-color 180ms;
 }
 
@@ -106,7 +106,7 @@
     padding: 13px 22px;
     gap: 20px;
     border-radius: var(--radius);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: 650;
     line-height: 1.5;
     box-shadow: none;
@@ -114,19 +114,19 @@
 }
 
 .button--dark {
-    background: #000000;
-    color: #ffffff;
+    background: var(--color-black);
+    color: var(--color-white);
 }
 
 .button--yellow {
     background: var(--human);
-    color: #000000;
+    color: var(--color-black);
 }
 
 .button--outline, .button--light {
-    color: #000000;
-    background: #ffffff;
-    border-color: #d7dadd;
+    color: var(--color-black);
+    background: var(--color-white);
+    border-color: var(--color-detail-d7dadd);
 }
 
 .button svg, .text-link svg {
@@ -138,7 +138,7 @@
     align-items: center;
     gap: 12px;
     min-height: 44px;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: 600;
 }
 
@@ -172,14 +172,14 @@
     max-height: calc(100dvh - 80px);
     margin: auto;
     padding: clamp(24px, 4vw, 56px);
-    color: #000000;
-    background: #ffffff;
+    color: var(--color-black);
+    background: var(--color-white);
     border: 1px solid var(--line);
     border-radius: var(--radius-dialog);
 }
 
 .navigation-dialog::backdrop {
-    background: rgb(0 0 0 / 50%);
+    background: var(--color-detail-179bjkg);
 }
 
 body:has(.navigation-dialog[open]) {
@@ -195,7 +195,7 @@ body:has(.navigation-dialog[open]) {
 }
 
 .dialog-top h2, #search-heading {
-    font-size: clamp(28px, 3vw, 40px);
+    font-size: max(var(--text-min), clamp(28px, 3vw, 40px));
     margin: 0;
 }
 
@@ -205,7 +205,7 @@ body:has(.navigation-dialog[open]) {
     align-items: center;
     margin-top: 30px;
     padding-bottom: 14px;
-    border-bottom: 2px solid #000000;
+    border-bottom: 2px solid var(--color-black);
 }
 
 .site-search input {
@@ -213,8 +213,8 @@ body:has(.navigation-dialog[open]) {
     min-width: 0;
     padding: 14px 0;
     border: 0;
-    background: #ffffff;
-    font-size: clamp(18px, 2vw, 26px);
+    background: var(--color-white);
+    font-size: max(var(--text-min), clamp(18px, 2vw, 26px));
 }
 
 .search-terms {
@@ -246,13 +246,13 @@ body:has(.navigation-dialog[open]) {
 }
 
 .menu-columns a {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: 1.5;
 }
 
 .menu-columns .menu-title {
     margin-bottom: 12px;
-    font-size: 20px;
+    font-size: max(var(--text-min), 20px);
     font-weight: 700;
 }
 
@@ -263,19 +263,19 @@ body:has(.navigation-dialog[open]) {
     margin-top: 40px;
     padding-top: 24px;
     border-top: 1px solid var(--line);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .page-heading {
     padding: 28px 0 0;
     border: 0;
-    background: #ffffff;
+    background: var(--color-white);
 }
 
 .breadcrumbs {
     margin-bottom: 48px;
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .page-title-row {
@@ -285,7 +285,7 @@ body:has(.navigation-dialog[open]) {
 
 .page-title-row h1 {
     margin-top: 12px;
-    font-size: clamp(38px, 4.2vw, 64px);
+    font-size: max(var(--text-min), clamp(38px, 4.2vw, 64px));
     font-weight: 750;
 }
 
@@ -293,7 +293,7 @@ body:has(.navigation-dialog[open]) {
     max-width: 800px;
     margin-top: 18px;
     color: var(--muted);
-    font-size: 18px;
+    font-size: max(var(--text-min), 18px);
     line-height: 1.65;
 }
 
@@ -305,29 +305,29 @@ body:has(.navigation-dialog[open]) {
 
 .subnav a {
     padding: 16px 0;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     border: 0;
-    border-bottom: 3px solid transparent;
+    border-bottom: 3px solid var(--color-detail-j5afio);
     border-radius: 0;
-    background: transparent;
+    background: var(--color-detail-j5afio);
 }
 
 .subnav a.active {
-    color: #000000;
-    border-bottom-color: #000000;
-    background: transparent;
+    color: var(--color-black);
+    border-bottom-color: var(--color-black);
+    background: var(--color-detail-j5afio);
     font-weight: 700;
 }
 
 .renewal-footer {
-    background: #f6f7f8;
-    color: #000000;
+    background: var(--color-detail-f6f7f8);
+    color: var(--color-black);
 }
 
 .footer-utility {
     border-top: 1px solid var(--line);
     border-bottom: 1px solid var(--line);
-    background: #ffffff;
+    background: var(--color-white);
 }
 
 .footer-utility .container {
@@ -339,7 +339,7 @@ body:has(.navigation-dialog[open]) {
 }
 
 .footer-utility p {
-    font-size: 22px;
+    font-size: max(var(--text-min), 22px);
     font-weight: 650;
     margin: 0;
 }
@@ -360,7 +360,7 @@ body:has(.navigation-dialog[open]) {
 
 .footer-identity p {
     margin: 24px 0;
-    font-size: 16px;
+    font-size: max(var(--text-min), 16px);
 }
 
 .footer-policy {
@@ -368,13 +368,13 @@ body:has(.navigation-dialog[open]) {
     flex-wrap: wrap;
     gap: 12px 24px;
     margin-bottom: 24px;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: 650;
 }
 
 .footer-information address {
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-style: normal;
     line-height: 1.8;
 }
@@ -382,7 +382,7 @@ body:has(.navigation-dialog[open]) {
 .footer-small {
     margin-top: 16px;
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: 1.7;
 }
 
@@ -394,12 +394,12 @@ body:has(.navigation-dialog[open]) {
 }
 
 .footer-service > span {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     color: var(--muted);
 }
 
 .footer-phone {
-    font-size: clamp(24px, 2.3vw, 32px);
+    font-size: max(var(--text-min), clamp(24px, 2.3vw, 32px));
     font-weight: 700;
     letter-spacing: -0.04em;
 }
@@ -427,11 +427,11 @@ body:has(.navigation-dialog[open]) {
     width: 100%;
     padding: 12px 16px;
     margin-top: 18px;
-    color: #000000;
-    background: transparent;
-    border: 1px solid #c9ccd0;
+    color: var(--color-black);
+    background: var(--color-detail-j5afio);
+    border: 1px solid var(--color-detail-c9ccd0);
     border-radius: var(--radius);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .version-link {
@@ -439,7 +439,7 @@ body:has(.navigation-dialog[open]) {
     align-items: center;
     gap: 12px;
     margin-top: 12px;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .return-top {
@@ -449,16 +449,16 @@ body:has(.navigation-dialog[open]) {
     z-index: 40;
     width: 48px;
     height: 48px;
-    border: 1px solid #d6d9dc;
+    border: 1px solid var(--color-detail-d6d9dc);
     border-radius: 50%;
-    background: #ffffff;
-    color: #000000;
-    font-size: 22px;
+    background: var(--color-white);
+    color: var(--color-black);
+    font-size: max(var(--text-min), 22px);
 }
 
 @media (hover: hover) and (pointer: fine) {
     .round-button:hover {
-        background: #eef0f2;
+        background: var(--color-detail-eef0f2);
     }
 
     .button:hover, .button:hover svg, .program-card:hover, .program-card:hover img,
@@ -468,11 +468,11 @@ body:has(.navigation-dialog[open]) {
     }
 
     .button--dark:hover {
-        background: #30343a;
+        background: var(--color-detail-30343a);
     }
 
     .button--yellow:hover {
-        background: #f0db00;
+        background: var(--color-detail-f0db00);
     }
 
     .text-link:hover, .desktop-nav a:hover, .menu-columns a:hover {
@@ -487,7 +487,7 @@ body:has(.navigation-dialog[open]) {
     }
 
     .desktop-nav a {
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
     }
 
     .sejong-wordmark {
@@ -526,7 +526,7 @@ body:has(.navigation-dialog[open]) {
 @media (max-width: 600px) {
     .project-note {
         min-height: 28px;
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
     }
 
     .project-note span[lang] {
@@ -571,7 +571,7 @@ body:has(.navigation-dialog[open]) {
 
     .breadcrumbs {
         margin-bottom: 32px;
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
     }
 
     .page-title-row {
@@ -583,7 +583,7 @@ body:has(.navigation-dialog[open]) {
     }
 
     .page-description {
-        font-size: 16px;
+        font-size: max(var(--text-min), 16px);
     }
 
     .subnav {
@@ -592,12 +592,12 @@ body:has(.navigation-dialog[open]) {
     }
 
     .subnav a {
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
         padding-block: 12px;
     }
 
     .program-card h3 {
-        font-size: 18px;
+        font-size: max(var(--text-min), 18px);
     }
 
     .program-art img {
@@ -605,19 +605,19 @@ body:has(.navigation-dialog[open]) {
     }
 
     .program-card-meta {
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
         margin-top: 14px;
     }
 
     .program-card-date, .program-card-venue {
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
     }
 
     .poster-tag {
         top: 8px;
         left: 8px;
         padding: 4px 7px;
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
     }
 
     .favorite-button {
@@ -633,7 +633,7 @@ body:has(.navigation-dialog[open]) {
 
     .footer-utility a {
         margin-top: 16px;
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
     }
 
     .footer-main {
@@ -647,7 +647,7 @@ body:has(.navigation-dialog[open]) {
     }
 
     .footer-phone {
-        font-size: 22px;
+        font-size: max(var(--text-min), 22px);
     }
 
     .footer-identity .sejong-wordmark {
@@ -656,6 +656,6 @@ body:has(.navigation-dialog[open]) {
 
     .footer-service select {
         padding: 10px 6px;
-        font-size: var(--text-sm);
+        font-size: max(var(--text-min), var(--text-sm));
     }
 }

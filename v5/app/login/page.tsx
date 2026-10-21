@@ -12,7 +12,7 @@ export default function LoginRedirectPage() {
 
     return (
         <div style={{ padding: "4rem 1rem", textAlign: "center" }}>
-            <p>로그인 페이지로 이동 중입니다...</p>
+            <p data-text="body">로그인 페이지로 이동 중입니다...</p>
         </div>
     );
 }

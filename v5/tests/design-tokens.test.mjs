@@ -27,7 +27,8 @@ test("one typed token source preserves the effective geometry and existing compa
     assert.equal(tokens["--control-flow-field-size"], "54px");
     assert.equal(tokens["--paper"], "var(--surface-default)");
     assert.equal(tokens["--semantic-error-border"], "var(--border-strong)");
-    assert.equal(tokens["--state-hover"], "#f0f2f4");
+    assert.equal(tokens["--state-hover"], "var(--color-state-hover)");
+    assert.equal(tokens["--color-state-hover"], "#F0F2F4");
     assert.equal(tokens["--feedback-duration"], "160ms");
 });
 

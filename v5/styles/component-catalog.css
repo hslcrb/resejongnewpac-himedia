@@ -17,12 +17,12 @@
 }
 
 .component-counts dt {
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .component-counts dd {
     margin: var(--space-2) 0 0;
-    font-size: var(--text-heading);
+    font-size: max(var(--text-min), var(--text-heading));
     font-weight: var(--weight-heading);
     font-variant-numeric: tabular-nums;
 }
@@ -37,7 +37,7 @@
     width: 100%;
     min-width: 42rem;
     border-collapse: collapse;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-body);
     text-align: left;
 }
@@ -59,7 +59,7 @@
 .component-table :is(code, td > span) {
     display: block;
     margin-top: var(--space-2);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     overflow-wrap: anywhere;
     font-weight: var(--weight-body);
 }

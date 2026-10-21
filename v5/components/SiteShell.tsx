@@ -17,7 +17,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
     if (documentation) {
         return (
             <>
-                <a className="skip-link" href="#main">
+                <a data-text="action" className="skip-link" href="#main">
                     본문 바로가기
                 </a>
                 {children}
@@ -27,11 +27,11 @@ export default function SiteShell({ children }: { children: ReactNode }) {
     }
     return (
         <>
-            <a className="skip-link" href="#main">
+            <a data-text="action" className="skip-link" href="#main">
                 본문 바로가기
             </a>
             <Header />
-            <main id="main" tabIndex={-1}>
+            <main data-text="body" id="main" tabIndex={-1}>
                 {children}
             </main>
             <Footer />

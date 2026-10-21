@@ -14,7 +14,7 @@
     gap: var(--space-2);
     margin-bottom: var(--space-8);
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: var(--leading-label);
 }
 
@@ -47,7 +47,7 @@
 
 .page-layout-heading h1 {
     margin: 0;
-    font-size: var(--text-title);
+    font-size: max(var(--text-min), var(--text-title));
     font-weight: var(--weight-heading);
     line-height: var(--leading-heading);
     letter-spacing: var(--tracking-heading);
@@ -58,7 +58,7 @@
     max-width: var(--content-reading-width);
     margin: 0;
     color: var(--text-secondary);
-    font-size: var(--text-lead);
+    font-size: max(var(--text-min), var(--text-lead));
     line-height: var(--leading-body);
 }
 
@@ -90,7 +90,7 @@
 .booking-page-panel h2,
 .page-layout-empty h2 {
     margin: 0 0 var(--space-4);
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
     font-weight: var(--weight-title);
     line-height: var(--leading-label);
 }
@@ -98,7 +98,7 @@
 .page-layout-prose p {
     margin: 0;
     color: var(--text-secondary);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: var(--leading-body);
 }
 
@@ -112,7 +112,7 @@
     gap: var(--space-4) var(--space-6);
     min-width: 0;
     margin: 0;
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: var(--leading-body);
 }
 
@@ -166,7 +166,7 @@
 .page-layout-empty p {
     margin: 0;
     color: var(--text-secondary);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
 }
 
 /* [원본 비율의 포스터와 유연한 상세 열 / Natural poster ratio and flexible details] */
@@ -236,7 +236,7 @@
     align-items: center;
     gap: var(--space-3);
     color: var(--text-secondary);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     line-height: var(--leading-label);
 }
 
@@ -267,10 +267,6 @@
     display: grid;
     gap: var(--space-6);
     min-width: 0;
-    padding: clamp(1rem, 3vw, 2.5rem);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-media);
-    background: var(--surface-default);
 }
 
 .booking-page-panel h2 {
@@ -297,7 +293,7 @@
 .booking-page-seat-help {
     margin: 0;
     color: var(--text-secondary);
-    font-size: var(--text-body);
+    font-size: max(var(--text-min), var(--text-body));
     overflow-wrap: anywhere;
 }
 
@@ -323,7 +319,7 @@
 }
 
 .booking-page-total strong {
-    font-size: var(--text-subheading);
+    font-size: max(var(--text-min), var(--text-subheading));
     font-weight: var(--weight-heading);
 }
 
@@ -374,7 +370,7 @@
     background: var(--surface-subtle);
     color: var(--text-secondary);
     text-align: center;
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: var(--weight-action);
 }
 
@@ -398,7 +394,7 @@
     border-radius: var(--radius-control);
     background: var(--surface-default);
     color: var(--text-primary);
-    font: var(--weight-action) var(--text-body)/var(--leading-label) var(--font);
+    font: var(--weight-action) max(var(--text-min), var(--text-body))/var(--leading-label) var(--font);
     transition: background-color var(--duration-feedback), border-color var(--duration-feedback), color var(--duration-feedback);
 }
 
@@ -429,7 +425,7 @@
 
 .catalog-page-category {
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: var(--weight-action);
 }
 
@@ -456,7 +452,7 @@
     gap: var(--space-3) var(--space-6);
     margin-bottom: var(--space-6);
     color: var(--text-secondary);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .catalog-page-actions {

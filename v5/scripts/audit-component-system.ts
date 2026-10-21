@@ -22,7 +22,7 @@ const slash = (value: string) => value.replace(/\\/g, "/");
 const normalized = (value: string) => value.replace(/\r\n/g, "\n");
 const sortStrings = (values: Iterable<string>) => [...new Set(values)].sort();
 const isGuide = (source: string) => source.startsWith("app/design-rules/");
-const routeFile = (source: string) => /(?:^|\/)(?:page|layout)\.tsx$/.test(source);
+const routeFile = (source: string) => /(?:^|\/)(?:page|layout|not-found|error|global-error|loading|template)\.tsx$/.test(source);
 
 function filesBelow(directory: string): string[] {
     if (!existsSync(directory)) return [];

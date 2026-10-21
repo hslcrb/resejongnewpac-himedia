@@ -1,18 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import type { FormEvent } from "react";
 import Link from "next/link";
-import { SystemButton, SystemCheckbox, SystemField, SystemNotice } from "../../../components/SystemPrimitives";
-import { useRouter } from "next/navigation";
-import { showToast } from "../../../components/Toast";
-import { createDemoProfile, getGoogleOAuthAvailability, isSupabaseConfigured, signInWithGoogle } from "../../../src/lib/supabase.ts";
+import { SystemButton, SystemField, SystemNotice } from "../../../components/SystemPrimitives";
+import { SystemSurface } from "../../../components/SystemSurface";
+import { getGoogleOAuthAvailability, isSupabaseConfigured, requestEmailSignIn, signInWithGoogle } from "../../../src/lib/supabase.ts";
 
 export default function LoginPage() {
-    const router = useRouter();
-    const [name, setName] = useState("관람객");
-    const [email, setEmail] = useState("visitor@example.com");
-    const [consent, setConsent] = useState(false);
+    const [email, setEmail] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [emailPending, setEmailPending] = useState(false);
     const [googleStatus, setGoogleStatus] = useState<"checking" | "enabled" | "disabled" | "unavailable">("checking");
     const [oauthPending, setOauthPending] = useState(false);
 
@@ -29,8 +28,9 @@ export default function LoginPage() {
     }, []);
 
     const handleGoogleSignIn = async () => {
-        if (googleStatus !== "enabled" || oauthPending) return;
+        if (googleStatus !== "enabled" || oauthPending || emailPending) return;
         setErrorMessage("");
+        setSuccessMessage("");
         setOauthPending(true);
         try { await signInWithGoogle(); }
         catch (error) {
@@ -39,47 +39,24 @@ export default function LoginPage() {
         }
     };
 
-    useEffect(() => {
-        try {
-            const rawProfile = localStorage.getItem("sejong-v4:profile");
-            if (rawProfile) {
-                const parsed = JSON.parse(rawProfile);
-                if (typeof parsed?.name === "string") setName(parsed.name);
-                if (typeof parsed?.email === "string") setEmail(parsed.email);
-            }
-        } catch {}
-    }, []);
-
-    const handleSubmit = (e: React.FormEvent) => {
+    // [이메일 소유 확인 후 로그인 / Sign in only after email ownership is verified]
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        if (emailPending || oauthPending) return;
         setErrorMessage("");
-
-        if (!name.trim()) {
-            setErrorMessage("이름을 입력해 주세요.");
-            return;
-        }
-        if (!email.trim() || !email.includes("@")) {
+        setSuccessMessage("");
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
             setErrorMessage("유효한 이메일을 입력해 주세요.");
             return;
         }
-        if (!consent) {
-            setErrorMessage("개인정보 수집 및 이용에 동의해 주세요.");
-            return;
-        }
-
+        setEmailPending(true);
         try {
-            const newProfile = {
-                name: name.trim(),
-                email: email.trim(),
-                phone: "",
-            };
-            localStorage.setItem("sejong-v4:profile", JSON.stringify(createDemoProfile(newProfile, localStorage.getItem("sejong-v4:profile"))));
-            localStorage.setItem("sejong-v4:session", JSON.stringify({ active: true }));
-            window.dispatchEvent(new CustomEvent("sejong:account-identity", { detail: { action: "demo-sign-in" } }));
-            showToast("로그인했습니다.");
-            router.push("/account");
+            await requestEmailSignIn(email.trim(), { createUser: false });
+            setSuccessMessage("이메일로 로그인 링크를 보냈습니다.");
         } catch {
-            setErrorMessage("로그인 처리 중 오류가 발생했습니다.");
+            setErrorMessage("로그인 링크를 보내지 못했습니다. 이메일을 확인하고 잠시 후 다시 시도해 주세요.");
+        } finally {
+            setEmailPending(false);
         }
     };
 
@@ -89,16 +66,16 @@ export default function LoginPage() {
             <section className="page-heading" id="page-heading">
                 <div className="container">
                     <nav className="breadcrumbs" aria-label="현재 위치">
-                        <Link href="/">홈</Link>
-                        <span aria-hidden="true">/</span>
-                        <Link href="/account">마이페이지</Link>
-                        <span aria-hidden="true">/</span>
-                        <span aria-current="page">로그인</span>
+                        <Link data-text="action" href="/">홈</Link>
+                        <span data-text="body" aria-hidden="true">/</span>
+                        <Link data-text="action" href="/account">마이페이지</Link>
+                        <span data-text="body" aria-hidden="true">/</span>
+                        <span data-text="body" aria-current="page">로그인</span>
                     </nav>
                     <div className="page-title-row">
                         <div>
-                            <h1>로그인</h1>
-                            <p className="page-description">예매 내역과 관심 프로그램을 관리하는 페이지입니다.</p>
+                            <h1 data-text="title">로그인</h1>
+                            <p data-text="body" className="page-description">예매 내역과 관심 프로그램을 관리하는 페이지입니다.</p>
                         </div>
                     </div>
                 </div>
@@ -107,7 +84,7 @@ export default function LoginPage() {
             <div className="container page-content flow-content">
                 <div className="account-auth-layout">
                     <section className="account-auth-intro" aria-labelledby="account-intro-title">
-                        <h2 id="account-intro-title">
+                        <h2 data-text="heading" id="account-intro-title">
                             예매 내역과 관심 프로그램,
                             <br />
                             한곳에서 확인하세요.
@@ -122,54 +99,38 @@ export default function LoginPage() {
                         />
                     </section>
 
-                    <form className="flow-panel" data-account-auth="login" onSubmit={handleSubmit} noValidate>
-                        <h2>로그인</h2>
-                        <p className="flow-fineprint">
-                            Google 계정으로 로그인하거나 저장한 프로필을 이용하세요.
+                    <SystemSurface as="form" variant="panel" padding="lg" className="flow-panel" data-account-auth="login" onSubmit={handleSubmit} noValidate>
+                        <h2 data-text="heading">로그인</h2>
+                        <p data-text="body" className="flow-fineprint">
+                            Google 계정 또는 이메일 로그인 링크로 본인 확인 후 이용하세요.
                         </p>
 
-                        <SystemButton context="flow" variant="secondary" className="flow-button-full" type="button" onClick={handleGoogleSignIn}
-                            disabled={googleStatus !== "enabled" || oauthPending} aria-describedby="google-login-status" aria-busy={oauthPending}>
+                        <SystemButton data-text="action" context="flow" variant="secondary" className="flow-button-full" type="button" onClick={handleGoogleSignIn}
+                            disabled={googleStatus !== "enabled" || oauthPending || emailPending} aria-describedby="google-login-status" aria-busy={oauthPending}>
                             {oauthPending ? "Google로 이동 중…" : "Google로 계속하기"}
                         </SystemButton>
-                        <p className="flow-fineprint" id="google-login-status" role="status" aria-live="polite">
+                        <p data-text="body" className="flow-fineprint" id="google-login-status" role="status" aria-live="polite">
                             {googleStatus === "checking" ? "Google 로그인 연결을 확인하고 있습니다."
                                 : googleStatus === "enabled" ? "Google에서 본인 확인 후 마이페이지로 돌아옵니다."
                                 : googleStatus === "unavailable" ? "로그인 서비스에 연결하지 못했습니다. 잠시 후 다시 접속해 주세요."
-                                : isSupabaseConfigured ? "Google 로그인 연결을 사용할 수 없습니다. 아래 프로필로 계속할 수 있습니다."
+                                : isSupabaseConfigured ? "Google 로그인 연결을 사용할 수 없습니다. 이메일 로그인을 이용해 주세요."
                                 : "현재 Google 로그인 연결을 준비하고 있습니다."}
                         </p>
 
-                        <h3>프로필로 계속하기</h3>
-                        <p className="flow-fineprint">입력한 정보와 활동은 이 브라우저에 저장됩니다.</p>
+                        <h3 data-text="subheading">이메일로 로그인</h3>
+                        <p data-text="body" className="flow-fineprint">가입한 이메일로 받은 링크를 열면 로그인됩니다.</p>
 
                         {errorMessage && (
-                            <SystemNotice variant="flow" error className="flow-error" id="flow-error" tabIndex={-1}>
+                            <SystemNotice data-text="body" variant="flow" error className="flow-error" id="flow-error" tabIndex={-1}>
                                 {errorMessage}
                             </SystemNotice>
                         )}
 
-                        <SystemField
+                        <SystemField data-text="body"
                             variant="flow"
                             outerClassName="form-field"
-                            label={<>이름 <span className="flow-required" aria-hidden="true">*</span>
-                                <span className="sr-only">필수</span></>}
-                            id="flow-name"
-                            name="name"
-                            required
-                            autoComplete="name"
-                            maxLength={40}
-                            type="text"
-                            placeholder="이름을 입력해 주세요"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                        />
-
-                        <SystemField
-                            variant="flow"
-                            outerClassName="form-field"
-                            label={<>이메일 <span className="flow-required" aria-hidden="true">*</span>
-                                <span className="sr-only">필수</span></>}
+                            label={<>이메일 <span data-text="body" className="flow-required" aria-hidden="true">*</span>
+                                <span data-text="body" className="sr-only">필수</span></>}
                             id="flow-email"
                             name="email"
                             required
@@ -178,29 +139,23 @@ export default function LoginPage() {
                             placeholder="visitor@example.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            disabled={emailPending || oauthPending}
                         />
 
-                        <SystemCheckbox
-                            className="flow-consent"
-                            label={<span>입력한 정보를 이 브라우저에 저장하는 데 동의합니다. <strong>(필수)</strong></span>}
-                            name="consent"
-                            required
-                            checked={consent}
-                            onChange={(e) => setConsent(e.target.checked)}
-                        />
-
-                        <SystemButton context="flow" className="flow-button-full" type="submit">
-                            프로필로 계속하기
+                        <SystemButton data-text="action" context="flow" className="flow-button-full" type="submit" disabled={emailPending || oauthPending} aria-busy={emailPending}>
+                            {emailPending ? "로그인 링크 전송 중…" : "이메일로 로그인 링크 받기"}
                             <svg className="material-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                 <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
                         </SystemButton>
 
+                        {successMessage && <SystemNotice data-text="body" variant="flow" className="flow-info-box">{successMessage} 받은 이메일의 링크를 열어 주세요.</SystemNotice>}
+
                         <div className="account-auth-links">
-                            <Link href="/account/signup">프로필 만들기</Link>
-                            <Link href="/account/recovery">계정 찾기</Link>
+                            <Link data-text="action" href="/account/signup">회원가입</Link>
+                            <Link data-text="action" href="/account/recovery">계정 찾기</Link>
                         </div>
-                    </form>
+                    </SystemSurface>
                 </div>
             </div>
         </div>

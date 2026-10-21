@@ -18,19 +18,21 @@ export default function LiquidGlassDemo({
     const [opacity, setOpacity] = useState(GLASS_DEFAULTS.opacity);
     const [refraction, setRefraction] = useState(GLASS_DEFAULTS.refraction);
     const material = GLASS_VARIANTS[variant];
-    const code = `import LiquidGlass from "@/components/LiquidGlass";\n\n<LiquidGlass\n    variant="${variant}"\n    opacity={${opacity.toFixed(2)}}\n    refraction={${refraction}}\n    blur={${material.blur}}\n    thickness={${material.thickness}}\n>\n    <h2>세종문화회관</h2>\n    <p>유리 위의 콘텐츠는 선명하게 유지됩니다.</p>\n</LiquidGlass>`;
+    const code = `import LiquidGlass from "@/components/LiquidGlass";\n\n<LiquidGlass\n    variant="${variant}"\n    opacity={${opacity.toFixed(2)}}\n    refraction={${refraction}}\n    blur={${material.blur}}\n    thickness={${material.thickness}}\n>\n    <h2 data-text="heading">세종문화회관</h2>\n    <p data-text="body">유리 위의 콘텐츠는 선명하게 유지됩니다.</p>\n</LiquidGlass>`;
     return (
         <>
             <div className="ds-glass-variant">
-                <label htmlFor="glass-variant">재질 베리언트</label>
+                <label data-text="label" htmlFor="glass-variant">재질 베리언트</label>
                 <select id="glass-variant" value={variant} onChange={event => {
                     const next = event.target.value as GlassVariant;
                     setVariant(next);
                     setOpacity(GLASS_VARIANTS[next].opacity);
                     setRefraction(GLASS_VARIANTS[next].refraction);
                 }}>
-                    <option value="surface">Surface · 기본 표면</option>
-                    <option value="drawer">Drawer · 모바일 서랍</option>
+                    <option data-text="label" value="surface">Surface · 기본 표면</option>
+                    <option data-text="label" value="drawer">Drawer · 모바일 서랍</option>
+                    <option data-text="label" value="hero">Hero · 히어로 안내</option>
+                    <option data-text="label" value="black">Black · 알림 캡슐</option>
                 </select>
             </div>
             <div className="ds-glass-stage">
@@ -41,16 +43,16 @@ export default function LiquidGlassDemo({
                     className="ds-glass-backdrop"
                 />
                 <LiquidGlass variant={variant} className="ds-glass-example" opacity={opacity} refraction={refraction}>
-                    <code className="ds-glass-component-name">LiquidGlass</code>
-                    <h3>빛을 머금은 유리</h3>
-                    <p>배경은 가장자리에서 꺾이고, 글자는 선명하게 남습니다.</p>
+                    <code data-text="caption" className="ds-glass-component-name">LiquidGlass</code>
+                    <h3 data-text="heading">빛을 머금은 유리</h3>
+                    <p data-text="body">배경은 가장자리에서 꺾이고, 글자는 선명하게 남습니다.</p>
                 </LiquidGlass>
             </div>
             <div className="ds-glass-controls">
                 <div>
-                    <label htmlFor="glass-opacity">
+                    <label data-text="label" htmlFor="glass-opacity">
                         불투명도{" "}
-                        <output htmlFor="glass-opacity">{Math.round(opacity * 100)}%</output>
+                        <output data-text="meta" htmlFor="glass-opacity">{Math.round(opacity * 100)}%</output>
                     </label>
                     <input
                         id="glass-opacity"
@@ -64,8 +66,8 @@ export default function LiquidGlassDemo({
                     />
                 </div>
                 <div>
-                    <label htmlFor="glass-refraction">
-                        굴절 강도 <output htmlFor="glass-refraction">{refraction}</output>
+                    <label data-text="label" htmlFor="glass-refraction">
+                        굴절 강도 <output data-text="meta" htmlFor="glass-refraction">{refraction}</output>
                     </label>
                     <input
                         id="glass-refraction"
@@ -93,7 +95,7 @@ export default function LiquidGlassDemo({
                 </SystemButton>
             </div>
             <pre className="ds-code-block">
-                <code>{code}</code>
+                <code data-text="body">{code}</code>
             </pre>
         </>
     );

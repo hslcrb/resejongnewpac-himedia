@@ -77,7 +77,7 @@
 }
 
 .button--dark:active {
-    background-color: #30343a;
+    background-color: var(--color-detail-30343a);
     filter: none;
 }
 
@@ -89,12 +89,12 @@
 }
 
 .navigation-dialog[data-dialog-closing]::backdrop {
-    background-color: rgb(0 0 0 / 0%);
+    background-color: var(--color-transparent);
 }
 
 @starting-style {
     .navigation-dialog[open]::backdrop {
-        background-color: rgb(0 0 0 / 0%);
+        background-color: var(--color-transparent);
     }
 }
 

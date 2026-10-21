@@ -19,7 +19,7 @@
     min-width: 0;
     gap: .625rem;
     color: var(--ink);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     font-weight: 650;
 }
 
@@ -44,7 +44,7 @@
 .experience-state {
     display: inline-block;
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: 1.6;
 }
 
@@ -75,7 +75,7 @@
 .arrival-map figcaption {
     padding: 1rem 0 0;
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
     line-height: 1.7;
 }
 
@@ -99,7 +99,7 @@
 
 .arrival-instructions h3 {
     margin: 0 0 1.5rem;
-    font-size: clamp(1.5rem, 2vw, 2rem);
+    font-size: max(var(--text-min), clamp(1.5rem, 2vw, 2rem));
     line-height: 1.4;
     word-break: keep-all;
 }
@@ -115,7 +115,7 @@
 
 .arrival-instructions .info-steps h3 {
     margin-bottom: .5rem;
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
 }
 
 /* [자료 열람과 이벤트 응모 상태 / Documents and event application status]
@@ -150,7 +150,7 @@
 .disclosure-record-list h3,
 .event-status-record h3 {
     margin: .5rem 0 .75rem;
-    font-size: var(--text-item-title);
+    font-size: max(var(--text-min), var(--text-item-title));
     font-weight: 650;
     line-height: 1.5;
     word-break: keep-all;
@@ -169,7 +169,7 @@
 
 .disclosure-document > h2 {
     margin: 1rem 0;
-    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-size: max(var(--text-min), clamp(1.75rem, 3vw, 2.5rem));
     line-height: 1.4;
 }
 
@@ -177,7 +177,7 @@
     display: none;
     margin: 1.5rem 0 .75rem;
     color: var(--muted);
-    font-size: var(--text-sm);
+    font-size: max(var(--text-min), var(--text-sm));
 }
 
 .disclosure-data {

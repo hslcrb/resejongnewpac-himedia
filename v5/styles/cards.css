@@ -19,7 +19,7 @@
     padding: 0;
     border: 0;
     border-radius: 0;
-    background: transparent;
+    background: var(--color-detail-j5afio);
     box-shadow: none;
 }
 
@@ -43,7 +43,7 @@
     padding: 0;
     overflow: hidden;
     border-radius: var(--radius-media);
-    background: #f0f1ef;
+    background: var(--color-detail-f0f1ef);
 }
 
 .poster-media img,
@@ -62,9 +62,9 @@
     inset: 14px auto auto 14px;
     padding: 5px 9px;
     border-radius: 4px;
-    background: white;
+    background: var(--color-white);
     color: var(--ink);
-    font-size: var(--text-meta);
+    font-size: max(var(--text-min), var(--text-meta));
     font-weight: var(--weight-title);
 }
 
@@ -91,7 +91,7 @@
     border: 0;
     border-radius: 50%;
     color: var(--ink);
-    background: white;
+    background: var(--color-white);
     opacity: 0;
     pointer-events: none;
     transform: none;
@@ -112,14 +112,14 @@
     margin: 20px 0 8px;
     padding: 0;
     color: var(--muted);
-    font-size: var(--text-meta);
+    font-size: max(var(--text-min), var(--text-meta));
 }
 
 .card--poster h3 {
     min-height: 0;
     margin: 0 0 12px;
     padding: 0;
-    font-size: var(--text-card-title);
+    font-size: max(var(--text-min), var(--text-card-title));
     font-weight: var(--weight-title);
     line-height: 1.5;
 }
@@ -128,7 +128,7 @@
     margin: 4px 0 0;
     padding: 0;
     color: var(--muted);
-    font-size: var(--text-meta);
+    font-size: max(var(--text-min), var(--text-meta));
     line-height: 1.7;
     font-variant-numeric: tabular-nums;
 }
@@ -162,8 +162,8 @@
     flex: 0 0 var(--slide-width);
     overflow: hidden;
     border-radius: var(--radius-banner);
-    background: #10100e;
-    color: white;
+    background: var(--color-detail-10100e);
+    color: var(--color-white);
 }
 
 .card--hero::before {
@@ -172,7 +172,7 @@
     inset: 0;
     z-index: 2;
     pointer-events: none;
-    background: #000000;
+    background: var(--color-black);
     opacity: 0.32;
     transition: opacity 650ms ease;
 }
@@ -185,7 +185,7 @@
     inset: 0;
     z-index: -1;
     pointer-events: none;
-    background: linear-gradient(90deg, rgb(0 0 0 / 70%), rgb(0 0 0 / 8%) 80%);
+    background: linear-gradient(90deg, var(--color-detail-1u8jjjy), var(--color-detail-1jw7hzj) 80%);
 }
 
 .season-card-link {
@@ -219,10 +219,10 @@
 }
 
 .is-active .season-copy { opacity: 1; }
-.season-label { margin: 0 0 24px; font-size: var(--text-meta); font-weight: 550; }
-.season-copy h2 { margin: 0 0 30px; font-size: clamp(42px, 4.3vw, 66px); font-weight: 650; line-height: 1.22; letter-spacing: -0.055em; }
-.season-name { margin: 0 0 8px; font-size: var(--text-item-title); font-weight: 600; line-height: 1.5; }
-.season-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0 0 28px; font-size: var(--text-meta); }
+.season-label { margin: 0 0 24px; font-size: max(var(--text-min), var(--text-meta)); font-weight: 550; }
+.season-copy h2 { margin: 0 0 30px; font-size: max(var(--text-min), clamp(42px, 4.3vw, 66px)); font-weight: 650; line-height: 1.22; letter-spacing: -0.055em; }
+.season-name { margin: 0 0 8px; font-size: max(var(--text-min), var(--text-item-title)); font-weight: 600; line-height: 1.5; }
+.season-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0 0 28px; font-size: max(var(--text-min), var(--text-meta)); }
 
 /* [카드-배너 / Card-banner] */
 .card--banner {
@@ -241,11 +241,11 @@
     color: inherit;
 }
 
-.card--banner h2 { margin: 0 0 22px; font-size: clamp(28px, 2.8vw, 38px); line-height: 1.35; }
+.card--banner h2 { margin: 0 0 22px; font-size: max(var(--text-min), clamp(28px, 2.8vw, 38px)); line-height: 1.35; }
 .invitation-art { position: relative; display: flex; flex-direction: column; justify-content: center; min-width: 260px; padding-right: 24px; line-height: 0.9; }
-.invitation-art > span { position: relative; z-index: 1; font-size: 72px; font-weight: 750; letter-spacing: -0.07em; }
-.invitation-art b { position: relative; z-index: 1; margin-top: 12px; font-size: 40px; font-weight: 650; letter-spacing: -0.045em; }
-.invitation-art i { position: absolute; top: 4px; right: 0; width: 180px; height: 180px; border: 1px solid rgb(0 0 0 / 35%); border-radius: 50%; }
+.invitation-art > span { position: relative; z-index: 1; font-size: max(var(--text-min), 72px); font-weight: 750; letter-spacing: -0.07em; }
+.invitation-art b { position: relative; z-index: 1; margin-top: 12px; font-size: max(var(--text-min), 40px); font-weight: 650; letter-spacing: -0.045em; }
+.invitation-art i { position: absolute; top: 4px; right: 0; width: 180px; height: 180px; border: 1px solid var(--color-detail-1lavb2t); border-radius: 50%; }
 
 @media (hover: none), (pointer: coarse) {
     .card--poster .favorite-button { opacity: 1; pointer-events: auto; }
@@ -254,25 +254,25 @@
 @media (max-width: 800px) {
     .card--hero { min-height: 510px; }
     .season-copy { padding: 36px; }
-    .season-copy h2 { font-size: 46px; }
+    .season-copy h2 { font-size: max(var(--text-min), 46px); }
     .card-banner-link { padding: 36px; gap: 24px; }
     .invitation-art { min-width: 160px; }
-    .invitation-art > span { font-size: 58px; }
-    .invitation-art b { font-size: 30px; }
+    .invitation-art > span { font-size: max(var(--text-min), 58px); }
+    .invitation-art b { font-size: max(var(--text-min), 30px); }
     .invitation-art i { width: 140px; height: 140px; }
 }
 
 @media (max-width: 600px) {
     .card--hero { min-height: 540px; }
     .card--hero .season-image { object-position: 72% center; }
-    .card--hero::after { background: linear-gradient(0deg, rgb(0 0 0 / 85%), rgb(0 0 0 / 15%) 90%); }
+    .card--hero::after { background: linear-gradient(0deg, var(--color-detail-d9gs3q), var(--color-detail-vgt87r) 90%); }
     .season-copy { justify-content: flex-end; padding: 28px 24px; }
     .season-label { margin-bottom: 14px; }
-    .season-copy h2 { font-size: clamp(34px, 8.5vw, 44px); margin-bottom: 20px; }
+    .season-copy h2 { font-size: max(var(--text-min), clamp(34px, 8.5vw, 44px)); margin-bottom: 20px; }
     .season-meta { gap: 4px 12px; margin-bottom: 22px; }
-    .season-copy .button { padding: 12px 18px; font-size: var(--text-sm); }
+    .season-copy .button { padding: 12px 18px; font-size: max(var(--text-min), var(--text-sm)); }
     .card-banner-link { padding: 30px 26px; }
-    .card--banner h2 { font-size: 28px; }
+    .card--banner h2 { font-size: max(var(--text-min), 28px); }
     .invitation-art { display: none; }
 }
 

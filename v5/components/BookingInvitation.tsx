@@ -13,6 +13,10 @@ const entrancePath: Keyframe[] = Array.from({ length: 17 }, (_, step) => {
     };
 });
 
+/**
+ * @deprecated 디자인 가이드의 격리된 보존 예제에서만 사용합니다.
+ * Archived scroll lettering for the isolated deprecated design-guide example only.
+ */
 const BookingInvitation = memo(function BookingInvitation({
     id = "quick-booking-heading",
     text = "언제 만나볼까요?",
@@ -114,15 +118,15 @@ const BookingInvitation = memo(function BookingInvitation({
     }, [text]);
 
     return (
-        <h2 id={id} className="booking-invitation" aria-label={text} ref={headingRef}>
-            <span aria-hidden="true">
+        <h2 data-text="heading" id={id} className="booking-invitation" aria-label={text} ref={headingRef} data-lifecycle="deprecated">
+            <span data-text="body" aria-hidden="true">
                 {text.split(" ").map((word, wordIndex) => (
                     <Fragment key={`${word}-${wordIndex}`}>
                         {wordIndex > 0 && " "}
-                        <span className="booking-invitation-word">
+                        <span data-text="body" className="booking-invitation-word">
                             {Array.from(word).map((letter, index) => (
                                 <span className="booking-invitation-letter-slot" key={index}>
-                                    <span className="booking-invitation-letter">{letter}</span>
+                                    <span data-text="body" className="booking-invitation-letter">{letter}</span>
                                 </span>
                             ))}
                         </span>

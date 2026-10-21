@@ -19,7 +19,7 @@ export type SystemButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & System
 export const SystemButton = forwardRef<HTMLButtonElement, SystemButtonProps>(function SystemButton(
     { variant = "primary", context = "default", shape = "rounded", className = "", type = "button", "data-component": component = "button", ...props }: SystemButtonProps & { "data-component"?: string }, ref,
 ) {
-    return <button {...props} ref={ref} type={type} data-component={component} data-context={context} data-shape={shape} data-autofocus={props.autoFocus || undefined} className={`ds-button ds-button-${variant} ${className}`.trim()} />;
+    return <button data-text="action" {...props} ref={ref} type={type} data-component={component} data-context={context} data-shape={shape} data-autofocus={props.autoFocus || undefined} className={`ds-button ds-button-${variant} ${className}`.trim()} />;
 });
 
 export type SystemLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & Omit<LinkProps, "as"> & SystemControlStyle;
@@ -30,21 +30,21 @@ export const SystemLink = forwardRef<HTMLAnchorElement, SystemLinkProps>(functio
     const shared = { ref, rel: safeRel, target, "data-component": "link", "data-context": context, "data-shape": shape, className: `ds-button ds-button-${variant} ${className}`.trim() };
     if (typeof href === "string" && /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(href)) {
         const { prefetch: _prefetch, replace: _replace, scroll: _scroll, shallow: _shallow, locale: _locale, ...anchorProps } = props;
-        return <a {...anchorProps} {...shared} href={href} />;
+        return <a data-text="action" {...anchorProps} {...shared} href={href} />;
     }
-    return <Link {...props} {...shared} href={href} />;
+    return <Link data-text="action" {...props} {...shared} href={href} />;
 });
 
 export const SystemIconButton = forwardRef<HTMLButtonElement, SystemButtonProps>(function SystemIconButton(
     { variant = "quiet", className = "", shape = "circle", ...props }, ref,
 ) {
-    return <SystemButton {...props} ref={ref} variant={variant} shape={shape} className={`ds-icon-button ${className}`.trim()} data-component="icon-button" />;
+    return <SystemButton data-text="action" {...props} ref={ref} variant={variant} shape={shape} className={`ds-icon-button ${className}`.trim()} data-component="icon-button" />;
 });
 
 export const SystemFilterButton = forwardRef<HTMLButtonElement, SystemButtonProps & { selected: boolean }>(function SystemFilterButton(
     { selected, className = "", variant = "quiet", ...props }, ref,
 ) {
-    return <SystemButton {...props} ref={ref} variant={variant} aria-pressed={selected} className={`ds-filter-button ${selected ? "is-active " : ""}${className}`.trim()} data-component="filter-button" />;
+    return <SystemButton data-text="action" {...props} ref={ref} variant={variant} aria-pressed={selected} className={`ds-filter-button ${selected ? "is-active " : ""}${className}`.trim()} data-component="filter-button" />;
 });
 
 // [라벨과 오류를 연결하는 폼 필드 / Fields with connected labels and feedback]
@@ -64,12 +64,12 @@ export const SystemField = forwardRef<FieldElement, SystemFieldProps>(function S
     const message = error || hint;
     const describedBy = [props["aria-describedby"], message ? `${id}-message` : undefined].filter(Boolean).join(" ") || undefined;
     const controlProps = { ...props, id, "aria-invalid": error ? true : props["aria-invalid"], "aria-describedby": describedBy, "data-component": "field-control", "data-autofocus": props.autoFocus || undefined };
-    return <div className={`ds-field ${outerClassName}`.trim()} data-component="field" data-variant={variant}>
-        {label != null && <label htmlFor={id} className={labelHidden ? "ds-visually-hidden" : undefined}>{label}{props.required && typeof label === "string" && <span> (필수)</span>}</label>}
-        {as === "select" ? <select {...controlProps as SelectHTMLAttributes<HTMLSelectElement>} ref={ref as Ref<HTMLSelectElement>} />
-            : as === "textarea" ? <textarea {...controlProps as TextareaHTMLAttributes<HTMLTextAreaElement>} ref={ref as Ref<HTMLTextAreaElement>} />
-                : <input {...controlProps as InputHTMLAttributes<HTMLInputElement>} ref={ref as Ref<HTMLInputElement>} />}
-        {message && <p id={`${id}-message`} className={error ? "ds-field-error" : "ds-field-hint"}>{error && <Icon name="close" size={20} />}{message}</p>}
+    return <div data-text="body" className={`ds-field ${outerClassName}`.trim()} data-component="field" data-variant={variant}>
+        {label != null && <label data-text="label" htmlFor={id} className={labelHidden ? "ds-visually-hidden" : undefined}>{label}{props.required && typeof label === "string" && <span data-text="body"> (필수)</span>}</label>}
+        {as === "select" ? <select data-text="body" {...controlProps as SelectHTMLAttributes<HTMLSelectElement>} ref={ref as Ref<HTMLSelectElement>} />
+            : as === "textarea" ? <textarea data-text="body" {...controlProps as TextareaHTMLAttributes<HTMLTextAreaElement>} ref={ref as Ref<HTMLTextAreaElement>} />
+                : <input data-text="body" {...controlProps as InputHTMLAttributes<HTMLInputElement>} ref={ref as Ref<HTMLInputElement>} />}
+        {message && <p data-text="caption" id={`${id}-message`} className={error ? "ds-field-error" : "ds-field-hint"}>{error && <Icon name="close" size={20} />}{message}</p>}
     </div>;
 });
 
@@ -79,22 +79,22 @@ export const SystemCheckbox = forwardRef<HTMLInputElement, SystemCheckboxProps>(
 ) {
     const generatedId = useId();
     const id = suppliedId || `check-${generatedId}`;
-    return <label className={`ds-check ${outerClassName} ${className}`.trim()} htmlFor={id} data-component="checkbox"><input {...props} ref={ref} id={id} type="checkbox" />{label != null && <span>{label}</span>}</label>;
+    return <label data-text="label" className={`ds-check ${outerClassName} ${className}`.trim()} htmlFor={id} data-component="checkbox"><input data-text="body" {...props} ref={ref} id={id} type="checkbox" />{label != null && <span data-text="body">{label}</span>}</label>;
 });
 
 // [상태 배지와 안내 / Status badges and notices]
 export const SystemBadge = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement> & { tone?: "neutral" | "highlight" | "info"; appearance?: "default" | "plain" }>(function SystemBadge(
     { tone = "neutral", appearance = "default", className = "", ...props }, ref,
 ) {
-    return <span {...props} ref={ref} data-component="badge" data-appearance={appearance} className={`ds-badge ds-badge-${tone} ${className}`.trim()} />;
+    return <span data-text="meta" {...props} ref={ref} data-component="badge" data-appearance={appearance} className={`ds-badge ds-badge-${tone} ${className}`.trim()} />;
 });
 
 export type SystemNoticeProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & { title?: ReactNode; error?: boolean; variant?: "default" | "flow" };
 export const SystemNotice = forwardRef<HTMLDivElement, SystemNoticeProps>(function SystemNotice(
     { title, children, error = false, variant = "default", className = "", role, ...props }, ref,
 ) {
-    return <div {...props} ref={ref} className={`ds-notice ${className}`.trim()} role={role || (error ? "alert" : "status")} data-component="notice" data-variant={variant} data-error={error || undefined}>
+    return <div data-text="body" {...props} ref={ref} className={`ds-notice ${className}`.trim()} role={role || (error ? "alert" : "status")} data-component="notice" data-variant={variant} data-error={error || undefined}>
         {variant !== "flow" && <Icon name={error ? "close" : "check"} size={24} />}
-        <div>{title != null && <strong>{title}</strong>}<div className="ds-notice-content">{children}</div></div>
+        <div data-text="body">{title != null && <strong data-text="item-title">{title}</strong>}<div data-text="body" className="ds-notice-content">{children}</div></div>
     </div>;
 });
