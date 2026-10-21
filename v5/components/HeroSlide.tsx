@@ -2,22 +2,30 @@
 
 import { Fragment } from "react";
 import Icon from "./Icon";
-import { SystemLink } from "./SystemPrimitives";
+import { SystemButton, SystemLink } from "./SystemPrimitives";
 import { mediaPath } from "../src/lib/media";
 import type { HomeFeature } from "../src/data/home-features";
 
 // [작품 중심 히어로의 공통 규격 / Shared artwork-led hero slide]
-export default function HeroSlide({ feature, active, layout = "with-companion" }: { feature: HomeFeature; active: boolean; layout?: "standalone" | "with-companion" }) {
+export default function HeroSlide({ feature, active, entering = false, preview, onSelect, layout = "with-companion" }: {
+    feature: HomeFeature;
+    active: boolean;
+    entering?: boolean;
+    preview?: "previous" | "next";
+    onSelect?: () => void;
+    layout?: "standalone" | "with-companion";
+}) {
     return (
         <article
-            className={`card card--hero season-slide season-${feature.theme}${active ? " is-active" : ""}`}
+            className={`card card--hero season-slide season-${feature.theme}${active ? " is-active" : ""}${entering ? " is-entering" : ""}`}
             data-card="hero"
             data-component="HeroSlide"
             data-layout={layout}
             data-feature={feature.id}
+            data-preview={preview}
             id={active ? `home-feature-${feature.id}` : undefined}
             data-home-anchor={active ? "" : undefined}
-            aria-hidden={!active}
+            aria-hidden={!active && !preview}
         >
             <div className="season-card-link">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -28,14 +36,14 @@ export default function HeroSlide({ feature, active, layout = "with-companion" }
                     width={1672}
                     height={941}
                     draggable={false}
-                    loading={active ? "eager" : "lazy"}
+                    loading={active || preview ? "eager" : "lazy"}
                     onError={event => {
                         if (event.currentTarget.dataset.fallback) return;
                         event.currentTarget.dataset.fallback = "true";
                         event.currentTarget.src = mediaPath();
                     }}
                 />
-                <div className="season-copy">
+                <div className="season-copy" aria-hidden={!active}>
                     <p className="season-label">{feature.label}</p>
                     <h2>{feature.title.split("\n").map((line, index, lines) => (
                         <Fragment key={index}>{line}{index < lines.length - 1 && <br />}</Fragment>
@@ -52,6 +60,15 @@ export default function HeroSlide({ feature, active, layout = "with-companion" }
                         </SystemLink>
                     </div>
                 </div>
+                {preview && <SystemButton
+                    variant="inverse-quiet"
+                    className="season-peer-title"
+                    aria-label={`${feature.name} ${preview === "previous" ? "이전" : "다음"} 슬라이드로 보기`}
+                    onClick={onSelect}
+                >
+                    <Icon name={preview === "previous" ? "back" : "arrow"} size={24} />
+                    <strong>{feature.programTitle}</strong>
+                </SystemButton>}
             </div>
         </article>
     );

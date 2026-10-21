@@ -114,7 +114,7 @@ export const PAGES: PageMeta[] = [
         ["/visit/support/lost", "분실물 안내", "visit"],
         ["/visit/group", "단체관람 안내·신청", "visit"],
         ["/news/events/winners", "당첨자 발표", "news"],
-        ["/news/notices/recruit/apply", "공연장 안내원 지원 체험", "news"],
+        ["/news/notices/recruit/apply", "공연장 안내원 지원서", "news"],
         ["/news/goods/art-postcards", "공연의 한 장면 · 엽서", "news"],
         ["/news/goods/canvas-bag", "캔버스 토트백", "news"],
         ["/news/goods/viewing-journal", "관람 기록 노트", "news"],
@@ -447,9 +447,9 @@ export const NOTICES: Notice[] = [
         date: "2026-10-13",
         pinned: true,
         content:
-            "새로운 계절을 함께할 11월 세종시즌 프로그램의 예매가 시작됩니다. 작품별 상세 페이지에서 공연 일정과 관람 연령, 좌석 등급을 확인해 주세요. 이 페이지의 일정은 리뉴얼 시연용입니다.",
+            "11월 세종시즌 프로그램의 예매가 시작됩니다. 작품별 상세 페이지에서 일정과 관람 연령, 좌석 등급을 확인해 주세요.",
         body:
-            "새로운 계절을 함께할 11월 세종시즌 프로그램의 예매가 시작됩니다. 작품별 상세 페이지에서 공연 일정과 관람 연령, 좌석 등급을 확인해 주세요. 이 페이지의 일정은 리뉴얼 시연용입니다.",
+            "11월 세종시즌 프로그램의 예매가 시작됩니다. 작품별 상세 페이지에서 일정과 관람 연령, 좌석 등급을 확인해 주세요.",
         details: [
             ["티켓 오픈", "2026.10.15 (목) 오후 2시"],
             ["예매 방법", "프로그램 상세 → 예매하기"],
@@ -580,7 +580,7 @@ for (const [path, title, group, description] of [
         "/news/events/autumn-walk/apply",
         "가을의 취향을 나누다 · 참여",
         "news",
-        "내 가을 취향과 함께 이벤트 참여를 체험해 보세요.",
+        "관심 있는 공연과 기대평을 남겨 보세요.",
     ],
     [
         "/news/events/review/apply",

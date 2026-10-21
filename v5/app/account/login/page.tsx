@@ -76,7 +76,7 @@ export default function LoginPage() {
             localStorage.setItem("sejong-v4:profile", JSON.stringify(createDemoProfile(newProfile, localStorage.getItem("sejong-v4:profile"))));
             localStorage.setItem("sejong-v4:session", JSON.stringify({ active: true }));
             window.dispatchEvent(new CustomEvent("sejong:account-identity", { detail: { action: "demo-sign-in" } }));
-            showToast("이 브라우저의 체험 계정으로 로그인했습니다.");
+            showToast("로그인했습니다.");
             router.push("/account");
         } catch {
             setErrorMessage("로그인 처리 중 오류가 발생했습니다.");
@@ -97,7 +97,6 @@ export default function LoginPage() {
                     </nav>
                     <div className="page-title-row">
                         <div>
-                            <p className="eyebrow">MY SEJONG</p>
                             <h1>로그인</h1>
                             <p className="page-description">예매 내역과 관심 프로그램을 관리하는 페이지입니다.</p>
                         </div>
@@ -113,7 +112,6 @@ export default function LoginPage() {
                             <br />
                             한곳에서 확인하세요.
                         </h2>
-                        <p>내 예매와 관심 프로그램을 한곳에서 확인하세요.</p>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             className="account-auth-photo"
@@ -122,13 +120,12 @@ export default function LoginPage() {
                             height={680}
                             alt="세종대극장의 객석"
                         />
-                        <span className="account-auth-caption">세종대극장 객석. 공연장 정보는 방문 안내에 정리되어 있습니다.</span>
                     </section>
 
                     <form className="flow-panel" data-account-auth="login" onSubmit={handleSubmit} noValidate>
                         <h2>로그인</h2>
                         <p className="flow-fineprint">
-                            Google 계정으로 연결하거나, 이 브라우저에서 체험해 보세요.
+                            Google 계정으로 로그인하거나 저장한 프로필을 이용하세요.
                         </p>
 
                         <SystemButton context="flow" variant="secondary" className="flow-button-full" type="button" onClick={handleGoogleSignIn}
@@ -139,11 +136,11 @@ export default function LoginPage() {
                             {googleStatus === "checking" ? "Google 로그인 연결을 확인하고 있습니다."
                                 : googleStatus === "enabled" ? "Google에서 본인 확인 후 마이페이지로 돌아옵니다."
                                 : googleStatus === "unavailable" ? "로그인 서비스에 연결하지 못했습니다. 잠시 후 다시 접속해 주세요."
-                                : isSupabaseConfigured ? "Google 로그인은 현재 준비 중입니다. 아래 체험 계정을 이용할 수 있습니다."
+                                : isSupabaseConfigured ? "Google 로그인 연결을 사용할 수 없습니다. 아래 프로필로 계속할 수 있습니다."
                                 : "현재 Google 로그인 연결을 준비하고 있습니다."}
                         </p>
 
-                        <h3>체험 계정</h3>
+                        <h3>프로필로 계속하기</h3>
                         <p className="flow-fineprint">입력한 정보와 활동은 이 브라우저에 저장됩니다.</p>
 
                         {errorMessage && (
@@ -193,14 +190,14 @@ export default function LoginPage() {
                         />
 
                         <SystemButton context="flow" className="flow-button-full" type="submit">
-                            체험으로 로그인
+                            프로필로 계속하기
                             <svg className="material-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                 <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
                         </SystemButton>
 
                         <div className="account-auth-links">
-                            <Link href="/account/signup">회원가입</Link>
+                            <Link href="/account/signup">프로필 만들기</Link>
                             <Link href="/account/recovery">계정 찾기</Link>
                         </div>
                     </form>

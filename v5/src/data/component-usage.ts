@@ -52,7 +52,6 @@ export const COMPONENT_USAGE = {
     "badge": {
         "status": "product",
         "productUses": [
-            "app/booking/[id]/BookingClient.tsx#BookingClient",
             "app/page.tsx#HomePage",
             "app/programs/[id]/ProgramDetailClient.tsx#ProgramDetailClient",
             "components/AccountPanels.tsx#AccountMembershipCard",
@@ -116,6 +115,8 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountTicket",
             "components/ContextMenu.tsx#ContextMenu",
             "components/FloatingPanel.tsx#PanelSurface",
+            "components/HeroCarousel.tsx#HeroCarousel",
+            "components/HeroSlide.tsx#HeroSlide",
             "components/HomeBookingControls.tsx#BookingCalendar",
             "components/SystemPrimitives.tsx#SystemFilterButton",
             "components/SystemPrimitives.tsx#SystemIconButton"
@@ -129,6 +130,7 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountTicket",
             "components/ComponentCatalog.tsx#ComponentCatalog",
             "components/FloatingPanel.tsx#PanelSurface",
+            "components/HeroSlide.tsx#HeroSlide",
             "components/HomeBookingControls.tsx#BookingCalendar",
             "components/LiquidGlassDemo.tsx#LiquidGlassDemo",
             "components/SystemPrimitives.tsx#SystemIconButton"
@@ -295,10 +297,17 @@ export const COMPONENT_USAGE = {
         ],
         "guideUses": []
     },
-    "hero-companion": {
+    "hero-carousel": {
         "status": "product",
         "productUses": [
             "app/page.tsx#HomePage"
+        ],
+        "guideUses": []
+    },
+    "hero-companion": {
+        "status": "product",
+        "productUses": [
+            "components/HeroCarousel.tsx#HeroCarousel"
         ],
         "guideUses": [
             "components/ComponentCatalog.tsx#ComponentCatalog"
@@ -307,7 +316,7 @@ export const COMPONENT_USAGE = {
     "hero-slide": {
         "status": "product",
         "productUses": [
-            "app/page.tsx#HomePage"
+            "components/HeroCarousel.tsx#HeroCarousel"
         ],
         "guideUses": [
             "components/ComponentCatalog.tsx#ComponentCatalog"
@@ -335,6 +344,7 @@ export const COMPONENT_USAGE = {
             "components/ContextMenu.tsx#ContextMenu",
             "components/FloatingMenu.tsx#FloatingMenu",
             "components/FloatingPanel.tsx#PanelSurface",
+            "components/HeroCarousel.tsx#HeroCarousel",
             "components/HeroCompanion.tsx#HeroCompanion",
             "components/HeroSlide.tsx#HeroSlide",
             "components/HomeBookingControls.tsx#BookingCalendar",
@@ -368,11 +378,11 @@ export const COMPONENT_USAGE = {
     "icon-button": {
         "status": "product",
         "productUses": [
-            "app/page.tsx#HomePage",
             "components/AccountMiniRoom.tsx#AccountMiniRoom",
             "components/AccountPanels.tsx#AccountDiary",
             "components/FloatingPanel.tsx#PanelSurface",
             "components/Header.tsx#Header",
+            "components/HeroCarousel.tsx#HeroCarousel",
             "components/HomeBookingControls.tsx#BookingCalendar",
             "components/ProgramCard.tsx#ProgramCard",
             "components/ReturnTop.tsx#ReturnTop"
@@ -496,8 +506,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 43,
-    "product": 41,
+    "total": 44,
+    "product": 42,
     "documentationOnly": 2,
     "unused": 0
 } as const;

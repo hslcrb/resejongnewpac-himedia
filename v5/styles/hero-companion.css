@@ -1,35 +1,63 @@
-/* [하나의 작품과 우측 정보 영역 / One featured work and its information rail]
-   옆 슬라이드의 노출을 막고, 작품 소개와 정보 카드의 읽기 영역을 분리합니다.
-   Keep adjacent slides out of view and reserve separate reading areas. */
+/* [가운데 작품과 양옆의 다음 장면 / A central work with its neighbouring scenes]
+   가운데 카드의 소개와 유리 정보 영역은 유지하고 양옆 작품의 이름을 드러냅니다.
+   Keep the central copy and glass information rail while revealing both neighbouring titles. */
 .home-v4-wrap .season-hero {
     position: relative;
-    --slide-gap: 0px;
+    container-type: inline-size;
+    --slide-width: min(var(--hero-card-width), calc(100cqw - var(--hero-peek) * 2 - var(--hero-gap) * 2));
+    --slide-gap: var(--hero-gap);
 }
 
 .home-v4-wrap .season-stage {
-    width: min(var(--container), calc(100% - var(--page-gutter) * 2));
+    width: 100%;
     margin-inline: auto;
-    border-radius: var(--radius-dialog);
+    overflow: clip;
 }
 
 .home-v4-wrap .season-track {
-    width: 100%;
-    gap: 0;
-    margin-left: 0;
-    transform: translate3d(calc(-200% + var(--drag-x, 0px)), 0, 0);
+    width: max-content;
+    gap: var(--slide-gap);
+    margin-left: calc((100% - var(--slide-width)) / 2);
+    transform: translate3d(calc(-2 * (var(--slide-width) + var(--slide-gap)) + var(--drag-x, 0px)), 0, 0);
+}
+
+.home-v4-wrap .season-track.is-moving {
+    transition: transform var(--duration-carousel) var(--ease-carousel);
+}
+
+.home-v4-wrap .season-track.is-returning {
+    transition: transform var(--duration-hero-settle) var(--ease-out);
 }
 
 .home-v4-wrap .season-slide {
-    width: 100%;
-    flex: 0 0 100%;
+    width: var(--slide-width);
+    flex: 0 0 var(--slide-width);
     min-height: 42rem;
     border-radius: var(--radius-dialog);
+}
+
+.home-v4-wrap .season-slide::before {
+    opacity: 48%;
+    transition: opacity var(--duration-hero-copy) ease;
+}
+
+.home-v4-wrap .season-slide:is(.is-active, .is-entering)::before {
+    opacity: 0%;
 }
 
 .home-v4-wrap .season-copy {
     width: calc(100% - 24rem);
     padding: clamp(2rem, 4vw, 3.5rem);
     pointer-events: none;
+    transition: opacity var(--duration-hero-copy) ease;
+}
+
+.home-v4-wrap .season-slide.is-entering .season-copy {
+    opacity: 100%;
+}
+
+.home-v4-wrap .season-track.is-moving .season-slide.is-active .season-copy {
+    opacity: 0%;
 }
 
 .home-v4-wrap .season-copy h2 {
@@ -56,6 +84,52 @@
     pointer-events: auto;
 }
 
+.season-slide:not(.is-active) .season-actions {
+    pointer-events: none;
+}
+
+.season-slide[data-preview] .season-peer-title {
+    position: absolute;
+    z-index: 3;
+    bottom: var(--space-8);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+    width: max(3rem, min(12rem, calc((100vw - var(--slide-width)) / 2 - var(--slide-gap) - 2rem)));
+    min-width: 0;
+    padding: var(--space-3) 0;
+    color: var(--text-inverse);
+    background: transparent;
+    white-space: normal;
+    text-align: left;
+    transition: opacity var(--duration-feedback) ease;
+}
+
+.season-slide[data-preview="previous"] .season-peer-title {
+    right: var(--space-4);
+}
+
+.season-slide[data-preview="next"] .season-peer-title {
+    left: var(--space-4);
+}
+
+.season-peer-title strong {
+    font-size: var(--text-item-title);
+    font-weight: var(--weight-heading);
+    line-height: var(--leading-label);
+    overflow-wrap: anywhere;
+}
+
+.season-slide.is-entering .season-peer-title {
+    opacity: 0%;
+    pointer-events: none;
+}
+
+.hero-neighbor-navigation {
+    display: none;
+}
+
 .season-actions :is(.button, .ds-button) {
     min-height: var(--control-size);
     padding: var(--space-3) var(--space-6);
@@ -78,11 +152,25 @@
     position: absolute;
     z-index: 3;
     top: 3rem;
-    right: max(calc((100% - var(--container)) / 2 + 1.5rem), calc(var(--page-gutter) + 1.5rem));
+    right: calc((100% - var(--slide-width)) / 2 + var(--space-6));
     display: grid;
     gap: var(--space-4);
     width: 21rem;
     color: var(--text-primary);
+}
+
+/* [글자 확대에도 내용에 맞춰 재배치 / Reflow intrinsic content when text is enlarged] */
+.hero-companion > * {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.season-controls {
+    flex-wrap: wrap;
+}
+
+.season-progress {
+    min-width: 0;
 }
 
 .hero-release-list {
@@ -220,6 +308,16 @@
 }
 
 @media (hover: hover) {
+    .season-peer-title:hover {
+        color: var(--text-inverse);
+        background: transparent;
+    }
+
+    .season-peer-title:hover strong {
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+    }
+
     .hero-companion-more:hover {
         background: var(--state-hover);
     }
@@ -245,10 +343,39 @@
         min-height: 36rem;
     }
 
+    .season-slide[data-preview] .season-peer-title {
+        display: none;
+    }
+
+    .hero-neighbor-navigation {
+        display: flex;
+        align-items: stretch;
+        justify-content: space-between;
+        gap: var(--space-4);
+        padding-top: var(--space-3);
+    }
+
+    .hero-neighbor-navigation .ds-button {
+        display: flex;
+        flex: 1;
+        align-items: center;
+        justify-content: flex-start;
+        gap: var(--space-2);
+        min-width: 0;
+        padding: var(--space-2) 0;
+        white-space: normal;
+        text-align: left;
+    }
+
+    .hero-neighbor-navigation .ds-button:last-child {
+        justify-content: flex-end;
+        text-align: right;
+    }
+
     .hero-companion {
         position: relative;
         inset: auto;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         align-items: start;
         width: min(var(--container), calc(100% - var(--page-gutter) * 2));
         margin: var(--space-4) auto 0;
@@ -260,6 +387,10 @@
 }
 
 @media (max-width: 600px) {
+    .home-v4-wrap .season-hero {
+        --hero-peek: 0.5rem;
+    }
+
     .home-v4-wrap .season-slide {
         min-height: 37rem;
     }
@@ -289,6 +420,15 @@
     }
 
     .hero-companion {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-v4-wrap .season-track,
+    .home-v4-wrap .season-copy,
+    .home-v4-wrap .season-slide::before,
+    .season-peer-title {
+        transition: none;
     }
 }

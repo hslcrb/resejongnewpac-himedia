@@ -18,7 +18,7 @@ export function AccountMembershipCard({ name, message, mode, counts, onEdit, onL
     const signedIn = mode === "demo" || mode === "oauth";
     return (
         <section className="account-identity" data-component="AccountMembershipCard" aria-label="나의 프로필">
-            <div className="account-identity-top"><span className="account-avatar" aria-hidden="true">{Array.from(name)[0] || "나"}</span><SystemBadge tone={mode === "oauth" ? "info" : "neutral"}>{mode === "oauth" ? "로그인됨" : mode === "demo" ? "체험 계정" : "방문자 공간"}</SystemBadge></div>
+            <div className="account-identity-top"><span className="account-avatar" aria-hidden="true">{Array.from(name)[0] || "나"}</span><SystemBadge tone={mode === "oauth" ? "info" : "neutral"}>{mode === "oauth" ? "로그인됨" : mode === "demo" ? "내 프로필" : "방문자 공간"}</SystemBadge></div>
             <h2>{name}<span>님의 세종</span></h2>
             <p className="account-status-message">{message || "나만의 한 줄을 남겨 보세요."}</p>
             <SystemButton variant="secondary" onClick={onEdit}>나의 공간 꾸미기 <Icon name="plus" size={20} /></SystemButton>
@@ -30,9 +30,9 @@ export function AccountMembershipCard({ name, message, mode, counts, onEdit, onL
             <div className="account-membership-guide">
                 <h3>나의 멤버십</h3>
                 <p>세종문화회관의 회원 등급·포인트·쿠폰을 확인하세요.</p>
-                <SystemLink variant="quiet" href="https://www.sejongpac.or.kr/portal/myPage/individual/list.do?menuNo=200479" target="_blank">공식 멤버십 확인 <Icon name="diagonal" size={20} /></SystemLink>
+                <SystemLink variant="quiet" href="https://www.sejongpac.or.kr/portal/myPage/individual/list.do?menuNo=200479" target="_blank">멤버십 확인 <Icon name="diagonal" size={20} /></SystemLink>
             </div>
-            <div className="account-identity-session">{signedIn ? <SystemButton variant="quiet" onClick={onLogout}>로그아웃 <Icon name="arrow" size={20} /></SystemButton> : <SystemLink href="/account/login/" variant="quiet">로그인 / 회원가입 <Icon name="arrow" size={20} /></SystemLink>}</div>
+            <div className="account-identity-session">{signedIn ? <SystemButton variant="quiet" onClick={onLogout}>로그아웃 <Icon name="arrow" size={20} /></SystemButton> : <SystemLink href="/account/login/" variant="quiet">로그인 / 프로필 만들기 <Icon name="arrow" size={20} /></SystemLink>}</div>
         </section>
     );
 }
@@ -48,13 +48,13 @@ export function AccountTicket({ booking, program, variant = "full", onCancel }: 
             <div className="account-ticket-date"><strong>{booking.date.slice(5).replace("-", ".")}</strong><span>{booking.time}</span></div>
             <img className="account-ticket-poster" src={mediaPath(program?.image)} alt={booking.title} width={450} height={600} loading="lazy" />
             <div className="account-ticket-body">
-                <SystemBadge tone={cancelled ? "neutral" : "info"}>{cancelled ? "취소 완료" : "체험 예매"}</SystemBadge>
+                <SystemBadge tone={cancelled ? "neutral" : "info"}>{cancelled ? "취소 완료" : "저장한 예매"}</SystemBadge>
                 <h3><Link href={`/programs/${booking.programId}/`}>{booking.title}</Link></h3>
                 <p>{booking.venue}</p>
                 <p>{booking.seats.join(", ")} · {booking.seats.length}매</p>
                 {variant === "full" && <p className="account-ticket-reference">{booking.id} · {booking.total.toLocaleString()}원</p>}
             </div>
-            <div className="account-ticket-action">{variant === "compact" ? <SystemLink variant="secondary" href={`/programs/${booking.programId}/`}>공연 상세 <Icon name="arrow" size={20} /></SystemLink> : !cancelled && onCancel ? <SystemButton variant="quiet" onClick={event => onCancel(booking, event.currentTarget)}>체험 예매 취소</SystemButton> : null}</div>
+            <div className="account-ticket-action">{variant === "compact" ? <SystemLink variant="secondary" href={`/programs/${booking.programId}/`}>공연 상세 <Icon name="arrow" size={20} /></SystemLink> : !cancelled && onCancel ? <SystemButton variant="quiet" onClick={event => onCancel(booking, event.currentTarget)}>예매 기록 취소</SystemButton> : null}</div>
         </article>
     );
 }
