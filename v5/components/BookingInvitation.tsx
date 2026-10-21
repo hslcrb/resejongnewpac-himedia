@@ -4,63 +4,104 @@ import { Fragment, memo, useEffect, useRef } from "react";
 
 const invitation = "언제 만나볼까요?";
 
-// [왼쪽부터 인사하는 글자 / A greeting that ripples from left to right]
-// 글자는 살짝 내려갔다 올라오며, 읽기 순서와 제목의 자리는 그대로 유지합니다.
-// Letters dip and spring back without changing reading order or the heading layout.
-const greetingFrames: Keyframe[] = [
-    { offset: 0, transform: "translate3d(0, 0, 0) rotate(0deg) scale(1)", easing: "cubic-bezier(.45, 0, .7, 1)" },
-    { offset: .28, transform: "translate3d(-.055em, .18em, 0) rotate(-3deg) scale(1.025, .96)", easing: "cubic-bezier(.16, 1, .3, 1)" },
-    { offset: .62, transform: "translate3d(.025em, -.14em, 0) rotate(2deg) scale(.985, 1.025)", easing: "cubic-bezier(.45, 0, .55, 1)" },
-    { offset: .82, transform: "translate3d(0, .035em, 0) rotate(-.6deg) scale(1)", easing: "cubic-bezier(.22, 1, .36, 1)" },
-    { offset: 1, transform: "translate3d(0, 0, 0) rotate(0deg) scale(1)" },
-];
+const clamp = (value: number) => Math.max(0, Math.min(1, value));
 
 const BookingInvitation = memo(function BookingInvitation() {
     const headingRef = useRef<HTMLHeadingElement>(null);
 
-    // [등장·다시 인사·동작 감소 / Entrance, replay and reduced motion]
-    // 화면 밖이나 숨긴 탭에서는 정지하고, 재생 중인 인사는 새 입력으로 끊지 않습니다.
-    // Stop outside the viewport or a hidden tab, and let an active greeting settle.
+    // [스크롤에 연결된 곡선 진입 / Scroll-linked entrance along a rising curve]
+    // 왼쪽 아래에서 한 글자씩 빠르게 들어오며, 스크롤을 멈추면 같은 위치에 머뭅니다.
+    // Letters enter from the lower left, one by one, and stay in place when scrolling stops.
     useEffect(() => {
         const heading = headingRef.current;
         if (!heading) return;
         const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
         const letters = Array.from(heading.querySelectorAll<HTMLElement>(".booking-invitation-letter"));
         let animations: Animation[] = [];
-        let inView = false;
+        let frame = 0;
+        let needsMeasure = true;
+        let previousProgress = -1;
+        let alive = true;
 
         const stop = () => {
             animations.forEach((animation) => animation.cancel());
             animations = [];
         };
-        const play = () => {
-            if (!inView || preference.matches || document.hidden || animations.some((animation) => animation.playState === "running")) return;
+        const prepare = (left: number) => {
             stop();
-            animations = letters.map((letter, index) => letter.animate(greetingFrames, {
-                duration: 1120,
-                delay: index * 58,
-                fill: "none",
-            }));
+            const rise = Math.min(76, parseFloat(getComputedStyle(heading).fontSize) * 1.25);
+            const distances = letters.map((letter) => left + letter.offsetLeft + letter.offsetWidth + 28);
+            animations = letters.map((letter, index) => {
+                const path: Keyframe[] = Array.from({ length: 17 }, (_, step) => {
+                    const progress = step / 16;
+                    const curve = progress * progress * (3 - 2 * progress);
+                    return {
+                        offset: progress,
+                        transform: `translate3d(${-distances[index] * (1 - progress)}px, ${rise * (1 - curve)}px, 0)`,
+                        opacity: Math.min(1, progress * 10),
+                    };
+                });
+                const animation = letter.animate(path, {
+                    duration: 1000,
+                    easing: "cubic-bezier(.6, 0, .16, 1)",
+                    fill: "both",
+                });
+                animation.pause();
+                animation.currentTime = 0;
+                return animation;
+            });
+            previousProgress = -1;
+        };
+        const render = () => {
+            frame = 0;
+            if (preference.matches) return;
+            const bounds = heading.getBoundingClientRect();
+            if (needsMeasure) {
+                needsMeasure = false;
+                prepare(bounds.left);
+            }
+            const progress = clamp((innerHeight * .88 - bounds.top) / (innerHeight * .24));
+            if (progress === previousProgress) return;
+            previousProgress = progress;
+            for (let index = 0; index < animations.length; index++) {
+                animations[index].currentTime = 1000 * clamp((progress - index * .04) / .64);
+            }
+        };
+        const schedule = () => {
+            if (!frame && !document.hidden) frame = requestAnimationFrame(render);
+        };
+        const measure = () => {
+            needsMeasure = true;
+            schedule();
         };
         const updatePreference = () => {
-            if (preference.matches) stop();
+            stop();
+            measure();
         };
-        const updateVisibility = () => {
-            if (document.hidden) stop();
-        };
-        const observer = new IntersectionObserver(([entry]) => {
-            inView = entry.isIntersecting && entry.intersectionRatio >= .75;
-            if (inView) play();
-            else stop();
-        }, { threshold: .75, rootMargin: "0px 0px -8% 0px" });
 
+        // [단일 프레임 갱신과 정리 / Coalesced updates and cleanup]
+        // 스크롤은 프레임당 한 번만 읽고, 크기와 글꼴이 바뀔 때 경로를 다시 계산합니다.
+        // Read scrolling once per frame; rebuild paths only after size or font changes.
+        const updateVisibility = () => {
+            if (document.hidden && frame) {
+                cancelAnimationFrame(frame);
+                frame = 0;
+            } else schedule();
+        };
+        const observer = new ResizeObserver(measure);
         observer.observe(heading);
-        heading.addEventListener("pointerenter", play);
+        window.addEventListener("scroll", schedule, { passive: true });
+        window.addEventListener("resize", measure, { passive: true });
         preference.addEventListener("change", updatePreference);
         document.addEventListener("visibilitychange", updateVisibility);
+        document.fonts.ready.then(() => { if (alive) measure(); });
+        schedule();
         return () => {
+            alive = false;
+            if (frame) cancelAnimationFrame(frame);
             observer.disconnect();
-            heading.removeEventListener("pointerenter", play);
+            window.removeEventListener("scroll", schedule);
+            window.removeEventListener("resize", measure);
             preference.removeEventListener("change", updatePreference);
             document.removeEventListener("visibilitychange", updateVisibility);
             stop();

@@ -70,9 +70,13 @@
     line-height: 1.7;
 }
 
-/* [제자리에서 인사하는 예매 제목 / A booking heading that greets in place]
-   단어의 줄바꿈을 유지하고 글자 변형은 합성 레이어에서만 처리합니다.
-   Preserve word wrapping while animating individual letters with transforms. */
+/* [왼쪽에서 곡선으로 들어오는 제목 / A heading arriving along a curve from the left]
+   글자의 도착 위치와 단어 줄바꿈을 유지하며 스크롤로 진입을 제어합니다.
+   Preserve final letter positions and word wrapping during the scroll-linked entrance. */
+.booking-invitation {
+    position: relative;
+}
+
 .booking-invitation-word {
     display: inline-block;
     white-space: nowrap;
