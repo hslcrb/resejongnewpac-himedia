@@ -18,7 +18,7 @@ const results: { name: string; passed: boolean; error?: string }[] = [];
 const errors: string[] = [];
 page.on("pageerror", (error) => errors.push(error.message));
 page.setDefaultTimeout(7000);
-const panel = () => page.locator(".glass-menu[data-ready]");
+const panel = () => page.locator('.glass-menu[data-phase="open"]');
 const trigger = () => page.getByRole("button", { name: "전체 메뉴 열기" });
 const bounds = async () => (await panel().boundingBox())!;
 const pause = () => page.evaluate(() => new Promise(requestAnimationFrame));
@@ -304,7 +304,7 @@ try {
             touchPage.on("pageerror", (error) => errors.push(error.message));
             await touchPage.goto(base, { waitUntil: "networkidle" });
             await touchPage.getByRole("button", { name: "전체 메뉴 열기" }).click();
-            await touchPage.locator(".glass-menu[data-ready]").waitFor();
+            await touchPage.locator('.glass-menu[data-phase="open"]').waitFor();
             const cdp = await touchContext.newCDPSession(touchPage);
             const touch = async (type: string, x = 0, y = 0) =>
                 cdp.send("Input.dispatchTouchEvent", {

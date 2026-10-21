@@ -74,6 +74,7 @@ export default function useFloatingPanel(
             }
         };
         const down = (event: PointerEvent) => {
+            if (panel.dataset.phase !== "open") return;
             const target = event.target as Element;
             if (
                 !event.isPrimary ||
@@ -89,7 +90,7 @@ export default function useFloatingPanel(
             if (
                 event.pointerType === "touch" &&
                 !moving.current &&
-                !target.closest(".glass-menu-header")
+                !target.closest(".floating-panel-header")
             )
                 return;
             measure();

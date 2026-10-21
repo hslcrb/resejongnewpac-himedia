@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { NAV } from "../src/data/catalog";
 import FloatingMenu from "./FloatingMenu";
 import type { PanelPoint } from "../src/lib/floating-panel";
+import { warmPanelSnapshot } from "../src/lib/panel-snapshot";
 
 export default function Header() {
     const pathname = usePathname();
@@ -141,6 +142,12 @@ export default function Header() {
                         aria-haspopup="dialog"
                         aria-expanded={menuOpen}
                         aria-controls="menu-dialog"
+                        onPointerEnter={() => {
+                            void warmPanelSnapshot();
+                        }}
+                        onFocus={() => {
+                            void warmPanelSnapshot();
+                        }}
                     >
                         <svg
                             className="material-icon"
@@ -222,13 +229,12 @@ export default function Header() {
             )}
 
             {/* [화면과 분리된 유리 메뉴 / Glass menu detached from the header layout] */}
-            {menuOpen && (
-                <FloatingMenu
-                    onClose={closeMenu}
-                    returnFocus={menuTrigger}
-                    position={menuPosition}
-                />
-            )}
+            <FloatingMenu
+                open={menuOpen}
+                onClose={closeMenu}
+                returnFocus={menuTrigger}
+                position={menuPosition}
+            />
         </header>
     );
 }

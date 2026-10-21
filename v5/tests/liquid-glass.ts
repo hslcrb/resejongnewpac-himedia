@@ -34,7 +34,7 @@ try {
     await page.goto(base, { waitUntil: "networkidle" });
     await page.bringToFront();
     await page.getByRole("button", { name: "전체 메뉴 열기" }).click();
-    await page.locator(".glass-menu[data-ready]").waitFor();
+    await page.locator('.glass-menu[data-phase="open"]').waitFor();
     await check(
         "the menu uses the registered surface with denser glass and stronger refraction",
         async () => {
@@ -140,7 +140,7 @@ try {
         async () => {
             await page.locator("#glass-opacity").press("Home");
             await page.getByRole("button", { name: "전체 메뉴 체험하기" }).click();
-            await page.locator(".glass-menu[data-ready]").waitFor();
+            await page.locator('.glass-menu[data-phase="open"]').waitFor();
             await page.waitForFunction(
                 () => document.querySelectorAll(".liquid-glass feImage[href]").length === 2,
             );

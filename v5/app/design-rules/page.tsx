@@ -1137,6 +1137,13 @@ export default function DesignRulesPage() {
                             "떠 있는 유리 메뉴",
                             <>
                                 <p>
+                                    <code className="ds-token">FloatingPanel</code>은
+                                    <code className="ds-token">LiquidGlass</code>를 사용하는 공통
+                                    목록 창입니다. 위치·드래그·초점·등장과 퇴장을 담당하며,
+                                    <code className="ds-token">FloatingMenu</code>는 그 안에 실제
+                                    사이트의 탐색 목록을 넣는 컴포넌트입니다.
+                                </p>
+                                <p>
                                     전체 메뉴는 페이지를 가리는 흰 덮개 없이 독립된 창으로 뜹니다.
                                     기존 흰색과 검정의 투명도, 배경의 흐림, 둥근 가장자리의 굴절과
                                     반사를 겹쳐 깊이를 표현합니다. 글자는 굴절시키지 않습니다.
@@ -1151,14 +1158,50 @@ export default function DesignRulesPage() {
                                     >
                                         전체 메뉴 체험하기 <Icon name="menu" size={24} />
                                     </SystemButton>
-                                    {floatingMenuOpen && (
-                                        <FloatingMenu
-                                            onClose={closeFloatingMenu}
-                                            returnFocus={floatingMenuTrigger}
-                                            position={floatingMenuPosition}
-                                        />
-                                    )}
+                                    <FloatingMenu
+                                        open={floatingMenuOpen}
+                                        onClose={closeFloatingMenu}
+                                        returnFocus={floatingMenuTrigger}
+                                        position={floatingMenuPosition}
+                                    />
                                 </div>
+                                <h3>버튼에서 펼쳐지고, 버튼으로 돌아갑니다</h3>
+                                <p>
+                                    WebGL의 32 × 22 메시가 실제 목록 텍스처를 휘며 펼쳐집니다.
+                                    버튼에서 먼 모서리가 조금 늦게 따라오고, 마지막에는 탄성으로
+                                    자리 잡습니다. 닫기는 현재 위치에서 실제 호출 버튼으로
+                                    되돌아가는 역방향 동작입니다. 도중에 다시 눌러도 위치와 속도를
+                                    이어갑니다.
+                                </p>
+                                <DataTable
+                                    label="FloatingPanel 컴포넌트 속성"
+                                    headings={["속성", "역할"]}
+                                    rows={[
+                                        [
+                                            "open / onClose",
+                                            "열림을 제어하며, 퇴장이 끝날 때까지 창을 유지합니다",
+                                        ],
+                                        ["anchorRef", "등장과 복귀의 기준이 되는 버튼 ref"],
+                                        [
+                                            "title / eyebrow / closeLabel / moveLabel",
+                                            "창 제목·맥락·닫기와 이동 버튼의 접근 가능한 이름",
+                                        ],
+                                        [
+                                            "position",
+                                            "드래그한 위치를 닫았다 열어도 유지하는 ref · 선택",
+                                        ],
+                                        ["children", "스크롤할 목록이나 상세 콘텐츠"],
+                                        ["className / id", "표면 크기와 식별자"],
+                                    ]}
+                                />
+                                <pre className="ds-code-block">
+                                    <code>{`import FloatingPanel from "@/components/FloatingPanel";\n\n<FloatingPanel\n    open={open}\n    onClose={() => setOpen(false)}\n    anchorRef={buttonRef}\n    title="목록"\n>\n    <nav className="glass-menu-content" aria-label="목록">\n        <a href="/v5/programs/">프로그램</a>\n    </nav>\n</FloatingPanel>`}</code>
+                                </pre>
+                                <p className="ds-caption">
+                                    이동 중에는 WebGL이 시각적 전환을 담당하고, 정착하면 실제 HTML
+                                    링크와 버튼을 사용합니다. 모션 감소 설정에서는 짧은 페이드만
+                                    사용하며, WebGL을 사용할 수 없어도 창의 조작은 유지합니다.
+                                </p>
                                 <DataTable
                                     label="떠 있는 메뉴의 표면과 위계"
                                     headings={["역할", "기준", "토큰"]}

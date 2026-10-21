@@ -1,96 +1,37 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
 import type { RefObject } from "react";
-import { createPortal } from "react-dom";
 import Icon from "./Icon";
-import LiquidGlass from "./LiquidGlass";
-import useFloatingPanel from "./useFloatingPanel";
+import FloatingPanel from "./FloatingPanel";
 import { NAV } from "../src/data/catalog";
 import type { PanelPoint } from "../src/lib/floating-panel";
 
 // [흰 덮개 없는 떠 있는 탐색 / Floating navigation without a page-covering backdrop]
 // 정적 범주·상세 문서는 각 문서 주소로 엽니다. / Document links preserve exported category and detail routes.
 export default function FloatingMenu({
+    open,
     onClose,
     returnFocus,
     position,
 }: {
+    open: boolean;
     onClose: () => void;
     returnFocus: RefObject<HTMLButtonElement>;
     position: { current: PanelPoint | null };
 }) {
-    const panelRef = useRef<HTMLDivElement>(null);
-    const closeRef = useRef<HTMLButtonElement>(null);
-    const id = useId().replace(/:/g, "");
-    const { moveMode, setMoveMode, announcement } = useFloatingPanel(panelRef, position, onClose);
-    useEffect(() => {
-        const panel = panelRef.current;
-        const trigger = returnFocus.current;
-        closeRef.current?.focus({ preventScroll: true });
-        return () => {
-            if (
-                panel?.contains(document.activeElement) ||
-                document.activeElement === document.body
-            ) {
-                trigger?.focus({ preventScroll: true });
-            }
-        };
-    }, [returnFocus]);
-
-    return createPortal(
-        <LiquidGlass
-            className="glass-menu"
+    return (
+        <FloatingPanel
+            open={open}
+            onClose={onClose}
+            anchorRef={returnFocus}
+            position={position}
             id="menu-dialog"
-            role="dialog"
-            aria-modal="false"
-            aria-labelledby={`${id}-heading`}
-            data-move-mode={moveMode || undefined}
-            ref={panelRef}
+            className="glass-menu"
+            title="전체 메뉴"
+            eyebrow="세종문화회관"
+            closeLabel="전체 메뉴 닫기"
+            moveLabel="메뉴 위치 이동"
         >
-            <div className="glass-menu-header">
-                <div>
-                    <p className="glass-menu-brand">세종문화회관</p>
-                    <h2 id={`${id}-heading`}>전체 메뉴</h2>
-                </div>
-                <div className="glass-menu-actions">
-                    <button
-                        type="button"
-                        className="glass-menu-move"
-                        data-panel-move
-                        aria-label="메뉴 위치 이동"
-                        aria-pressed={moveMode}
-                        aria-describedby={`${id}-move-help`}
-                        onClick={() => setMoveMode(!moveMode)}
-                    >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                            src="/v5/assets/icons/rounded/open_with.svg"
-                            width="24"
-                            height="24"
-                            alt=""
-                            aria-hidden="true"
-                        />
-                        <span>이동</span>
-                    </button>
-                    <button
-                        ref={closeRef}
-                        type="button"
-                        className="round-button"
-                        onClick={onClose}
-                        aria-label="전체 메뉴 닫기"
-                    >
-                        <Icon name="close" size={24} />
-                    </button>
-                </div>
-            </div>
-            <p id={`${id}-move-help`} className="sr-only">
-                마우스로 메뉴의 글자나 여백을 잡아 옮길 수 있습니다. 터치에서는 제목을 잡거나 이동
-                버튼을 켜세요. 이동 버튼에서 방향키로 옮기고 Home 키로 처음 위치로 돌립니다.
-            </p>
-            <span className="sr-only" role="status" aria-live="polite">
-                {announcement}
-            </span>
             <div className="glass-menu-content">
                 <div className="glass-menu-journeys">
                     <a href="/v5/visit/plan/">
@@ -130,7 +71,6 @@ export default function FloatingMenu({
                     </a>
                 </nav>
             </div>
-        </LiquidGlass>,
-        document.body,
+        </FloatingPanel>
     );
 }

@@ -1,6 +1,6 @@
 /* [배경을 덮지 않는 유리 창 / A glass window without a page-covering layer]
    헤더 밖의 독립된 표면만 그립니다. / Only the detached menu paints a surface. */
-.glass-menu {
+.floating-panel {
     position: fixed;
     z-index: 140;
     inset: 0 auto auto 0;
@@ -15,19 +15,34 @@
     touch-action: pan-y;
     user-select: none;
     -webkit-user-select: none;
+    opacity: 0;
+    pointer-events: none;
 }
 
-.glass-menu[data-ready] {
+.floating-panel[data-ready] {
     visibility: visible;
 }
-.glass-menu[data-dragging] {
+.floating-panel[data-phase="open"] {
+    opacity: 1;
+    pointer-events: auto;
+}
+.floating-panel-webgl {
+    position: fixed;
+    inset: 0;
+    z-index: 141;
+    width: 100vw;
+    height: 100dvh;
+    pointer-events: none;
+    visibility: hidden;
+}
+.floating-panel[data-dragging] {
     cursor: grabbing;
     will-change: transform;
 }
-.glass-menu[data-dragging] * {
+.floating-panel[data-dragging] * {
     cursor: grabbing !important;
 }
-.glass-menu[data-move-mode] {
+.floating-panel[data-move-mode] {
     touch-action: none;
 }
 .glass-menu-header {
