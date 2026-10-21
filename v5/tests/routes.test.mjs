@@ -41,10 +41,8 @@ test("each registered information, program and utility route produces content", 
   const { renderGoods } = await import("../src/features/goods.ts");
   const { renderStory } = await import("../src/features/story.ts");
   const { renderJourneys } = await import("../src/features/journeys.ts");
-  const { renderDesignRules } = await import("../src/features/design-rules.ts");
   for (const p of PAGES.filter((p) => p.path !== "/")) {
-    const designRules = (path) => path === "/design-rules" ? renderDesignRules() : null;
-    const html = [designRules, renderJourneys, renderStory, renderGoods, renderFlows, renderPrograms, renderPages, renderUtilities]
+    const html = [renderJourneys, renderStory, renderGoods, renderFlows, renderPrograms, renderPages, renderUtilities]
       .map((f) => f(p.path, new URLSearchParams()))
       .find((x) => x != null);
     assert.ok(html?.length > 150, p.path + " is empty");

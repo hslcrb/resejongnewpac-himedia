@@ -24,11 +24,3 @@ sejong-grand-interior.png: /static/portal/img/content/img_space_0101_01.png (116
 sejong-grand-auditorium.png: /static/portal/img/content/img_space_0101_02.png (1160 x 680, auditorium viewed from the stage).
 sejong-grand-exterior.png: /static/portal/img/content/img_space_0100.png (540 x 263, original building-location diagram).
 Images are used as venue illustrations; no image is presented as a diagram or photograph of a specific accessibility service.
-
-Official homepage season highlights (2026-10-21)
-official-season-0.jpg: Gagok Era / 가곡시대, official performance 36789.
-official-season-1.jpg: Enemy / 에너미, official performance 37669.
-official-season-2.jpg: La Bohème / 라보엠, official performance 36791.
-Downloaded unchanged from public promotional images on https://www.sejongpac.or.kr/portal/main/main.do.
-Exact sources and the verified performance-detail URLs are recorded in v5/docs/liquid-glass-renewal-2026-10-21.md.
-Used for this unofficial Sejong Center redesign with direct links to the original performance pages; these are not generated images.

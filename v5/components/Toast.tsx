@@ -31,7 +31,7 @@ export default function Toast() {
     if (!message) return <div id="toast" className="toast" role="status" aria-live="polite" />;
 
     return (
-        <div id="toast" className="toast visible" role="status" aria-live="polite">
+        <div id="toast" className="toast is-visible" role="status" aria-live="polite">
             {message}
         </div>
     );

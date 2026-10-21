@@ -19,7 +19,6 @@ import {
 import { pageHeader, programCard, emptyState, button } from "../components/ui.ts";
 import { posterMedia } from "../components/cards.ts";
 import { animateFeedback, animatePresence, cancelMotion } from "../components/motion.ts";
-import { renderOfficialPage, bindOfficialPage } from "./official.ts";
 
 const categoryPaths = {
     전체: "/programs",
@@ -661,8 +660,6 @@ function renderHistory(path) {
 
 export function renderPrograms(path, query = new URLSearchParams()) {
     if (!path.startsWith("/programs")) return null;
-    const official = renderOfficialPage(path, query);
-    if (official !== null) return official;
     if (listPaths.includes(path)) return renderList(path, query);
     if (path === "/programs/season") return renderSeasonIndex(path);
     if (path.startsWith("/programs/season/")) {
@@ -681,7 +678,6 @@ export function renderPrograms(path, query = new URLSearchParams()) {
 }
 
 export function bindPrograms(root, path, query = new URLSearchParams()) {
-    bindOfficialPage(root);
     const filter = root.querySelector("[data-program-filter]");
     if (filter) {
         const state = listState(path, query);

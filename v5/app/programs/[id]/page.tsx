@@ -1,12 +1,13 @@
 import React from "react";
 import { notFound } from "next/navigation";
-import { PROGRAMS, PAGES } from "../../../src/data/catalog";
+import { PROGRAMS } from "../../../src/data/catalog";
 import type { Program } from "../../../types/sejong.ts";
 import ProgramDetailClient from "./ProgramDetailClient";
-import ServicePageClient from "../../../components/ServicePageClient";
 
 export function generateStaticParams() {
-    return PAGES.filter((page) => /^\/programs\/[^/]+$/.test(page.path)).map((page) => ({ id: page.path.split("/")[2] }));
+    return (PROGRAMS as unknown as Program[]).map((p) => ({
+        id: String(p.id),
+    }));
 }
 
 export default function ProgramDetailPage({
@@ -15,11 +16,7 @@ export default function ProgramDetailPage({
     params: { id: string };
 }) {
     const program = (PROGRAMS as unknown as Program[]).find((p) => String(p.id) === params.id);
-    if (!program) {
-        const path = "/programs/" + params.id;
-        if (!PAGES.some((page) => page.path === path)) notFound();
-        return <ServicePageClient path={path} />;
-    }
+    if (!program) notFound();
 
     return <ProgramDetailClient program={program} />;
 }

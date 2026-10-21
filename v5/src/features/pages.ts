@@ -16,7 +16,6 @@ import {
 import { pageHeader, programCard, emptyState, button } from "../components/ui.ts";
 import { informationNotice } from "../components/notices.ts";
 import { animateFeedback, captureLayout, animateLayout, cancelMotion } from "../components/motion.ts";
-import { renderOfficialPage, bindOfficialPage } from "./official.ts";
 
 const getMeta = (path) => PAGES.find((p) => p.path === path);
 const qget = (q, key, fallback = "") => q.get(key) || fallback;
@@ -2030,8 +2029,6 @@ function aboutPage(path, q) {
 }
 
 export function renderPages(path, query = new URLSearchParams()) {
-    const official = renderOfficialPage(path, query);
-    if (official !== null) return official;
     const overview = overviewPage(path);
     if (overview) return overview;
     const q =
@@ -2078,7 +2075,6 @@ function templateText(id) {
 }
 
 export function bindPages(root, path, query = new URLSearchParams()) {
-    bindOfficialPage(root);
     const q =
         query instanceof URLSearchParams ? query : new URLSearchParams(query);
     // [내부 안내와 자료 검색의 상태 전환 / In-page guide and library state changes]

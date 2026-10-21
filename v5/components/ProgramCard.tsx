@@ -3,90 +3,115 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import type { Program } from "../types/sejong.ts";
-import Icon from "./Icon";
 import { showToast } from "./Toast";
 
 interface ProgramCardProps {
     program: Program;
-    layout?: "poster" | "list";
 }
 
-const FAVORITES_KEY = "sejong-v4:favorites";
-const FAVORITES_EVENT = "sejong:favorites-changed";
-
-// [브라우저 간 관심 프로그램 동기화 / Favorites synchronized across views and tabs]
-function readFavorites(): string[] {
-    const value: unknown = JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]");
-    return Array.isArray(value) ? value.filter((id): id is string => typeof id === "string") : [];
-}
-
-export default function ProgramCard({ program, layout = "poster" }: ProgramCardProps) {
+export default function ProgramCard({ program }: ProgramCardProps) {
     const [isFavorite, setIsFavorite] = useState(false);
 
     useEffect(() => {
-        const updateFavorite = () => {
-            try { setIsFavorite(readFavorites().includes(program.id)); } catch { setIsFavorite(false); }
-        };
-        const onStorage = (event: StorageEvent) => {
-            if (event.key === FAVORITES_KEY || event.key === null) updateFavorite();
-        };
-        updateFavorite();
-        window.addEventListener("storage", onStorage);
-        window.addEventListener(FAVORITES_EVENT, updateFavorite);
-        return () => {
-            window.removeEventListener("storage", onStorage);
-            window.removeEventListener(FAVORITES_EVENT, updateFavorite);
-        };
+        try {
+            const raw = localStorage.getItem("sejong-v4:favorites");
+            if (raw) {
+                const list = JSON.parse(raw);
+                if (Array.isArray(list) && list.includes(program.id)) {
+                    setIsFavorite(true);
+                }
+            }
+        } catch {}
     }, [program.id]);
 
-    function toggleFavorite() {
+    const toggleFavorite = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
         try {
-            const list = readFavorites();
+            const raw = localStorage.getItem("sejong-v4:favorites");
+            let list: string[] = [];
+            if (raw) list = JSON.parse(raw);
+            if (!Array.isArray(list)) list = [];
+
             const exists = list.includes(program.id);
             const next = exists ? list.filter((id) => id !== program.id) : [...list, program.id];
-            localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
+            localStorage.setItem("sejong-v4:favorites", JSON.stringify(next));
             setIsFavorite(!exists);
-            window.dispatchEvent(new Event(FAVORITES_EVENT));
             showToast(exists ? "관심 프로그램에서 삭제했어요." : "관심 프로그램에 저장했어요.");
         } catch {
-            showToast("관심 프로그램을 저장하지 못했어요. 브라우저 저장 공간을 확인해 주세요.");
+            showToast("관심 프로그램 설정에 실패했습니다.");
         }
-    }
+    };
 
-    // [포스터와 프로그램 정보 / Poster and program information]
-    const sourceImage = program.image || program.poster;
-    const imagePath = sourceImage
-        ? /^(https?:)?\/\//.test(sourceImage) ? sourceImage : `/v5/${sourceImage.replace(/^\/?(v5\/)?/, "")}`
+    // 포스터 이미지 경로 안전 취득
+    const imagePath = program.image
+        ? `/v5/${program.image.replace(/^\/?(v5\/)?/, "")}`
         : `/v5/assets/images/poster-${program.id}.svg`;
-    const formatDate = (value?: string) => String(value || "").replaceAll("-", ".");
-    const dateLabel = program.start === program.end || !program.end
-        ? formatDate(program.start)
-        : `${formatDate(program.start)} - ${formatDate(program.end)}`;
+
+    const formatDate = (val?: string) => String(val || "").replaceAll("-", ".");
 
     return (
-        <article className={`card card--poster program-card program-card--glass program-card--${layout}`} data-card="poster" onDragStart={(event) => event.preventDefault()}>
-            <Link href={`/programs/${program.id}`} className="card-poster-link" draggable={false} aria-label={`${program.title} 상세보기`}>
+        <article className="card card--poster program-card" data-card="poster">
+            <Link
+                href={`/programs/${program.id}`}
+                className="card-poster-link"
+                draggable={false}
+                aria-label={`${program.title} 상세보기`}
+            >
                 <div className="poster-media program-art">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={imagePath} alt={`${program.title} 포스터`} loading="lazy" width={450} height={600} draggable={false}
-                        onError={(event) => {
-                            const target = event.currentTarget;
-                            if (target.src.includes("/v5/assets/")) target.src = target.src.replace("/v5/assets/", "/assets/");
-                        }} />
-                    <span className="poster-tag">{program.category || "공연"}</span>
+                    <img
+                        src={imagePath}
+                        alt={`${program.title} 포스터`}
+                        loading="lazy"
+                        width={450}
+                        height={600}
+                        draggable={false}
+                        onError={(e) => {
+                            const target = e.currentTarget;
+                            if (target.src.includes("/v5/assets/")) {
+                                target.src = target.src.replace("/v5/assets/", "/assets/");
+                            }
+                        }}
+                    />
+                    <span className="poster-tag">
+                        {program.category || "공연"}
+                    </span>
                 </div>
-                <div className="program-card-information">
-                    <div className="program-card-meta"><span>{program.genre || program.category || "공연"}</span><span>{program.status || "상세 안내"}</span></div>
-                    <h3>{program.title}</h3>
-                    <p className="program-card-date">{dateLabel}</p>
-                    <p className="program-card-venue">{program.venue}</p>
-                    {layout === "list" && <p className="program-card-description">{program.description}</p>}
+
+                <div className="program-card-meta">
+                    <span>{program.genre || "클래식"}</span>
+                    <span>{program.status || "예매중"}</span>
                 </div>
-                {layout === "list" && <span className="program-card-detail">자세히 보기 <Icon name="diagonal" size={24} /></span>}
+
+                <h3>{program.title}</h3>
+
+                <p className="program-card-date">
+                    {formatDate(program.start)} - {formatDate(program.end)}
+                </p>
+
+                <p className="program-card-venue">{program.venue}</p>
             </Link>
+
             <div className="card-poster-actions">
-                <button type="button" className={`favorite-button round-button ${isFavorite ? "selected" : ""}`} onClick={toggleFavorite} aria-pressed={isFavorite} aria-label={`${program.title} 관심 프로그램 ${isFavorite ? "해제" : "등록"}`}>
-                    <Icon name="heart" size={24} filled={isFavorite} />
+                <button
+                    type="button"
+                    className={`favorite-button round-button ${isFavorite ? "selected" : ""}`}
+                    onClick={toggleFavorite}
+                    aria-pressed={isFavorite}
+                    aria-label={`${program.title} 관심 프로그램 ${isFavorite ? "해제" : "등록"}`}
+                >
+                    <svg
+                        className="material-icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill={isFavorite ? "var(--color-black)" : "none"}
+                        stroke="currentColor"
+                        strokeWidth="2"
+                    >
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
                 </button>
             </div>
         </article>
