@@ -139,7 +139,7 @@ try {
         "separate surfaces keep unique filters and independent material settings",
         async () => {
             await page.locator("#glass-opacity").press("Home");
-            await page.getByRole("button", { name: "전체 메뉴 체험하기" }).click();
+            await page.getByRole("button", { name: "전체 메뉴 열기", exact: true }).last().click();
             await page.locator('.glass-menu[data-phase="open"]').waitFor();
             await page.waitForFunction(
                 () => document.querySelectorAll(".ds-glass-example feImage[href], .glass-menu feImage[href]").length === 2,

@@ -165,7 +165,7 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
         cancelTriggerRef.current = document.getElementById("account-bookings-heading");
         setBookings(next);
         setCancelOpen(false);
-        showSmallNotification(persisted ? "이 브라우저의 체험 예매를 취소했어요." : "체험 예매를 이 창에서 취소했어요. 저장소를 사용할 수 없어 새로고침하면 복원될 수 있어요.");
+        showSmallNotification(persisted ? "예매 기록을 취소했어요." : "이 창에서 예매 기록을 취소했어요. 저장소를 사용할 수 없어 새로고침하면 복원될 수 있어요.");
     }
 
     // [회원별 브라우저 관람노트 / Identity-scoped browser diary]
@@ -197,7 +197,7 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
         setProfileSaving(true);
         try {
             await identity.updateProfile(profileDraft);
-            showSmallNotification(identity.mode === "demo" ? "체험 계정 정보를 이 브라우저에 저장했어요." : "회원정보를 저장했어요.");
+            showSmallNotification(identity.mode === "demo" ? "프로필을 이 브라우저에 저장했어요." : "회원정보를 저장했어요.");
         } catch (error) {
             setProfileError(error instanceof Error ? error.message : "회원정보를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.");
         } finally { setProfileSaving(false); }
@@ -219,8 +219,7 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
 
             <section className="account-next-visit" aria-labelledby="account-next-heading">
                 <div className="account-section-heading"><h2 id="account-next-heading">다음에 만날 무대</h2><a href="#account-panel-bookings">예매내역 보기 <Icon name="arrow" size={20} /></a></div>
-                {summary.next ? <AccountTicket booking={summary.next} program={PROGRAMS.find(program => program.id === summary.next?.programId)} variant="compact" /> : <div className="account-empty-inline"><div><h3>기다리는 공연이 생기면 여기에.</h3><p>아직 예정된 체험 예매가 없어요. 다음에 만나고 싶은 무대를 골라 보세요.</p></div><SystemLink variant="secondary" href="/programs/">공연 둘러보기 <Icon name="arrow" size={20} /></SystemLink></div>}
-                <p className="account-local-note">이 브라우저에 저장한 체험 예매입니다. 실제 예매·결제 내역은 공식 홈페이지에서 확인해 주세요.</p>
+                {summary.next ? <AccountTicket booking={summary.next} program={PROGRAMS.find(program => program.id === summary.next?.programId)} variant="compact" /> : <div className="account-empty-inline"><div><h3>기다리는 공연이 생기면 여기에.</h3><p>아직 저장한 예매가 없어요. 다음에 만나고 싶은 무대를 골라 보세요.</p></div><SystemLink variant="secondary" href="/programs/">공연 둘러보기 <Icon name="arrow" size={20} /></SystemLink></div>}
             </section>
 
             <section aria-labelledby="account-curation-heading">
@@ -237,10 +236,9 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
 
     const bookingsPanel = (
         <section className="account-bookings-panel" aria-labelledby="account-bookings-heading">
-            <div className="account-section-heading"><div><h2 id="account-bookings-heading" tabIndex={-1}>나의 예매내역</h2><p>이 브라우저에서 진행한 체험 예매를 모았어요.</p></div><SystemLink variant="quiet" href={OFFICIAL_ACCOUNT} target="_blank">실제 예매 확인 <Icon name="diagonal" size={20} /></SystemLink></div>
+            <div className="account-section-heading"><div><h2 id="account-bookings-heading" tabIndex={-1}>나의 예매내역</h2><p>이 브라우저에 저장한 예매 기록을 모았어요.</p></div><SystemLink variant="quiet" href={OFFICIAL_ACCOUNT} target="_blank">예매 서비스 열기 <Icon name="diagonal" size={20} /></SystemLink></div>
             <div className="account-booking-filters" aria-label="예매내역 필터">{[{ id: "all", label: `전체 ${bookings.length}` }, { id: "upcoming", label: `관람 예정 ${summary.upcoming}` }, { id: "cancelled", label: `취소 ${summary.cancelled}` }].map(filter => <SystemFilterButton key={filter.id} selected={bookingFilter === filter.id} onClick={() => setBookingFilter(filter.id)}>{filter.label}</SystemFilterButton>)}</div>
-            {visibleBookings.length ? <div className="account-ticket-list">{visibleBookings.map(booking => <AccountTicket key={booking.id} booking={booking} program={PROGRAMS.find(program => program.id === booking.programId)} onCancel={openCancellation} />)}</div> : <div className="account-empty"><h3>{bookingFilter === "all" ? "아직 체험 예매가 없어요." : "이 조건에 맞는 체험 예매가 없어요."}</h3><p>공연을 둘러보고 나에게 맞는 다음 무대를 찾아보세요.</p><SystemLink href="/programs/" variant="secondary">공연 둘러보기 <Icon name="arrow" size={20} /></SystemLink></div>}
-            <p className="account-local-note">체험 예매 취소는 이 브라우저의 기록만 변경하며, 실제 티켓이나 결제에는 영향을 주지 않습니다.</p>
+            {visibleBookings.length ? <div className="account-ticket-list">{visibleBookings.map(booking => <AccountTicket key={booking.id} booking={booking} program={PROGRAMS.find(program => program.id === booking.programId)} onCancel={openCancellation} />)}</div> : <div className="account-empty"><h3>{bookingFilter === "all" ? "아직 저장한 예매가 없어요." : "이 조건에 맞는 예매 기록이 없어요."}</h3><p>공연을 둘러보고 나에게 맞는 다음 무대를 찾아보세요.</p><SystemLink href="/programs/" variant="secondary">공연 둘러보기 <Icon name="arrow" size={20} /></SystemLink></div>}
         </section>
     );
 
@@ -253,10 +251,10 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
 
     const servicesPanel = (
         <section aria-labelledby="account-services-heading">
-            <div className="account-section-heading"><div><h2 id="account-services-heading">나의 신청과 회원 혜택</h2><p>정확한 신청 현황과 멤버십 혜택은 세종문화회관 공식 홈페이지에서 확인하세요.</p></div></div>
+            <div className="account-section-heading"><div><h2 id="account-services-heading">나의 신청과 회원 혜택</h2><p>신청 현황과 멤버십 혜택을 확인하세요.</p></div></div>
             <div className="account-service-list">
-                <article><div><h3>회원 등급·포인트·쿠폰</h3><p>공식 계정에 연결된 나의 멤버십과 사용 가능한 혜택을 확인하세요.</p></div><SystemLink href={OFFICIAL_ACCOUNT} target="_blank" variant="secondary">공식 마이페이지 <Icon name="diagonal" size={20} /></SystemLink></article>
-                <article><div><h3>교육·행사 신청내역</h3><p>신청과 결제 현황, 참여 안내를 공식 마이페이지에서 확인하세요.</p></div><SystemLink href={OFFICIAL_ACCOUNT} target="_blank" variant="quiet">신청내역 확인 <Icon name="diagonal" size={20} /></SystemLink></article>
+                <article><div><h3>회원 등급·포인트·쿠폰</h3><p>나의 멤버십과 사용 가능한 혜택을 확인하세요.</p></div><SystemLink href={OFFICIAL_ACCOUNT} target="_blank" variant="secondary">세종문화회관 마이페이지 <Icon name="diagonal" size={20} /></SystemLink></article>
+                <article><div><h3>교육·행사 신청내역</h3><p>신청 현황과 참여 안내를 확인하세요.</p></div><SystemLink href={OFFICIAL_ACCOUNT} target="_blank" variant="quiet">신청내역 확인 <Icon name="diagonal" size={20} /></SystemLink></article>
                 <article><div><h3>취향을 넓히는 예술 수업</h3><p>새로운 배움과 만남을 위한 교육 프로그램을 살펴보세요.</p></div><SystemLink href="/programs/education/" variant="quiet">교육 프로그램 보기 <Icon name="arrow" size={20} /></SystemLink></article>
             </div>
         </section>
@@ -264,7 +262,7 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
 
     const profilePanel = (
         <section className="account-profile-panel" aria-labelledby="account-profile-heading">
-            <div className="account-section-heading"><div><h2 id="account-profile-heading">회원정보</h2><p>{identity.mode === "oauth" ? "로그인한 계정의 이름과 연락처를 관리해요." : "이 브라우저에 저장한 체험 계정 정보를 관리해요."}</p></div></div>
+            <div className="account-section-heading"><div><h2 id="account-profile-heading">회원정보</h2><p>{identity.mode === "oauth" ? "로그인한 계정의 이름과 연락처를 관리해요." : "저장한 프로필의 이름과 연락처를 관리해요."}</p></div></div>
             {identity.isLoggedIn ? <form className="account-profile-form" onSubmit={saveProfile}>
                 <SystemField variant="flow" label="이름" id="account-profile-name" name="name" autoComplete="name" value={profileDraft.name} onChange={event => setProfileDraft(current => ({ ...current, name: event.target.value }))} maxLength={50} required />
                 <SystemField variant="flow" label="이메일" id="account-profile-email" name="email" type="email" autoComplete="email" value={profileDraft.email} readOnly={identity.mode === "oauth"} hint={identity.mode === "oauth" ? "Google 로그인 이메일은 Google 계정에서 변경할 수 있어요." : undefined} onChange={event => setProfileDraft(current => ({ ...current, email: event.target.value }))} required />
@@ -323,8 +321,8 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
 
             {/* [닫기와 취소는 기록을 변경하지 않음 / Dismissal never changes booking records] */}
             <SystemDialog className="account-cancel-dialog" open={cancelOpen} triggerRef={cancelTriggerRef} initialFocusRef={cancelCloseRef} aria-labelledby="account-cancel-heading" aria-describedby="account-cancel-description" onClose={() => { setCancelOpen(false); setPendingCancellation(null); }}>
-                <div className="account-dialog-heading"><h2 id="account-cancel-heading">체험 예매를 취소할까요?</h2><p id="account-cancel-description">{pendingCancellation?.title}<br />이 브라우저의 체험 기록만 취소됩니다. 실제 티켓이나 결제에는 영향을 주지 않습니다.</p></div>
-                <div className="account-dialog-actions"><SystemButton ref={cancelCloseRef} variant="secondary" onClick={() => setCancelOpen(false)}>돌아가기</SystemButton><SystemButton onClick={cancelBooking}>체험 예매 취소</SystemButton></div>
+                <div className="account-dialog-heading"><h2 id="account-cancel-heading">이 예매 기록을 취소할까요?</h2><p id="account-cancel-description">{pendingCancellation?.title}<br />취소한 기록은 예매내역에서 다시 확인할 수 있어요.</p></div>
+                <div className="account-dialog-actions"><SystemButton ref={cancelCloseRef} variant="secondary" onClick={() => setCancelOpen(false)}>돌아가기</SystemButton><SystemButton onClick={cancelBooking}>예매 기록 취소</SystemButton></div>
             </SystemDialog>
         </div>
     );

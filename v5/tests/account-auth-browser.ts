@@ -157,7 +157,7 @@ try{
             await tab.locator("#flow-name").fill("다시 체험");
             await tab.locator("#flow-email").fill("storage@example.com");
             await tab.locator('[data-account-auth="login"] input[type="checkbox"]').check();
-            await tab.getByRole("button",{name:/체험으로 로그인/}).click();
+            await tab.getByRole("button",{name:/프로필로 계속하기/}).click();
             await tab.waitForURL(new URL("account/",base).href);
             await tab.locator('.account-layout[aria-busy="false"]').waitFor();
             assert.match(await tab.locator(".account-identity h2").innerText(),/다시 체험/);
@@ -169,7 +169,7 @@ try{
         assert.equal(await page.locator("#flow-name").inputValue(),"관람객");
         assert.equal(await page.locator("#flow-email").inputValue(),"visitor@example.com");
         assert.equal(await page.locator('[data-account-auth="login"] input[type="checkbox"]').isChecked(),false);
-        await page.getByRole("button",{name:/체험으로 로그인/}).click();
+        await page.getByRole("button",{name:/프로필로 계속하기/}).click();
         await page.locator('.ds-notice[role="alert"]').waitFor();
     });
     await check("no browser runtime errors",async()=>assert.deepEqual(errors,[]));

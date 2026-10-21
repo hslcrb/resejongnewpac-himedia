@@ -408,7 +408,6 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
                         </div>
                         <span className={styles.marker} aria-hidden="true" />
                         <Link href={current.href} prefetch={false} className={styles.current} data-violet-current data-no-drag tabIndex={open ? 0 : -1} onClick={event => onNavigate(event, current)} aria-label={`${current.label}로 이동`}>
-                            <small aria-hidden="true">QUICK MENU</small>
                             <strong>{current.label}</strong>
                             <Icon name="diagonal" size={19} />
                         </Link>

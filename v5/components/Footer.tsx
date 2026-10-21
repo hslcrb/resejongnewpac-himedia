@@ -68,9 +68,6 @@ export default function Footer() {
                         재단법인 세종문화회관
                     </address>
                     <p className="footer-small">© SEJONG CENTER FOR THE PERFORMING ARTS.</p>
-                    <p className="footer-small">
-                        이것은 공식 페이지가 아닙니다. <span lang="en">This is not an official website.</span>
-                    </p>
                 </div>
 
                 <div className="footer-service" id="footer-service" data-home-anchor>

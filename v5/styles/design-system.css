@@ -746,6 +746,13 @@
     gap: 16px;
 }
 
+.ds-overlay-controls {
+    padding: var(--space-5);
+    border-radius: var(--radius-media);
+    background: var(--surface-inverse);
+    color: var(--text-inverse);
+}
+
 .ds-demo-stack {
     display: grid;
     gap: 24px;

@@ -376,8 +376,7 @@ export default function DesignRulesPage() {
                                     />
                                 </div>
                                 <p className="ds-caption">
-                                    이 가이드는 v5 디지털 인터페이스의 적용 기준입니다. 기관의 공식
-                                    CI 규정을 대체하지 않습니다.
+                                    웹사이트에 사용하는 색상과 글자, 컴포넌트의 적용 기준입니다.
                                 </p>
                             </>,
                         )}
@@ -826,8 +825,9 @@ export default function DesignRulesPage() {
                             "그리드와 화면",
                             <>
                                 <p>
-                                    콘텐츠의 최대 폭은 1320px입니다. 본문은 한 줄이 지나치게 길지
-                                    않도록 문서 안에서 읽기 폭을 별도로 제한합니다.
+                                    콘텐츠는 최대 {tokenPixels("--container")}까지 넓게 사용합니다.
+                                    문단은 {DESIGN_TOKEN_VALUES["--content-reading-width"]}, 입력 양식은 용도에 맞는 읽기 폭을 따로 둡니다.
+                                    카드와 목록은 남는 너비를 채우고 버튼과 레이블은 내용에 맞춰 늘어납니다.
                                 </p>
                                 <div className="ds-grid-sample" aria-label="반응형 그리드 예제">
                                     {Array.from({ length: 12 }, (_, index) => (
@@ -838,9 +838,19 @@ export default function DesignRulesPage() {
                                     label="화면 크기별 레이아웃 기준"
                                     headings={["화면", "분할", "권장 좌우 여백", "읽기"]}
                                     rows={[
-                                        ["1280px 이상", "12열", "48–64px", "문서와 보조 목차"],
-                                        ["768–1279px", "8열", "32–40px", "본문 중심 배치"],
+                                        ["1280px 이상", "12열", "32–48px", "넓은 목록과 별도 읽기 폭"],
+                                        ["768–1279px", "8열", "20–32px", "본문 중심 배치"],
                                         ["767px 이하", "4열", "20px", "한 열, 문서 탐색은 메뉴로"],
+                                    ]}
+                                />
+                                <DataTable
+                                    label="내용과 공간에 따른 크기 결정"
+                                    headings={["요소", "크기 결정", "적용 원칙"]}
+                                    rows={[
+                                        ["페이지와 목록", "남는 너비 채우기", "minmax(0, 1fr)와 반응형 열"],
+                                        ["버튼과 상태", "내용에 맞추기", "높이는 최소 48px, 긴 글은 줄바꿈"],
+                                        ["문단과 입력", "읽기 폭 안에서 채우기", "넓은 프레임과 본문의 폭을 분리"],
+                                        ["아이콘과 좌석", "역할에 필요한 고정 크기", "아이콘 비례와 좌석의 공간 관계 유지"],
                                     ]}
                                 />
                             </>,
@@ -961,6 +971,12 @@ export default function DesignRulesPage() {
                                         flow 버튼은 {tokenPixels("--control-flow-button-size")} 높이와
                                         {" "}{tokenPixels("--radius-flow")} 모서리를 사용합니다.
                                     </p>
+                                    <div className="ds-demo-row ds-overlay-controls">
+                                        <SystemButton variant="inverse" onClick={() => setMessage("이미지 위의 주요 행동입니다.")}>상세보기</SystemButton>
+                                        <SystemButton variant="inverse-outline" onClick={() => setMessage("이미지 위의 보조 행동입니다.")}>예매하기</SystemButton>
+                                        <SystemButton variant="inverse-quiet" onClick={() => setMessage("히어로의 양옆 작품을 선택하는 같은 버튼입니다.")}>다음 작품 <Icon name="arrow" size={20} /></SystemButton>
+                                    </div>
+                                    <p className="ds-caption">inverse-quiet는 사진 위에서 테두리 없이 사용하는 반전 버튼입니다. 히어로의 인접 작품 제목에 같은 구현을 사용합니다.</p>
                                 </div>
                                 <DataTable
                                     label="버튼의 조작 상태"
@@ -1161,7 +1177,7 @@ export default function DesignRulesPage() {
                                         aria-controls="menu-dialog"
                                         onClick={() => setFloatingMenuOpen(!floatingMenuOpen)}
                                     >
-                                        전체 메뉴 체험하기 <Icon name="menu" size={24} />
+                                        전체 메뉴 열기 <Icon name="menu" size={24} />
                                     </SystemButton>
                                     <FloatingMenu
                                         open={floatingMenuOpen}
@@ -1294,7 +1310,7 @@ export default function DesignRulesPage() {
                                 </p>
                                 <div className="ds-demo-actions">
                                     <SystemButton onClick={() => showSmallNotification("관심 프로그램에 저장했어요.")}>
-                                        알림소형모달 체험
+                                        알림소형모달 보기
                                     </SystemButton>
                                     <SystemButton variant="quiet" onClick={() => showSmallNotification("관심 프로그램에서 삭제했어요.")}>
                                         다음 알림으로 교체
@@ -1401,7 +1417,7 @@ export default function DesignRulesPage() {
                                     data-scroll-scene
                                     tabIndex={0}
                                     role="region"
-                                    aria-label="글자 등장 체험, 이 영역을 아래로 스크롤하세요"
+                                    aria-label="글자 등장 효과, 이 영역을 아래로 스크롤하세요"
                                 >
                                     <p className="ds-motion-hint">
                                         이 안을 천천히 스크롤해 보세요
@@ -1528,8 +1544,8 @@ export default function DesignRulesPage() {
                                             "현재 상황과 다음 선택",
                                         ],
                                         [
-                                            "체험 완료",
-                                            "예매 체험이 완료되었습니다. 실제 티켓은 발급되지 않습니다.",
+                                            "저장 완료",
+                                            "예매 내용을 저장했습니다. 마이페이지에서 확인할 수 있습니다.",
                                             "실제 처리 범위를 정확하게",
                                         ],
                                     ]}

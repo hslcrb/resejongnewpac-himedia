@@ -249,8 +249,13 @@ const TYPOGRAPHY_TOKENS = {
 // Preserve the radius and section spacing previously supplied by refinements.
 const GEOMETRY_TOKENS = {
     ...Object.fromEntries(SPACE_SCALE.map((value) => [`--space-${value / 4}`, rem(value)])),
-    "--container": "1320px",
-    "--page-gutter": "clamp(20px, 4vw, 64px)",
+    "--container": "108rem",
+    "--page-gutter": "clamp(1.25rem, 2.5vw, 3rem)",
+    "--content-reading-width": "72ch",
+    "--content-form-width": "40rem",
+    "--hero-card-width": "90rem",
+    "--hero-peek": "clamp(1rem, 7vw, 10rem)",
+    "--hero-gap": "clamp(0.75rem, 1.4vw, 1.5rem)",
     "--section-gap": "clamp(5rem, 7vw, 7rem)",
     "--control-size": rem(48),
     "--shortcut-size": rem(64),
@@ -268,6 +273,9 @@ const GEOMETRY_TOKENS = {
     "--radius-pill": "9999px",
 } satisfies TokenValues;
 
+// [히어로의 공유 시간 규격 / Shared hero timing contract]
+export const HERO_MOTION = Object.freeze({ interval: 3500, transition: 750, copy: 650, settle: 240 });
+
 // [색으로 표현하는 상태와 전환 / Color feedback and transition timing]
 const MOTION_AND_STATE_TOKENS = {
     "--state-hover": "#f0f2f4",
@@ -279,6 +287,10 @@ const MOTION_AND_STATE_TOKENS = {
     "--duration-fast": "120ms",
     "--duration-feedback": "180ms",
     "--duration-panel": "320ms",
+    "--duration-carousel": `${HERO_MOTION.transition}ms`,
+    "--duration-hero-copy": `${HERO_MOTION.copy}ms`,
+    "--duration-hero-settle": `${HERO_MOTION.settle}ms`,
+    "--ease-carousel": "cubic-bezier(0.22, 0.61, 0.36, 1)",
     "--ease-standard": "cubic-bezier(0.2, 0, 0, 1)",
     "--ease-out": "cubic-bezier(0.22, 1, 0.36, 1)",
 } satisfies TokenValues;

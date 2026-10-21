@@ -52,24 +52,6 @@ export default function Header() {
 
     return (
         <header id="header" className="renewal-header">
-            <div className="project-note">
-                <span>
-                    v5 · 세종문화회관 리뉴얼 <span lang="en">· Unofficial design concept</span>
-                </span>
-                <a href="/">
-                    버전 선택{" "}
-                    <svg
-                        className="material-icon"
-                        width="13"
-                        height="13"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                    >
-                        <path d="M6 6v2h8.59L3.71 18.88l1.41 1.41L16 9.41V18h2V6z" />
-                    </svg>
-                </a>
-            </div>
-
             <div className="masthead container">
                 <Link href="/" className="sejong-brand" aria-label="세종문화회관 홈">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -111,7 +93,7 @@ export default function Header() {
                     {/* [실제 세션과 체험 계정 공통 진입 / Shared access for real sessions and demo accounts] */}
                     {isLoggedIn ? <Link href="/account" className="account-link">마이페이지</Link> : <>
                         <Link href="/account/login" className="account-link">로그인</Link>
-                        <Link href="/account/signup" className="account-link signup-link">회원가입</Link>
+                        <Link href="/account/signup" className="account-link signup-link">프로필 만들기</Link>
                     </>}
                     <Link href="/english" className="english-link" lang="en">
                         EN
