@@ -7,6 +7,7 @@ import ProgramCard from "../components/ProgramCard";
 import Icon from "../components/Icon";
 import VioletQuickMenu from "../components/VioletQuickMenu";
 import HomeAnchorNavigation from "../components/HomeAnchorNavigation";
+import HeroCompanion from "../components/HeroCompanion";
 import { OFFICIAL_MEDIA } from "../src/data/official-media";
 import { mediaPath } from "../src/lib/media";
 import {
@@ -31,6 +32,7 @@ const features = [
         venue: "세종대극장",
         image: "official/" + OFFICIAL_MEDIA["ilmu-stage"].file,
         alt: OFFICIAL_MEDIA["ilmu-stage"].alt,
+        description: "전통의 움직임이 오늘의 감각을 만나, 무대 가득 새로운 풍경을 펼칩니다.",
     },
     {
         id: "carmen",
@@ -42,6 +44,7 @@ const features = [
         venue: "세종대극장",
         image: "official/" + OFFICIAL_MEDIA["season-28"].file,
         alt: OFFICIAL_MEDIA["season-28"].alt,
+        description: "강렬한 선율과 함께 만나는, 자신의 삶을 선택하는 카르멘의 이야기.",
     },
     {
         id: "light",
@@ -53,6 +56,7 @@ const features = [
         venue: "세종미술관",
         image: "official/" + OFFICIAL_MEDIA["venue-gallery"].file,
         alt: OFFICIAL_MEDIA["venue-gallery"].alt,
+        description: "빛과 그림자 사이를 걸으며 공간의 새로운 표정을 발견해 보세요.",
     },
 ];
 
@@ -132,7 +136,7 @@ export default function HomePage() {
 
         const stage = stageRef.current;
         const slideEl = stage?.querySelector(".season-slide");
-        const step = slideEl ? slideEl.getBoundingClientRect().width + 24 : 1224;
+        const step = slideEl ? slideEl.getBoundingClientRect().width : 1200;
 
         setDragX(-dir * step);
 
@@ -339,7 +343,7 @@ export default function HomePage() {
                 className="season-hero"
                 id="featured-season"
                 data-home-anchor
-                aria-label="주요 프로그램"
+                aria-label="이번 달의 문화예술"
                 aria-roledescription="캐러셀"
             >
                 <div
@@ -373,12 +377,8 @@ export default function HomePage() {
                                     data-home-anchor={isCurrent ? "" : undefined}
                                     aria-hidden={!isCurrent}
                                 >
-                                    <Link
+                                    <div
                                         className="season-card-link"
-                                        href={`/programs/${item.id}`}
-                                        draggable={false}
-                                        tabIndex={isCurrent ? 0 : -1}
-                                        aria-label={`${item.name} 자세히 보기`}
                                     >
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img
@@ -412,20 +412,28 @@ export default function HomePage() {
                                                 {item.date}
                                                 <span>{item.venue}</span>
                                             </p>
-                                            <span className="button button--yellow">
-                                                공연·전시 자세히 보기 <Icon name="arrow" size={20} />
-                                            </span>
+                                            <p className="season-description">{item.description}</p>
+                                            <div className="season-actions">
+                                                <Link className="button button--yellow" href={`/programs/${item.id}`} tabIndex={isCurrent ? 0 : -1} draggable={false}>
+                                                    상세보기 <Icon name="arrow" size={20} />
+                                                </Link>
+                                                <Link className="button season-booking-button" href={`/booking/${item.id}`} tabIndex={isCurrent ? 0 : -1} draggable={false}>
+                                                    예매하기 <Icon name="ticket" size={20} />
+                                                </Link>
+                                            </div>
                                         </div>
-                                    </Link>
+                                    </div>
                                 </article>
                             );
                         })}
                     </div>
                 </div>
 
+                <HeroCompanion />
+
                 {/* 캐러셀 툴바 & 컨트롤 */}
                 <div className="season-toolbar container">
-                    <p>2026 세종시즌 · 지금 상연 중</p>
+                    <p>이번 달의 문화예술</p>
                     <div className="season-controls" id="home-feature-controls" data-home-anchor role="group" aria-label="주요 프로그램 제어">
                         <span className="season-pagination" aria-hidden="true">
                             <span>{String(heroActive + 1).padStart(2, "0")}</span>

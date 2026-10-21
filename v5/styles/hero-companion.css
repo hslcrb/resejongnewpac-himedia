@@ -1,0 +1,290 @@
+/* [하나의 작품과 우측 정보 영역 / One featured work and its information rail]
+   옆 슬라이드의 노출을 막고, 작품 소개와 정보 카드의 읽기 영역을 분리합니다.
+   Keep adjacent slides out of view and reserve separate reading areas. */
+.home-v4-wrap .season-hero {
+    position: relative;
+    --slide-gap: 0px;
+}
+
+.home-v4-wrap .season-stage {
+    width: min(var(--container), calc(100% - var(--page-gutter) * 2));
+    margin-inline: auto;
+    border-radius: var(--radius-dialog);
+}
+
+.home-v4-wrap .season-track {
+    width: 100%;
+    gap: 0;
+    margin-left: 0;
+    transform: translate3d(calc(-200% + var(--drag-x, 0px)), 0, 0);
+}
+
+.home-v4-wrap .season-slide {
+    width: 100%;
+    flex: 0 0 100%;
+    min-height: 42rem;
+    border-radius: var(--radius-dialog);
+}
+
+.home-v4-wrap .season-copy {
+    width: calc(100% - 24rem);
+    padding: clamp(2rem, 4vw, 3.5rem);
+    pointer-events: none;
+}
+
+.home-v4-wrap .season-copy h2 {
+    margin-bottom: var(--space-8);
+    font-size: clamp(2.5rem, 3.7vw, 3.5rem);
+}
+
+.home-v4-wrap .season-meta {
+    margin-bottom: var(--space-4);
+}
+
+.season-description {
+    max-width: 32rem;
+    margin: 0 0 var(--space-8);
+    font-size: var(--text-body);
+    line-height: var(--leading-body);
+    text-wrap: pretty;
+}
+
+.season-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    pointer-events: auto;
+}
+
+.season-actions .button {
+    min-height: var(--control-size);
+    padding: var(--space-3) var(--space-6);
+}
+
+.season-actions .season-booking-button {
+    border: 1px solid rgb(255 255 255 / 70%);
+    color: var(--text-inverse);
+    background: rgb(0 0 0 / 20%);
+}
+
+/* [참고의 흰 목록과 유리 시계 / A white information list and a glass clock]
+   기존 흑백 팔레트와 공통 LiquidGlass 표면을 사용합니다.
+   Use the existing neutral palette and the shared LiquidGlass surface. */
+.hero-companion {
+    position: absolute;
+    z-index: 3;
+    top: 3rem;
+    right: max(calc((100% - var(--container)) / 2 + 1.5rem), calc(var(--page-gutter) + 1.5rem));
+    display: grid;
+    gap: var(--space-4);
+    width: 21rem;
+    color: var(--text-primary);
+}
+
+.hero-release-list {
+    padding: var(--space-5) var(--space-6) var(--space-3);
+    border-radius: var(--radius-dialog);
+    background: var(--surface-default);
+}
+
+.hero-companion-heading,
+.hero-clock-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+.hero-companion-heading h2 {
+    margin: 0;
+    font-size: var(--text-item-title);
+    font-weight: var(--weight-heading);
+}
+
+.hero-companion-more {
+    display: grid;
+    flex: 0 0 var(--control-size);
+    width: var(--control-size);
+    height: var(--control-size);
+    margin-right: calc(-1 * var(--space-3));
+    place-items: center;
+    border-radius: var(--radius-pill);
+}
+
+.hero-release-list ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.hero-release-list li + li {
+    border-top: 1px solid var(--border-default);
+}
+
+.hero-release-list li > a {
+    display: block;
+    padding-block: var(--space-4);
+}
+
+.hero-release-list strong {
+    display: block;
+    font-size: var(--text-body);
+    font-weight: var(--weight-action);
+    line-height: var(--leading-label);
+}
+
+.hero-release-meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-2);
+    margin-top: var(--space-2);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    line-height: var(--leading-label);
+    font-variant-numeric: tabular-nums;
+}
+
+.hero-time-glass {
+    padding: var(--space-6);
+    --glass-shadow: 0 8px 32px rgb(0 0 0 / 12%);
+}
+
+.hero-clock-heading {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-label);
+}
+
+.hero-clock {
+    display: block;
+    margin-top: var(--space-2);
+    font-size: 2.75rem;
+    font-weight: 550;
+    line-height: 1.2;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+}
+
+.hero-clock-date {
+    margin: var(--space-1) 0 0;
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+}
+
+.hero-next-release {
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
+    border-top: 1px solid rgb(0 0 0 / 16%);
+}
+
+.hero-next-release > p {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-action);
+}
+
+.hero-next-release > p > span {
+    font-weight: var(--weight-body);
+}
+
+.hero-next-release > a {
+    display: block;
+    min-height: var(--control-size);
+}
+
+.hero-next-release time {
+    font-size: var(--text-item-title);
+    font-weight: var(--weight-heading);
+    font-variant-numeric: tabular-nums;
+}
+
+.hero-next-release a > span {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    line-height: var(--leading-label);
+}
+
+.hero-next-release a > span svg {
+    flex: 0 0 1.25rem;
+    margin-top: 0.125rem;
+}
+
+@media (hover: hover) {
+    .hero-companion-more:hover {
+        background: var(--state-hover);
+    }
+
+    .hero-release-list li > a:hover strong,
+    .hero-next-release a:hover > span {
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+    }
+
+    .season-booking-button:hover {
+        background: rgb(0 0 0 / 40%);
+    }
+}
+
+/* [작은 화면에서는 문서 순서로 / In-flow information on smaller screens] */
+@media (max-width: 1100px) {
+    .home-v4-wrap .season-copy {
+        width: 100%;
+    }
+
+    .home-v4-wrap .season-slide {
+        min-height: 36rem;
+    }
+
+    .hero-companion {
+        position: relative;
+        inset: auto;
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+        width: min(var(--container), calc(100% - var(--page-gutter) * 2));
+        margin: var(--space-4) auto 0;
+    }
+
+    .hero-release-list {
+        background: var(--surface-subtle);
+    }
+}
+
+@media (max-width: 600px) {
+    .home-v4-wrap .season-slide {
+        min-height: 37rem;
+    }
+
+    .home-v4-wrap .season-copy {
+        justify-content: flex-end;
+        padding: var(--space-8) var(--space-6);
+    }
+
+    .home-v4-wrap .season-copy h2 {
+        margin-bottom: var(--space-6);
+        font-size: clamp(1.875rem, 7vw, 2.5rem);
+    }
+
+    .season-description {
+        margin-bottom: var(--space-6);
+    }
+
+    .season-actions {
+        width: 100%;
+        gap: var(--space-2);
+    }
+
+    .season-actions .button {
+        flex: 1;
+        padding-inline: var(--space-3);
+    }
+
+    .hero-companion {
+        grid-template-columns: 1fr;
+    }
+}
