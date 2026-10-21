@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import type { Program } from "../../../types/sejong.ts";
 import { mediaPath } from "../../../src/lib/media";
+import { SystemBadge, SystemLink } from "../../../components/SystemPrimitives";
 
 interface ProgramDetailClientProps {
     program: Program;
@@ -75,31 +76,12 @@ export default function ProgramDetailClient({ program }: ProgramDetailClientProp
                 {/* 상세 정보 영역 */}
                 <div>
                     <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.75rem" }}>
-                        <span
-                            style={{
-                                padding: "0.25rem 0.6rem",
-                                background: "var(--accent-information)",
-                                color: "var(--text-on-brand)",
-                                borderRadius: "4px",
-                                fontSize: "0.8rem",
-                                fontWeight: 700,
-                            }}
-                        >
+                        <SystemBadge tone="info">
                             {program.category}
-                        </span>
-                        <span
-                            style={{
-                                padding: "0.25rem 0.6rem",
-                                background: "var(--surface-subtle)",
-                                color: "var(--text-secondary)",
-                                borderRadius: "4px",
-                                fontSize: "0.8rem",
-                                fontWeight: 600,
-                                border: "1px solid var(--border-default)",
-                            }}
-                        >
+                        </SystemBadge>
+                        <SystemBadge>
                             {program.genre}
-                        </span>
+                        </SystemBadge>
                     </div>
 
                     <h1
@@ -164,37 +146,22 @@ export default function ProgramDetailClient({ program }: ProgramDetailClientProp
                         </p>
                     </div>
 
+                    {/* [공통 예매 이동 조작 / Shared booking navigation actions] */}
                     <div style={{ display: "flex", gap: "1rem" }}>
-                        <Link
+                        <SystemLink
+                            context="flow"
                             href={`/booking/${program.id}`}
-                            style={{
-                                flex: 1,
-                                textAlign: "center",
-                                padding: "0.9rem 1.5rem",
-                                fontSize: "1.05rem",
-                                fontWeight: 700,
-                                background: "var(--action-primary)",
-                                color: "var(--text-inverse)",
-                                borderRadius: "6px",
-                                textDecoration: "none",
-                            }}
+                            style={{ flex: 1 }}
                         >
                             예매하기 (온라인 예매) →
-                        </Link>
-                        <Link
+                        </SystemLink>
+                        <SystemLink
+                            context="flow"
+                            variant="secondary"
                             href="/programs"
-                            style={{
-                                padding: "0.9rem 1.25rem",
-                                border: "1px solid var(--border-strong)",
-                                borderRadius: "6px",
-                                color: "var(--text-primary)",
-                                textDecoration: "none",
-                                fontWeight: 600,
-                                fontSize: "0.95rem",
-                            }}
                         >
                             목록으로
-                        </Link>
+                        </SystemLink>
                     </div>
                 </div>
             </article>

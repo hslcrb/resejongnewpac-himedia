@@ -179,6 +179,7 @@ try {
         await page.waitForFunction(() => document.querySelector("h1")?.textContent === "컬러");
     });
     await check("color copy, type specimen and real computed font values", async () => {
+        await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: new URL(base).origin });
         await goChapter("color");
         await page.getByRole("button", { name: "노랑 #F7D549 복사" }).click();
         await page.waitForFunction(() =>
@@ -188,6 +189,7 @@ try {
             await page.getByRole("button", { name: "노랑 #F7D549 복사" }).innerText(),
             /복사됨/,
         );
+        assert.equal(await page.evaluate(() => navigator.clipboard.readText()), "#F7D549");
         await goChapter("typography");
         await page.locator("#type-specimen-text").fill("세종 Sejong 2026");
         await page.locator("#type-size").selectOption("16");
@@ -371,7 +373,7 @@ try {
         },
     );
     await check(
-        "home headings stay static and participation cards use filled backgrounds without dividing rules",
+        "home uses the shared scroll heading without changing its wording and preserves filled participation cards",
         async () => {
             await page.goto(base, { waitUntil: "networkidle" });
             await page.evaluate(() => document.fonts.ready);
@@ -380,8 +382,12 @@ try {
             assert.equal(await page.locator("#discover-heading").textContent(), "관람 일정");
             assert.equal(await page.locator("#visit-heading").textContent(), "오시는 길");
             await heading.scrollIntoViewIfNeeded();
+            assert.equal(await heading.getAttribute("aria-label"), "관람 예약");
+            assert.equal(await heading.locator(".booking-invitation-letter").count(), 4);
+            await page.emulateMedia({ reducedMotion: "reduce" });
+            await page.waitForFunction(() => document.querySelector("#quick-booking-heading")?.getAnimations({ subtree: true }).length === 0);
             assert.equal(await heading.evaluate(element => element.getAnimations({ subtree: true }).length), 0);
-            assert.equal(await page.locator(".booking-invitation-letter").count(), 0);
+            await page.emulateMedia({ reducedMotion: "no-preference" });
             const cards = await page.locator(".home-participation > a").evaluateAll(elements => elements.map(element => {
                 const style = getComputedStyle(element);
                 return { background: style.backgroundColor, border: style.borderTopWidth };

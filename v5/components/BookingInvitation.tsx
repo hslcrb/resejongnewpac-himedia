@@ -2,8 +2,6 @@
 
 import { Fragment, memo, useEffect, useRef } from "react";
 
-const invitation = "언제 만나볼까요?";
-
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const entrancePath: Keyframe[] = Array.from({ length: 17 }, (_, step) => {
     const progress = step / 16;
@@ -17,8 +15,10 @@ const entrancePath: Keyframe[] = Array.from({ length: 17 }, (_, step) => {
 
 const BookingInvitation = memo(function BookingInvitation({
     id = "quick-booking-heading",
+    text = "언제 만나볼까요?",
 }: {
     id?: string;
+    text?: string;
 }) {
     const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -111,13 +111,13 @@ const BookingInvitation = memo(function BookingInvitation({
             document.removeEventListener("visibilitychange", updateVisibility);
             stop();
         };
-    }, []);
+    }, [text]);
 
     return (
-        <h2 id={id} className="booking-invitation" aria-label={invitation} ref={headingRef}>
+        <h2 id={id} className="booking-invitation" aria-label={text} ref={headingRef}>
             <span aria-hidden="true">
-                {invitation.split(" ").map((word, wordIndex) => (
-                    <Fragment key={word}>
+                {text.split(" ").map((word, wordIndex) => (
+                    <Fragment key={`${word}-${wordIndex}`}>
                         {wordIndex > 0 && " "}
                         <span className="booking-invitation-word">
                             {Array.from(word).map((letter, index) => (

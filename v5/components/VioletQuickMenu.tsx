@@ -417,6 +417,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
                 </nav>
             </div>
             <button
+                data-system-part="violet-toggle"
                 ref={toggleRef}
                 type="button"
                 className={styles.toggle}

@@ -42,11 +42,11 @@ export default function IntroductionExperience(){
    <div style={{width:((current+1)/4*100)+"%"}}/>
   </div>
   <nav className="intro-rail" aria-label="기관 소개 장면">
-   {moments.map((m,i)=><button key={m.id} type="button" aria-label={`${i+1}번째 장면: ${m.title}`} aria-current={active===m.id?"step":undefined} onClick={()=>jump(m.id)}><span className={active===m.id?"on":""}/><small>0{i+1}</small></button>)}
+   {moments.map((m,i)=><button data-system-part="intro-step" key={m.id} type="button" aria-label={`${i+1}번째 장면: ${m.title}`} aria-current={active===m.id?"step":undefined} onClick={()=>jump(m.id)}><span className={active===m.id?"on":""}/><small>0{i+1}</small></button>)}
   </nav>
   <section id="intro-opening" data-intro-scene="opening" className="intro-panel intro-cover">
    <div className="intro-grid" aria-hidden="true"/><div className="intro-wash" aria-hidden="true"/>
-   <div className="intro-title-wrap"><span className="intro-kicker">SEJONG CENTER · SINCE 1978</span><p className="intro-stamp">KOREA / SEOUL / CULTURE</p><h1>광화문에서<br/><em>무대가 열리는 곳.</em></h1><p>공연장과 전시장, 예술교육<br/>한 건물에 모었습니다.</p><button className="intro-down" onClick={()=>jump("pulse")}>SCROLL <span aria-hidden="true">↓</span></button></div>
+   <div className="intro-title-wrap"><span className="intro-kicker">SEJONG CENTER · SINCE 1978</span><p className="intro-stamp">KOREA / SEOUL / CULTURE</p><h1>광화문에서<br/><em>무대가 열리는 곳.</em></h1><p>공연장과 전시장, 예술교육<br/>한 건물에 모었습니다.</p><button data-system-part="intro-next" className="intro-down" onClick={()=>jump("pulse")}>SCROLL <span aria-hidden="true">↓</span></button></div>
    <div className="intro-vertical" aria-hidden="true">SEJONG CENTER FOR THE PERFORMING ARTS - SEOUL</div>
   </section>
   <section id="intro-pulse" data-intro-scene="pulse" className="intro-panel intro-pulse">

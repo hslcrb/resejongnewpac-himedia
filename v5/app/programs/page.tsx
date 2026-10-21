@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { PROGRAMS } from "../../src/data/catalog";
 import ProgramCard from "../../components/ProgramCard";
+import { SystemField, SystemFilterButton } from "../../components/SystemPrimitives";
 import type { Program } from "../../types/sejong.ts";
 
 export default function ProgramsPage() {
@@ -35,46 +36,29 @@ export default function ProgramsPage() {
                 </p>
             </header>
 
-            {/* 필터 및 검색 바 */}
+            {/* [공통 범주 필터와 검색 / Shared category filters and search] */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "2rem" }}>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
                     {categories.map((cat) => (
-                        <button
+                        <SystemFilterButton
                             key={cat}
-                            type="button"
+                            selected={category === cat}
                             onClick={() => setCategory(cat)}
-                            style={{
-                                padding: "0.5rem 1rem",
-                                borderRadius: "9999px",
-                                fontSize: "0.875rem",
-                                fontWeight: 600,
-                                border: category === cat ? "1px solid var(--border-focus)" : "1px solid var(--border-default)",
-                                background: category === cat ? "var(--action-primary)" : "var(--surface-default)",
-                                color: category === cat ? "var(--text-inverse)" : "var(--text-secondary)",
-                                cursor: "pointer",
-                            }}
                         >
                             {cat}
-                        </button>
+                        </SystemFilterButton>
                     ))}
                 </div>
 
                 <div style={{ position: "relative", minWidth: "260px" }}>
-                    <input
+                    <SystemField
+                        id="program-query"
+                        label="프로그램 검색"
+                        labelHidden
                         type="search"
                         placeholder="공연명, 장르, 공연장 검색..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        style={{
-                            width: "100%",
-                            padding: "0.55rem 1rem",
-                            borderRadius: "8px",
-                            border: "1px solid var(--border-strong)",
-                            background: "var(--surface-default)",
-                            color: "var(--text-primary)",
-                            fontSize: "0.9rem",
-                            outline: "none",
-                        }}
                     />
                 </div>
             </div>

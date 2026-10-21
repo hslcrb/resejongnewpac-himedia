@@ -34,9 +34,9 @@ const LiquidGlass = forwardRef<HTMLDivElement, LiquidGlassProps>(function Liquid
         >
             <GlassRefraction
                 surfaceRef={surfaceRef}
-                blur={blur ?? (variant === "drawer" ? options.blur : undefined)}
-                refraction={refraction ?? (variant === "drawer" ? options.refraction : undefined)}
-                thickness={thickness ?? (variant === "drawer" ? options.thickness : undefined)}
+                blur={blur ?? (variant !== "surface" ? options.blur : undefined)}
+                refraction={refraction ?? (variant !== "surface" ? options.refraction : undefined)}
+                thickness={thickness ?? (variant !== "surface" ? options.thickness : undefined)}
             />
             <div className="liquid-glass-optics" aria-hidden="true" />
             {children}

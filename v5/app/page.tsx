@@ -8,12 +8,16 @@ import Icon from "../components/Icon";
 import VioletQuickMenu from "../components/VioletQuickMenu";
 import HomeAnchorNavigation from "../components/HomeAnchorNavigation";
 import HeroCompanion from "../components/HeroCompanion";
+import HeroSlide from "../components/HeroSlide";
+import { HOME_FEATURES as features } from "../src/data/home-features";
+import SeasonBanner from "../components/SeasonBanner";
+import BookingInvitation from "../components/BookingInvitation";
+import { BookingCalendar, BookingProgramChoice } from "../components/HomeBookingControls";
+import { SystemButton, SystemIconButton, SystemLink, SystemField, SystemFilterButton, SystemBadge } from "../components/SystemPrimitives";
 import { OFFICIAL_MEDIA } from "../src/data/official-media";
-import { mediaPath } from "../src/lib/media";
 import {
     seoulToday,
     monthDates,
-    moveMonth,
     programsForDate,
     canSelectProgram,
     discoverPrograms,
@@ -21,44 +25,7 @@ import {
 import type { Program } from "../types/sejong.ts";
 
 // 히어로 캐러셀 슬라이드 데이터
-const features = [
-    {
-        id: "dance",
-        theme: "dance",
-        label: "2026 세종시즌 · 서울시무용단",
-        title: "오래된 춤의 걸음,\n지금의 무대.",
-        name: "서울시무용단 〈일무〉",
-        date: "2026.10.20 - 10.25",
-        venue: "세종대극장",
-        image: "official/" + OFFICIAL_MEDIA["ilmu-stage"].file,
-        alt: OFFICIAL_MEDIA["ilmu-stage"].alt,
-        description: "전통의 움직임이 오늘의 감각을 만나, 무대 가득 새로운 풍경을 펼칩니다.",
-    },
-    {
-        id: "carmen",
-        theme: "opera",
-        label: "2026 세종시즌 · 서울시오페라단",
-        title: "자유롭게 사랑하고,\n자유롭게 떠나는 카르멘.",
-        name: "서울시오페라단 〈카르멘〉",
-        date: "2026.10.15 - 10.18",
-        venue: "세종대극장",
-        image: "official/" + OFFICIAL_MEDIA["season-28"].file,
-        alt: OFFICIAL_MEDIA["season-28"].alt,
-        description: "강렬한 선율과 함께 만나는, 자신의 삶을 선택하는 카르멘의 이야기.",
-    },
-    {
-        id: "light",
-        theme: "light",
-        label: "전시 · 빛과 공간",
-        title: "빛의 각도에 따라\n달라지는 공간.",
-        name: "빛이 머무는 자리",
-        date: "2026.10.01 - 11.15",
-        venue: "세종미술관",
-        image: "official/" + OFFICIAL_MEDIA["venue-gallery"].file,
-        alt: OFFICIAL_MEDIA["venue-gallery"].alt,
-        description: "빛과 그림자 사이를 걸으며 공간의 새로운 표정을 발견해 보세요.",
-    },
-];
+
 
 // 방문 안내 데이터
 const visitGuides = [
@@ -177,7 +144,6 @@ export default function HomePage() {
     const [selectedTime, setSelectedTime] = useState<string>("");
     const [participants, setParticipants] = useState<number>(1);
 
-    const monthCells = monthDates(bookingMonth);
     const programsOnBookingDate = programsForDate(PROGRAMS, bookingDate);
     const selectedProgram = (PROGRAMS as unknown as Program[]).find((p) => p.id === selectedProgramId);
 
@@ -363,67 +329,9 @@ export default function HomePage() {
                             const slideIndex = (heroActive + offset + features.length) % features.length;
                             const item = features[slideIndex];
                             const isCurrent = offset === 0;
-                            const imgPath = `/v5/assets/images/${item.image}`;
 
                             return (
-                                <article
-                                    key={`${item.id}-${offset}`}
-                                    className={`card card--hero season-slide season-${item.theme}${
-                                        isCurrent ? " is-active" : ""
-                                    }`}
-                                    data-card="hero"
-                                    data-feature={item.id}
-                                    id={isCurrent ? `home-feature-${item.id}` : undefined}
-                                    data-home-anchor={isCurrent ? "" : undefined}
-                                    aria-hidden={!isCurrent}
-                                >
-                                    <div
-                                        className="season-card-link"
-                                    >
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img
-                                            className="season-image"
-                                            src={imgPath}
-                                            alt={item.alt}
-                                            width={1672}
-                                            height={941}
-                                            draggable={false}
-                                            loading={isCurrent ? "eager" : "lazy"}
-                                            onError={(e) => {
-                                                const target = e.currentTarget;
-                                                if (!target.dataset.fallback) {
-                                                    target.dataset.fallback = "true";
-                                                    target.src = mediaPath();
-                                                }
-                                            }}
-                                        />
-                                        <div className="season-copy">
-                                            <p className="season-label">{item.label}</p>
-                                            <h2>
-                                                {item.title.split("\n").map((line, idx) => (
-                                                    <React.Fragment key={idx}>
-                                                        {line}
-                                                        {idx < item.title.split("\n").length - 1 && <br />}
-                                                    </React.Fragment>
-                                                ))}
-                                            </h2>
-                                            <p className="season-name">{item.name}</p>
-                                            <p className="season-meta">
-                                                {item.date}
-                                                <span>{item.venue}</span>
-                                            </p>
-                                            <p className="season-description">{item.description}</p>
-                                            <div className="season-actions">
-                                                <Link className="button button--yellow" href={`/programs/${item.id}`} tabIndex={isCurrent ? 0 : -1} draggable={false}>
-                                                    상세보기 <Icon name="arrow" size={20} />
-                                                </Link>
-                                                <Link className="button season-booking-button" href={`/booking/${item.id}`} tabIndex={isCurrent ? 0 : -1} draggable={false}>
-                                                    예매하기 <Icon name="ticket" size={20} />
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </article>
+                                <HeroSlide key={`${item.id}-${offset}`} feature={item} active={isCurrent} />
                             );
                         })}
                     </div>
@@ -442,7 +350,7 @@ export default function HomePage() {
                         <span className="season-progress" aria-hidden="true">
                             <i style={{ transform: `scaleX(${progress})` }} />
                         </span>
-                        <button
+                        <SystemIconButton
                             type="button"
                             id="home-feature-previous"
                             className="round-button"
@@ -450,8 +358,8 @@ export default function HomePage() {
                             aria-label="이전 프로그램"
                         >
                             <Icon name="back" size={24} />
-                        </button>
-                        <button
+                        </SystemIconButton>
+                        <SystemIconButton
                             type="button"
                             id="home-feature-next"
                             className="round-button"
@@ -459,8 +367,8 @@ export default function HomePage() {
                             aria-label="다음 프로그램"
                         >
                             <Icon name="arrow" size={24} />
-                        </button>
-                        <button
+                        </SystemIconButton>
+                        <SystemIconButton
                             type="button"
                             id="home-feature-playback"
                             className="round-button"
@@ -469,7 +377,7 @@ export default function HomePage() {
                             aria-pressed={isPaused}
                         >
                             <Icon name={isPaused ? "play" : "pause"} size={24} />
-                        </button>
+                        </SystemIconButton>
                         <span className="sr-only" aria-live="polite">
                             {heroActive + 1} / {features.length}, {features[heroActive].name}
                         </span>
@@ -511,7 +419,7 @@ export default function HomePage() {
             <section className="home-booking container" id="quick-booking" data-home-anchor aria-labelledby="quick-booking-heading">
                 <div className="section-heading">
                     <div>
-                        <h2 id="quick-booking-heading">관람 예약</h2>
+                        <BookingInvitation text="관람 예약" />
                         <p className="section-description">관람할 날을 고르면, 그날의 예술이 보여요.</p>
                     </div>
                     <Link className="text-link" href="/programs?view=calendar" id="home-booking-full-calendar" data-home-anchor>
@@ -521,84 +429,7 @@ export default function HomePage() {
 
                 <div className="quick-booking-layout">
                     {/* 달력 영역 */}
-                    <div className="quick-calendar" id="home-booking-calendar" data-home-anchor>
-                        <div className="quick-calendar-heading">
-                            <h3 id="quick-month" aria-live="polite">
-                                {bookingMonth.replace("-", ". ")}
-                            </h3>
-                            <div className="quick-month-controls">
-                                <button
-                                    type="button"
-                                    id="home-booking-previous-month"
-                                    onClick={() => setBookingMonth(moveMonth(bookingMonth, -1))}
-                                    aria-label="이전 달"
-                                >
-                                    <Icon name="back" size={20} />
-                                </button>
-                                <button
-                                    type="button"
-                                    id="home-booking-today"
-                                    onClick={() => {
-                                        setBookingMonth(today.slice(0, 7));
-                                        handleDateSelect(today);
-                                    }}
-                                >
-                                    오늘
-                                </button>
-                                <button
-                                    type="button"
-                                    id="home-booking-next-month"
-                                    onClick={() => setBookingMonth(moveMonth(bookingMonth, 1))}
-                                    aria-label="다음 달"
-                                >
-                                    <Icon name="arrow" size={20} />
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="quick-calendar-week" aria-hidden="true">
-                            {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
-                                <span key={day}>{day}</span>
-                            ))}
-                        </div>
-
-                        <div className="quick-calendar-grid" role="group" aria-labelledby="quick-month">
-                            {monthCells.map((date, idx) => {
-                                if (!date) {
-                                    return <span key={`blank-${idx}`} className="quick-calendar-blank" aria-hidden="true" />;
-                                }
-                                const progs = programsForDate(PROGRAMS, date);
-                                const count = progs.length;
-                                const isCurrentDate = date === today;
-                                const isSelected = date === bookingDate;
-
-                                return (
-                                    <button
-                                        key={date}
-                                        id={`home-booking-date-${date}`}
-                                        data-home-anchor
-                                        type="button"
-                                        onClick={() => handleDateSelect(date)}
-                                        aria-label={`${dateLabel(date)}${isCurrentDate ? ", 오늘" : ""}, ${
-                                            count ? `${count}개 프로그램` : "등록된 일정 없음"
-                                        }`}
-                                        aria-pressed={isSelected}
-                                        aria-current={isCurrentDate ? "date" : undefined}
-                                        className={`quick-date${isSelected ? " is-selected" : ""}${
-                                            isCurrentDate ? " is-today" : ""
-                                        }`}
-                                    >
-                                        <span>{Number(date.slice(-2))}</span>
-                                        {count > 0 && <i aria-hidden="true" />}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                        <p className="quick-calendar-key">
-                            <i aria-hidden="true" />
-                            프로그램이 있는 날
-                        </p>
-                    </div>
+                    <BookingCalendar month={bookingMonth} selectedDate={bookingDate} today={today} programs={PROGRAMS} dateLabel={dateLabel} onMonthChange={setBookingMonth} onDateChange={handleDateSelect} />
 
                     {/* 선택 프로그램 및 회차 선택 영역 */}
                     <div className="quick-booking-choices" id="home-booking-programs" data-home-anchor>
@@ -615,52 +446,7 @@ export default function HomePage() {
                                 {programsOnBookingDate.map((prog: any) => {
                                     const available = canSelectProgram(prog) && bookingDate >= today;
                                     const isSelected = selectedProgramId === prog.id;
-                                    const posterSrc = mediaPath(prog.image);
-
-                                    return (
-                                        <button
-                                            key={prog.id}
-                                            id={`home-booking-program-${prog.id}`}
-                                            data-home-anchor
-                                            type="button"
-                                            className={`quick-program${isSelected ? " is-selected" : ""}`}
-                                            onClick={() => handleProgramSelect(prog)}
-                                            aria-pressed={isSelected}
-                                            disabled={!available}
-                                        >
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img
-                                                src={posterSrc}
-                                                alt=""
-                                                width="90"
-                                                height="120"
-                                                loading="lazy"
-                                                onError={(e) => {
-                                                    const target = e.currentTarget;
-                                                    if (!target.dataset.fallback) {
-                                                        target.dataset.fallback = "true";
-                                                        target.src = mediaPath();
-                                                    }
-                                                }}
-                                            />
-                                            <span className="quick-program-copy">
-                                                <span className="quick-program-category">
-                                                    {prog.category} ·{" "}
-                                                    {available
-                                                        ? prog.status
-                                                        : bookingDate < today
-                                                        ? "지난 일정"
-                                                        : prog.status}
-                                                </span>
-                                                <strong>{prog.title}</strong>
-                                                <span>{prog.venue}</span>
-                                                <span>{prog.times?.join(" · ")}</span>
-                                            </span>
-                                            <span className="quick-program-check" aria-hidden="true">
-                                                {isSelected ? "✓" : "+"}
-                                            </span>
-                                        </button>
-                                    );
+                                    return <BookingProgramChoice key={prog.id} program={prog} selected={isSelected} available={available} past={bookingDate < today} onSelect={() => handleProgramSelect(prog)} />;
                                 })}
                             </div>
                         ) : (
@@ -674,9 +460,7 @@ export default function HomePage() {
                         )}
 
                         <div className="quick-selection-fields" id="home-booking-options" data-home-anchor role="group" aria-label="회차와 인원 선택">
-                            <label htmlFor="quick-time">
-                                회차
-                                <select
+                            <SystemField as="select" label="회차"
                                     id="quick-time"
                                     value={selectedTime}
                                     onChange={(e) => setSelectedTime(e.target.value)}
@@ -690,11 +474,8 @@ export default function HomePage() {
                                             {t}
                                         </option>
                                     ))}
-                                </select>
-                            </label>
-                            <label htmlFor="quick-participants">
-                                인원
-                                <select
+                                </SystemField>
+                            <SystemField as="select" label="인원"
                                     id="quick-participants"
                                     value={participants}
                                     onChange={(e) => setParticipants(Number(e.target.value))}
@@ -705,8 +486,7 @@ export default function HomePage() {
                                             {count}명
                                         </option>
                                     ))}
-                                </select>
-                            </label>
+                                </SystemField>
                         </div>
 
                         <div className="quick-booking-action" id="home-booking-action" data-home-anchor>
@@ -722,13 +502,13 @@ export default function HomePage() {
                                 )}
                             </p>
                             {isBookingValid ? (
-                                <Link className="button button--dark" href={bookingDestinationUrl}>
+                                <SystemLink className="button button--dark" href={bookingDestinationUrl}>
                                     {bookingButtonLabel} <Icon name="arrow" size={20} />
-                                </Link>
+                                </SystemLink>
                             ) : (
-                                <button className="button button--dark" type="button" disabled>
+                                <SystemButton className="button button--dark" type="button" disabled>
                                     예매·신청
-                                </button>
+                                </SystemButton>
                             )}
                         </div>
                     </div>
@@ -751,7 +531,7 @@ export default function HomePage() {
                 <div className="program-filter-row">
                     <div className="program-choice" id="home-program-filters" data-home-anchor role="group" aria-label="프로그램 분류">
                         {categories.map((cat) => (
-                            <button
+                            <SystemFilterButton selected={selectedCategory === cat}
                                 key={cat}
                                 id={`home-program-category-${programCategoryIds[cat]}`}
                                 data-home-anchor
@@ -761,7 +541,7 @@ export default function HomePage() {
                                 aria-pressed={selectedCategory === cat}
                             >
                                 {cat}
-                            </button>
+                            </SystemFilterButton>
                         ))}
                     </div>
                     <Link className="calendar-link" href="/programs?view=calendar" id="home-program-calendar" data-home-anchor>
@@ -785,15 +565,7 @@ export default function HomePage() {
                 </div>
 
 
-                <Link href="/programs/season" className="home-season-link" id="home-season-programs" data-home-anchor>
-                    <span>
-                        <strong>한 편에서 시작하는, 나만의 시즌.</strong>
-                        <span>세종시즌부터 Sync Next까지, 취향을 넓히는 기획 프로그램</span>
-                    </span>
-                    <span>
-                        기획·시즌 살펴보기 <Icon name="arrow" size={22} />
-                    </span>
-                </Link>
+                <SeasonBanner />
             </section>
 
             {/* 5. 방문 안내와 호버 미리보기 (Visit Guide with Photographic Previews) */}
@@ -886,7 +658,7 @@ export default function HomePage() {
                     <div>
                         <div className="home-news-filters" id="home-news-filters" data-home-anchor role="group" aria-label="소식 분류">
                             {newsCategories.map((cat) => (
-                                <button
+                                <SystemFilterButton selected={newsCategory === cat}
                                     key={cat}
                                     id={`home-news-category-${newsCategoryIds[cat]}`}
                                     data-home-anchor
@@ -895,13 +667,13 @@ export default function HomePage() {
                                     aria-pressed={newsCategory === cat}
                                 >
                                     {cat}
-                                </button>
+                                </SystemFilterButton>
                             ))}
                         </div>
                         <div className="news-editorial-list" id="home-news-results" data-home-anchor>
                             {filteredNotices.map((notice) => (
                                 <Link key={notice.id} href={`/news/notices/${notice.id}`} id={`home-notice-${notice.id}`} data-home-anchor>
-                                    <span className="news-category">{notice.category}</span>
+                                    <SystemBadge appearance="plain" className="news-category">{notice.category}</SystemBadge>
                                     <h3>{notice.title}</h3>
                                     <time dateTime={notice.date}>
                                         {notice.date.replaceAll("-", ".")}

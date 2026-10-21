@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { SystemBadge, SystemButton, SystemFilterButton, SystemLink } from "../../components/SystemPrimitives";
 import { showToast } from "../../components/Toast";
 import type { UserProfile, BookingRecord } from "../../types/sejong.ts";
 import { PROGRAMS } from "../../src/data/catalog";
@@ -56,6 +57,7 @@ export default function AccountPage() {
         }
     };
 
+    // [계정 메뉴와 예매 조작 / Shared account selectors and booking actions]
     return (
         <div className="flow-page account-page">
             {/* 상단 페이지 헤딩 */}
@@ -79,27 +81,30 @@ export default function AccountPage() {
             <div className="container page-content flow-content">
                 {/* 계정 네비게이션 */}
                 <nav className="account-nav" aria-label="계정 메뉴">
-                    <button
-                        type="button"
+                    <SystemFilterButton
+                        context="flow"
+                        selected={activeTab === "dashboard"}
                         className={activeTab === "dashboard" ? "active" : ""}
                         onClick={() => setActiveTab("dashboard")}
                     >
                         마이페이지
-                    </button>
-                    <button
-                        type="button"
+                    </SystemFilterButton>
+                    <SystemFilterButton
+                        context="flow"
+                        selected={activeTab === "bookings"}
                         className={activeTab === "bookings" ? "active" : ""}
                         onClick={() => setActiveTab("bookings")}
                     >
                         예매내역 ({bookings.length})
-                    </button>
-                    <button
-                        type="button"
+                    </SystemFilterButton>
+                    <SystemFilterButton
+                        context="flow"
+                        selected={activeTab === "favorites"}
                         className={activeTab === "favorites" ? "active" : ""}
                         onClick={() => setActiveTab("favorites")}
                     >
                         관심 프로그램 ({favorites.length})
-                    </button>
+                    </SystemFilterButton>
                 </nav>
 
                 {/* 대시보드 환영 영역 */}
@@ -117,17 +122,17 @@ export default function AccountPage() {
                         </p>
                     </div>
                     {isLoggedIn ? (
-                        <button
-                            type="button"
-                            className="button button--outline"
+                        <SystemButton
+                            context="flow"
+                            variant="secondary"
                             onClick={handleLogout}
                         >
                             로그아웃
-                        </button>
+                        </SystemButton>
                     ) : (
-                        <Link href="/account/login" className="button button--dark">
+                        <SystemLink href="/account/login" context="flow">
                             로그인
-                        </Link>
+                        </SystemLink>
                     )}
                 </section>
 
@@ -135,6 +140,7 @@ export default function AccountPage() {
                 <div className="account-stats">
                     <button
                         type="button"
+                        data-system-part="account-statistic"
                         className="account-stat-card"
                         onClick={() => setActiveTab("bookings")}
                     >
@@ -151,6 +157,7 @@ export default function AccountPage() {
 
                     <button
                         type="button"
+                        data-system-part="account-statistic"
                         className="account-stat-card"
                         onClick={() => setActiveTab("favorites")}
                     >
@@ -187,9 +194,9 @@ export default function AccountPage() {
                             확인해 보세요.
                         </p>
                     </div>
-                    <Link className="button button--dark" href="/programs">
+                    <SystemLink context="flow" href="/programs">
                         프로그램 둘러보기 →
-                    </Link>
+                    </SystemLink>
                 </div>
 
                 {/* 예매 내역 목록 */}
@@ -212,9 +219,9 @@ export default function AccountPage() {
                                             />
                                             <div className="account-booking__body">
                                                 <div className="flow-record-top">
-                                                    <span className={`flow-tag ${isCancelled ? "is-muted" : ""}`}>
+                                                    <SystemBadge tone={isCancelled ? "neutral" : "info"} className={`flow-tag ${isCancelled ? "is-muted" : ""}`}>
                                                         {isCancelled ? "취소 완료" : "예매 완료"}
-                                                    </span>
+                                                    </SystemBadge>
                                                     <small>{booking.id}</small>
                                                 </div>
                                                 <Link href={`/programs/${booking.programId}`}>
@@ -227,13 +234,14 @@ export default function AccountPage() {
                                                     좌석: {booking.seats.join(", ")} · {booking.total.toLocaleString()}원
                                                 </p>
                                                 {!isCancelled && (
-                                                    <button
-                                                        type="button"
+                                                    <SystemButton
+                                                        context="flow"
+                                                        variant="quiet"
                                                         className="flow-text-button"
                                                         onClick={() => handleCancelBooking(booking.id)}
                                                     >
                                                         예매 취소
-                                                    </button>
+                                                    </SystemButton>
                                                 )}
                                             </div>
                                         </article>
@@ -243,9 +251,9 @@ export default function AccountPage() {
                         ) : (
                             <div className="empty-state">
                                 <p>아직 예매한 프로그램이 없습니다.</p>
-                                <Link className="button button--dark" href="/programs">
+                                <SystemLink context="flow" href="/programs">
                                     프로그램 둘러보기 →
-                                </Link>
+                                </SystemLink>
                             </div>
                         )}
                     </section>
@@ -271,7 +279,7 @@ export default function AccountPage() {
                                             />
                                             <div className="account-booking__body">
                                                 <div className="flow-record-top">
-                                                    <span className="flow-tag">{program.category}</span>
+                                                    <SystemBadge className="flow-tag">{program.category}</SystemBadge>
                                                     <small>{program.venue}</small>
                                                 </div>
                                                 <Link href={`/programs/${program.id}`}>
@@ -288,9 +296,9 @@ export default function AccountPage() {
                         ) : (
                             <div className="empty-state">
                                 <p>아직 관심 목록에 담은 프로그램이 없습니다.</p>
-                                <Link className="button button--dark" href="/programs">
+                                <SystemLink context="flow" href="/programs">
                                     프로그램 둘러보기 →
-                                </Link>
+                                </SystemLink>
                             </div>
                         )}
                     </section>

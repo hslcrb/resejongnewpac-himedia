@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { SystemButton, SystemField, SystemNotice } from "../../../components/SystemPrimitives";
 import { showToast } from "../../../components/Toast";
 
 export default function RecoveryPage() {
@@ -35,6 +36,7 @@ export default function RecoveryPage() {
         }
     };
 
+    // [계정 공통 조작 / Shared account form controls]
     return (
         <div className="flow-page account-page">
             <section className="page-heading" id="page-heading">
@@ -64,36 +66,34 @@ export default function RecoveryPage() {
                     </div>
 
                     {errorMessage && (
-                        <div className="flow-error" id="flow-error" role="alert" tabIndex={-1}>
+                        <SystemNotice variant="flow" error className="flow-error" id="flow-error" tabIndex={-1}>
                             {errorMessage}
-                        </div>
+                        </SystemNotice>
                     )}
 
-                    <div className="form-field">
-                        <label htmlFor="flow-email">
-                            이메일 <span className="flow-required" aria-hidden="true">*</span>
-                            <span className="sr-only">필수</span>
-                        </label>
-                        <input
-                            id="flow-email"
-                            name="email"
-                            required
-                            autoComplete="email"
-                            type="email"
-                            placeholder="visitor@example.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                        />
-                    </div>
+                    <SystemField
+                        variant="flow"
+                        outerClassName="form-field"
+                        label={<>이메일 <span className="flow-required" aria-hidden="true">*</span>
+                            <span className="sr-only">필수</span></>}
+                        id="flow-email"
+                        name="email"
+                        required
+                        autoComplete="email"
+                        type="email"
+                        placeholder="visitor@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
 
-                    <button className="button button--dark flow-button-full" type="submit">
+                    <SystemButton context="flow" className="flow-button-full" type="submit">
                         계정 정보 확인
-                    </button>
+                    </SystemButton>
 
                     {recoveryResult && (
-                        <div className="flow-info-box" role="status" tabIndex={-1} style={{ marginTop: "1rem" }}>
+                        <SystemNotice variant="flow" className="flow-info-box" tabIndex={-1} style={{ marginTop: "1rem" }}>
                             {recoveryResult}
-                        </div>
+                        </SystemNotice>
                     )}
 
                     <div className="account-auth-links">

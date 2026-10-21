@@ -1,24 +1,14 @@
-export type GlassOptions = {
-    opacity: number;
-    refraction: number;
-    blur: number;
-    thickness: number;
-};
-export type GlassVariant = "surface" | "drawer";
+import { GLASS_MATERIALS } from "../data/design-tokens.ts";
+import type { GlassMaterial, GlassMaterialVariant } from "../data/design-tokens.ts";
+
+export type GlassOptions = { -readonly [Property in keyof GlassMaterial]: GlassMaterial[Property] };
+export type GlassVariant = GlassMaterialVariant;
 
 // [공통 유리의 재질 / Shared glass material]
-export const GLASS_DEFAULTS: Readonly<GlassOptions> = Object.freeze({
-    opacity: 0.82,
-    refraction: 64,
-    blur: 18,
-    thickness: 32,
-});
+export const GLASS_DEFAULTS: Readonly<GlassOptions> = GLASS_MATERIALS.surface;
 
 // [용도에 따른 재질 베리언트 / Material variants by purpose]
-export const GLASS_VARIANTS: Readonly<Record<GlassVariant, Readonly<GlassOptions>>> = Object.freeze({
-    surface: GLASS_DEFAULTS,
-    drawer: Object.freeze({ opacity: 0.94, refraction: 96, blur: 24, thickness: 40 }),
-});
+export const GLASS_VARIANTS: Readonly<Record<GlassVariant, Readonly<GlassOptions>>> = GLASS_MATERIALS;
 
 export function resolveGlassOptions(options: Partial<GlassOptions>, variant: GlassVariant = "surface"): GlassOptions {
     const defaults = GLASS_VARIANTS[variant];

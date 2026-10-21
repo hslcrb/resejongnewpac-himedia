@@ -142,10 +142,10 @@ try {
             await page.getByRole("button", { name: "전체 메뉴 체험하기" }).click();
             await page.locator('.glass-menu[data-phase="open"]').waitFor();
             await page.waitForFunction(
-                () => document.querySelectorAll(".liquid-glass feImage[href]").length === 2,
+                () => document.querySelectorAll(".ds-glass-example feImage[href], .glass-menu feImage[href]").length === 2,
             );
             const state = await page.evaluate(() => {
-                const filters = [...document.querySelectorAll(".liquid-glass filter")].map(
+                const filters = [...document.querySelectorAll(".ds-glass-example filter, .glass-menu filter")].map(
                     (el) => el.id,
                 );
                 return {

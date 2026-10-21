@@ -9,6 +9,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Icon from "./Icon";
+import { SystemButton } from "./SystemPrimitives";
 import { showToast } from "./Toast";
 import ContextMenuStyles from "./ContextMenu.module.css";
 
@@ -173,7 +174,8 @@ export default function ContextMenu() {
             style={{ left: menu.x, top: menu.y }}
         >
             <div className={ContextMenuStyles.list}>
-                <button
+                <SystemButton variant="quiet"
+                    style={{ justifyContent: "flex-start" }}
                     type="button"
                     role="menuitem"
                     className={ContextMenuStyles.item}
@@ -181,9 +183,10 @@ export default function ContextMenu() {
                 >
                     <Icon name="refresh" size={20} />
                     새로 고침
-                </button>
+                </SystemButton>
                 {actions.map((action) => (
-                    <button
+                    <SystemButton variant="quiet"
+                        style={{ justifyContent: "flex-start" }}
                         key={action.label}
                         type="button"
                         role="menuitem"
@@ -195,9 +198,10 @@ export default function ContextMenu() {
                     >
                         <Icon name={action.icon} size={20} />
                         {action.label}
-                    </button>
+                    </SystemButton>
                 ))}
-                <button
+                <SystemButton variant="quiet"
+                    style={{ justifyContent: "flex-start" }}
                     type="button"
                     role="menuitem"
                     className={ContextMenuStyles.item}
@@ -206,8 +210,9 @@ export default function ContextMenu() {
                 >
                     <Icon name="undo" size={20} />
                     이전 페이지로
-                </button>
-                <button
+                </SystemButton>
+                <SystemButton variant="quiet"
+                    style={{ justifyContent: "flex-start" }}
                     type="button"
                     role="menuitem"
                     className={ContextMenuStyles.item}
@@ -215,7 +220,7 @@ export default function ContextMenu() {
                 >
                     <Icon name="home" size={20} />
                     홈으로
-                </button>
+                </SystemButton>
             </div>
             {linkLocation && (
                 <>

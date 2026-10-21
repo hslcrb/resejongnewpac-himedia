@@ -58,7 +58,7 @@ function HeroCompanion() {
                 </ul>
             </section>
 
-            <LiquidGlass className="hero-time-glass" opacity={0.84} refraction={72} blur={20} thickness={28}>
+            <LiquidGlass className="hero-time-glass" variant="hero">
                 <div className="hero-clock-heading">
                     <span>현재 시각 · 서울</span>
                     <Icon name="clock" size={22} />

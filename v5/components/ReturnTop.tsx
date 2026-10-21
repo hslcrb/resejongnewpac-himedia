@@ -1,5 +1,6 @@
 "use client";
 
+import { SystemIconButton } from "./SystemPrimitives";
 import React, { useState, useEffect } from "react";
 
 export default function ReturnTop() {
@@ -28,7 +29,8 @@ export default function ReturnTop() {
     if (!visible) return null;
 
     return (
-        <button
+        <SystemIconButton
+            variant="secondary"
             className="return-top is-visible"
             type="button"
             aria-label="맨 위로 이동"
@@ -45,6 +47,6 @@ export default function ReturnTop() {
             >
                 <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z" />
             </svg>
-        </button>
+        </SystemIconButton>
     );
 }

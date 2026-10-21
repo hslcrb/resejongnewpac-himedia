@@ -1,12 +1,6 @@
 /* [상호 참고 색상과 위계 / Cross-reference color and hierarchy]
    작품이 색을 이끌고 인터페이스는 흑백과 충분한 여백을 사용합니다.
    Artwork carries color; the interface uses neutral surfaces and clear spacing. */
-:root {
-    --radius: 0.625rem;
-    --radius-media: 0.75rem;
-    --radius-banner: 1rem;
-    --section-gap: clamp(5rem, 7vw, 7rem);
-}
 
 .section-description {
     margin: 1rem 0 0;

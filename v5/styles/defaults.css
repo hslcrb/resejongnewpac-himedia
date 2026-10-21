@@ -1,52 +1,6 @@
 /* [읽기와 조작의 기본값 / Readability and interaction defaults]
    새 화면은 이 크기 체계를 사용하고 보조 정보를 16px 미만으로 줄이지 않습니다.
    New screens use this scale; supporting text never drops below 1rem. */
-:root {
-    --text-sm: 1rem;
-    --text-body: 1rem;
-    --text-lead: 1.125rem;
-    --text-action: 1.25rem;
-    --text-item-title: 1.25rem;
-    --text-subheading: 1.5rem;
-    --text-card-title: 1.25rem;
-    --text-meta: 1rem;
-    --text-heading: clamp(1.75rem, 2.5vw, 2rem);
-    --text-title: clamp(2.25rem, 3.5vw, 3rem);
-    --text-display: clamp(2.5rem, 5vw, 4rem);
-    --weight-body: 400;
-    --weight-label: 500;
-    --weight-action: 600;
-    --weight-title: 700;
-    --weight-heading: 700;
-    --leading-body: 1.7;
-    --leading-label: 1.5;
-    --leading-heading: 1.25;
-    --tracking-body: -0.015em;
-    --tracking-heading: -0.035em;
-    --control-size: 3rem;
-    --shortcut-size: 4rem;
-    --radius-dialog: 1.5rem;
-    --space-1: 0.25rem;
-    --space-2: 0.5rem;
-    --space-3: 0.75rem;
-    --space-4: 1rem;
-    --space-5: 1.25rem;
-    --space-6: 1.5rem;
-    --space-8: 2rem;
-    --space-10: 2.5rem;
-    --space-12: 3rem;
-    --space-16: 4rem;
-    --space-20: 5rem;
-    --space-24: 6rem;
-    --state-hover: #f0f2f4;
-    --state-pressed: #e1e5e9;
-    --focus-color: #08779a;
-    --feedback-duration: 160ms;
-    --duration-fast: 120ms;
-    --duration-feedback: 180ms;
-    --duration-panel: 320ms;
-    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
-}
 
 html {
     font-size: 100%;
@@ -76,10 +30,4 @@ small {
 :focus-visible {
     outline: 3px solid var(--focus-color);
     outline-offset: 4px;
-}
-
-@media (max-width: 600px) {
-    :root {
-        --text-action: 1.25rem;
-    }
 }

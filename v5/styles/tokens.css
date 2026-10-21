@@ -1,3 +1,6 @@
+/* [v5 디자인 토큰 / v5 design tokens]
+   src/data/design-tokens.ts에서 생성됩니다. / Generated from src/data/design-tokens.ts.
+   node scripts/sync-design-tokens.ts --check */
 @font-face {
     font-family: "Wanted Sans Variable";
     src: url("/v5/assets/fonts/woff2/WantedSansVariable.woff2") format("woff2-variations"),
@@ -10,49 +13,34 @@
 }
 
 :root {
-    /* =========================================================================
-       01. Primitives: 기존 브랜드 5색과 현재 중립색 3색 (색상 원본값)
-       ========================================================================= */
     --color-black: #000000;
     --color-sky: #54C8E8;
-    --color-yellow: #f7d549;
+    --color-yellow: #F7D549;
     --color-ochre: #C36D15;
     --color-white: #FFFFFF;
     --color-gray-050: #F7F7F5;
     --color-gray-300: #D9D9D4;
     --color-gray-600: #626262;
-
-    /* =========================================================================
-       02. Semantic: 원본 색을 var()로 참조하는 20개 역할 변수
-       ========================================================================= */
     --background-page: var(--color-gray-050);
     --surface-default: var(--color-white);
     --surface-subtle: var(--color-gray-050);
     --surface-inverse: var(--color-black);
-
     --text-primary: var(--color-black);
     --text-secondary: var(--color-gray-600);
     --text-inverse: var(--color-white);
     --text-on-brand: var(--color-black);
-
     --border-default: var(--color-gray-300);
     --border-strong: var(--color-gray-600);
     --border-focus: var(--color-black);
-
     --action-primary: var(--color-black);
     --action-primary-hover: var(--color-gray-600);
     --action-secondary: var(--color-sky);
     --action-tertiary: var(--color-white);
     --action-disabled: var(--color-gray-300);
     --action-disabled-text: var(--color-gray-600);
-
     --accent-highlight: var(--color-yellow);
     --accent-heritage: var(--color-ochre);
     --accent-information: var(--color-sky);
-
-    /* =========================================================================
-       03. UI 컴포넌트 호환 Alias (sejong-color-guide.html 토큰 기반 연동)
-       ========================================================================= */
     --paper: var(--surface-default);
     --paper-subtle: var(--surface-subtle);
     --soft: var(--background-page);
@@ -61,7 +49,6 @@
     --muted: var(--text-secondary);
     --line: var(--border-default);
     --line-subtle: var(--border-default);
-
     --primary: var(--action-primary);
     --primary-foreground: var(--text-inverse);
     --accent: var(--accent-highlight);
@@ -71,8 +58,6 @@
     --human: var(--color-yellow);
     --yellow: var(--human);
     --yellow-dark: color-mix(in srgb, var(--human) 90%, #000000);
-
-    /* 상태 피드백: 불필요한 원색 형광을 배제하고 브랜드 및 그레이 톤으로 정합 */
     --semantic-success: var(--text-primary);
     --semantic-success-subtle: var(--surface-subtle);
     --semantic-success-border: var(--border-strong);
@@ -85,40 +70,86 @@
     --semantic-info: var(--color-sky);
     --semantic-info-subtle: var(--surface-subtle);
     --semantic-info-border: var(--border-default);
-
-    /* 레이아웃 & 반응형 여백 & 곡률 & 애니메이션 토큰 */
+    --text-display: clamp(2.5rem, 5vw, 4rem);
+    --text-title: clamp(2.25rem, 3.5vw, 3rem);
+    --text-heading: clamp(1.75rem, 2.5vw, 2rem);
+    --text-subheading: 1.5rem;
+    --text-item-title: 1.25rem;
+    --text-lead: 1.125rem;
+    --text-body: 1rem;
+    --text-sm: 1rem;
+    --text-action: 1.25rem;
+    --text-card-title: 1.25rem;
+    --text-meta: 1rem;
+    --text-menu-link: var(--text-lead);
+    --text-menu-group: var(--text-subheading);
+    --weight-body: 400;
+    --weight-label: 500;
+    --weight-action: 600;
+    --weight-title: 700;
+    --weight-heading: 700;
+    --leading-body: 1.7;
+    --leading-label: 1.5;
+    --leading-heading: 1.25;
+    --tracking-body: -0.015em;
+    --tracking-heading: -0.035em;
+    --font: "Wanted Sans Variable", "Wanted Sans", -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    --font-sans: var(--font);
+    --display-font: var(--font);
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.25rem;
+    --space-6: 1.5rem;
+    --space-8: 2rem;
+    --space-10: 2.5rem;
+    --space-12: 3rem;
+    --space-16: 4rem;
+    --space-20: 5rem;
+    --space-24: 6rem;
     --container: 1320px;
     --page-gutter: clamp(20px, 4vw, 64px);
-    --section-gap: clamp(72px, 8vw, 128px);
-
-    --radius: 8px;
-    --radius-media: 16px;
-    --radius-banner: 24px;
+    --section-gap: clamp(5rem, 7vw, 7rem);
+    --control-size: 3rem;
+    --shortcut-size: 4rem;
+    --control-flow-button-size: 50px;
+    --control-flow-field-size: 54px;
+    --radius: 0.625rem;
+    --radius-media: 0.75rem;
+    --radius-banner: 1rem;
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 16px;
+    --radius-control: 8px;
+    --radius-flow: 9px;
+    --radius-dialog: 24px;
     --radius-pill: 9999px;
-
-    /* [떠 있는 유리 표면 / Floating glass surface]
-       원래 흰색과 검정의 투명도만 사용합니다. / Only the existing white and black are used. */
+    --state-hover: #f0f2f4;
+    --state-pressed: #e1e5e9;
+    --focus-color: #08779a;
+    --focus-width: 3px;
+    --focus-offset: 4px;
+    --feedback-duration: 160ms;
+    --duration-fast: 120ms;
+    --duration-feedback: 180ms;
+    --duration-panel: 320ms;
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
     --glass-opacity: 0.82;
-    --glass-tint: rgb(255 255 255 / var(--glass-opacity));
-    --glass-blur: 18px;
     --glass-refraction: 64;
+    --glass-blur: 18px;
     --glass-thickness: 32px;
     --glass-drawer-opacity: 0.94;
     --glass-drawer-refraction: 96;
     --glass-drawer-blur: 24px;
     --glass-drawer-thickness: 40px;
+    --glass-hero-opacity: 0.84;
+    --glass-hero-refraction: 72;
+    --glass-hero-blur: 20px;
+    --glass-hero-thickness: 28px;
+    --glass-tint: rgb(255 255 255 / var(--glass-opacity));
     --glass-saturation: 1.4;
     --glass-edge: rgb(255 255 255 / 88%);
     --glass-shadow: 0 24px 80px rgb(0 0 0 / 18%), 0 4px 16px rgb(0 0 0 / 9%);
-    --text-menu-link: var(--text-lead);
-    --text-menu-group: var(--text-subheading);
-
-    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-
-    --font: "Wanted Sans Variable", "Wanted Sans", -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
-    --font-sans: var(--font);
-    --display-font: var(--font);
 }

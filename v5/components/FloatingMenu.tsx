@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import type { RefObject } from "react";
 import Icon from "./Icon";
 import FloatingPanel from "./FloatingPanel";
+import { SystemDisclosure } from "./SystemNavigation";
 import { NAV } from "../src/data/catalog";
 import type { PanelPoint } from "../src/lib/floating-panel";
 import { PANEL_DRAWER_QUERY } from "../src/lib/floating-panel";
@@ -61,17 +62,19 @@ export default function FloatingMenu({
                 </div>
                 <nav className="glass-menu-columns" aria-label="전체 메뉴">
                     {NAV.map((group) => drawer ? (
-                        <details className="glass-menu-group" key={group.id}>
-                            <summary>
-                                {group.title} <Icon name="chevron" size={24} />
-                            </summary>
+                        <SystemDisclosure
+                            appearance="plain"
+                            className="glass-menu-group"
+                            key={group.id}
+                            summary={<>{group.title} <Icon name="chevron" size={24} /></>}
+                        >
                             <div className="glass-menu-group-links">
                                 <a className="glass-menu-overview" href={`/v5${group.path}/`}>{group.title} 전체</a>
                                 {group.items.map(([label, path]) => (
                                     <a key={path} href={`/v5${path}/`}>{label}</a>
                                 ))}
                             </div>
-                        </details>
+                        </SystemDisclosure>
                     ) : (
                         <div key={group.id}>
                             <a className="glass-menu-title" href={`/v5${group.path}/`}>

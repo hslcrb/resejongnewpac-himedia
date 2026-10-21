@@ -1,5 +1,6 @@
 "use client";
 
+import { SystemButton, SystemIconButton } from "./SystemPrimitives";
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { ReactNode, RefObject } from "react";
 import { createPortal } from "react-dom";
@@ -133,7 +134,9 @@ function PanelSurface({
                         <h2 id={`${labelId}-heading`}>{title}</h2>
                     </div>
                     <div className="glass-menu-actions">
-                        {variant === "floating" && <button
+                        {variant === "floating" && <SystemButton
+                            variant={moveMode ? "primary" : "quiet"}
+                            shape="pill"
                             type="button"
                             className="glass-menu-move"
                             data-panel-move
@@ -151,16 +154,15 @@ function PanelSurface({
                                 aria-hidden="true"
                             />
                             <span>이동</span>
-                        </button>}
-                        <button
+                        </SystemButton>}
+                        <SystemIconButton
                             ref={closeRef}
                             type="button"
-                            className="round-button"
                             onClick={onClose}
                             aria-label={closeLabel}
                         >
                             <Icon name="close" size={24} />
-                        </button>
+                        </SystemIconButton>
                     </div>
                 </div>
                 <p id={`${labelId}-move-help`} className="sr-only">

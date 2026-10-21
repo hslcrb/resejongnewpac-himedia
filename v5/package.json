@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "predev": "node scripts/prepare-design-system.ts",
     "dev": "next dev",
-    "prebuild": "node scripts/clean-build.ts",
+    "prebuild": "node scripts/prepare-design-system.ts --build",
     "build": "next build",
     "postbuild": "node scripts/sync-out.ts",
     "start": "next start",
@@ -13,7 +14,9 @@
     "test:orb:gallery": "node tests/violet-quick-menu-gallery.cjs",
     "test:orb:smoke": "node tests/violet-quick-menu-smoke.cjs",
     "test:orb:motion": "node tests/violet-fur-motion.cjs",
-    "test:home:anchors": "node tests/home-anchors.cjs"
+    "test:home:anchors": "node tests/home-anchors.cjs",
+    "check:system": "node scripts/prepare-design-system.ts --check",
+    "test:system:browser": "node tests/component-system-browser.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

@@ -60,14 +60,17 @@
     line-height: 1.7;
 }
 
-.flow-page .form-field label {
+/* [보존 폼의 범위 / Legacy form scope]
+   공통 필드의 규격과 상태는 system-primitives.css만 소유합니다.
+   Shared field dimensions and states belong to system-primitives.css. */
+.flow-page .form-field:not([data-component="field"]) label {
     font-size: var(--text-sm);
     font-weight: 600;
 }
 
-.flow-page .form-field input:not([type="checkbox"]):not([type="radio"]),
-.flow-page .form-field select,
-.flow-page .form-field textarea {
+.flow-page .form-field:not([data-component="field"]) input:not([type="checkbox"]):not([type="radio"]),
+.flow-page .form-field:not([data-component="field"]) select,
+.flow-page .form-field:not([data-component="field"]) textarea {
     min-height: 54px;
     padding: 14px 16px;
     border: 1px solid #a8adb4;
@@ -79,20 +82,20 @@
     line-height: 1.5;
 }
 
-.flow-page .form-field input:not([type="checkbox"]):not([type="radio"]):focus,
-.flow-page .form-field select:focus,
-.flow-page .form-field textarea:focus {
+.flow-page .form-field:not([data-component="field"]) input:not([type="checkbox"]):not([type="radio"]):focus,
+.flow-page .form-field:not([data-component="field"]) select:focus,
+.flow-page .form-field:not([data-component="field"]) textarea:focus {
     outline: 2px solid var(--ink);
     outline-offset: 3px;
     border-color: var(--ink);
 }
 
-.flow-page .form-field [aria-invalid="true"] {
+.flow-page .form-field:not([data-component="field"]) [aria-invalid="true"] {
     border-color: #b42318;
     outline-color: #b42318;
 }
 
-.flow-page .form-field small {
+.flow-page .form-field:not([data-component="field"]) small {
     color: var(--muted);
     font-size: var(--text-sm);
 }

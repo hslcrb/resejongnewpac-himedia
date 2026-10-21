@@ -56,9 +56,13 @@
     pointer-events: auto;
 }
 
-.season-actions .button {
+.season-actions :is(.button, .ds-button) {
     min-height: var(--control-size);
     padding: var(--space-3) var(--space-6);
+}
+
+.season-slide[data-layout="standalone"] .season-copy {
+    width: 100%;
 }
 
 .season-actions .season-booking-button {
@@ -279,7 +283,7 @@
         gap: var(--space-2);
     }
 
-    .season-actions .button {
+    .season-actions :is(.button, .ds-button) {
         flex: 1;
         padding-inline: var(--space-3);
     }

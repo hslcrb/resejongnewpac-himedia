@@ -1,0 +1,17 @@
+import { spawnSync } from "node:child_process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+// [실행 전 디자인 계약 확인 / Prepare the design contract before serving or building]
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const check = process.argv.includes("--check");
+const tasks = [
+    ["sync-design-tokens.ts", ...(check ? ["--check"] : [])],
+    ["audit-component-system.ts", check ? "--check" : "--write"],
+    ...(process.argv.includes("--build") ? [["clean-build.ts"]] : []),
+];
+for (const [script, ...args] of tasks) {
+    const result = spawnSync(process.execPath, [path.join(root, "scripts", script), ...args], { cwd: root, stdio: "inherit" });
+    if (result.error) throw result.error;
+    if (result.status !== 0) process.exit(result.status || 1);
+}

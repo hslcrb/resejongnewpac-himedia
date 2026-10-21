@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import type { Program } from "../../../types/sejong.ts";
 import { showToast } from "../../../components/Toast";
+import { SystemBadge, SystemButton, SystemField, SystemLink } from "../../../components/SystemPrimitives";
 
 interface BookingClientProps {
     program: Program;
@@ -74,9 +75,9 @@ export default function BookingClient({ program }: BookingClientProps) {
 
             <header style={{ marginBottom: "2rem" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                    <span style={{ fontSize: "0.8rem", padding: "3px 10px", background: "var(--accent-information)", color: "var(--text-on-brand)", borderRadius: "9999px", fontWeight: 700 }}>
+                    <SystemBadge tone="info">
                         ONLINE BOOKING
-                    </span>
+                    </SystemBadge>
                     <span style={{ fontSize: "0.85rem", color: "var(--text-secondary)" }}>{program.venue}</span>
                 </div>
                 <h1 style={{ fontSize: "1.8rem", fontWeight: 800, color: "var(--text-primary)", margin: 0, letterSpacing: "-0.03em" }}>
@@ -130,44 +131,33 @@ export default function BookingClient({ program }: BookingClientProps) {
                         <div style={{ background: "var(--surface-default)", border: "1px solid var(--border-default)", borderRadius: "12px", padding: "2rem" }}>
                             <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--text-primary)", margin: "0 0 1rem 0" }}>관람 일시 선택</h3>
                             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1.5rem" }}>
-                                <div>
-                                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "0.4rem" }}>관람 날짜</label>
-                                    <input
-                                        type="date"
-                                        value={selectedDate}
-                                        onChange={(e) => setSelectedDate(e.target.value)}
-                                        style={{ width: "100%", padding: "0.6rem", border: "1px solid var(--border-strong)", borderRadius: "6px", background: "var(--surface-default)", color: "var(--text-primary)" }}
-                                    />
-                                </div>
-                                <div>
-                                    <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, color: "var(--text-secondary)", marginBottom: "0.4rem" }}>회차 시간</label>
-                                    <select
-                                        value={selectedTime}
-                                        onChange={(e) => setSelectedTime(e.target.value)}
-                                        style={{ width: "100%", padding: "0.6rem", border: "1px solid var(--border-strong)", borderRadius: "6px", background: "var(--surface-default)", color: "var(--text-primary)" }}
-                                    >
-                                        <option value="15:00">1회차 (15:00)</option>
-                                        <option value="19:30">2회차 (19:30)</option>
-                                    </select>
-                                </div>
+                                <SystemField
+                                    variant="flow"
+                                    id="booking-date"
+                                    label="관람 날짜"
+                                    type="date"
+                                    value={selectedDate}
+                                    onChange={(e) => setSelectedDate(e.target.value)}
+                                />
+                                <SystemField
+                                    as="select"
+                                    variant="flow"
+                                    id="booking-time"
+                                    label="회차 시간"
+                                    value={selectedTime}
+                                    onChange={(e) => setSelectedTime(e.target.value)}
+                                >
+                                    <option value="15:00">1회차 (15:00)</option>
+                                    <option value="19:30">2회차 (19:30)</option>
+                                </SystemField>
                             </div>
-                            <button
-                                type="button"
+                            <SystemButton
+                                context="flow"
                                 onClick={() => setStep(2)}
-                                style={{
-                                    width: "100%",
-                                    padding: "0.85rem",
-                                    fontSize: "1rem",
-                                    fontWeight: 700,
-                                    background: "var(--action-primary)",
-                                    color: "var(--text-inverse)",
-                                    border: "none",
-                                    borderRadius: "6px",
-                                    cursor: "pointer",
-                                }}
+                                style={{ width: "100%" }}
                             >
                                 다음: 좌석 선택하기 →
-                            </button>
+                            </SystemButton>
                         </div>
                     )}
 
@@ -195,6 +185,8 @@ export default function BookingClient({ program }: BookingClientProps) {
                                                 <button
                                                     key={seat}
                                                     type="button"
+                                                    data-system-part="seat"
+                                                    aria-pressed={active}
                                                     onClick={() => toggleSeat(seat)}
                                                     style={{
                                                         width: "36px",
@@ -218,39 +210,22 @@ export default function BookingClient({ program }: BookingClientProps) {
                             </div>
 
                             <div style={{ display: "flex", gap: "1rem" }}>
-                                <button
-                                    type="button"
+                                <SystemButton
+                                    context="flow"
+                                    variant="secondary"
                                     onClick={() => setStep(1)}
-                                    style={{
-                                        flex: 1,
-                                        padding: "0.8rem",
-                                        border: "1px solid var(--border-strong)",
-                                        borderRadius: "6px",
-                                        background: "var(--surface-default)",
-                                        color: "var(--text-primary)",
-                                        cursor: "pointer",
-                                        fontWeight: 600,
-                                    }}
+                                    style={{ flex: 1 }}
                                 >
                                     이전
-                                </button>
-                                <button
-                                    type="button"
+                                </SystemButton>
+                                <SystemButton
+                                    context="flow"
                                     disabled={selectedSeats.length === 0}
                                     onClick={() => setStep(3)}
-                                    style={{
-                                        flex: 2,
-                                        padding: "0.8rem",
-                                        border: "none",
-                                        borderRadius: "6px",
-                                        background: selectedSeats.length === 0 ? "var(--action-disabled)" : "var(--action-primary)",
-                                        color: selectedSeats.length === 0 ? "var(--action-disabled-text)" : "var(--text-inverse)",
-                                        cursor: selectedSeats.length === 0 ? "not-allowed" : "pointer",
-                                        fontWeight: 700,
-                                    }}
+                                    style={{ flex: 2 }}
                                 >
                                     선택 완료 (결제 단계로) →
-                                </button>
+                                </SystemButton>
                             </div>
                         </div>
                     )}
@@ -283,39 +258,21 @@ export default function BookingClient({ program }: BookingClientProps) {
                             </div>
 
                             <div style={{ display: "flex", gap: "1rem" }}>
-                                <button
-                                    type="button"
+                                <SystemButton
+                                    context="flow"
+                                    variant="secondary"
                                     onClick={() => setStep(2)}
-                                    style={{
-                                        flex: 1,
-                                        padding: "0.85rem",
-                                        border: "1px solid var(--border-strong)",
-                                        borderRadius: "6px",
-                                        background: "var(--surface-default)",
-                                        color: "var(--text-primary)",
-                                        cursor: "pointer",
-                                        fontWeight: 600,
-                                    }}
+                                    style={{ flex: 1 }}
                                 >
                                     좌석 다시 선택
-                                </button>
-                                <button
-                                    type="button"
+                                </SystemButton>
+                                <SystemButton
+                                    context="flow"
                                     onClick={handleCompleteBooking}
-                                    style={{
-                                        flex: 2,
-                                        padding: "0.85rem",
-                                        fontSize: "1.05rem",
-                                        fontWeight: 700,
-                                        background: "var(--action-primary)",
-                                        color: "var(--text-inverse)",
-                                        border: "none",
-                                        borderRadius: "6px",
-                                        cursor: "pointer",
-                                    }}
+                                    style={{ flex: 2 }}
                                 >
                                     예매 확정하기 ✓
-                                </button>
+                                </SystemButton>
                             </div>
                         </div>
                     )}
@@ -333,32 +290,19 @@ export default function BookingClient({ program }: BookingClientProps) {
                         선택하신 좌석({selectedSeats.join(", ")})으로 예매 정보가 안전하게 저장되었습니다.
                     </p>
                     <div style={{ display: "flex", justifyContent: "center", gap: "1rem" }}>
-                        <Link
+                        <SystemLink
+                            context="flow"
                             href="/account"
-                            style={{
-                                padding: "0.85rem 1.5rem",
-                                background: "var(--action-primary)",
-                                color: "var(--text-inverse)",
-                                borderRadius: "6px",
-                                textDecoration: "none",
-                                fontWeight: 700,
-                            }}
                         >
                             예매 내역 확인하기 →
-                        </Link>
-                        <Link
+                        </SystemLink>
+                        <SystemLink
+                            context="flow"
+                            variant="secondary"
                             href="/programs"
-                            style={{
-                                padding: "0.85rem 1.25rem",
-                                border: "1px solid var(--border-strong)",
-                                borderRadius: "6px",
-                                color: "var(--text-primary)",
-                                textDecoration: "none",
-                                fontWeight: 600,
-                            }}
                         >
                             다른 프로그램 둘러보기
-                        </Link>
+                        </SystemLink>
                     </div>
                 </div>
             )}

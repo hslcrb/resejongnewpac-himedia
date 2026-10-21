@@ -1,5 +1,6 @@
 "use client";
 
+import { SystemBadge, SystemIconButton } from "./SystemPrimitives";
 import React from "react";
 import Link from "next/link";
 import type { Program } from "../types/sejong.ts";
@@ -54,9 +55,9 @@ export default function ProgramCard({ program }: ProgramCardProps) {
                             }
                         }}
                     />
-                    <span className="poster-tag">
+                    <SystemBadge tone="info" className="poster-tag">
                         {program.category || "공연"}
-                    </span>
+                    </SystemBadge>
                 </div>
 
                 <div className="program-card-meta">
@@ -74,15 +75,16 @@ export default function ProgramCard({ program }: ProgramCardProps) {
             </Link>
 
             <div className="card-poster-actions">
-                <button
+                <SystemIconButton
+                    variant={isFavorite ? "highlight" : "secondary"}
                     type="button"
-                    className={`favorite-button round-button ${isFavorite ? "selected" : ""}`}
+                    className={`favorite-button ${isFavorite ? "selected" : ""}`}
                     onClick={handleFavorite}
                     aria-pressed={isFavorite}
                     aria-label={`${program.title} 관심 프로그램 ${isFavorite ? "해제" : "등록"}`}
                 >
                     <Icon name="heart" filled={isFavorite} size={24} />
-                </button>
+                </SystemIconButton>
             </div>
         </article>
     );

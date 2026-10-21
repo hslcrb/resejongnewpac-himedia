@@ -182,12 +182,13 @@ try {
         assert.ok(await page.getByRole("region", { name: "리퀴드 글래스 재질 베리언트" }).count());
         assert.ok((await page.locator(".ds-code-block").allTextContents()).some(code => code.includes('variant="drawer"')));
     });
-    await check("home uses the requested static headings and three filled participation cards", async () => {
+    await check("home preserves its headings, shared invitation and three filled participation cards", async () => {
         await page.goto(base, { waitUntil: "networkidle" });
         for (const [id, text] of [["quick-booking-heading", "관람 예약"], ["discover-heading", "관람 일정"], ["visit-heading", "오시는 길"]]) {
             assert.equal(await page.locator("#" + id).textContent(), text);
         }
-        assert.equal(await page.locator(".booking-invitation-letter").count(), 0);
+        assert.equal(await page.locator("#quick-booking-heading").getAttribute("aria-label"), "관람 예약");
+        assert.equal(await page.locator("#quick-booking-heading .booking-invitation-letter").count(), 4);
         for (const width of [390, 1440]) {
             await page.setViewportSize({ width, height: 1000 });
             await page.locator(".home-participation").scrollIntoViewIfNeeded();

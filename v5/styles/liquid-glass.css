@@ -22,6 +22,14 @@
     --glass-thickness: var(--glass-drawer-thickness);
 }
 
+/* [히어로 정보의 유리 / Glass for hero information] */
+.liquid-glass[data-glass-variant="hero"] {
+    --glass-opacity: var(--glass-hero-opacity);
+    --glass-refraction: var(--glass-hero-refraction);
+    --glass-blur: var(--glass-hero-blur);
+    --glass-thickness: var(--glass-hero-thickness);
+}
+
 .glass-lens-definitions {
     position: absolute;
     pointer-events: none;

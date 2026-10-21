@@ -1,171 +1,3 @@
-/* [실제 화면과 가이드가 공유하는 조작 / Shared product and guide primitives]
-   기존 팔레트와 16px 본문, 48px 조작 영역을 사용합니다.
-   Use the existing palette, a 16px base and 48px control targets. */
-.ds-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    min-height: var(--control-size);
-    padding: 10px 20px;
-    border: 1px solid transparent;
-    border-radius: var(--radius-md);
-    font: 600 1rem/1.5 var(--font);
-    letter-spacing: var(--tracking-body);
-    text-decoration: none;
-    cursor: pointer;
-    transition: background-color var(--duration-feedback) var(--ease-standard), color var(--duration-feedback) var(--ease-standard), border-color var(--duration-feedback) var(--ease-standard);
-}
-
-.ds-button-primary {
-    color: var(--text-inverse);
-    background: var(--action-primary);
-}
-
-.ds-button-primary:hover {
-    background: var(--action-primary-hover);
-}
-
-.ds-button-secondary {
-    color: var(--text-primary);
-    background: var(--surface-default);
-    border-color: var(--border-strong);
-}
-
-.ds-button-secondary:hover,
-.ds-button-quiet:hover {
-    background: var(--surface-subtle);
-}
-
-.ds-button-accent {
-    color: var(--text-on-brand);
-    background: var(--action-secondary);
-}
-
-.ds-button-accent:hover {
-    border-color: var(--border-strong);
-}
-
-.ds-button-quiet {
-    color: var(--text-primary);
-    background: transparent;
-}
-
-.ds-button:active:not(:disabled) {
-    filter: brightness(88%);
-}
-
-.ds-button:disabled {
-    color: var(--action-disabled-text);
-    background: var(--action-disabled);
-    border-color: var(--action-disabled);
-    cursor: not-allowed;
-}
-
-.ds-field {
-    display: grid;
-    align-content: start;
-    gap: var(--space-2);
-    min-width: 0;
-}
-
-.ds-field label {
-    color: var(--text-primary);
-    font-size: 1rem;
-    font-weight: var(--weight-label);
-}
-
-.ds-field label span {
-    font-weight: 400;
-}
-
-.ds-field input,
-.ds-select,
-.ds-textarea {
-    width: 100%;
-    min-width: 0;
-    min-height: var(--control-size);
-    padding: 11px 14px;
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-md);
-    color: var(--text-primary);
-    background: var(--surface-default);
-    font: 400 1rem/1.5 var(--font);
-}
-
-.ds-field input::placeholder,
-.ds-textarea::placeholder {
-    color: var(--text-secondary);
-    opacity: 100%;
-}
-
-.ds-field input:disabled {
-    color: var(--text-secondary);
-    background: var(--surface-subtle);
-}
-
-.ds-field input[aria-invalid="true"] {
-    border-width: 1px;
-    border-color: var(--text-primary);
-    box-shadow: inset 0 0 0 1px var(--text-primary);
-}
-
-.ds-field .ds-field-hint,
-.ds-field .ds-field-error {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-2);
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 1rem;
-    line-height: 1.5;
-}
-
-.ds-field .ds-field-error {
-    color: var(--text-primary);
-    font-weight: 500;
-}
-
-.ds-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 10px;
-    border-radius: var(--radius-sm);
-    color: var(--text-primary);
-    background: var(--surface-subtle);
-    font: 500 1rem/1.5 var(--font);
-}
-
-.ds-badge-highlight {
-    background: var(--accent-highlight);
-}
-
-.ds-badge-info {
-    background: var(--accent-information);
-}
-
-.ds-notice {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-3);
-    padding: var(--space-5);
-    border: 1px solid var(--border-default);
-    border-radius: var(--radius-md);
-    background: var(--surface-default);
-}
-
-.ds-notice strong {
-    display: block;
-    font-size: 1rem;
-    line-height: 1.5;
-}
-
-.ds-notice p {
-    margin: 6px 0 0;
-    color: var(--text-secondary);
-    font-size: 1rem;
-}
-
 /* [문서 탐색과 읽기 영역 / Documentation navigation and reading area]
    왼쪽 분류, 가운데 문서, 오른쪽 현재 문서 목차를 분리합니다.
    Keep chapter navigation, the document and its local outline distinct. */
@@ -828,7 +660,8 @@
     border-bottom: 1px solid var(--border-default);
 }
 
-.ds-specimen-controls label {
+.ds-specimen-controls .ds-field {
+    grid-template-columns: auto 1fr;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -937,74 +770,6 @@
 }
 
 .ds-icon-grid span {
-    font-size: 1rem;
-}
-
-.ds-check {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 48px;
-    font-size: 1rem;
-    cursor: pointer;
-}
-
-.ds-check input {
-    width: 20px;
-    height: 20px;
-    margin: 0;
-    accent-color: var(--text-primary);
-}
-
-.ds-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-    border-bottom: 1px solid var(--border-default);
-}
-
-.ds-tabs button {
-    min-width: 48px;
-    min-height: 48px;
-    padding: 8px 0;
-    border: 0;
-    border-bottom: 2px solid transparent;
-    color: var(--text-secondary);
-    background: transparent;
-    font-size: 1rem;
-}
-
-.ds-tabs button[aria-selected="true"] {
-    border-bottom-color: var(--text-primary);
-    color: var(--text-primary);
-    font-weight: 700;
-}
-
-.ds-tabpanel {
-    min-height: 110px;
-    padding: 24px 0;
-    color: var(--text-secondary);
-    font-size: 1rem;
-}
-
-.ds-disclosure {
-    border-top: 1px solid var(--border-default);
-    border-bottom: 1px solid var(--border-default);
-    background: var(--surface-default);
-}
-
-.ds-disclosure summary {
-    min-height: 56px;
-    padding: 16px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.ds-disclosure p {
-    margin: 0;
-    padding: 0 16px 20px;
-    color: var(--text-secondary);
     font-size: 1rem;
 }
 
@@ -1380,12 +1145,6 @@
 
     .ds-dialog {
         padding: 20px;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .ds-button {
-        transition: none;
     }
 }
 

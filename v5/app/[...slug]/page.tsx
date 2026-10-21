@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { SystemLink } from "../../components/SystemPrimitives";
 import { PAGES, NAV, VENUES, NOTICES } from "../../src/data/catalog";
 import { PageMeta } from "../../types/sejong.ts";
 
@@ -119,20 +120,9 @@ export default function CatalogDynamicPage({
                             <dd style={{ margin: 0, color: "var(--text-primary)" }}>{venueMatch.description}</dd>
                         </dl>
                         <div style={{ marginTop: "2rem" }}>
-                            <Link
-                                href="/rental/guide"
-                                style={{
-                                    display: "inline-block",
-                                    padding: "0.8rem 1.5rem",
-                                    background: "var(--action-primary)",
-                                    color: "var(--text-inverse)",
-                                    borderRadius: "6px",
-                                    textDecoration: "none",
-                                    fontWeight: 700,
-                                }}
-                            >
+                            <SystemLink href="/rental/guide">
                                 대관 신청 및 가이드 보기 →
-                            </Link>
+                            </SystemLink>
                         </div>
                     </div>
                 ) : noticeMatch ? (
@@ -170,12 +160,9 @@ export default function CatalogDynamicPage({
                             세종문화회관의 서비스와 공간을 페이지별로 정리한 안내입니다.
                         </p>
                         <div style={{ marginTop: "1.5rem" }}>
-                            <Link
-                                href="/programs"
-                                className="button button--dark"
-                            >
+                            <SystemLink href="/programs" variant="primary">
                                 프로그램 보러가기 →
-                            </Link>
+                            </SystemLink>
                         </div>
                     </div>
                 )}

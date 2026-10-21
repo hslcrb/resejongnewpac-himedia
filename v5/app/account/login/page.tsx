@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { SystemButton, SystemCheckbox, SystemField, SystemNotice } from "../../../components/SystemPrimitives";
 import { useRouter } from "next/navigation";
 import { showToast } from "../../../components/Toast";
 
@@ -55,6 +56,7 @@ export default function LoginPage() {
         }
     };
 
+    // [계정 공통 조작 / Shared account form controls]
     return (
         <div className="flow-page account-page">
             <section className="page-heading" id="page-heading">
@@ -103,65 +105,57 @@ export default function LoginPage() {
                         </p>
 
                         {errorMessage && (
-                            <div className="flow-error" id="flow-error" role="alert" tabIndex={-1}>
+                            <SystemNotice variant="flow" error className="flow-error" id="flow-error" tabIndex={-1}>
                                 {errorMessage}
-                            </div>
+                            </SystemNotice>
                         )}
 
-                        <div className="form-field">
-                            <label htmlFor="flow-name">
-                                이름 <span className="flow-required" aria-hidden="true">*</span>
-                                <span className="sr-only">필수</span>
-                            </label>
-                            <input
-                                id="flow-name"
-                                name="name"
-                                required
-                                autoComplete="name"
-                                maxLength={40}
-                                type="text"
-                                placeholder="이름을 입력해 주세요"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                            />
-                        </div>
+                        <SystemField
+                            variant="flow"
+                            outerClassName="form-field"
+                            label={<>이름 <span className="flow-required" aria-hidden="true">*</span>
+                                <span className="sr-only">필수</span></>}
+                            id="flow-name"
+                            name="name"
+                            required
+                            autoComplete="name"
+                            maxLength={40}
+                            type="text"
+                            placeholder="이름을 입력해 주세요"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
 
-                        <div className="form-field">
-                            <label htmlFor="flow-email">
-                                이메일 <span className="flow-required" aria-hidden="true">*</span>
-                                <span className="sr-only">필수</span>
-                            </label>
-                            <input
-                                id="flow-email"
-                                name="email"
-                                required
-                                autoComplete="email"
-                                type="email"
-                                placeholder="visitor@example.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
+                        <SystemField
+                            variant="flow"
+                            outerClassName="form-field"
+                            label={<>이메일 <span className="flow-required" aria-hidden="true">*</span>
+                                <span className="sr-only">필수</span></>}
+                            id="flow-email"
+                            name="email"
+                            required
+                            autoComplete="email"
+                            type="email"
+                            placeholder="visitor@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
 
-                        <label className="flow-consent">
-                            <input
-                                name="consent"
-                                type="checkbox"
-                                required
-                                checked={consent}
-                                onChange={(e) => setConsent(e.target.checked)}
-                            />
-                            <span>
-                                개인정보 수집 및 이용에 동의합니다. <strong>(필수)</strong>
-                            </span>
-                        </label>
+                        <SystemCheckbox
+                            className="flow-consent"
+                            label={<span>개인정보 수집 및 이용에 동의합니다. <strong>(필수)</strong></span>}
+                            name="consent"
+                            required
+                            checked={consent}
+                            onChange={(e) => setConsent(e.target.checked)}
+                        />
 
-                        <button className="button button--dark flow-button-full" type="submit">
+                        <SystemButton context="flow" className="flow-button-full" type="submit">
                             로그인
                             <svg className="material-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                 <path d="M5 12h14M12 5l7 7-7 7" />
                             </svg>
-                        </button>
+                        </SystemButton>
 
                         <div className="account-auth-links">
                             <Link href="/account/signup">회원가입</Link>

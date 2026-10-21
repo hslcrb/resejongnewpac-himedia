@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SystemField } from "./SystemPrimitives";
 
 export default function Footer() {
     const router = useRouter();
@@ -85,13 +86,12 @@ export default function Footer() {
                             loading="lazy"
                         />
                     </a>
-                    <label htmlFor="family-site" className="sr-only">관련 페이지</label>
-                    <select id="family-site" data-home-anchor onChange={handleFamilySiteChange} defaultValue="">
+                    <SystemField as="select" label="관련 페이지" labelHidden id="family-site" data-home-anchor onChange={handleFamilySiteChange} defaultValue="">
                         <option value="">패밀리 사이트</option>
                         <option value="/about/companies">서울시예술단</option>
                         <option value="/programs/education">세종예술아카데미</option>
                         <option value="/programs/history">세종·충무공 이야기</option>
-                    </select>
+                    </SystemField>
                     <a className="version-link" href="/" id="footer-versions" data-home-anchor>
                         전체 버전 비교 ↗
                     </a>
