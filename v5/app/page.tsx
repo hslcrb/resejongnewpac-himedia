@@ -7,6 +7,7 @@ import ProgramCard from "../components/ProgramCard";
 import Icon from "../components/Icon";
 import VioletQuickMenu from "../components/VioletQuickMenu";
 import HomeAnchorNavigation from "../components/HomeAnchorNavigation";
+import BookingInvitation from "../components/BookingInvitation";
 import {
     seoulToday,
     monthDates,
@@ -501,7 +502,7 @@ export default function HomePage() {
                 <div className="section-heading">
                     <div>
                         <p className="home-section-label">날짜로 찾는 예술</p>
-                        <h2 id="quick-booking-heading">언제 만나볼까요?</h2>
+                        <BookingInvitation />
                         <p className="section-description">관람할 날을 고르면, 그날의 예술이 보여요.</p>
                     </div>
                     <Link className="text-link" href="/programs?view=calendar" id="home-booking-full-calendar" data-home-anchor>

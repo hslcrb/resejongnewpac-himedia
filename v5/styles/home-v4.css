@@ -70,6 +70,19 @@
     line-height: 1.7;
 }
 
+/* [제자리에서 인사하는 예매 제목 / A booking heading that greets in place]
+   단어의 줄바꿈을 유지하고 글자 변형은 합성 레이어에서만 처리합니다.
+   Preserve word wrapping while animating individual letters with transforms. */
+.booking-invitation-word {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.booking-invitation-letter {
+    display: inline-block;
+    transform-origin: 50% 75%;
+}
+
 /* [날짜와 프로그램 선택 / Date and program selection]
    달력은 안정된 높이를 유지하고 프로그램 목록만 내부에서 스크롤합니다.
    Keep a stable calendar area while the program list scrolls independently. */
