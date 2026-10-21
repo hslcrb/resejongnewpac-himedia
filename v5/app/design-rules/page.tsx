@@ -7,6 +7,7 @@ import Icon from "../../components/Icon";
 import BookingInvitation from "../../components/BookingInvitation";
 import ProgramCard from "../../components/ProgramCard";
 import FloatingMenu from "../../components/FloatingMenu";
+import LiquidGlassDemo from "../../components/LiquidGlassDemo";
 import type { PanelPoint } from "../../src/lib/floating-panel";
 import { PROGRAMS } from "../../src/data/catalog";
 import type { Program } from "../../types/sejong";
@@ -1096,6 +1097,42 @@ export default function DesignRulesPage() {
                             </>,
                         )}
                         {section(
+                            "liquid-glass",
+                            "리퀴드 글래스",
+                            <>
+                                <p>
+                                    <code className="ds-token">LiquidGlass</code>는 실제 배경을
+                                    굴절시키는 공통 표면 컴포넌트입니다. 불투명한 중심과 맑게
+                                    굴절되는 가장자리를 나누고, 반사광과 안쪽 음영으로 유리의 두께를
+                                    표현합니다. 안에 넣은 글자와 버튼은 선명하게 유지합니다.
+                                </p>
+                                <LiquidGlassDemo
+                                    onCopy={(code) => copyValue(code, "리퀴드 글래스 코드")}
+                                    copied={copied === "리퀴드 글래스 코드"}
+                                />
+                                <DataTable
+                                    label="LiquidGlass 컴포넌트 속성"
+                                    headings={["속성", "기본값", "역할"]}
+                                    rows={[
+                                        ["opacity", "0.82", "흰 유리의 불투명도 · 0–1"],
+                                        ["refraction", "64", "굴절 강도 · 0–120"],
+                                        ["blur", "18", "중심부 배경 흐림 · 0–40px"],
+                                        ["thickness", "32", "굴절되는 가장자리의 두께 · 1–64px"],
+                                        [
+                                            "children / ref / HTML 속성",
+                                            "기본 div와 동일",
+                                            "콘텐츠·초점·위치·이벤트 연결",
+                                        ],
+                                    ]}
+                                />
+                                <p className="ds-caption">
+                                    기본값은 디자인 토큰을 따릅니다. 속성을 지정하면 해당 표면만
+                                    바뀌며, 전체 메뉴도 같은 컴포넌트를 사용합니다. 고대비·투명도
+                                    감소 설정에서는 불투명한 흰 표면으로 전환합니다.
+                                </p>
+                            </>,
+                        )}
+                        {section(
                             "floating-menu",
                             "떠 있는 유리 메뉴",
                             <>
@@ -1143,7 +1180,16 @@ export default function DesignRulesPage() {
                                         ],
                                         ["설명·개인 서비스", "16px · 400–500", "--text-sm"],
                                         ["모서리", "24px", "--radius-dialog"],
-                                        ["유리 바탕", "흰색 68% + 방향성 반사광", "--glass-tint"],
+                                        [
+                                            "유리 바탕",
+                                            "흰색 82% + 방향성 반사광",
+                                            "--glass-opacity / --glass-tint",
+                                        ],
+                                        [
+                                            "굴절·두께",
+                                            "굴절 64 · 가장자리 32px",
+                                            "--glass-refraction / --glass-thickness",
+                                        ],
                                         [
                                             "배경 흐림",
                                             "18px · 채도 1.4배",
@@ -1151,7 +1197,7 @@ export default function DesignRulesPage() {
                                         ],
                                         [
                                             "테두리·그림자",
-                                            "흰색 78% · 겹쳐진 높이",
+                                            "흰색 88% · 겹쳐진 높이",
                                             "--glass-edge / --glass-shadow",
                                         ],
                                     ]}

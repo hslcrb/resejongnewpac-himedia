@@ -1,0 +1,96 @@
+/* [공통 리퀴드 글래스 / Shared liquid glass]
+   맑은 굴절 테두리와 불투명한 중심을 분리합니다. / Separate the clear refracting rim from the frosted center. */
+.liquid-glass {
+    --glass-tint: rgb(255 255 255 / var(--glass-opacity));
+    position: relative;
+    z-index: 0;
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--radius-dialog);
+    color: var(--text-primary);
+    background: transparent;
+    box-shadow:
+        var(--glass-shadow),
+        inset 0 1px 0 rgb(255 255 255 / 98%),
+        inset 0 -2px 1px rgb(0 0 0 / 12%);
+}
+
+.glass-lens-definitions {
+    position: absolute;
+    pointer-events: none;
+}
+
+.liquid-glass-optics {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+        linear-gradient(
+            140deg,
+            rgb(255 255 255 / 32%),
+            transparent 38%,
+            rgb(255 255 255 / 8%) 66%,
+            rgb(255 255 255 / 28%)
+        ),
+        var(--glass-tint);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+    backdrop-filter: var(--glass-filter, blur(var(--glass-blur))) saturate(var(--glass-saturation));
+}
+
+/* [안쪽 반사와 모서리의 두께 / Inner reflection and the beveled edge] */
+.liquid-glass-optics::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow:
+        inset 0 0 14px rgb(255 255 255 / 70%),
+        inset 2px 2px 3px rgb(255 255 255 / 90%),
+        inset -2px -3px 5px rgb(0 0 0 / 12%);
+}
+.liquid-glass-optics::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+        120deg,
+        rgb(255 255 255 / 98%),
+        transparent 26%,
+        rgb(255 255 255 / 56%) 48%,
+        transparent 72%,
+        rgb(255 255 255 / 90%)
+    );
+    padding: 2px;
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .liquid-glass-optics {
+        background: var(--surface-default);
+    }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+    .liquid-glass-optics {
+        background: var(--surface-default);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+    .liquid-glass-optics::before,
+    .liquid-glass-optics::after {
+        display: none;
+    }
+    .liquid-glass {
+        border-color: var(--text-primary);
+    }
+}

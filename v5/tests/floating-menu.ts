@@ -37,9 +37,9 @@ async function open() {
     if (!(await panel().count())) await trigger().click();
     await panel().waitFor();
     await page.waitForFunction(() =>
-        getComputedStyle(document.querySelector(".glass-menu-optics")!).backdropFilter.includes(
-            "url(",
-        ),
+        getComputedStyle(
+            document.querySelector(".glass-menu .liquid-glass-optics")!,
+        ).backdropFilter.includes("url("),
     );
 }
 async function drag(target: Locator, dx: number, dy: number) {
@@ -103,8 +103,15 @@ try {
                     .querySelector(".glass-lens-definitions feImage")!
                     .getAttribute("href")!
                     .startsWith("data:image/png"),
-                filter: getComputedStyle(document.querySelector(".glass-menu-optics")!)
-                    .backdropFilter,
+                blur: document
+                    .querySelector(".glass-menu feGaussianBlur")!
+                    .getAttribute("stdDeviation"),
+                refraction: document
+                    .querySelector(".glass-menu feDisplacementMap")!
+                    .getAttribute("scale"),
+                filter: getComputedStyle(
+                    document.querySelector(".glass-menu .liquid-glass-optics")!,
+                ).backdropFilter,
                 sizes: [
                     ".glass-menu-header h2",
                     ".glass-menu-title",
@@ -121,7 +128,9 @@ try {
                 ),
             }));
             assert.equal(state.lens, true);
-            assert.match(state.filter, /url\(.+blur\(18px\)/);
+            assert.match(state.filter, /url\(/);
+            assert.equal(state.blur, "18");
+            assert.equal(state.refraction, "64");
             assert.deepEqual(state.sizes, [48, 24, 18]);
             assert.equal(state.targets, true);
         },
@@ -243,7 +252,7 @@ try {
     );
     await check("high contrast uses an opaque readable surface", async () => {
         await page.emulateMedia({ contrast: "more" });
-        const state = await page.locator(".glass-menu-optics").evaluate((el) => ({
+        const state = await page.locator(".glass-menu .liquid-glass-optics").evaluate((el) => ({
             filter: getComputedStyle(el).backdropFilter,
             background: getComputedStyle(el).backgroundColor,
         }));

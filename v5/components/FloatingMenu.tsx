@@ -4,7 +4,7 @@ import { useEffect, useId, useRef } from "react";
 import type { RefObject } from "react";
 import { createPortal } from "react-dom";
 import Icon from "./Icon";
-import GlassRefraction from "./GlassRefraction";
+import LiquidGlass from "./LiquidGlass";
 import useFloatingPanel from "./useFloatingPanel";
 import { NAV } from "../src/data/catalog";
 import type { PanelPoint } from "../src/lib/floating-panel";
@@ -39,7 +39,7 @@ export default function FloatingMenu({
     }, [returnFocus]);
 
     return createPortal(
-        <div
+        <LiquidGlass
             className="glass-menu"
             id="menu-dialog"
             role="dialog"
@@ -48,8 +48,6 @@ export default function FloatingMenu({
             data-move-mode={moveMode || undefined}
             ref={panelRef}
         >
-            <GlassRefraction panelRef={panelRef} />
-            <div className="glass-menu-optics" aria-hidden="true" />
             <div className="glass-menu-header">
                 <div>
                     <p className="glass-menu-brand">세종문화회관</p>
@@ -132,7 +130,7 @@ export default function FloatingMenu({
                     </a>
                 </nav>
             </div>
-        </div>,
+        </LiquidGlass>,
         document.body,
     );
 }

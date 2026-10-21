@@ -1015,6 +1015,28 @@
     font-size: 1rem;
 }
 
+/* [공통 유리 컴포넌트의 실제 예제 / Live example of the shared glass component] */
+.ds-glass-stage {
+    position: relative;
+    display: grid;
+    align-items: center;
+    min-height: 400px;
+    padding: clamp(16px, 4vw, 48px);
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: var(--surface-subtle);
+}
+.ds-glass-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ds-glass-example { width: 100%; padding: clamp(24px, 3vw, 40px); }
+.ds-glass-component-name { font-size: var(--text-sm); font-weight: var(--weight-label); }
+.ds-glass-example h3 { margin: var(--space-4) 0 var(--space-3); font-size: var(--text-heading); }
+.ds-glass-example p { margin: 0; color: var(--text-primary); }
+.ds-glass-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-6); margin-block: var(--space-6); }
+.ds-glass-controls label { display: flex; justify-content: space-between; gap: var(--space-3); font-size: var(--text-body); font-weight: var(--weight-label); }
+.ds-glass-controls output { font-variant-numeric: tabular-nums; }
+.ds-glass-controls input { width: 100%; min-height: var(--control-size); padding: 0; accent-color: var(--action-primary); }
+@media (max-width: 600px) { .ds-glass-controls { grid-template-columns: 1fr; gap: var(--space-3); } }
+
 .ds-code-block {
     max-height: 440px;
     overflow: auto;
