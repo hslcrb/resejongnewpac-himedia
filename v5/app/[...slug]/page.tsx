@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import CatalogPage from "../../components/CatalogPage";
+import CompletedPage from "../../components/CompletedPage";
+import { isCompletionPath } from "../../src/page-completion/manifest";
 import { PAGES, VENUES, NOTICES } from "../../src/data/catalog";
 import { CATALOG_SNAPSHOT } from "../../src/catalog/snapshot";
 
@@ -43,5 +45,6 @@ export default function CatalogDynamicPage({ params }: { params: { slug: string[
     const path = "/" + params.slug.join("/");
     const known = CATALOG_SNAPSHOT.pages.some(page => page.path === path) || VENUES.some(venue => path === `/visit/spaces/${venue.id}` || path === `/rental/venues/${venue.id}`) || NOTICES.some(notice => path === `/news/notices/${notice.id}`);
     if (!known) notFound();
+    if (isCompletionPath(path)) return <CompletedPage path={path} />;
     return <CatalogPage path={path} />;
 }

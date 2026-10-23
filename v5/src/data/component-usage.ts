@@ -117,12 +117,17 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountDiary",
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
+            "components/CompletedPage.tsx#CardsSection",
+            "components/CompletedPage.tsx#CompletedPage",
+            "components/CompletedPage.tsx#VenueComparison",
             "components/ContextMenu.tsx#ContextMenu",
             "components/FloatingPanel.tsx#PanelSurface",
             "components/HeroCarousel.tsx#HeroCarousel",
             "components/HeroSlide.tsx#HeroSlide",
             "components/HomeBookingControls.tsx#BookingCalendar",
             "components/IntroductionExperience.tsx#IntroductionExperience",
+            "components/ServiceGoods.tsx#ServiceGoods",
+            "components/ServiceRequestForm.tsx#ServiceRequestForm",
             "components/SystemPrimitives.tsx#SystemFilterButton",
             "components/SystemPrimitives.tsx#SystemIconButton"
         ],
@@ -161,8 +166,13 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountTicket",
             "components/CatalogPage.tsx#CatalogPage",
             "components/CatalogPage.tsx#blocks",
+            "components/CompletedPage.tsx#CompletedPage",
+            "components/CompletedPage.tsx#RelatedPrograms",
+            "components/CompletedPage.tsx#VenueComparison",
             "components/HeroSlide.tsx#HeroSlide",
-            "components/IntroductionExperience.tsx#IntroductionExperience"
+            "components/IntroductionExperience.tsx#IntroductionExperience",
+            "components/ServiceGoods.tsx#ServiceGoods",
+            "components/ServiceRequestForm.tsx#ServiceRequestForm"
         ],
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
@@ -192,13 +202,22 @@ export const COMPONENT_USAGE = {
     "checkbox": {
         "status": "product",
         "productUses": [
-            "app/account/signup/page.tsx#SignupPage"
+            "app/account/signup/page.tsx#SignupPage",
+            "components/CompletedPage.tsx#VenueComparison",
+            "components/ServiceRequestForm.tsx#ServiceRequestForm"
         ],
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#renderChapter"
         ]
+    },
+    "completed-page": {
+        "status": "product",
+        "productUses": [
+            "app/[...slug]/page.tsx#CatalogDynamicPage"
+        ],
+        "guideUses": []
     },
     "context-menu": {
         "status": "product",
@@ -212,7 +231,8 @@ export const COMPONENT_USAGE = {
     "control-group": {
         "status": "product",
         "productUses": [
-            "components/CatalogPage.tsx#CatalogPage"
+            "components/CatalogPage.tsx#CatalogPage",
+            "components/CompletedPage.tsx#CompletedPage"
         ],
         "guideUses": [
             "app/design-rules/page.tsx#renderChapter"
@@ -233,7 +253,10 @@ export const COMPONENT_USAGE = {
         "status": "product",
         "productUses": [
             "components/CatalogPage.tsx#blocks",
-            "components/FloatingMenu.tsx#FloatingMenu"
+            "components/CompletedPage.tsx#SectionBody",
+            "components/FloatingMenu.tsx#FloatingMenu",
+            "components/ServiceGoods.tsx#ServiceGoods",
+            "components/ServiceRequestForm.tsx#ServiceRequestForm"
         ],
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
@@ -254,9 +277,14 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#profilePanel",
             "components/AccountPanels.tsx#AccountDiary",
             "components/CatalogPage.tsx#CatalogPage",
+            "components/CompletedPage.tsx#CardsSection",
+            "components/CompletedPage.tsx#RentalCalendar",
+            "components/CompletedPage.tsx#SiteMap",
             "components/Footer.tsx#Footer",
             "components/Header.tsx#Header",
-            "components/HomeBookingControls.tsx#BookingCalendar"
+            "components/HomeBookingControls.tsx#BookingCalendar",
+            "components/ServiceGoods.tsx#ServiceGoods",
+            "components/ServiceRequestForm.tsx#ServiceRequestForm"
         ],
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
@@ -275,7 +303,8 @@ export const COMPONENT_USAGE = {
             "app/page.tsx#HomePage",
             "app/programs/page.tsx#ProgramsPage",
             "components/AccountExperience.tsx#AccountExperience",
-            "components/AccountExperience.tsx#bookingsPanel"
+            "components/AccountExperience.tsx#bookingsPanel",
+            "components/CompletedPage.tsx#CardsSection"
         ],
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample"
@@ -477,7 +506,9 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#AccountExperience",
             "components/AccountExperience.tsx#profilePanel",
             "components/AccountPanels.tsx#AccountDiary",
-            "components/CatalogPage.tsx#CatalogPage"
+            "components/CatalogPage.tsx#CatalogPage",
+            "components/ServiceGoods.tsx#ServiceGoods",
+            "components/ServiceRequestForm.tsx#ServiceRequestForm"
         ],
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
@@ -502,7 +533,8 @@ export const COMPONENT_USAGE = {
             "app/programs/page.tsx#ProgramsPage",
             "components/AccountExperience.tsx#favoritesPanel",
             "components/AccountExperience.tsx#spacePanel",
-            "components/CatalogPage.tsx#CatalogPage"
+            "components/CatalogPage.tsx#CatalogPage",
+            "components/CompletedPage.tsx#RelatedPrograms"
         ],
         "guideUses": [
             "app/design-rules/page.tsx#renderChapter"
@@ -542,6 +574,21 @@ export const COMPONENT_USAGE = {
             "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog"
         ]
     },
+    "service-goods": {
+        "status": "product",
+        "productUses": [
+            "components/CompletedPage.tsx#CompletedPage"
+        ],
+        "guideUses": []
+    },
+    "service-request": {
+        "status": "product",
+        "productUses": [
+            "components/CompletedPage.tsx#CompletedPage",
+            "components/ServiceGoods.tsx#ServiceGoods"
+        ],
+        "guideUses": []
+    },
     "site-shell": {
         "status": "product",
         "productUses": [
@@ -573,7 +620,11 @@ export const COMPONENT_USAGE = {
             "components/BookingDatePreview.tsx#BookingDatePreview",
             "components/CatalogPage.tsx#CatalogPage",
             "components/CatalogPage.tsx#blocks",
-            "components/IntroductionExperience.tsx#IntroductionExperience"
+            "components/CompletedPage.tsx#CompletedPage",
+            "components/CompletedPage.tsx#VenueComparison",
+            "components/IntroductionExperience.tsx#IntroductionExperience",
+            "components/ServiceGoods.tsx#ServiceGoods",
+            "components/ServiceRequestForm.tsx#ServiceRequestForm"
         ],
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
@@ -595,7 +646,8 @@ export const COMPONENT_USAGE = {
         "status": "product",
         "productUses": [
             "app/not-found.tsx#NotFound",
-            "app/page.tsx#HomePage"
+            "app/page.tsx#HomePage",
+            "components/CompletedPage.tsx#CompletedPage"
         ],
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
@@ -614,8 +666,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 47,
-    "product": 47,
+    "total": 50,
+    "product": 50,
     "documentationOnly": 0,
     "unused": 0
 } as const;
