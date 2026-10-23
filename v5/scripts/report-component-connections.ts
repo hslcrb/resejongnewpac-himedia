@@ -3,12 +3,11 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { COMPONENT_REGISTRY } from "../src/data/component-registry.ts";
 import { COMPONENT_COUNTS, COMPONENT_USAGE } from "../src/data/component-usage.ts";
+import { DOCUMENTATION_TOOLS } from "../app/design-rules/_documentation/tools.ts";
 
 // [등록부와 생성된 실제 사용처를 연결하는 감사 보고서 / Audit report connecting the registry and generated usage]
 const root = fileURLToPath(new URL("..", import.meta.url));
 const target = resolve(root, "docs/component-connections.md");
-const baseline = 47;
-const introduced = ["catalog-page", "catalog-provider", "booking-date-preview"];
 const kinds = { ui: "재사용 UI", structure: "구조·페이지 연결", internal: "내부 지원", demo: "문서 도구" };
 const cell = (value: string) => value.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 const code = (value: string) => `\`${cell(value)}\``;
@@ -17,11 +16,8 @@ const usageFor = (id: string) => COMPONENT_USAGE[id as keyof typeof COMPONENT_US
 if (COMPONENT_COUNTS.total !== COMPONENT_REGISTRY.length || COMPONENT_REGISTRY.some(record => !usageFor(record.id))) {
     throw new Error("Component usage is stale. Run node scripts/audit-component-system.ts --write first.");
 }
-const introducedNames = introduced.map(id => {
-    const record = COMPONENT_REGISTRY.find(record => record.id === id);
-    if (!record) throw new Error(`Missing introduced component: ${id}`);
-    return `${record.name} (${code(record.id)})`;
-});
+if (COMPONENT_COUNTS.product !== COMPONENT_COUNTS.total || COMPONENT_COUNTS.documentationOnly || COMPONENT_COUNTS.unused)
+    throw new Error("Every registered product implementation must have a real product use.");
 const totalExamples = COMPONENT_REGISTRY.reduce((count, record) => count + (record.examples?.length || 0), 0);
 
 const rows = COMPONENT_REGISTRY.map(record => {
@@ -53,7 +49,7 @@ const report = `# 컴포넌트 연결 감사
 
 이 문서는 \`scripts/report-component-connections.ts\`가 실제 \`COMPONENT_REGISTRY\`와 생성된 \`COMPONENT_USAGE\`를 import해 만듭니다. UI·토큰·등록부를 수정하지 않습니다.
 
-기준 등록 구현 **${baseline}개**에 이번 범위의 **${introducedNames.join(" · ")} ${introduced.length}개**가 추가되어 현재 **${COMPONENT_COUNTS.total}개**입니다. 제품 연결 ${COMPONENT_COUNTS.product}개, 가이드 전용 ${COMPONENT_COUNTS.documentationOnly}개, 미사용 ${COMPONENT_COUNTS.unused}개입니다. 공식 축·상태의 실물 예시는 ${totalExamples}개입니다.
+활성 제품 등록 구현 **${COMPONENT_COUNTS.total}개**와 실제 제품 연결 **${COMPONENT_COUNTS.product}개**가 일치합니다. 가이드 전용 ${COMPONENT_COUNTS.documentationOnly}개, 미사용 ${COMPONENT_COUNTS.unused}개입니다. 공식 축·상태의 실물 예시는 ${totalExamples}개입니다. 제품 등록부에 연결이 없는 항목이 추가되면 빌드 전 감사가 실패합니다.
 
 제품 사용처는 페이지와 상속 레이아웃에서 도달 가능한 import·렌더 그래프의 즉시 호출자를 최대 3곳 요약합니다. 조건부 분기까지 포함하는 소스 연결 자료이며 모든 경로에서 항상 DOM에 그려진다는 뜻이 아닙니다. 전체 호출자 목록은 \`src/data/component-usage.ts\`에 있습니다.
 
@@ -62,6 +58,16 @@ const report = `# 컴포넌트 연결 감사
 | 이름·ID | 소스·내보내기 | 종류 | 제품 사용처 요약 | 가이드 위치·예시 | 부모·레이아웃 관계 | 공식 축·상태 |
 | --- | --- | --- | --- | --- | --- | --- |
 ${rows.join("\n")}
+
+## 가이드 내부 도구와 퇴역 이력
+
+아래 도구는 제품 컴포넌트가 아니라 이 문서를 작성·조회하는 가이드 내부 구현입니다. 제품 수에서 제외하지만 정확한 소스·export, 가이드 도달 여부, 미등록 도구, 제품으로의 유출을 검사합니다. 새 제품 컴포넌트를 이 목록에 넣어 누락을 숨길 수 없도록 경로를 가이드 내부 디렉터리로 제한합니다.
+
+| 도구 | 소스·내보내기 | 용도 |
+| --- | --- | --- |
+${DOCUMENTATION_TOOLS.map(tool => `| ${code(tool.id)} | ${code(tool.source)}<br>${code(tool.exportName)} | ${tool.purpose} |`).join("\n")}
+
+BookingInvitation은 Deprecated 이력만 남기고 구현·실행 예제·전용 CSS를 제거했습니다. 이전 소스는 Git 이력으로 보존됩니다. 홈의 ‘관람 예약’은 기존 정적 제목을 유지합니다.
 
 ## 재생성 및 검증
 

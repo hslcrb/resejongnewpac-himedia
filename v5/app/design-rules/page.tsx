@@ -4,11 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
 import Link from "next/link";
 import Icon from "../../components/Icon";
-import BookingInvitation from "../../components/BookingInvitation";
 import ProgramCard from "../../components/ProgramCard";
 import FloatingMenu from "../../components/FloatingMenu";
-import LiquidGlassDemo from "../../components/LiquidGlassDemo";
-import ComponentCatalog from "../../components/ComponentCatalog";
+import LiquidGlassDemo from "./_documentation/LiquidGlassDemo";
+import ComponentCatalog from "./_documentation/ComponentCatalog";
 import SystemDialog from "../../components/SystemDialog";
 import { SystemText, textAttributes } from "../../components/SystemText";
 import { SystemSurface } from "../../components/SystemSurface";
@@ -1479,31 +1478,13 @@ export default function DesignRulesPage() {
                             <>
                                 <p data-text="body">
                                     Deprecated - 홈에서 사용을 종료한 이전 글자 모션입니다.
-                                    구현 이력을 확인할 수 있도록 아래 영역에만 보존합니다.
+                                    실행 예제와 구현은 활성 컴포넌트에서 제거했습니다.
                                     현재 홈의 ‘관람 예약’은 스크롤 위치와 관계없이 읽을 수 있는
                                     정적 공통 제목을 사용합니다.
                                 </p>
-                                <div
-                                    className="ds-motion-scene"
-                                    data-lifecycle="deprecated"
-                                    data-scroll-scene
-                                    tabIndex={0}
-                                    role="region"
-                                    aria-label="Deprecated 보존 예제: 글자 등장 효과, 이 영역을 아래로 스크롤하세요"
-                                >
-                                    <p data-text="caption" className="ds-motion-hint">
-                                        이전 모션 보존 예제 · 이 안에서 스크롤
-                                        <Icon name="arrow_downward" size={20} />
-                                    </p>
-                                    <div className="ds-motion-track">
-                                        <BookingInvitation id="design-scroll-title" />
-                                    </div>
-                                </div>
-                                <p data-text="caption" className="ds-caption">
-                                    보존 예제에서만 스크롤 위치에 따라 모션이 진행됩니다.
-                                    동작 줄이기 설정에서는 완성된 제목을 즉시 표시합니다.
-                                    신규 제품 화면에는 이 효과를 사용하지 않습니다.
-                                </p>
+                                <SystemNotice data-lifecycle="deprecated" title="BookingInvitation · Deprecated">
+                                    이전 구현은 Git 이력에서 확인할 수 있습니다. 신규 화면은 SystemText의 정적 제목을 사용합니다.
+                                </SystemNotice>
                                 <div className="ds-inline-links">
                                     <Link data-text="action" href="/">
                                         홈의 정적 관람 예약 제목 보기

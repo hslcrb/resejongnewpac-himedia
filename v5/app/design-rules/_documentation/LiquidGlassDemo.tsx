@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import LiquidGlass from "./LiquidGlass";
-import { SystemButton } from "./SystemPrimitives";
-import { GLASS_DEFAULTS, GLASS_VARIANTS } from "../src/lib/liquid-glass";
-import type { GlassVariant } from "../src/lib/liquid-glass";
+import LiquidGlass from "../../../components/LiquidGlass";
+import { SystemButton } from "../../../components/SystemPrimitives";
+import { GLASS_DEFAULTS, GLASS_VARIANTS } from "../../../src/lib/liquid-glass";
+import type { GlassVariant } from "../../../src/lib/liquid-glass";
 
 // [같은 컴포넌트의 재질 비교 / Compare material settings on the actual component]
 export default function LiquidGlassDemo({
@@ -22,7 +22,7 @@ export default function LiquidGlassDemo({
     // [문서에서만 사용하는 재질 실험 코드 / Material experiment code for documentation only]
     const documentationOnlyCode = `// DOCUMENTATION_ONLY: LiquidGlassDemo 안에서만 사용\n<LiquidGlass variant="${variant}" opacity={${opacity.toFixed(2)}} refraction={${refraction}} blur={${material.blur}} thickness={${material.thickness}}>\n    <p data-text="body">문서 전용 재질 실험</p>\n</LiquidGlass>`;
     return (
-        <div data-component-id="glass-demo" data-component-owner="glass" data-documentation-only>
+        <div data-documentation-tool="glass-demo" data-component-owner="glass">
             <div className="ds-glass-variant">
                 <label data-text="label" htmlFor="glass-variant">재질 베리언트</label>
                 <select id="glass-variant" value={variant} onChange={event => {

@@ -1,34 +1,34 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { COMPONENT_REGISTRY, CONTROL_EXCEPTIONS } from "../src/data/component-registry";
-import { COMPONENT_COUNTS, COMPONENT_USAGE } from "../src/data/component-usage";
-import { HOME_FEATURES } from "../src/data/home-features";
-import { PROGRAMS } from "../src/data/catalog";
-import { mediaPath } from "../src/lib/media";
-import HeroSlide from "./HeroSlide";
-import LiquidGlass from "./LiquidGlass";
-import FloatingPanel from "./FloatingPanel";
-import type { GlassMaterialVariant } from "../src/data/design-tokens";
-import type { PanelVariant } from "../src/lib/floating-panel";
-import HeroCompanion from "./HeroCompanion";
-import SeasonBanner from "./SeasonBanner";
-import { BookingCalendar, BookingProgramChoice } from "./HomeBookingControls";
-import { SystemButton, SystemCheckbox, SystemField, SystemIconButton, SystemLink, SystemFilterButton, SystemBadge, SystemNotice } from "./SystemPrimitives";
-import Icon from "./Icon";
-import AccountMiniRoom from "./AccountMiniRoom";
-import { AccountDiary, AccountMembershipCard, AccountTicket } from "./AccountPanels";
-import { validateAccountNote } from "../src/lib/account-space.ts";
-import type { AccountNote, AccountTheme } from "../src/lib/account-space.ts";
-import { showSmallNotification } from "./SmallNotificationModal";
+import { COMPONENT_REGISTRY, CONTROL_EXCEPTIONS } from "../../../src/data/component-registry";
+import { COMPONENT_COUNTS, COMPONENT_USAGE } from "../../../src/data/component-usage";
+import { HOME_FEATURES } from "../../../src/data/home-features";
+import { PROGRAMS } from "../../../src/data/catalog";
+import { mediaPath } from "../../../src/lib/media";
+import HeroSlide from "../../../components/HeroSlide";
+import LiquidGlass from "../../../components/LiquidGlass";
+import FloatingPanel from "../../../components/FloatingPanel";
+import type { GlassMaterialVariant } from "../../../src/data/design-tokens";
+import type { PanelVariant } from "../../../src/lib/floating-panel";
+import HeroCompanion from "../../../components/HeroCompanion";
+import SeasonBanner from "../../../components/SeasonBanner";
+import { BookingCalendar, BookingProgramChoice } from "../../../components/HomeBookingControls";
+import { SystemButton, SystemCheckbox, SystemField, SystemIconButton, SystemLink, SystemFilterButton, SystemBadge, SystemNotice } from "../../../components/SystemPrimitives";
+import Icon from "../../../components/Icon";
+import AccountMiniRoom from "../../../components/AccountMiniRoom";
+import { AccountDiary, AccountMembershipCard, AccountTicket } from "../../../components/AccountPanels";
+import { validateAccountNote } from "../../../src/lib/account-space.ts";
+import type { AccountNote, AccountTheme } from "../../../src/lib/account-space.ts";
+import { showSmallNotification } from "../../../components/SmallNotificationModal";
 
-import { SystemText } from "./SystemText";
-import { SystemSurface } from "./SystemSurface";
-import { SystemTabs, SystemDisclosure } from "./SystemNavigation";
-import type { SystemControlStyle } from "./SystemPrimitives";
-import type { TextVariant, TextSize } from "./SystemText";
-import type { SystemSurfaceVariant, SystemSurfacePadding, SystemSurfaceRadius } from "./SystemSurface";
-import type { BadgeTone, Appearance, TabOrientation, ComponentExample } from "../src/system/component-contracts";
+import { SystemText } from "../../../components/SystemText";
+import { SystemSurface } from "../../../components/SystemSurface";
+import { SystemTabs, SystemDisclosure } from "../../../components/SystemNavigation";
+import type { SystemControlStyle } from "../../../components/SystemPrimitives";
+import type { TextVariant, TextSize } from "../../../components/SystemText";
+import type { SystemSurfaceVariant, SystemSurfacePadding, SystemSurfaceRadius } from "../../../components/SystemSurface";
+import type { BadgeTone, Appearance, TabOrientation, ComponentExample } from "../../../src/system/component-contracts";
 
 const kinds = { ui: "재사용 UI", structure: "구조·페이지 연결", internal: "내부 지원", demo: "문서 도구" };
 const statuses = { product: "제품 연결", "guide-only": "가이드 전용", unused: "미사용" };
@@ -97,8 +97,8 @@ export default function ComponentCatalog() {
     }
 
     return (
-        <div data-text="body" className="component-catalog" data-component="ComponentCatalog" data-component-id="component-catalog">
-            <p data-text="body">등록부와 실제 import·렌더 경로를 대조한 목록입니다. 페이지 자체와 훅은 수에 포함하지 않으며, 별칭은 같은 구현으로 묶습니다. 내부 지원과 문서 도구는 제품 UI와 구분합니다.</p>
+        <div data-text="body" className="component-catalog" data-documentation-tool="component-catalog">
+            <p data-text="body">제품 등록부와 실제 import·렌더 경로를 대조한 목록입니다. 등록된 모든 구현은 제품에 연결되어야 합니다. 별칭은 같은 구현으로 묶고, 가이드의 목록·재질 실험 도구와 퇴역 구현은 제품 수에 포함하지 않습니다.</p>
             <dl className="component-counts" aria-label="컴포넌트 연결 현황">
                 <div><dt data-text="label">등록된 구현</dt><dd data-text="body" data-count="total">{COMPONENT_COUNTS.total}</dd></div>
                 <div><dt data-text="label">제품 연결</dt><dd data-text="body" data-count="product">{COMPONENT_COUNTS.product}</dd></div>

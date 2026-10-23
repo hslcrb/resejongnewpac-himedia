@@ -10,7 +10,7 @@ const errors: string[] = [];
 page.on("pageerror", error => errors.push(error.message));
 try {
     await page.goto(`${base}design-rules/#components/registry`, { waitUntil: "domcontentloaded" });
-    await page.locator("[data-component-id='component-catalog']").waitFor();
+    await page.locator("[data-documentation-tool='component-catalog']").waitFor();
     let count = 0;
     for (const entry of COMPONENT_REGISTRY) for (const example of entry.examples || []) {
         const specimen = page.locator(`[id="${example.id}"]`);

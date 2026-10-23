@@ -7,7 +7,7 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#AccountExperience"
         ],
         "guideUses": [
-            "components/ComponentCatalog.tsx#ComponentCatalog"
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog"
         ]
     },
     "account-experience": {
@@ -27,8 +27,8 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#AccountExperience"
         ],
         "guideUses": [
-            "components/ComponentCatalog.tsx#ComponentCatalog",
-            "components/ComponentCatalog.tsx#renderExample"
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample"
         ]
     },
     "account-mini-room": {
@@ -37,8 +37,8 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#spacePanel"
         ],
         "guideUses": [
-            "components/ComponentCatalog.tsx#ComponentCatalog",
-            "components/ComponentCatalog.tsx#renderExample"
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample"
         ]
     },
     "account-ticket": {
@@ -48,8 +48,8 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#spacePanel"
         ],
         "guideUses": [
-            "components/ComponentCatalog.tsx#ComponentCatalog",
-            "components/ComponentCatalog.tsx#renderExample"
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample"
         ]
     },
     "badge": {
@@ -62,10 +62,10 @@ export const COMPONENT_USAGE = {
             "components/ProgramCard.tsx#ProgramCard"
         ],
         "guideUses": [
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#renderChapter",
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
-            "components/ComponentCatalog.tsx#renderExample",
             "components/ProgramCard.tsx#ProgramCard"
         ]
     },
@@ -75,7 +75,7 @@ export const COMPONENT_USAGE = {
             "app/page.tsx#HomePage"
         ],
         "guideUses": [
-            "components/ComponentCatalog.tsx#ComponentCatalog"
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog"
         ]
     },
     "booking-choice": {
@@ -84,7 +84,7 @@ export const COMPONENT_USAGE = {
             "app/page.tsx#HomePage"
         ],
         "guideUses": [
-            "components/ComponentCatalog.tsx#ComponentCatalog"
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog"
         ]
     },
     "booking-client": {
@@ -101,13 +101,6 @@ export const COMPONENT_USAGE = {
         ],
         "guideUses": [
             "components/HomeBookingControls.tsx#BookingCalendar"
-        ]
-    },
-    "booking-invitation": {
-        "status": "guide-only",
-        "productUses": [],
-        "guideUses": [
-            "app/design-rules/page.tsx#renderChapter"
         ]
     },
     "button": {
@@ -134,19 +127,19 @@ export const COMPONENT_USAGE = {
             "components/SystemPrimitives.tsx#SystemIconButton"
         ],
         "guideUses": [
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
+            "app/design-rules/_documentation/LiquidGlassDemo.tsx#LiquidGlassDemo",
             "app/design-rules/page.tsx#DesignRulesPage",
             "app/design-rules/page.tsx#renderChapter",
             "components/AccountMiniRoom.tsx#AccountMiniRoom",
             "components/AccountPanels.tsx#AccountDiary",
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
-            "components/ComponentCatalog.tsx#ComponentCatalog",
-            "components/ComponentCatalog.tsx#renderExample",
             "components/ContextMenu.tsx#ContextMenu",
             "components/FloatingPanel.tsx#PanelSurface",
             "components/HeroSlide.tsx#HeroSlide",
             "components/HomeBookingControls.tsx#BookingCalendar",
-            "components/LiquidGlassDemo.tsx#LiquidGlassDemo",
             "components/SystemPrimitives.tsx#SystemFilterButton",
             "components/SystemPrimitives.tsx#SystemIconButton"
         ]
@@ -172,11 +165,11 @@ export const COMPONENT_USAGE = {
             "components/IntroductionExperience.tsx#IntroductionExperience"
         ],
         "guideUses": [
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#renderChapter",
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
-            "components/ComponentCatalog.tsx#ComponentCatalog",
-            "components/ComponentCatalog.tsx#renderExample",
             "components/HeroSlide.tsx#HeroSlide"
         ]
     },
@@ -202,15 +195,8 @@ export const COMPONENT_USAGE = {
             "app/account/signup/page.tsx#SignupPage"
         ],
         "guideUses": [
-            "app/design-rules/page.tsx#renderChapter",
-            "components/ComponentCatalog.tsx#ComponentCatalog",
-            "components/ComponentCatalog.tsx#renderExample"
-        ]
-    },
-    "component-catalog": {
-        "status": "guide-only",
-        "productUses": [],
-        "guideUses": [
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#renderChapter"
         ]
     },
@@ -250,8 +236,8 @@ export const COMPONENT_USAGE = {
             "components/FloatingMenu.tsx#FloatingMenu"
         ],
         "guideUses": [
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#renderChapter",
-            "components/ComponentCatalog.tsx#renderExample",
             "components/FloatingMenu.tsx#FloatingMenu"
         ]
     },
@@ -273,11 +259,11 @@ export const COMPONENT_USAGE = {
             "components/HomeBookingControls.tsx#BookingCalendar"
         ],
         "guideUses": [
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#DesignRulesPage",
             "app/design-rules/page.tsx#renderChapter",
             "components/AccountPanels.tsx#AccountDiary",
-            "components/ComponentCatalog.tsx#ComponentCatalog",
-            "components/ComponentCatalog.tsx#renderExample",
             "components/Footer.tsx#Footer",
             "components/Header.tsx#Header",
             "components/HomeBookingControls.tsx#BookingCalendar"
@@ -292,7 +278,7 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#bookingsPanel"
         ],
         "guideUses": [
-            "components/ComponentCatalog.tsx#renderExample"
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample"
         ]
     },
     "floating-menu": {
@@ -311,7 +297,7 @@ export const COMPONENT_USAGE = {
             "components/FloatingMenu.tsx#FloatingMenu"
         ],
         "guideUses": [
-            "components/ComponentCatalog.tsx#renderExample",
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "components/FloatingMenu.tsx#FloatingMenu"
         ]
     },
@@ -333,19 +319,12 @@ export const COMPONENT_USAGE = {
             "components/SystemPrimitives.tsx#SystemNotice"
         ],
         "guideUses": [
-            "components/ComponentCatalog.tsx#renderExample",
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
+            "app/design-rules/_documentation/LiquidGlassDemo.tsx#LiquidGlassDemo",
             "components/FloatingPanel.tsx#PanelSurface",
             "components/HeroCompanion.tsx#HeroCompanion",
-            "components/LiquidGlassDemo.tsx#LiquidGlassDemo",
             "components/SmallNotificationModal.tsx#SmallNotificationModal",
             "components/SystemPrimitives.tsx#SystemNotice"
-        ]
-    },
-    "glass-demo": {
-        "status": "guide-only",
-        "productUses": [],
-        "guideUses": [
-            "app/design-rules/page.tsx#renderChapter"
         ]
     },
     "glass-refraction": {
@@ -379,7 +358,7 @@ export const COMPONENT_USAGE = {
             "components/HeroCarousel.tsx#HeroCarousel"
         ],
         "guideUses": [
-            "components/ComponentCatalog.tsx#ComponentCatalog"
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog"
         ]
     },
     "hero-slide": {
@@ -388,8 +367,8 @@ export const COMPONENT_USAGE = {
             "components/HeroCarousel.tsx#HeroCarousel"
         ],
         "guideUses": [
-            "components/ComponentCatalog.tsx#ComponentCatalog",
-            "components/ComponentCatalog.tsx#renderExample"
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample"
         ]
     },
     "home-anchors": {
@@ -431,14 +410,14 @@ export const COMPONENT_USAGE = {
             "components/VioletQuickMenu.tsx#renderLink"
         ],
         "guideUses": [
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#DesignRulesPage",
             "app/design-rules/page.tsx#renderChapter",
             "components/AccountMiniRoom.tsx#AccountMiniRoom",
             "components/AccountPanels.tsx#AccountDiary",
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
-            "components/ComponentCatalog.tsx#ComponentCatalog",
-            "components/ComponentCatalog.tsx#renderExample",
             "components/ContextMenu.tsx#ContextMenu",
             "components/FloatingMenu.tsx#FloatingMenu",
             "components/FloatingPanel.tsx#PanelSurface",
@@ -468,10 +447,10 @@ export const COMPONENT_USAGE = {
             "components/ReturnTop.tsx#ReturnTop"
         ],
         "guideUses": [
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "components/AccountMiniRoom.tsx#AccountMiniRoom",
             "components/AccountPanels.tsx#AccountDiary",
-            "components/ComponentCatalog.tsx#ComponentCatalog",
-            "components/ComponentCatalog.tsx#renderExample",
             "components/FloatingPanel.tsx#PanelSurface",
             "components/Header.tsx#Header",
             "components/HomeBookingControls.tsx#BookingCalendar",
@@ -501,10 +480,10 @@ export const COMPONENT_USAGE = {
             "components/CatalogPage.tsx#CatalogPage"
         ],
         "guideUses": [
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#DesignRulesPage",
             "app/design-rules/page.tsx#renderChapter",
-            "components/AccountPanels.tsx#AccountDiary",
-            "components/ComponentCatalog.tsx#renderExample"
+            "components/AccountPanels.tsx#AccountDiary"
         ]
     },
     "notification-host": {
@@ -560,7 +539,7 @@ export const COMPONENT_USAGE = {
             "app/page.tsx#HomePage"
         ],
         "guideUses": [
-            "components/ComponentCatalog.tsx#ComponentCatalog"
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog"
         ]
     },
     "site-shell": {
@@ -597,9 +576,9 @@ export const COMPONENT_USAGE = {
             "components/IntroductionExperience.tsx#IntroductionExperience"
         ],
         "guideUses": [
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#renderChapter",
-            "components/BookingDatePreview.tsx#BookingDatePreview",
-            "components/ComponentCatalog.tsx#renderExample"
+            "components/BookingDatePreview.tsx#BookingDatePreview"
         ]
     },
     "tabs": {
@@ -608,8 +587,8 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#AccountExperience"
         ],
         "guideUses": [
-            "app/design-rules/page.tsx#renderChapter",
-            "components/ComponentCatalog.tsx#renderExample"
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
+            "app/design-rules/page.tsx#renderChapter"
         ]
     },
     "text": {
@@ -619,8 +598,8 @@ export const COMPONENT_USAGE = {
             "app/page.tsx#HomePage"
         ],
         "guideUses": [
-            "app/design-rules/page.tsx#renderChapter",
-            "components/ComponentCatalog.tsx#renderExample"
+            "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
+            "app/design-rules/page.tsx#renderChapter"
         ]
     },
     "violet-fur": {
@@ -635,8 +614,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 50,
+    "total": 47,
     "product": 47,
-    "documentationOnly": 3,
+    "documentationOnly": 0,
     "unused": 0
 } as const;

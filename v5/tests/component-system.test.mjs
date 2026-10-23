@@ -3,10 +3,68 @@ import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const script = new URL("../scripts/audit-component-system.ts", import.meta.url);
 const chapters = [{ id: "components", sections: [["registry", "Registry"], ["buttons", "Buttons"]] }];
 const entry = (id, source, exportName = "default", extra = {}) => ({ id, name: id, source, exportName, kind: "ui", guide: "components/registry", purpose: "Fixture component", ...extra });
+
+test("the real active registry has no guide-only or unused product implementations", async () => {
+    const { auditComponentSystem } = await import(script.href);
+    const { COMPONENT_REGISTRY, CONTROL_EXCEPTIONS } = await import("../src/data/component-registry.ts");
+    const { DOCUMENTATION_TOOLS } = await import("../app/design-rules/_documentation/tools.ts");
+    const { CHAPTERS } = await import("../src/data/design-system.ts");
+    const { DESIGN_TOKEN_VALUES } = await import("../src/data/design-tokens.ts");
+    const result = auditComponentSystem({ root: fileURLToPath(new URL("..", import.meta.url)),
+        registry: COMPONENT_REGISTRY, documentationTools: DOCUMENTATION_TOOLS, exceptions: CONTROL_EXCEPTIONS,
+        chapters: CHAPTERS, canonicalTokens: Object.keys(DESIGN_TOKEN_VALUES), enforceIdentity: true, requireProductUsage: true });
+    assert.deepEqual(result.issues, []);
+    assert.equal(result.counts.total, result.counts.product);
+    assert.equal(result.counts.documentationOnly, 0);
+    assert.equal(result.counts.unused, 0);
+    assert.ok(COMPONENT_REGISTRY.every(record => !["demo"].includes(record.kind) && record.lifecycle !== "deprecated"));
+});
+
+// [활성 등록은 실제 제품에 연결 / Every active registration must reach the product]
+test("strict product registry rejects guide-only and unused implementations", async () => {
+    await fixture({
+        "components/Kit.tsx": `export function GuideOnly() { return <p />; } export function Unused() { return <p />; }`,
+        "app/design-rules/page.tsx": `import { GuideOnly } from "../../components/Kit"; export default function Guide() { return <GuideOnly />; }`,
+        "app/page.tsx": `export default function Page() { return <main />; }`,
+    }, [entry("guide", "components/Kit.tsx", "GuideOnly"), entry("unused", "components/Kit.tsx", "Unused")], result => {
+        assert.equal(result.issues.filter(issue => issue.code === "missing-product-use").length, 2);
+        assert.equal(result.counts.product, 0);
+    }, { requireProductUsage: true });
+});
+
+test("explicit guide tools are audited separately and never inflate the product registry", async () => {
+    await fixture({
+        "components/Panel.tsx": `export default function Panel() { return <p />; }`,
+        "app/design-rules/_documentation/Catalog.tsx": `import Panel from "../../../components/Panel"; export default function Catalog() { return <Panel />; }`,
+        "app/design-rules/page.tsx": `import Catalog from "./_documentation/Catalog"; export default function Guide() { return <Catalog />; }`,
+        "app/page.tsx": `import Panel from "../components/Panel"; export default function Page() { return <Panel />; }`,
+    }, [entry("panel", "components/Panel.tsx")], result => {
+        assert.deepEqual(result.issues, []);
+        assert.deepEqual(result.counts, { total: 1, product: 1, documentationOnly: 0, unused: 0 });
+        assert.deepEqual(Object.keys(result.usage), ["panel"]);
+        assert.ok(result.usage.panel.guideUses.some(source => source.includes("_documentation/Catalog.tsx")));
+    }, { requireProductUsage: true, documentationTools: [{ id: "catalog", source: "app/design-rules/_documentation/Catalog.tsx", exportName: "default" }] });
+});
+
+test("guide tool exemptions cannot hide product reachability, missing exports or unlisted helpers", async () => {
+    await fixture({
+        "app/design-rules/_documentation/Catalog.tsx": `export default function Catalog() { return <p />; } export function Unlisted() { return <p />; }`,
+        "app/design-rules/page.tsx": `import Catalog from "./_documentation/Catalog"; export default function Guide() { return <Catalog />; }`,
+        "app/page.tsx": `import Catalog from "./design-rules/_documentation/Catalog"; export default function Page() { return <Catalog />; }`,
+    }, [], result => {
+        const codes = result.issues.map(issue => issue.code);
+        for (const expected of ["documentation-tool-product-use", "unregistered-component", "missing-documentation-export"])
+            assert.ok(codes.includes(expected), expected);
+    }, { requireProductUsage: true, documentationTools: [
+        { id: "catalog", source: "app/design-rules/_documentation/Catalog.tsx", exportName: "default" },
+        { id: "missing", source: "app/design-rules/_documentation/Catalog.tsx", exportName: "Missing" },
+    ] });
+});
 
 // [제품의 조작 아이콘 우회 방지 / Prevent product glyphs from bypassing the shared icon]
 test("native material glyphs use the registered Icon while authored SVG scenes remain valid", async () => {
@@ -134,14 +192,15 @@ test("specialized controls require an exact source, tag and marker and exception
 test("glass material overrides are limited to the definition and documented demo, including aliased imports", async () => {
     await fixture({
         "components/LiquidGlass.tsx": `export default function LiquidGlass(props) { return <div />; }`,
-        "components/LiquidGlassDemo.tsx": `import Glass from "./LiquidGlass";
+        "app/design-rules/_documentation/LiquidGlassDemo.tsx": `import Glass from "../../../components/LiquidGlass";
             export default function LiquidGlassDemo() { return <Glass opacity={0.9} refraction={80} />; }`,
         "app/page.tsx": `import Glass from "../components/LiquidGlass";
             export default function Page() { return <Glass thickness={36} />; }`,
-    }, [entry("glass", "components/LiquidGlass.tsx"), entry("glass-demo", "components/LiquidGlassDemo.tsx", "default", { kind: "demo" })], (result) => {
+        "app/design-rules/page.tsx": `import Demo from "./_documentation/LiquidGlassDemo"; export default function Guide() { return <Demo />; }`,
+    }, [entry("glass", "components/LiquidGlass.tsx")], (result) => {
         assert.equal(result.issues.filter((issue) => issue.code === "glass-override").length, 1);
         assert.equal(result.issues.find((issue) => issue.code === "glass-override").source, "app/page.tsx");
-    });
+    }, { documentationTools: [{ id: "glass-demo", source: "app/design-rules/_documentation/LiquidGlassDemo.tsx", exportName: "default" }] });
 });
 
 test("active global token redeclarations fail while scoped variants and the frozen compatibility baseline remain valid", async () => {

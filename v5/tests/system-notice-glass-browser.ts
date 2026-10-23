@@ -77,7 +77,7 @@ try {
     });
     await check("white is available in the material demo and still generates a real displacement map", async () => {
         await page.goto(new URL("design-rules/#components/liquid-glass", base).href, { waitUntil: "networkidle" });
-        const tool = page.locator('[data-component-id="glass-demo"]');
+        const tool = page.locator('[data-documentation-tool="glass-demo"]');
         await expect(tool).toHaveCount(1);
         await tool.locator("#glass-variant").selectOption("white");
         const demo = tool.locator(".ds-glass-example");

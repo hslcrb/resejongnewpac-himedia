@@ -16,6 +16,8 @@ export type AuditOptions = {
     chapters: readonly { id: string; sections: readonly (readonly string[])[] }[];
     canonicalTokens?: readonly string[];
     enforceIdentity?: boolean;
+    requireProductUsage?: boolean;
+    documentationTools?: readonly { id: string; source: string; exportName: string }[];
 };
 type Scope = { id: string; source: string; name: string; node: ts.Node; body: ts.Node; edges: Set<Scope> };
 
@@ -60,7 +62,7 @@ export function auditCopiedComponentCode(code: string, registry: readonly Compon
 }
 
 // [구문과 심벌을 이용한 컴포넌트 단위 분석 / Component-scoped syntax and symbol analysis]
-export function auditComponentSystem({ root, registry, exceptions = [], chapters, canonicalTokens = [], enforceIdentity = false }: AuditOptions): AuditResult {
+export function auditComponentSystem({ root, registry, exceptions = [], chapters, canonicalTokens = [], enforceIdentity = false, requireProductUsage = false, documentationTools = [] }: AuditOptions): AuditResult {
     root = resolve(root);
     const issues: AuditIssue[] = [];
     const addIssue = (code: string, source: string, message: string, node?: ts.Node) => {
@@ -263,6 +265,24 @@ export function auditComponentSystem({ root, registry, exceptions = [], chapters
         if (record.parent && (!ids.has(record.parent) || record.parent === record.id)) addIssue("invalid-parent", slash(record.source), `Component ${record.id} has invalid parent ${record.parent}.`);
         if (record.kind === "internal" && !record.parent) addIssue("missing-parent", slash(record.source), `Internal component ${record.id} requires its owning component relation.`);
     }
+    // [문서 도구를 제품 수에서 분리하되 내보내기와 접근 경로는 검사 / Audit documentation tools without counting them as product UI]
+    const documentationScopes = new Map<string, Set<Scope>>();
+    const documentationIds = new Set<string>();
+    for (const tool of documentationTools) {
+        const source = slash(tool.source);
+        if (documentationIds.has(tool.id) || ids.has(tool.id)) addIssue("duplicate-documentation-tool", source, `Documentation tool ${tool.id} must have a unique non-product ID.`);
+        documentationIds.add(tool.id);
+        if (!source.startsWith("app/design-rules/_documentation/")) addIssue("invalid-documentation-source", source, `Documentation tool ${tool.id} must live inside the guide's private documentation directory.`);
+        const targets = exportTargets.get(`${source}#${tool.exportName}`);
+        const components = exportedComponents.get(source) || [];
+        const valid = new Set([...(targets || [])].filter(target => components.some(({ scope }) => scope === target)));
+        if (!valid.size) addIssue("missing-documentation-export", source, `Documentation tool ${tool.id} must name an existing local React export.`);
+        for (const scope of valid) {
+            if (registeredScopes.has(scope)) addIssue("duplicate-component", source, `Documentation tool ${tool.id} duplicates ${registeredScopes.get(scope)}.`);
+            else registeredScopes.set(scope, `documentation:${tool.id}`);
+        }
+        documentationScopes.set(tool.id, valid);
+    }
     for (const [source, components] of exportedComponents) {
         if (!(source.startsWith("components/") || source.startsWith("app/") || source.startsWith("src/")) || !source.endsWith(".tsx") || routeFile(source)) continue;
         for (const { scope, exports } of components) if (!registeredScopes.has(scope)) {
@@ -310,8 +330,14 @@ export function auditComponentSystem({ root, registry, exceptions = [], chapters
         const productUses = uses(targets, productScopes, productEntries);
         const guideUses = uses(targets, guideScopes, guideEntries);
         usage[record.id] = { status: productUses.length ? "product" : guideUses.length ? "guide-only" : "unused", productUses, guideUses };
+        if (requireProductUsage && !productUses.length) addIssue("missing-product-use", record.source, `Registered product component ${record.id} must be reachable from a product route; documentation tools and retired implementations do not belong in the product registry.`);
         if (productUses.length && record.lifecycle === "deprecated") addIssue("deprecated-product-use", record.source, `Deprecated ${record.id} is reachable from product routes.`);
         if (productUses.length && record.kind === "demo") addIssue("demo-product-use", record.source, `Documentation-only ${record.id} is reachable from product routes.`);
+    }
+    for (const tool of documentationTools) {
+        const scopes = documentationScopes.get(tool.id) || new Set<Scope>();
+        if ([...scopes].some(scope => productScopes.has(scope))) addIssue("documentation-tool-product-use", tool.source, `Documentation tool ${tool.id} must not be imported by product routes.`);
+        if (scopes.size && ![...scopes].some(scope => guideScopes.has(scope))) addIssue("unused-documentation-tool", tool.source, `Documentation tool ${tool.id} is not reachable from the guide.`);
     }
 
     // [소스·태그·표식이 일치하는 예외만 허용 / Require exact source, tag and marker for exceptions]
@@ -420,7 +446,9 @@ export function auditComponentSystem({ root, registry, exceptions = [], chapters
                     if (overrides.length) addIssue("control-style-override", source, `Shared control ${tag} overrides ${sortStrings(overrides).join(", ")}; use a registered variant instead.`, node);
                 }
                 const isGlass = [...targetScopes].some((target) => target.source === "components/LiquidGlass.tsx") || tag === "LiquidGlass";
-                if (isGlass && source !== "components/LiquidGlass.tsx" && source !== "components/LiquidGlassDemo.tsx") {
+                const materialTool = documentationTools.some(tool => tool.id === "glass-demo" && tool.source === source)
+                    && !product && source.startsWith("app/design-rules/_documentation/");
+                if (isGlass && source !== "components/LiquidGlass.tsx" && !materialTool) {
                     const overrides = node.attributes.properties.flatMap((property) => ts.isJsxAttribute(property)
                         ? [property.name.getText()] : spreadProperties(property.expression))
                         .filter((property) => ["opacity", "refraction", "blur", "thickness"].includes(property));
@@ -540,8 +568,10 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     const { COMPONENT_REGISTRY, CONTROL_EXCEPTIONS } = await import("../src/data/component-registry.ts");
     const { CHAPTERS } = await import("../src/data/design-system.ts");
     const { DESIGN_TOKEN_VALUES } = await import("../src/data/design-tokens.ts");
+    const { DOCUMENTATION_TOOLS } = await import("../app/design-rules/_documentation/tools.ts");
     const result = auditComponentSystem({ root: fileURLToPath(new URL("..", import.meta.url)), registry: COMPONENT_REGISTRY,
-        exceptions: CONTROL_EXCEPTIONS, chapters: CHAPTERS, canonicalTokens: Object.keys(DESIGN_TOKEN_VALUES), enforceIdentity: true });
+        exceptions: CONTROL_EXCEPTIONS, chapters: CHAPTERS, canonicalTokens: Object.keys(DESIGN_TOKEN_VALUES), enforceIdentity: true,
+        requireProductUsage: true, documentationTools: DOCUMENTATION_TOOLS });
     const args = process.argv.slice(2);
     if (args.some((argument) => !["--check", "--write"].includes(argument)) || args.includes("--check") && args.includes("--write")) {
         console.error("Usage: node scripts/audit-component-system.ts [--check | --write]");

@@ -92,12 +92,21 @@ try {
         await page.locator("[data-component-record]").first().waitFor();
         assert.equal(await page.locator("[data-component-record]").count(), COMPONENT_REGISTRY.length);
         assert.equal(Number(await page.locator('[data-count="total"]').innerText()), COMPONENT_COUNTS.total);
+        assert.equal(Number(await page.locator('[data-count="product"]').innerText()), COMPONENT_COUNTS.total);
+        assert.equal(Number(await page.locator('[data-count="guide-only"]').innerText()), 0);
         assert.equal(Number(await page.locator('[data-count="unused"]').innerText()), 0);
         for (const id of ["hero-companion", "header", "footer", "context-menu", "return-top", "introduction"]) {
             assert.match(await page.locator(`[data-component-record="${id}"]`).innerText(), /제품 연결/);
         }
-        assert.match(await page.locator('[data-component-record="booking-invitation"]').innerText(), /Deprecated/);
-        assert.match(await page.locator('[data-component-record="booking-invitation"]').innerText(), /가이드 전용/);
+        for (const id of ["booking-invitation", "component-catalog", "glass-demo"])
+            assert.equal(await page.locator(`[data-component-record="${id}"]`).count(), 0);
+        assert.equal(await page.locator('[data-documentation-tool="component-catalog"]').count(), 1);
+        assert.equal(await page.locator('[data-documentation-tool="glass-demo"]').count(), 1);
+        assert.equal(await page.locator('.booking-invitation-letter').count(), 0);
+        await go("design-rules/#motion/scroll");
+        assert.match(await page.locator('[data-lifecycle="deprecated"]').innerText(), /BookingInvitation · Deprecated/);
+        assert.equal(await page.locator('.booking-invitation-letter').count(), 0);
+        await go("design-rules/#components/registry");
         await page.getByLabel("컴포넌트 검색", { exact: true }).fill("HeroCompanion");
         assert.equal(await page.locator("[data-component-record]").count(), 1);
         await page.getByLabel("컴포넌트 검색", { exact: true }).fill("");
