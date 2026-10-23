@@ -11,7 +11,7 @@
     margin-bottom: 40px;
     padding: 20px 24px;
     border: 0;
-    border-radius: 10px;
+    border-radius: var(--surface-radius-compact);
     background: var(--soft);
     color: var(--muted);
     font-size: max(var(--text-min), var(--text-sm));
@@ -31,7 +31,7 @@
 .flow-panel {
     padding: clamp(24px, 3vw, 44px);
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: var(--surface-radius-panel);
     background: var(--paper);
 }
 
@@ -73,8 +73,8 @@
 .flow-page .form-field:not([data-component="field"]) textarea {
     min-height: 54px;
     padding: 14px 16px;
-    border: 1px solid var(--color-detail-a8adb4);
-    border-radius: 9px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-flow);
     background: var(--paper);
     color: var(--ink);
     font-family: var(--font);
@@ -85,14 +85,14 @@
 .flow-page .form-field:not([data-component="field"]) input:not([type="checkbox"]):not([type="radio"]):focus,
 .flow-page .form-field:not([data-component="field"]) select:focus,
 .flow-page .form-field:not([data-component="field"]) textarea:focus {
-    outline: 2px solid var(--ink);
-    outline-offset: 3px;
-    border-color: var(--ink);
+    outline: var(--focus-width) solid var(--border-focus);
+    outline-offset: var(--focus-offset);
+    border-color: var(--border-default);
 }
 
 .flow-page .form-field:not([data-component="field"]) [aria-invalid="true"] {
-    border-color: var(--color-detail-b42318);
-    outline-color: var(--color-detail-b42318);
+    border-color: var(--border-default);
+    outline-color: var(--semantic-error-border);
 }
 
 .flow-page .form-field:not([data-component="field"]) small {
@@ -103,20 +103,20 @@
 .flow-page .button {
     min-height: 50px;
     padding: 14px 22px;
-    border-radius: 9px;
+    border-radius: var(--radius-flow);
     font-size: max(var(--text-min), var(--text-sm));
     font-weight: 600;
     line-height: 1.45;
 }
 
 .flow-page .button--dark {
-    border-color: var(--ink);
+    border-color: var(--border-default);
     background: var(--ink);
     color: var(--color-white);
 }
 
 .flow-page .button--yellow {
-    border-color: var(--human);
+    border-color: var(--border-default);
     background: var(--human);
     color: var(--color-black);
 }
@@ -163,18 +163,18 @@
 }
 
 .flow-radio-choice span {
-    border-radius: 9px;
+    border-radius: var(--radius-flow);
     font-size: max(var(--text-min), var(--text-sm));
 }
 
 .flow-radio-choice input:checked + span {
-    border-color: var(--ink);
+    border-color: var(--stroke-selected);
     background: var(--human);
     color: var(--color-black);
 }
 
 .flow-info-box {
-    border-radius: 9px;
+    border-radius: var(--surface-radius-compact);
     background: var(--soft);
 }
 
@@ -186,8 +186,8 @@
 .booking-summary {
     top: 110px;
     padding: 30px;
-    border-top: 3px solid var(--ink);
-    border-radius: 0 0 12px 12px;
+    border-top: 1px solid var(--border-default);
+    border-radius: 0 0 var(--surface-radius-panel) var(--surface-radius-panel);
     background: var(--soft);
 }
 
@@ -197,7 +197,7 @@
 
 .booking-summary__program img,
 .account-booking > img {
-    border-radius: 6px;
+    border-radius: var(--radius-media);
 }
 
 .booking-summary__program h3 {
@@ -219,7 +219,7 @@
 }
 
 .flow-error {
-    border-radius: 8px;
+    border-radius: var(--surface-radius-compact);
     color: var(--color-detail-a71910);
     font-size: max(var(--text-min), var(--text-sm));
 }
@@ -247,11 +247,11 @@
 
 .seat.is-selected,
 .seat-legend i.selected {
-    border-color: var(--ink);
+    border-color: var(--stroke-selected);
     background: var(--human);
     color: var(--color-black);
-    outline: 2px solid var(--ink);
-    outline-offset: -2px;
+    outline: 0;
+    box-shadow: inset 0 0 0 1px var(--stroke-selected);
 }
 
 .seat-legend span,
@@ -269,7 +269,7 @@
 .flow-receipt {
     padding: clamp(28px, 4vw, 56px);
     border: 1px solid var(--line);
-    border-radius: 16px;
+    border-radius: var(--surface-radius-panel);
 }
 
 .receipt-check {
@@ -278,7 +278,7 @@
 }
 
 .receipt-reference {
-    border-radius: 10px;
+    border-radius: var(--radius-control);
     background: var(--soft);
 }
 
@@ -314,7 +314,7 @@
 .account-stats {
     overflow: hidden;
     border: 1px solid var(--line);
-    border-radius: 12px;
+    border-radius: var(--surface-radius-panel);
     background: var(--paper);
 }
 
@@ -353,7 +353,7 @@
 }
 
 .flow-tag {
-    border-radius: 5px;
+    border-radius: var(--radius-control);
     background: var(--color-detail-eff8fa);
     color: var(--color-detail-174d5c);
     font-size: max(var(--text-min), var(--text-sm));
@@ -398,7 +398,7 @@
     width: 100%;
     height: auto;
     margin-top: 36px;
-    border-radius: 12px;
+    border-radius: var(--radius-media);
     aspect-ratio: 1.45;
     object-fit: cover;
 }

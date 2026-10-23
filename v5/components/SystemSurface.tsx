@@ -33,6 +33,7 @@ export function SystemSurface<Element extends SystemSurfaceTag = "div">({
         ...props,
         className: `system-surface ${className}`.trim(),
         "data-component": "surface",
+        "data-stroke": "inner",
         "data-surface-variant": variant,
         "data-surface-padding": padding,
         "data-surface-radius": radius,

@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { SystemLink } from "../../components/SystemPrimitives";
+import { SystemControlGroup } from "../../components/SystemControlGroup";
 import { PAGES, NAV, VENUES, NOTICES } from "../../src/data/catalog";
 import type { PageMeta } from "../../types/sejong.ts";
 
@@ -84,7 +85,7 @@ export default function CatalogDynamicPage({
 
                 {/* [줄바꿈 가능한 하위 탐색 / Wrapping navigation within the current group] */}
                 {currentGroup && currentGroup.items && (
-                    <nav data-text="body" className="catalog-page-navigation page-layout-actions" aria-label={`${currentGroup.title} 메뉴`}>
+                    <SystemControlGroup as="nav" data-text="body" className="catalog-page-navigation" aria-label={`${currentGroup.title} 메뉴`}>
                         {currentGroup.items.map(([label, subPath]: [string, string]) => {
                             const active = path === subPath;
                             return (
@@ -98,7 +99,7 @@ export default function CatalogDynamicPage({
                                 </SystemLink>
                             );
                         })}
-                    </nav>
+                    </SystemControlGroup>
                 )}
             </header>
 

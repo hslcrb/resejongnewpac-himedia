@@ -46,6 +46,17 @@ export function auditTextBindings(source: string, fileName: string): VisualIssue
     return issues;
 }
 
+// [경계가 바깥으로 다시 나가지 않게 검사 / Prevent returning to exterior or ink-colored strokes]
+export function auditStrokeDeclaration(property: string, value: string): string | null {
+    if (property === "outline-offset") {
+        const resolved = value.replace(/var\((--[\w-]+)(?:,[^)]+)?\)/g, (reference, token: string) => DESIGN_TOKEN_VALUES[token as keyof typeof DESIGN_TOKEN_VALUES] || reference);
+        if (/^\s*\+?[\d.]+(?:px|rem|em)?(?:\s*!important)?\s*$/.test(resolved) && parseFloat(resolved) > 0) return "Focus outlines must use a non-positive inner offset.";
+    }
+    if ((property.startsWith("border") && !property.includes("radius") || /^(?:outline|outline-color)$/.test(property))
+        && /var\(--(?:color-black|text-primary|ink)\)/.test(value)) return "UI strokes must use the gentle stroke tokens, not the text ink.";
+    return null;
+}
+
 // [색상과 가독성 하한의 회귀 차단 / Block regressions in colors and readability floor]
 export function auditVisualContract(root: string): VisualIssue[] {
     const issues: VisualIssue[] = [];
@@ -62,6 +73,8 @@ export function auditVisualContract(root: string): VisualIssue[] {
         for (const match of withoutComments.matchAll(/([\w-]+)\s*:\s*([^;{}]+)(?=[;}])/g)) {
             const [, property, value] = match;
             const line = source.slice(0, match.index).split("\n").length;
+            const strokeIssue = auditStrokeDeclaration(property, value);
+            if (strokeIssue) issues.push({ code: "stroke-contract", source: name, line, message: strokeIssue });
             if (colorLiterals(value).length) issues.push({ code: "color-literal", source: name, line, message: `${property} contains an authored color literal.` });
             if (property === "font-size" && !value.includes("var(--text-min)") && !/^(?:inherit|initial|unset|revert(?:-layer)?)(?:\s*!important)?\s*$/.test(value)) {
                 issues.push({ code: "text-floor", source: name, line, message: "font-size must use the shared --text-min floor." });

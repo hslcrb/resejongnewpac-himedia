@@ -337,7 +337,7 @@
 
 .ds-principle {
     padding-top: 20px;
-    border-top: 2px solid var(--text-primary);
+    border-top: 1px solid var(--border-default);
 }
 
 .ds-principle > span {
@@ -551,7 +551,7 @@
 .ds-table-wrap {
     max-width: 100%;
     overflow-x: auto;
-    border-top: 1px solid var(--text-primary);
+    border-top: 1px solid var(--border-default);
     overscroll-behavior-inline: contain;
 }
 
@@ -727,7 +727,8 @@
     place-items: center;
     min-height: 140px;
     margin-bottom: 16px;
-    border: 1px solid var(--border-strong);
+    border: 0;
+    box-shadow: inset 0 0 0 var(--stroke-width) var(--border-default);
     background: var(--surface-subtle);
     font-size: max(var(--text-min), 1rem);
 }

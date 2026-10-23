@@ -107,8 +107,8 @@
     min-height: var(--control-size);
     min-width: 6rem;
     padding: 0.5rem 1rem;
-    border: 1px solid var(--muted);
-    border-radius: 0.375rem;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-control);
     color: var(--ink);
     background: var(--paper);
     font: inherit;
@@ -230,7 +230,7 @@
 
 .goods-summary-total {
     margin-top: 0.75rem;
-    border-top: 1px solid var(--ink);
+    border-top: 1px solid var(--border-default);
     font-weight: 750;
 }
 

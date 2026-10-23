@@ -19,7 +19,7 @@ export type SystemButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & System
 export const SystemButton = forwardRef<HTMLButtonElement, SystemButtonProps>(function SystemButton(
     { variant = "primary", context = "default", shape = "rounded", className = "", type = "button", "data-component": component = "button", ...props }: SystemButtonProps & { "data-component"?: string }, ref,
 ) {
-    return <button data-text="action" {...props} ref={ref} type={type} data-component={component} data-context={context} data-shape={shape} data-autofocus={props.autoFocus || undefined} className={`ds-button ds-button-${variant} ${className}`.trim()} />;
+    return <button data-text="action" {...props} ref={ref} type={type} data-component={component} data-context={context} data-shape={shape} data-stroke="inner" data-autofocus={props.autoFocus || undefined} className={`ds-button ds-button-${variant} ${className}`.trim()} />;
 });
 
 export type SystemLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & Omit<LinkProps, "as"> & SystemControlStyle;
@@ -27,7 +27,7 @@ export const SystemLink = forwardRef<HTMLAnchorElement, SystemLinkProps>(functio
     { variant = "primary", context = "default", shape = "rounded", className = "", href, rel, target, ...props }, ref,
 ) {
     const safeRel = target === "_blank" ? [...new Set([...(rel || "").split(/\s+/).filter(Boolean), "noopener", "noreferrer"])].join(" ") : rel;
-    const shared = { ref, rel: safeRel, target, "data-component": "link", "data-context": context, "data-shape": shape, className: `ds-button ds-button-${variant} ${className}`.trim() };
+    const shared = { ref, rel: safeRel, target, "data-component": "link", "data-context": context, "data-shape": shape, "data-stroke": "inner", className: `ds-button ds-button-${variant} ${className}`.trim() };
     if (typeof href === "string" && /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(href)) {
         const { prefetch: _prefetch, replace: _replace, scroll: _scroll, shallow: _shallow, locale: _locale, ...anchorProps } = props;
         return <a data-text="action" {...anchorProps} {...shared} href={href} />;
@@ -63,7 +63,7 @@ export const SystemField = forwardRef<FieldElement, SystemFieldProps>(function S
     const id = suppliedId || `field-${generatedId}`;
     const message = error || hint;
     const describedBy = [props["aria-describedby"], message ? `${id}-message` : undefined].filter(Boolean).join(" ") || undefined;
-    const controlProps = { ...props, id, "aria-invalid": error ? true : props["aria-invalid"], "aria-describedby": describedBy, "data-component": "field-control", "data-autofocus": props.autoFocus || undefined };
+    const controlProps = { ...props, id, "aria-invalid": error ? true : props["aria-invalid"], "aria-describedby": describedBy, "data-component": "field-control", "data-stroke": "inner", "data-autofocus": props.autoFocus || undefined };
     return <div data-text="body" className={`ds-field ${outerClassName}`.trim()} data-component="field" data-variant={variant}>
         {label != null && <label data-text="label" htmlFor={id} className={labelHidden ? "ds-visually-hidden" : undefined}>{label}{props.required && typeof label === "string" && <span data-text="body"> (필수)</span>}</label>}
         {as === "select" ? <select data-text="body" {...controlProps as SelectHTMLAttributes<HTMLSelectElement>} ref={ref as Ref<HTMLSelectElement>} />
@@ -93,7 +93,7 @@ export type SystemNoticeProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & 
 export const SystemNotice = forwardRef<HTMLDivElement, SystemNoticeProps>(function SystemNotice(
     { title, children, error = false, variant = "default", className = "", role, ...props }, ref,
 ) {
-    return <div data-text="body" {...props} ref={ref} className={`ds-notice ${className}`.trim()} role={role || (error ? "alert" : "status")} data-component="notice" data-variant={variant} data-error={error || undefined}>
+    return <div data-text="body" {...props} ref={ref} className={`ds-notice ${className}`.trim()} role={role || (error ? "alert" : "status")} data-component="notice" data-variant={variant} data-stroke="inner" data-error={error || undefined}>
         {variant !== "flow" && <Icon name={error ? "close" : "check"} size={24} />}
         <div data-text="body">{title != null && <strong data-text="item-title">{title}</strong>}<div data-text="body" className="ds-notice-content">{children}</div></div>
     </div>;

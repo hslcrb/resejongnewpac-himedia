@@ -171,7 +171,7 @@ try {
                     colors: Object.fromEntries(["--color-white", "--color-black", "--surface-border", "--surface-border-subtle"].map(token => [token, resolveColor(token)])),
                     surfaces: Array.from(document.querySelectorAll('[data-component="surface"]')).map(element => {
                         const style = getComputedStyle(element);
-                        return { tag: element.tagName, variant: element.getAttribute("data-surface-variant"), radiusName: element.getAttribute("data-surface-radius"), border: style.borderTopWidth, borderColor: style.borderTopColor, radius: style.borderTopLeftRadius, background: style.backgroundColor, expectedRadius: root.getPropertyValue(element.getAttribute("data-surface-radius") === "compact" ? "--surface-radius-compact" : "--surface-radius-panel").trim() };
+                        return { tag: element.tagName, variant: element.getAttribute("data-surface-variant"), radiusName: element.getAttribute("data-surface-radius"), border: style.borderTopWidth, strokeColor: style.getPropertyValue("--surface-stroke-color").trim(), shadow: style.boxShadow, radius: style.borderTopLeftRadius, background: style.backgroundColor, expectedRadius: root.getPropertyValue(element.getAttribute("data-surface-radius") === "compact" ? "--surface-radius-compact" : "--surface-radius-panel").trim() };
                     }),
                 };
             });
@@ -186,8 +186,8 @@ try {
             requireCondition(metrics.colors["--color-black"] === "rgb(33, 31, 28)", `Earth ink color drifted: ${JSON.stringify(metrics.colors)}`);
             for (const surface of metrics.surfaces) {
                 requireCondition(parseFloat(surface.radius) >= 12, `Surface radius lost: ${JSON.stringify(surface)}`);
-                requireCondition(surface.border === "1px", `Surface stroke lost: ${JSON.stringify(surface)}`);
-                requireCondition([metrics.colors["--surface-border"], metrics.colors["--surface-border-subtle"]].includes(surface.borderColor), `Surface stroke is not the gentle shared token: ${JSON.stringify(surface)}`);
+                requireCondition(surface.border === "0px" && surface.shadow.includes("inset") && surface.shadow.includes("0px 0px 0px 1px"), `Surface stroke must remain inside: ${JSON.stringify(surface)}`);
+                requireCondition([metrics.colors["--surface-border"], metrics.colors["--surface-border-subtle"]].some(color => surface.shadow.includes(color)), `Surface stroke is not the gentle shared token: ${JSON.stringify(surface)}`);
                 requireCondition(surface.background !== "rgb(255, 255, 255)" && surface.background !== "rgb(0, 0, 0)", `Surface uses a pure endpoint: ${JSON.stringify(surface)}`);
             }
             await page.screenshot({ path: path.join(evidence, `form-${width}.png`), fullPage: true });

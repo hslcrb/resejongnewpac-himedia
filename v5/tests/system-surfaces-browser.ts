@@ -81,9 +81,11 @@ try {
         const surface = await page.locator("#panel").evaluate(element => {
             const style = getComputedStyle(element);
             const box = element.getBoundingClientRect();
-            return { radius: parseFloat(style.borderRadius), border: parseFloat(style.borderWidth), padding: parseFloat(style.padding), overflow: style.overflow, inside: box.x >= 0 && box.right <= innerWidth };
+            return { radius: parseFloat(style.borderRadius), border: parseFloat(style.borderWidth), shadow: style.boxShadow, padding: parseFloat(style.padding), overflow: style.overflow, inside: box.x >= 0 && box.right <= innerWidth };
         });
-        assert.deepEqual({ radius: surface.radius, border: surface.border, overflow: surface.overflow, inside: surface.inside }, { radius: 16, border: 1, overflow: "visible", inside: true });
+        assert.deepEqual({ radius: surface.radius, border: surface.border, overflow: surface.overflow, inside: surface.inside }, { radius: 20, border: 0, overflow: "visible", inside: true });
+        assert.match(surface.shadow, /inset/);
+        assert.match(surface.shadow, /0px 0px 0px 1px/);
         assert.ok(surface.padding >= 24 && surface.padding <= 32);
         await page.locator("#notice-trigger").click();
         await page.waitForFunction(() => getComputedStyle(document.getElementById("toast")!).opacity === "1");

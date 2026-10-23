@@ -61,7 +61,7 @@
     position: absolute;
     inset: 14px auto auto 14px;
     padding: 5px 9px;
-    border-radius: 4px;
+    border-radius: var(--radius-control);
     background: var(--color-white);
     color: var(--ink);
     font-size: max(var(--text-min), var(--text-meta));

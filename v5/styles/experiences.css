@@ -9,7 +9,7 @@
     margin: 2rem 0 2.5rem;
     padding: 1.5rem;
     border: 1px solid var(--line);
-    border-radius: .75rem;
+    border-radius: var(--surface-radius-panel);
     background: var(--soft);
 }
 
@@ -30,7 +30,7 @@
     min-height: 3.25rem;
     padding: .75rem;
     border: 1px solid var(--line);
-    border-radius: .5rem;
+    border-radius: var(--radius-control);
     background: var(--paper);
     color: var(--ink);
     font: inherit;
@@ -123,7 +123,7 @@
    Preserve row hierarchy and real local application state. */
 .disclosure-record-list,
 .event-status-list {
-    border-top: 1px solid var(--ink);
+    border-top: 1px solid var(--border-default);
 }
 
 .disclosure-record-list article,

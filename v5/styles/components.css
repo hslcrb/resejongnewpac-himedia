@@ -126,7 +126,7 @@
 .button--outline, .button--light {
     color: var(--color-black);
     background: var(--color-white);
-    border-color: var(--color-detail-d7dadd);
+    border-color: var(--border-default);
 }
 
 .button svg, .text-link svg {
@@ -205,7 +205,7 @@ body:has(.navigation-dialog[open]) {
     align-items: center;
     margin-top: 30px;
     padding-bottom: 14px;
-    border-bottom: 2px solid var(--color-black);
+    border-bottom: 1px solid var(--border-default);
 }
 
 .site-search input {
@@ -307,14 +307,14 @@ body:has(.navigation-dialog[open]) {
     padding: 16px 0;
     font-size: max(var(--text-min), var(--text-sm));
     border: 0;
-    border-bottom: 3px solid var(--color-detail-j5afio);
+    border-bottom: 1px solid var(--border-default);
     border-radius: 0;
     background: var(--color-detail-j5afio);
 }
 
 .subnav a.active {
     color: var(--color-black);
-    border-bottom-color: var(--color-black);
+    border-bottom-color: var(--stroke-selected);
     background: var(--color-detail-j5afio);
     font-weight: 700;
 }
@@ -419,8 +419,8 @@ body:has(.navigation-dialog[open]) {
 }
 
 .footer-citybrand:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 6px;
+    outline: var(--focus-width) solid var(--border-focus);
+    outline-offset: var(--focus-offset);
 }
 
 .footer-service select {
@@ -429,7 +429,7 @@ body:has(.navigation-dialog[open]) {
     margin-top: 18px;
     color: var(--color-black);
     background: var(--color-detail-j5afio);
-    border: 1px solid var(--color-detail-c9ccd0);
+    border: 1px solid var(--border-default);
     border-radius: var(--radius);
     font-size: max(var(--text-min), var(--text-sm));
 }
@@ -449,7 +449,7 @@ body:has(.navigation-dialog[open]) {
     z-index: 40;
     width: 48px;
     height: 48px;
-    border: 1px solid var(--color-detail-d6d9dc);
+    border: 1px solid var(--border-default);
     border-radius: 50%;
     background: var(--color-white);
     color: var(--color-black);

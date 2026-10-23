@@ -56,7 +56,7 @@
 .overview-intro-media {
     margin: 0;
     overflow: hidden;
-    border-radius: clamp(10px, 1.3vw, 20px);
+    border-radius: var(--radius-media);
     background: var(--soft);
     aspect-ratio: 1.16;
 }
@@ -72,7 +72,7 @@
     grid-template-columns: 1.1fr 1.2fr 0.8fr;
     margin: 0;
     padding: 28px 0;
-    border-top: 1px solid var(--ink);
+    border-top: 1px solid var(--border-default);
     border-bottom: 1px solid var(--line);
 }
 
@@ -184,7 +184,7 @@
     display: flex;
     justify-content: space-between;
     padding: 23px 0;
-    border-bottom: 1px solid var(--color-detail-cbdcde);
+    border-bottom: 1px solid var(--border-default);
     font-size: max(var(--text-min), 18px);
 }
 
@@ -199,7 +199,7 @@
 
 .overview-process li {
     padding-top: 26px;
-    border-top: 2px solid var(--ink);
+    border-top: 1px solid var(--border-default);
 }
 
 .overview-process li > span {
@@ -247,7 +247,7 @@
     max-height: 540px;
     object-fit: cover;
     object-position: center 45%;
-    border-radius: 12px;
+    border-radius: var(--radius-media);
 }
 
 /* [소개 하단 도형의 선별 복구 / Selective restoration of the identity diagram]
@@ -347,7 +347,7 @@
     height: auto;
     aspect-ratio: 1.65;
     object-fit: cover;
-    border-radius: 12px;
+    border-radius: var(--radius-media);
 }
 
 .news-editorial-feature > div {
@@ -392,13 +392,13 @@
 
 .info-chips a[aria-current] {
     background: var(--ink);
-    border-color: var(--ink);
+    border-color: var(--stroke-selected);
     color: var(--color-white);
 }
 
 .info-note {
     padding: 24px 28px;
-    border-left: 3px solid var(--sky);
+    border-left: 1px solid var(--border-default);
     background: var(--soft);
 }
 
@@ -432,7 +432,7 @@
 .newsletter-subscribe input[type="email"] {
     min-height: 52px;
     border: 1px solid var(--line);
-    border-radius: 9px;
+    border-radius: var(--radius-control);
     background: var(--paper);
     color: var(--ink);
     font-size: max(var(--text-min), 16px);
@@ -478,7 +478,7 @@
 .info-map,
 .ci-specimen {
     overflow: hidden;
-    border-radius: clamp(8px, 1vw, 14px);
+    border-radius: var(--radius-media);
 }
 
 .ci-specimen {
@@ -511,7 +511,7 @@
 .identity-swatch > div {
     height: 130px;
     border: 1px solid var(--line);
-    border-radius: 8px;
+    border-radius: var(--surface-radius-compact);
     background: var(--swatch);
 }
 
@@ -563,7 +563,7 @@
 .search-results-form input {
     min-width: 0;
     min-height: 58px;
-    border-radius: 10px;
+    border-radius: var(--radius-control);
     font-size: max(var(--text-min), 18px);
 }
 

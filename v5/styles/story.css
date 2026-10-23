@@ -169,7 +169,7 @@
 
 .story-experience-list > article {
     padding-block: 44px;
-    border-top: 1px solid var(--color-detail-d4d9de);
+    border-top: 1px solid var(--border-default);
 }
 
 .story-experience-list > article:first-child {
@@ -314,7 +314,7 @@
     gap: 12px 32px;
     margin-top: 40px;
     padding-top: 24px;
-    border-top: 1px solid var(--color-detail-d4d9de);
+    border-top: 1px solid var(--border-default);
 }
 
 .story-company-stage {
@@ -342,7 +342,7 @@
 }
 
 .story-company-list li {
-    border-bottom: 1px solid var(--color-detail-d4d9de);
+    border-bottom: 1px solid var(--border-default);
 }
 
 .story-company-list a {
@@ -378,7 +378,7 @@
 
 .story-timeline li {
     padding-block: 40px;
-    border-top: 1px solid var(--color-detail-d5d3ce);
+    border-top: 1px solid var(--border-default);
 }
 
 .story-timeline li:first-child {
@@ -478,7 +478,7 @@
     justify-content: space-between;
     gap: 24px;
     padding-block: 32px;
-    border-top: 1px solid var(--color-detail-d4d9de);
+    border-top: 1px solid var(--border-default);
     color: inherit;
     text-decoration: none;
 }
@@ -499,7 +499,7 @@
     gap: 20px 32px;
     margin-top: 88px;
     padding-top: 48px;
-    border-top: 1px solid var(--color-detail-d4d9de);
+    border-top: 1px solid var(--border-default);
 }
 
 .story-closing > p {
@@ -526,12 +526,12 @@
 }
 
 .sejong-story :is(a, button, input):focus-visible {
-    outline: 3px solid var(--color-detail-087895);
-    outline-offset: 5px;
+    outline: var(--focus-width) solid var(--border-focus);
+    outline-offset: var(--focus-offset);
 }
 
 .story-identity a:focus-visible {
-    outline-color: var(--color-detail-72d6f1);
+    outline-color: var(--border-focus);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -637,7 +637,7 @@
 
     .story-experience-list > article:first-child {
         padding-top: 32px;
-        border-top: 1px solid var(--color-detail-d4d9de);
+        border-top: 1px solid var(--border-default);
     }
 
     .story-space-picker {

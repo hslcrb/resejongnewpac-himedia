@@ -12,10 +12,11 @@ import ComponentCatalog from "../../components/ComponentCatalog";
 import SystemDialog from "../../components/SystemDialog";
 import { SystemText, textAttributes } from "../../components/SystemText";
 import { SystemSurface } from "../../components/SystemSurface";
+import { SystemControlGroup } from "../../components/SystemControlGroup";
 import { SystemDisclosure, SystemTabs } from "../../components/SystemNavigation";
 import { showSmallNotification } from "../../components/SmallNotificationModal";
 import type { PanelPoint } from "../../src/lib/floating-panel";
-import { PROGRAMS } from "../../src/data/catalog";
+import { NAV, PROGRAMS } from "../../src/data/catalog";
 import type { Program } from "../../types/sejong";
 import VioletQuickMenu, { SEJONG_QUICK_MENU_ITEMS } from "../../components/VioletQuickMenu";
 import type { VioletQuickMenuItems } from "../../components/VioletQuickMenu";
@@ -24,6 +25,7 @@ import {
     SystemButton,
     SystemCheckbox,
     SystemField,
+    SystemLink,
     SystemNotice,
 } from "../../components/SystemPrimitives";
 import {
@@ -898,11 +900,13 @@ export default function DesignRulesPage() {
                             "shape",
                             "형태와 경계",
                             <>
+                                <p data-text="body">일반 경계는 옅은 1px 안쪽 선입니다. 버튼·입력·패널은 inset 표면을 공유하고, 초점선도 안쪽에 표시해 크기와 배치가 바뀌지 않습니다. 곡률과 선 색은 아래 토큰에서 함께 관리합니다.</p>
                                 <div data-text="body" className="ds-shape-grid">
                                     {([
                                         ["--radius-control", "기본 조작", "버튼·입력·작은 패널"],
                                         ["--radius-flow", "신청·계정", "flow 버튼·입력"],
                                         ["--radius-media", "미디어", "포스터·사진"],
+                                        ["--surface-radius-panel", "공통 패널", "안내·계정·예매 표면"],
                                         ["--radius-banner", "배너", "히어로·영상 프레임"],
                                         ["--radius-dialog", "대화상자", "모달·안내 패널"],
                                     ] as const).map(([token, label, text]) => (
@@ -983,6 +987,12 @@ export default function DesignRulesPage() {
                                         >
                                             일정 찾기
                                         </SystemButton>
+                                        <SystemButton data-text="action"
+                                            variant="highlight"
+                                            onClick={() => setMessage("강조 버튼을 눌렀습니다.")}
+                                        >
+                                            관심 일정 확인
+                                        </SystemButton>
                                     </div>
                                     <div className="ds-demo-row">
                                         <SystemButton data-text="action" disabled>예매 준비 중</SystemButton>
@@ -1018,7 +1028,7 @@ export default function DesignRulesPage() {
                                         ["기본", "역할에 맞는 면과 레이블", "고정된 위치"],
                                         ["호버", "배경·경계의 명도 변화", DESIGN_TOKEN_VALUES["--duration-feedback"]],
                                         ["눌림", "면의 명도 변화", "실제 누르고 있는 동안"],
-                                        ["초점", `${DESIGN_TOKEN_VALUES["--focus-width"]} 외곽선 + ${DESIGN_TOKEN_VALUES["--focus-offset"]} 간격`, "키보드에서 분명하게"],
+                                        ["초점", `${DESIGN_TOKEN_VALUES["--focus-width"]} 안쪽 초점선 · offset ${DESIGN_TOKEN_VALUES["--focus-offset"]}`, "키보드에서 분명하게 · 배치 변화 없음"],
                                         ["비활성", "비활성 면 + 상태 문구", "실제 disabled 속성"],
                                     ]}
                                 />
@@ -1136,6 +1146,32 @@ export default function DesignRulesPage() {
                                         </p>
                                     </SystemDisclosure>
                                 </div>
+                                {/* [제품과 같은 비율 메뉴 / The same proportional menu as the product] */}
+                                <h3 data-text="subheading">메뉴 폭과 줄바꿈</h3>
+                                <p data-text="body">
+                                    SystemControlGroup은 항목의 픽셀 폭을 정하지 않고 전체 너비에서
+                                    간격을 뺀 나머지를 퍼센트로 나눕니다. 기본값은 768px 미만 2열,
+                                    768px부터 3열, 1024px부터 6열입니다. 항목이 적으면 실제 개수까지만
+                                    나누고 마지막 줄도 남는 폭을 채웁니다. 같은 행의 높이는 가장 긴
+                                    문구에 맞추며, 글자는 16px 이상과 조작 높이 48px 이상을 유지합니다.
+                                </p>
+                                <div className="ds-demo">
+                                    <SystemControlGroup as="nav" id="demo-visit-navigation" aria-label="반응형 이용안내 메뉴 예제">
+                                        {NAV.find((group) => group.id === "visit")?.items?.map(([label, href]) => (
+                                            <SystemLink key={href} href={href} variant="secondary">{label}</SystemLink>
+                                        ))}
+                                    </SystemControlGroup>
+                                </div>
+                                <DataTable
+                                    label="SystemControlGroup 비율 규격"
+                                    headings={["속성", "기본값", "역할"]}
+                                    rows={[
+                                        ["as", "div", "nav · div · section · ul · ol의 의미 보존"],
+                                        ["columns", "compact: 2 / medium: 3 / wide: 6", "화면 구간마다 1–6열 지정"],
+                                        ["maxColumns", "6", "항목 수와 함께 최대 열 수 제한"],
+                                        ["항목 너비", "(100% − 간격 × (열 수 − 1)) ÷ 열 수", "부모 너비에 반응하며 줄바꿈"],
+                                    ]}
+                                />
                             </>,
                         )}
                         {section(
@@ -1541,7 +1577,7 @@ export default function DesignRulesPage() {
                                 </div>
                                 <ul className="ds-rules-list">
                                     <li data-text="body">일반 조작 영역은 48px를 기본으로 확보합니다.</li>
-                                    <li data-text="body">초점은 3px 외곽선과 4px 간격으로 표시합니다.</li>
+                                    <li data-text="body">초점은 3px 안쪽 선과 -3px offset으로 표시합니다.</li>
                                     <li data-text="body">
                                         열리는 메뉴와 모달은 닫기·Esc·초점 복귀를 함께 제공합니다.
                                     </li>

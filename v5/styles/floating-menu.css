@@ -139,7 +139,7 @@
     display: grid;
     gap: var(--space-2);
     padding: var(--space-4) 0 var(--space-5);
-    border-block: 1px solid var(--color-detail-ycvx6o);
+    border-block: 1px solid var(--border-default);
 }
 .glass-menu-journeys span {
     font-size: max(var(--text-min), var(--text-sm));
@@ -188,7 +188,7 @@
     gap: 0 var(--space-6);
     margin-top: var(--space-6);
     padding-top: var(--space-3);
-    border-top: 1px solid var(--color-detail-ycvx6o);
+    border-top: 1px solid var(--border-default);
 }
 .glass-menu-utilities a {
     display: inline-flex;

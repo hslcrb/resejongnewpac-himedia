@@ -25,7 +25,7 @@
   padding: 18px 22px;
   margin-bottom: 36px;
   background: var(--color-detail-f5f5f1);
-  border: 1px solid var(--color-detail-e8e8e1);
+  border: 1px solid var(--border-default);
   color: var(--color-detail-53534b);
 }
 .flow-demo > svg {
@@ -50,7 +50,7 @@
   display: flex;
   padding: 0 0 30px;
   margin: 0 0 38px;
-  border-bottom: 1px solid var(--color-detail-deded8);
+  border-bottom: 1px solid var(--border-default);
   list-style: none;
   gap: 0;
 }
@@ -81,7 +81,7 @@
   place-items: center;
   width: 34px;
   height: 34px;
-  border: 1px solid var(--color-detail-d9d9d1);
+  border: 1px solid var(--border-default);
   border-radius: 50%;
   font-size: max(var(--text-min), var(--text-sm));
   font-family: Arial, sans-serif;
@@ -91,14 +91,14 @@
 }
 .flow-steps li.is-current > span {
   background: var(--color-detail-f6e45d);
-  border-color: var(--color-detail-f6e45d);
+  border-color: var(--stroke-selected);
 }
 .flow-steps li.is-complete {
   color: var(--color-detail-181818);
 }
 .flow-steps li.is-complete > span {
   background: var(--color-detail-181818);
-  border-color: var(--color-detail-181818);
+  border-color: var(--stroke-selected);
   color: var(--color-white);
 }
 .booking-layout {
@@ -108,7 +108,7 @@
   gap: 32px;
 }
 .flow-panel {
-  border: 1px solid var(--color-detail-deded8);
+  border: 1px solid var(--border-default);
   background: var(--color-white);
   padding: 36px;
   min-width: 0;
@@ -154,8 +154,8 @@
   width: 100%;
   min-height: 50px;
   padding: 12px 14px;
-  border: 1px solid var(--color-detail-dcdcd5);
-  border-radius: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-flow);
   background: var(--color-white);
   color: var(--color-detail-20201c);
   font-size: max(var(--text-min), var(--text-sm));
@@ -165,13 +165,13 @@
 .flow-page .form-field:not([data-component="field"]) input:focus,
 .flow-page .form-field:not([data-component="field"]) select:focus,
 .flow-page .form-field:not([data-component="field"]) textarea:focus {
-  outline: 2px solid var(--color-detail-b6a620);
-  outline-offset: 2px;
-  border-color: var(--color-detail-555555);
+  outline: var(--focus-width) solid var(--border-focus);
+  outline-offset: var(--focus-offset);
+  border-color: var(--border-default);
 }
 .flow-page .form-field:not([data-component="field"]) [aria-invalid="true"] {
-  border-color: var(--color-detail-ae3327);
-  outline-color: var(--color-detail-ae3327);
+  border-color: var(--border-default);
+  outline-color: var(--semantic-error-border);
 }
 .flow-page .form-field:not([data-component="field"]) textarea {
   resize: vertical;
@@ -228,18 +228,18 @@
   min-width: 110px;
   text-align: center;
   padding: 13px 22px;
-  border: 1px solid var(--color-detail-dcdcd5);
+  border: 1px solid var(--border-default);
   font-size: max(var(--text-min), var(--text-sm));
   cursor: pointer;
 }
 .flow-radio-choice input:checked + span {
   color: var(--color-detail-171717);
   background: var(--color-detail-f9ed93);
-  border-color: var(--color-detail-e0cb38);
+  border-color: var(--stroke-selected);
 }
 .flow-radio-choice input:focus-visible + span {
-  outline: 2px solid var(--color-detail-242424);
-  outline-offset: 3px;
+  outline: var(--focus-width) solid var(--border-focus);
+  outline-offset: var(--focus-offset);
 }
 .flow-info-box {
   background: var(--color-detail-f7f7f3);
@@ -264,7 +264,7 @@
   gap: 12px;
   padding-top: 28px;
   margin-top: 28px;
-  border-top: 1px solid var(--color-detail-e6e6e0);
+  border-top: 1px solid var(--border-default);
 }
 .flow-page .button {
   display: inline-flex;
@@ -275,22 +275,22 @@
   padding: 13px 20px;
   text-decoration: none;
   font-size: max(var(--text-min), var(--text-sm));
-  border: 1px solid var(--color-detail-21211d);
+  border: 1px solid var(--border-default);
 }
 .flow-page .button--outline {
   background: var(--color-white);
   color: var(--color-detail-21211d);
-  border-color: var(--color-detail-d8d8d0);
+  border-color: var(--border-default);
 }
 .flow-page .button--dark {
   background: var(--color-detail-191918);
   color: var(--color-white);
-  border-color: var(--color-detail-191918);
+  border-color: var(--border-default);
 }
 .flow-page .button--yellow {
   background: var(--color-detail-f6e45d);
   color: var(--color-detail-191918);
-  border-color: var(--color-detail-f6e45d);
+  border-color: var(--border-default);
 }
 .flow-page .button:hover {
   filter: brightness(0.94);
@@ -303,14 +303,14 @@
   top: 115px;
   padding: 26px;
   background: var(--color-detail-f6f6f2);
-  border-top: 3px solid var(--color-detail-25251f);
+  border-top: 1px solid var(--border-default);
 }
 .booking-summary__program {
   display: flex;
   align-items: flex-start;
   gap: 16px;
   padding-bottom: 24px;
-  border-bottom: 1px solid var(--color-detail-dfdfd7);
+  border-bottom: 1px solid var(--border-default);
 }
 .booking-summary__program img {
   width: 76px;
@@ -364,7 +364,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 22px 0 10px;
-  border-top: 1px solid var(--color-detail-d7d7cd);
+  border-top: 1px solid var(--border-default);
 }
 .booking-total > span {
   font-size: max(var(--text-min), var(--text-sm));
@@ -384,7 +384,7 @@
   padding: 14px 18px;
   background: var(--color-detail-fff1ee);
   color: var(--color-detail-9f3326);
-  border-left: 3px solid var(--color-detail-b84432);
+  border-left: 1px solid var(--border-default);
   margin: 0 0 22px;
   font-size: max(var(--text-min), var(--text-sm));
   line-height: 1.7;
@@ -393,8 +393,8 @@
   display: none;
 }
 .flow-error:focus {
-  outline: 2px solid var(--color-detail-b84432);
-  outline-offset: 2px;
+  outline: var(--focus-width) solid var(--border-focus);
+  outline-offset: var(--focus-offset);
 }
 .seat-legend {
   display: flex;
@@ -415,15 +415,15 @@
   width: 12px;
   height: 12px;
   background: var(--color-white);
-  border: 1px solid var(--color-detail-b5b5ab);
+  border: 1px solid var(--border-default);
 }
 .seat-legend i.selected {
   background: var(--color-detail-f2dc45);
-  border-color: var(--color-detail-d0b924);
+  border-color: var(--border-default);
 }
 .seat-legend i.occupied {
   background: var(--color-detail-e4e4de);
-  border-color: var(--color-detail-e4e4de);
+  border-color: var(--border-default);
 }
 .seat-map {
   padding: 0 4px;
@@ -460,7 +460,7 @@
 .seat {
   width: 100%;
   aspect-ratio: 1;
-  border: 1px solid var(--color-detail-c7c7bb);
+  border: 1px solid var(--border-default);
   background: var(--color-white);
   color: var(--color-detail-5e5e52);
   border-radius: 3px 3px 0 0;
@@ -473,17 +473,17 @@
     border-color 0.12s;
 }
 .seat:hover:not(:disabled) {
-  border-color: var(--color-detail-676552);
+  border-color: var(--border-default);
   background: var(--color-detail-f7f1c1);
 }
 .seat.is-selected {
   background: var(--color-detail-f3de4e);
   color: var(--color-detail-23231c);
-  border-color: var(--color-detail-d0b925);
+  border-color: var(--stroke-selected);
 }
 .seat:disabled {
   background: var(--color-detail-e9e9e2);
-  border-color: var(--color-detail-e9e9e2);
+  border-color: var(--border-default);
   color: var(--color-detail-b4b4a8);
 }
 .seat-caption {
@@ -534,7 +534,7 @@
   font-weight: 600;
   margin: 36px 0 22px;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--color-detail-dfdfd6);
+  border-bottom: 1px solid var(--border-default);
 }
 .flow-form-section-title small {
   font-size: max(var(--text-min), var(--text-sm));
@@ -549,7 +549,7 @@
   grid-template-columns: 150px minmax(0, 1fr);
   gap: 24px;
   padding: 18px 0;
-  border-bottom: 1px solid var(--color-detail-e5e5de);
+  border-bottom: 1px solid var(--border-default);
   font-size: max(var(--text-min), var(--text-sm));
   line-height: 1.8;
 }
@@ -566,7 +566,7 @@
   margin: 0 auto;
   padding: 50px 55px;
   text-align: center;
-  border: 1px solid var(--color-detail-e0e0d8);
+  border: 1px solid var(--border-default);
 }
 .receipt-check {
   display: grid;
@@ -619,7 +619,7 @@
   gap: 5px 30px;
   padding: 0 0 18px;
   margin: 0 0 30px;
-  border-bottom: 1px solid var(--color-detail-deded6);
+  border-bottom: 1px solid var(--border-default);
 }
 .account-nav a {
   display: block;
@@ -654,7 +654,7 @@
 .account-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  border: 1px solid var(--color-detail-deded6);
+  border: 1px solid var(--border-default);
 }
 .account-stats a {
   display: grid;
@@ -664,7 +664,7 @@
   padding: 30px;
   color: var(--color-detail-24241d);
   text-decoration: none;
-  border-right: 1px solid var(--color-detail-deded6);
+  border-right: 1px solid var(--border-default);
 }
 .account-stats a:last-child {
   border-right: 0;
@@ -723,7 +723,7 @@
   align-items: flex-start;
   gap: 30px;
   padding: 30px;
-  border: 1px solid var(--color-detail-deded6);
+  border: 1px solid var(--border-default);
 }
 .account-booking > img {
   width: 130px;
@@ -782,7 +782,7 @@
   gap: 5px;
   padding: 5px 0;
   border: 0;
-  border-bottom: 1px solid currentColor;
+  border-bottom: 1px solid var(--border-default);
   background: none;
   color: var(--color-detail-5b5b4f);
   font-size: max(var(--text-min), var(--text-sm)) !important;
@@ -791,7 +791,7 @@
 }
 .booking-cancel-confirm {
   background: var(--color-detail-faf7e4);
-  border: 1px solid var(--color-detail-e8dd9c);
+  border: 1px solid var(--border-default);
   padding: 20px;
   margin-top: 20px;
 }
@@ -824,10 +824,10 @@
   font-size: max(var(--text-min), var(--text-sm)) !important;
 }
 .account-applications {
-  border-top: 1px solid var(--color-detail-21211c);
+  border-top: 1px solid var(--border-default);
 }
 .application-record {
-  border-bottom: 1px solid var(--color-detail-deded6);
+  border-bottom: 1px solid var(--border-default);
 }
 .application-record summary {
   display: flex;

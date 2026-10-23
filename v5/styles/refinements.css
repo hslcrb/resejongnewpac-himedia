@@ -155,7 +155,7 @@
     top: var(--visit-preview-top, 30vh);
     aspect-ratio: 4 / 3;
     overflow: hidden;
-    border-radius: 0.3125rem;
+    border-radius: var(--radius-media);
     background: var(--paper);
     box-shadow: 0 0.5rem 1.5rem var(--color-detail-1jm8av);
 }

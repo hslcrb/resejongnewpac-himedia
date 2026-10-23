@@ -96,8 +96,8 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 summary:focus-visible {
-  outline: 3px solid var(--color-detail-b69002);
-  outline-offset: 5px;
+  outline: var(--focus-width) solid var(--border-focus);
+  outline-offset: var(--focus-offset);
 }
 input,
 select,
@@ -193,7 +193,7 @@ input[type="radio"] {
   font-size: max(var(--text-min), var(--text-sm));
   font-weight: 600;
   line-height: 1.4;
-  border: 1px solid var(--color-detail-j5afio);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius);
   transition: background 0.15s, border-color 0.15s;
 }
@@ -238,7 +238,7 @@ input[type="radio"] {
 .site-header {
   height: 88px;
   background: var(--color-white);
-  border-bottom: 1px solid var(--color-detail-f0f0ec);
+  border-bottom: 1px solid var(--border-default);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -388,7 +388,7 @@ input[type="radio"] {
 }
 .search-input-wrap {
   display: flex;
-  border-bottom: 2px solid var(--ink);
+  border-bottom: 1px solid var(--border-default);
 }
 .search-input-wrap input {
   border: 0;
@@ -585,7 +585,7 @@ input[type="radio"] {
 }
 .program-card-meta span + span {
   color: var(--color-detail-777a70);
-  border-left: 1px solid var(--color-detail-c7cac0);
+  border-left: 1px solid var(--border-default);
   padding-left: 8px;
 }
 .program-card h3 {
@@ -621,7 +621,7 @@ input[type="radio"] {
 .tabs > [aria-selected="true"] {
   background: var(--ink);
   color: var(--color-white);
-  border-color: var(--ink);
+  border-color: var(--stroke-selected);
 }
 .empty-state {
   text-align: center;
@@ -655,10 +655,10 @@ input[type="radio"] {
 .form-field select,
 .form-field textarea {
   width: 100%;
-  border: 1px solid var(--color-detail-d9dcd1);
+  border: 1px solid var(--border-default);
   background: var(--color-white);
   padding: 13px 15px;
-  border-radius: 0;
+  border-radius: var(--radius-control);
 }
 .form-field textarea {
   resize: vertical;
@@ -678,7 +678,7 @@ input[type="radio"] {
   text-underline-offset: 4px;
 }
 .site-footer :focus-visible {
-  outline-color: var(--yellow);
+  outline-color: var(--border-focus);
 }
 .footer-top {
   display: grid;
@@ -731,7 +731,7 @@ input[type="radio"] {
   gap: 24px 36px;
   margin-top: 30px;
   padding-bottom: 26px;
-  border-bottom: 1px solid var(--color-detail-ffffff26);
+  border-bottom: 1px solid var(--border-default);
 }
 .footer-services nav {
   display: flex;
@@ -748,7 +748,7 @@ input[type="radio"] {
   font-weight: 550;
 }
 .family-select select {
-  border: 1px solid var(--color-detail-ffffff40);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius);
   background: var(--color-detail-j5afio);
   color: var(--color-detail-f2f1e9);
@@ -849,7 +849,7 @@ input[type="radio"] {
   bottom: 22px;
   width: 42px;
   height: 42px;
-  border: 1px solid var(--color-detail-cacfc0);
+  border: 1px solid var(--border-default);
   background: var(--color-detail-fffffff0);
   z-index: 50;
   opacity: 0;
@@ -869,7 +869,7 @@ input[type="radio"] {
 }
 .sitemap-group h2 {
   font-size: max(var(--text-min), 24px);
-  border-bottom: 2px solid var(--ink);
+  border-bottom: 1px solid var(--border-default);
   padding-bottom: 18px;
   margin-bottom: 14px;
 }
@@ -893,7 +893,7 @@ input[type="radio"] {
 .search-results-form input {
   flex: 1;
   min-width: 0;
-  border: 1px solid var(--color-detail-cbd0c0);
+  border: 1px solid var(--border-default);
   padding: 12px 18px;
 }
 .search-result {

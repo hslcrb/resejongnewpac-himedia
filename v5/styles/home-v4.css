@@ -6,7 +6,7 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 32px;
     padding-block: 36px;
-    border-bottom: 1px solid var(--color-detail-deded9);
+    border-bottom: 1px solid var(--border-default);
 }
 
 .home-pathways > a {
@@ -141,7 +141,7 @@
     min-width: 48px;
     min-height: 48px;
     padding: 8px;
-    border: 1px solid var(--color-detail-deded9);
+    border: 1px solid var(--border-default);
     border-radius: 50%;
     background: var(--color-white);
     font-size: max(var(--text-min), 16px);
@@ -177,7 +177,7 @@
     align-items: center;
     justify-content: center;
     min-width: 0;
-    border: 1px solid var(--color-detail-j5afio);
+    border: 1px solid var(--border-default);
     border-radius: 50%;
     color: var(--color-detail-282d28);
     font-size: max(var(--text-min), 18px);
@@ -254,16 +254,17 @@
     gap: 20px;
     width: 100%;
     padding: 16px;
-    border: 1px solid var(--color-detail-e1e3dc);
-    border-radius: 12px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--surface-radius-compact);
     background: var(--color-white);
     color: var(--color-detail-252a25);
     text-align: left;
 }
 
 .quick-program.is-selected {
-    border-color: var(--color-detail-303a31);
-    box-shadow: inset 0 0 0 1px var(--color-detail-303a31);
+    border-color: var(--stroke-selected);
+    background: var(--surface-banner);
+    box-shadow: inset 0 0 0 1px var(--stroke-selected);
 }
 
 .quick-program:disabled {
@@ -276,7 +277,7 @@
     height: 96px;
     flex-shrink: 0;
     object-fit: cover;
-    border-radius: 4px;
+    border-radius: var(--radius-media);
 }
 
 .quick-program-copy {
@@ -329,8 +330,8 @@
     min-height: 52px;
     margin-top: 8px;
     padding: 12px;
-    border: 1px solid var(--color-detail-d5d9d0);
-    border-radius: 8px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-control);
     background: var(--color-white);
     color: var(--color-detail-2f372f);
     font: inherit;
@@ -394,7 +395,7 @@
 
 /* [발견과 지속적인 참여 / Discovery and continued participation] */
 #discover-programs {
-    border-top: 1px solid var(--color-detail-deded9);
+    border-top: 1px solid var(--border-default);
 }
 
 #discover-programs .program-choice {
@@ -412,7 +413,7 @@
     gap: 32px;
     margin-top: 44px;
     padding: 32px 0;
-    border-block: 1px solid var(--color-detail-d9dcd4);
+    border-block: 1px solid var(--border-default);
 }
 
 .home-season-link strong {
@@ -453,14 +454,14 @@
 .home-news-filters button {
     min-height: 48px;
     padding: 8px 4px;
-    border-bottom: 2px solid var(--color-detail-j5afio);
+    border-bottom: 1px solid var(--border-default);
     color: var(--color-detail-666d62);
     font-size: max(var(--text-min), 18px);
     line-height: 1.5;
 }
 
 .home-news-filters button[aria-pressed="true"] {
-    border-color: var(--color-detail-252c25);
+    border-color: var(--stroke-selected);
     color: var(--color-detail-252c25);
     font-weight: 650;
 }
@@ -500,7 +501,7 @@
     gap: 32px;
     margin-top: 64px;
     padding-top: 24px;
-    border-top: 1px solid var(--color-detail-15oygyo);
+    border-top: 1px solid var(--border-default);
 }
 
 .home-institution-links a {
@@ -515,7 +516,7 @@
     }
 
     .quick-program:not(:disabled):hover {
-        border-color: var(--color-detail-737e6e);
+        border-color: var(--border-default);
     }
 
     .home-pathways a:hover strong,
@@ -558,7 +559,7 @@
     }
 
     .quick-booking-choices {
-        border-top: 1px solid var(--color-detail-dce0d5);
+        border-top: 1px solid var(--border-default);
         padding-top: 28px;
     }
 
@@ -596,7 +597,7 @@
     }
 
     .home-pathways > a + a {
-        border-top: 1px solid var(--color-detail-e1e3dc);
+        border-top: 1px solid var(--border-default);
     }
 
     .home-participation {

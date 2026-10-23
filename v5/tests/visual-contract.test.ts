@@ -2,11 +2,24 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
 import { DESIGN_COLORS, DESIGN_TOKEN_VALUES, GLASS_MATERIALS, TEXT_VARIANTS, renderTypographyCss } from "../src/data/design-tokens.ts";
-import { auditTextBindings } from "../scripts/audit-visual-contract.ts";
+import { auditStrokeDeclaration, auditTextBindings } from "../scripts/audit-visual-contract.ts";
 import { colorLiterals, floorFontShorthand, migrateColors, migrateCss, migrateTsx, normalizedColor } from "../scripts/visual-contract.ts";
 import type { ColorValues } from "../scripts/visual-contract.ts";
 
 // [중립색과 읽기 위계의 실제 계약 / Actual contract for neutral colors and reading hierarchy]
+test("UI edges reject exterior focus and ink-colored strokes while preserving fills", () => {
+    assert.ok(auditStrokeDeclaration("outline-offset", "4px"));
+    assert.ok(auditStrokeDeclaration("outline-offset", "0.25rem !important"));
+    assert.ok(auditStrokeDeclaration("border", "1px solid var(--ink)"));
+    assert.ok(auditStrokeDeclaration("border-top", "2px solid var(--text-primary)"));
+    assert.equal(auditStrokeDeclaration("outline-offset", "var(--focus-offset)"), null);
+    assert.equal(auditStrokeDeclaration("outline-offset", "-3px"), null);
+    assert.equal(auditStrokeDeclaration("outline-offset", "0"), null);
+    assert.equal(auditStrokeDeclaration("border", "1px solid var(--border-default)"), null);
+    assert.equal(auditStrokeDeclaration("outline", "3px solid var(--border-focus)"), null);
+    assert.equal(auditStrokeDeclaration("background", "var(--color-black)"), null);
+});
+
 test("shared roles preserve hierarchy with a 16px floor", () => {
     assert.ok(Object.values(TEXT_VARIANTS).every((variant) => variant.minimum >= 16));
     assert.ok(TEXT_VARIANTS.title.minimum > TEXT_VARIANTS.body.minimum);

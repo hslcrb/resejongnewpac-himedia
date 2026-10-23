@@ -111,9 +111,9 @@ try {
             const flowButton = await metrics('[aria-label="flow 버튼 규격"]');
             const standardStates = await fieldStates("#demo-field-default");
             const states = await fieldStates("#demo-field-flow");
-            assert.deepEqual([standard.minHeight, standard.radius, standard.fontSize], ["48px", "8px", "16px"]);
-            assert.deepEqual([flow.minHeight, flow.radius, flow.fontSize], ["54px", "9px", "16px"]);
-            assert.deepEqual([flowButton.minHeight, flowButton.radius], ["50px", "9px"]);
+            assert.deepEqual([standard.minHeight, standard.radius, standard.fontSize], ["48px", "12px", "16px"]);
+            assert.deepEqual([flow.minHeight, flow.radius, flow.fontSize], ["54px", "14px", "16px"]);
+            assert.deepEqual([flowButton.minHeight, flowButton.radius], ["50px", "14px"]);
             assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
             await go("account/signup/");
             assert.deepEqual(await metrics("#flow-name"), flow);
@@ -140,7 +140,7 @@ try {
         assert.equal(await page.locator("#quick-booking-heading").getAttribute("data-text"), "heading");
         assert.equal(await page.locator("#quick-booking-heading .booking-invitation-letter").count(), 0);
         assert.equal(await page.locator("#quick-booking-heading").evaluate(element => element.getAnimations({ subtree: true }).length), 0);
-        assert.deepEqual((({ minHeight, radius }) => [minHeight, radius])(await metrics("#home-booking-today")), ["48px", "8px"]);
+        assert.deepEqual((({ minHeight, radius }) => [minHeight, radius])(await metrics("#home-booking-today")), ["48px", "12px"]);
         assert.equal(await page.locator('.hero-time-glass[data-glass-variant="hero"]').count(), 1);
         for (const width of [1440, 390]) {
             await page.setViewportSize({ width, height: 1000 });

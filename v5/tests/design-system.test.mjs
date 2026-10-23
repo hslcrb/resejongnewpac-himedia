@@ -40,7 +40,7 @@ test("type, export and chapter links form a usable public design contract", () =
     const exported = designTokensCss();
     assert.match(exported, /--text-body: 1rem;/);
     assert.match(exported, /--control-size: 3rem;/);
-    assert.match(exported, /--radius-dialog: 24px;/);
+    assert.match(exported, /--radius-dialog: 28px;/);
     assert.match(exported, /--space-24: 6rem;/);
     assert.equal(new Set(CHAPTERS.map((chapter) => chapter.id)).size, 9);
     for (const chapter of CHAPTERS)

@@ -471,7 +471,7 @@
 
 .account-note-preview {
     padding-left: var(--space-6);
-    border-left: 2px solid var(--accent-highlight);
+    border-left: 1px solid var(--border-default);
 }
 
 .account-note time,

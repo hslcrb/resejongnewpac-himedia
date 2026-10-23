@@ -31,6 +31,7 @@ import "../styles/design-system.css";
 import "../styles/small-notification-modal.css";
 import "../styles/hero-companion.css";
 import "../styles/system-primitives.css";
+import "../styles/system-control-group.css";
 import "../styles/component-catalog.css";
 import "../styles/account-mini-room.css";
 import "../styles/account-space.css";

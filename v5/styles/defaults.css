@@ -28,6 +28,6 @@ small {
 }
 
 :focus-visible {
-    outline: 3px solid var(--focus-color);
-    outline-offset: 4px;
+    outline: var(--focus-width) solid var(--focus-color);
+    outline-offset: var(--focus-offset);
 }

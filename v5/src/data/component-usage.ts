@@ -153,6 +153,7 @@ export const COMPONENT_USAGE = {
             "components/HeroSlide.tsx#HeroSlide"
         ],
         "guideUses": [
+            "app/design-rules/page.tsx#renderChapter",
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
             "components/ComponentCatalog.tsx#ComponentCatalog",
@@ -182,6 +183,15 @@ export const COMPONENT_USAGE = {
             "components/SiteShell.tsx#SiteShell"
         ],
         "guideUses": []
+    },
+    "control-group": {
+        "status": "product",
+        "productUses": [
+            "app/[...slug]/page.tsx#CatalogDynamicPage"
+        ],
+        "guideUses": [
+            "app/design-rules/page.tsx#renderChapter"
+        ]
     },
     "dialog": {
         "status": "product",
@@ -531,8 +541,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 46,
-    "product": 43,
+    "total": 47,
+    "product": 44,
     "documentationOnly": 3,
     "unused": 0
 } as const;

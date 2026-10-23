@@ -117,7 +117,7 @@
     width: 100%;
     min-height: var(--shortcut-size);
     padding: var(--space-3) var(--space-2);
-    border-radius: 8px;
+    border-radius: var(--radius-control);
     font-size: max(var(--text-min), var(--text-action));
     font-weight: var(--weight-action);
     line-height: var(--leading-label);
@@ -169,8 +169,8 @@
 .program-choice button {
     min-height: 44px;
     padding: 10px 24px;
-    border: 1px solid var(--color-detail-j5afio);
-    border-radius: 24px;
+    border: 1px solid var(--border-default);
+    border-radius: var(--surface-radius-panel);
     background: var(--color-detail-f2f4f6);
     color: var(--color-detail-535a64);
     font-size: max(var(--text-min), var(--text-sm));
@@ -267,7 +267,7 @@
 }
 
 .news-editorial-list {
-    border-top: 2px solid var(--color-black);
+    border-top: 1px solid var(--border-default);
 }
 
 .news-editorial-list a {
