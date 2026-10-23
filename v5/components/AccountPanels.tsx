@@ -24,7 +24,7 @@ export function AccountMembershipCard({ name, message, mode, counts, onEdit, onL
             <div className="account-identity-top"><span data-text="body" className="account-avatar" aria-hidden="true">{Array.from(name)[0] || "나"}</span><SystemBadge data-text="meta" tone={mode === "oauth" ? "info" : "neutral"}>{mode === "oauth" ? "로그인됨" : mode === "demo" ? "내 프로필" : "방문자 공간"}</SystemBadge></div>
             <h2 data-text="heading">{name}<span data-text="body">님의 세종</span></h2>
             <p data-text="body" className="account-status-message">{message || "나만의 한 줄을 남겨 보세요."}</p>
-            <SystemButton data-text="action" variant="secondary" onClick={onEdit}>나의 공간 꾸미기 <Icon name="plus" size={20} /></SystemButton>
+            <SystemButton data-text="action" variant="secondary" shape="pill" onClick={onEdit}>나의 공간 꾸미기 <Icon name="plus" size={20} /></SystemButton>
             <dl className="account-profile-counts">
                 <div><dt data-text="label">다가올 관람</dt><dd data-text="body">{counts.upcoming}<span data-text="body">건</span></dd></div>
                 <div><dt data-text="label">관심 프로그램</dt><dd data-text="body">{counts.favorites}<span data-text="body">편</span></dd></div>
