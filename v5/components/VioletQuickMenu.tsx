@@ -3,7 +3,8 @@
 import React, { memo, useCallback, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import Icon from "./Icon";
-import VioletFur, { type VioletInteraction } from "./VioletFur";
+import QuickMenuFluid from "./QuickMenuFluid";
+import type { QuickMenuInteraction } from "../src/lib/quick-menu-fluid";
 import styles from "./VioletQuickMenu.module.css";
 
 export interface VioletQuickMenuItem {
@@ -30,7 +31,7 @@ export const SEJONG_QUICK_MENU_ITEMS: VioletQuickMenuItems = [
 export interface VioletQuickMenuProps {
     /** Keep the default fixed hero control, or contain the same menu in page content. */
     placement?: "hero" | "inline";
-    /** Fade the fixed horizon and menu as this hero scrolls behind the header. */
+    /** Fade the fixed menu as this hero scrolls behind the header. */
     heroId?: string;
     items?: VioletQuickMenuItems;
     /** Lets a host carousel pause while its visitor is choosing a destination. */
@@ -64,7 +65,7 @@ function sectorPath(index: number) {
 }
 
 function LiquidSurface() {
-    return <span className={styles.art} aria-hidden="true"><span className={styles.flow} /><span className={styles.luster} /><span className={styles.light} /></span>;
+    return <span className={styles.art} aria-hidden="true" />;
 }
 
 /** Non-modal radial navigation for a hero or an inline preview. All destinations are real links. */
@@ -89,7 +90,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
     const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
     const suppressClickUntil = useRef(0);
-    const interaction = useRef<VioletInteraction>({ x: -.3, y: -.5, energy: 0, velocityX: 0, velocityY: 0, spin: 0, lastInput: 0, active: false });
+    const interaction = useRef<QuickMenuInteraction>({ x: -.3, y: -.5, energy: 0, velocityX: 0, velocityY: 0, spin: 0, lastInput: 0, active: false });
     const interactionSurface = useRef<EventTarget | null>(null);
     const selected = selectedAt(rotation);
     const current = items[selected];
@@ -150,13 +151,14 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
         const observed = placement === "inline" ? rootRef.current : document.getElementById(heroId);
         const root = rootRef.current;
         if (!observed || !root) return;
-        const topInset = placement === "hero" ? 96 : 0;
+        const header = placement === "hero" ? document.querySelector<HTMLElement>(".renewal-header") : null;
         let frame = 0;
         let lastOpacity = -1;
         let lastVisible: boolean | null = null;
         const update = () => {
             frame = 0;
             const rect = observed.getBoundingClientRect();
+            const topInset = header ? header.getBoundingClientRect().height : 0;
             const inView = rect.bottom > topInset && rect.top < window.innerHeight;
             // Start fading when the hero reaches the header; finish within a short scroll.
             const distance = Math.min(180, Math.max(120, rect.height * .25));
@@ -180,6 +182,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
         window.addEventListener("resize", schedule);
         const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(schedule);
         observer?.observe(observed);
+        if (header) observer?.observe(header);
         return () => {
             cancelAnimationFrame(frame);
             window.removeEventListener("scroll", schedule);
@@ -273,8 +276,6 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
         pointer.energy = Math.min(1, Math.hypot(pointer.velocityX, pointer.velocityY) / 8);
         if (!gestureRef.current) pointer.spin = 0;
         interactionSurface.current = event.currentTarget;
-        event.currentTarget.style.setProperty("--light-x", `${(x + 1) * 50}%`);
-        event.currentTarget.style.setProperty("--light-y", `${(y + 1) * 50}%`);
     };
 
     const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -362,7 +363,6 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
     };
 
     return <div data-component-id="quick-menu" ref={rootRef} className={styles.experience} data-violet-menu data-placement={placement} data-visible={visible} data-state={open ? "open" : "closed"} data-sleeping={sleeping || !visible} aria-hidden={!visible}>
-        <div className={styles.horizon} aria-hidden="true"><span className={styles.ribbon} /></div>
         <div
             ref={dockRef}
             className={styles.dock}
@@ -398,8 +398,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
                         onDragStart={event => event.preventDefault()}
                     >
                         <LiquidSurface />
-                        <VioletFur awake={visible && open && !sleeping} animated={!reducedMotion && !sleeping} expanded interaction={interaction} />
-                        <span className={styles.coatLight} aria-hidden="true" />
+                        <QuickMenuFluid awake={visible && open && !sleeping} animated={!reducedMotion && !sleeping} expanded interaction={interaction} />
                         <div data-text="body" className={styles.rotor}>
                             <svg className={styles.slices} viewBox="0 0 400 400" aria-hidden="true">
                                 {items.map((item, index) => <path key={item.id} className={styles.slice} d={sectorPath(index)} data-selected={selected === index} />)}
@@ -434,11 +433,10 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
                 }}
             >
                 <LiquidSurface />
-                <VioletFur awake={visible && !open && !sleeping} animated={!reducedMotion && !sleeping} interaction={interaction} />
-                <span data-text="body" className={styles.coatLight} aria-hidden="true" />
+                <QuickMenuFluid awake={visible && !open && !sleeping} animated={!reducedMotion && !sleeping} interaction={interaction} />
                 {open ? <Icon name="close" size={21} /> : <span className={styles.toggleLabel} aria-hidden="true">
-                    <svg className={styles.spark} viewBox="0 0 24 24" fill="none"><path d="M12 1C12 8 8 12 1 12C8 12 12 16 12 23C12 16 16 12 23 12C16 12 12 8 12 1Z" fill="currentColor" /><circle cx="21" cy="3" r="1.3" fill="currentColor" /></svg>
-                    <span data-text="body">QUICK</span>
+                    <Icon name="menu" size={24} />
+                    <span data-text="body">퀵메뉴</span>
                 </span>}
                 <span data-text="body" className={styles.closedHint} aria-hidden="true">돌려서 둘러보기</span>
             </button>

@@ -2,16 +2,17 @@
 
 ## VioletQuickMenu
 
-히어로를 보고 있는 동안 화면 아래에 보라색 빛과 작은 원이 나타납니다. 원을 열면 여섯 개의 바로가기를 돌려 고를 수 있습니다. 메인 페이지는 이 컴포넌트를 사용하며, 열려 있는 동안 히어로의 자동 재생을 일시 정지합니다.
+히어로를 보고 있는 동안 화면 아래에 노랑·초록이 흐르는 작은 원이 나타납니다. 원을 열면 여섯 개의 바로가기를 돌려 고를 수 있습니다. 메인 페이지는 이 컴포넌트를 사용하며, 열려 있는 동안 히어로의 자동 재생을 일시 정지합니다. 기존 `VioletQuickMenu` 이름은 호출부 호환을 위해 유지하며 보라색·털 렌더러는 사용하지 않습니다.
 
 - Public export: `VioletQuickMenu` from `v5/components/index.ts`
 - Implementation: `VioletQuickMenu.tsx`
 - Scoped presentation: `VioletQuickMenu.module.css`
-- Decorative canvas: `VioletFur.tsx`
-- Internal rooted-tuft physics: `violetFurPhysics.ts`
+- Decorative canvas: `QuickMenuFluid.tsx`
+- Authored wave contours and damped input: `../src/lib/quick-menu-fluid.ts`
+- Material tokens: `QUICK_MENU_MATERIAL` in `../src/data/design-tokens.ts`
 - Reference: [사용자의 Figma 시안](https://www.figma.com/design/EufUvqqxgphtoLRX6bcdV6/Untitled?node-id=1-6)
 - Full guide: [디자인 근거, 재사용 API, 접근성 및 검증 절차](../docs/components/violet-quick-menu.md)
-- Live example: [디자인 가이드의 컴포넌트 갤러리](../app/design-rules/page.tsx) - `/v5/design-rules/#violet-quick-menu`
+- Live example: [디자인 가이드의 컴포넌트 갤러리](../app/design-rules/page.tsx) - `/v5/design-rules/#motion/quick-menu`
 - Verification: [기존 여섯 항목 구현의 25개 동작 검증 기록 및 PC·모바일 화면](../../docs/v5-violet-quick-menu/README.md)
 - Execution and verification: [날짜별 검사 결과, 최종 커밋·병합 이력과 배포 확인](../docs/violet-quick-menu-verification.md)
 - Current motion/anchors verification (2026-10-20): [통합 52개 검사와 화면·동영상](../docs/evidence/violet-motion-anchors/README.md), [메인 앵커 목록](../docs/home-anchors.md).

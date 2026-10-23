@@ -556,6 +556,15 @@ export const COMPONENT_USAGE = {
             "app/design-rules/page.tsx#renderChapter"
         ]
     },
+    "quick-menu-fluid": {
+        "status": "product",
+        "productUses": [
+            "components/VioletQuickMenu.tsx#VioletQuickMenu"
+        ],
+        "guideUses": [
+            "components/VioletQuickMenu.tsx#VioletQuickMenu"
+        ]
+    },
     "return-top": {
         "status": "product",
         "productUses": [
@@ -652,15 +661,6 @@ export const COMPONENT_USAGE = {
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#renderChapter"
-        ]
-    },
-    "violet-fur": {
-        "status": "product",
-        "productUses": [
-            "components/VioletQuickMenu.tsx#VioletQuickMenu"
-        ],
-        "guideUses": [
-            "components/VioletQuickMenu.tsx#VioletQuickMenu"
         ]
     }
 } as const;

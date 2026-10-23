@@ -13,7 +13,7 @@
     "test:orb": "node tests/violet-quick-menu.cjs",
     "test:orb:gallery": "node tests/violet-quick-menu-gallery.cjs",
     "test:orb:smoke": "node tests/violet-quick-menu-smoke.cjs",
-    "test:orb:motion": "node tests/violet-fur-motion.cjs",
+    "test:orb:motion": "node --test tests/quick-menu-fluid.test.ts",
     "test:home:anchors": "node tests/home-anchors.cjs",
     "check:system": "node scripts/prepare-design-system.ts --check",
     "test:system:browser": "node tests/component-system-browser.ts"

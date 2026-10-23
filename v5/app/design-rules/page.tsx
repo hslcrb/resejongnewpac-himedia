@@ -1499,11 +1499,12 @@ export default function DesignRulesPage() {
                         )}
                         {section(
                             "quick-menu",
-                            "보라빛 퀵메뉴",
+                            "원형 퀵메뉴",
                             <>
                                 <p data-text="body">
-                                    기존 퀵메뉴의 보라색은 이 컴포넌트 안의 전용 표현으로
-                                    유지합니다. 문서와 일반 UI의 컬러 역할로 확장하지 않습니다.
+                                    브랜드 노랑과 전용 초록이 원 안에서 천천히 흐릅니다.
+                                    털이나 입자 없이 매끈한 표면으로 표현하고, 포인터와 회전 방향에
+                                    맞춰 물결이 부드럽게 반응합니다.
                                 </p>
                                 <div className="ds-quick-menu">
                                     <VioletQuickMenu placement="inline" items={inlineMenuItems} />
@@ -1516,6 +1517,10 @@ export default function DesignRulesPage() {
                                     <li data-text="body">
                                         원을 돌려 놓으면 선택 위치에 정렬됩니다. 놓기만 해서는
                                         이동하지 않습니다.
+                                    </li>
+                                    <li data-text="body">
+                                        색상은 QUICK_MENU_MATERIAL의 노랑·레몬·초록·민트를
+                                        사용합니다. 기본 흐름은 14초 주기이며 화면 밖에서는 그리기를 멈춥니다.
                                     </li>
                                     <li data-text="body">
                                         동작 줄이기에서는 장식 움직임을 멈추고 탐색 기능은

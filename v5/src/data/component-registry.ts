@@ -68,7 +68,7 @@ const definitions: readonly ComponentDefinition[] = [
     { id: "floating-panel", name: "FloatingPanel", source: "components/FloatingPanel.tsx", exportName: "default", kind: "ui", guide: "components/floating-menu", purpose: "초점·위치·WebGL 모션을 관리하는 비차단 창" },
     { id: "floating-menu", name: "FloatingMenu", source: "components/FloatingMenu.tsx", exportName: "default", kind: "ui", guide: "components/floating-menu", purpose: "FloatingPanel을 사용하는 실제 전체 메뉴", parent: "floating-panel" },
     { id: "small-notification", name: "알림소형모달", source: "components/SmallNotificationModal.tsx", exportName: "default", kind: "ui", guide: "components/small-notification", purpose: "하단 캡슐과 부드러운 등장·퇴장" },
-    { id: "quick-menu", name: "VioletQuickMenu", source: "components/VioletQuickMenu.tsx", exportName: "default", kind: "ui", guide: "motion/quick-menu", purpose: "회전·드래그로 탐색하는 보라빛 퀵메뉴" },
+    { id: "quick-menu", name: "VioletQuickMenu", source: "components/VioletQuickMenu.tsx", exportName: "default", kind: "ui", guide: "motion/quick-menu", purpose: "노랑·초록의 유동 표면을 돌려 탐색하는 원형 퀵메뉴" },
     { id: "context-menu", name: "ContextMenu", source: "components/ContextMenu.tsx", exportName: "default", kind: "ui", guide: "components/registry", purpose: "현재 영역의 주소와 이동을 돕는 문맥 메뉴", previewRoute: "/v5/" },
     { id: "return-top", name: "ReturnTop", source: "components/ReturnTop.tsx", exportName: "default", kind: "ui", guide: "components/registry", purpose: "스크롤 위치에 따라 나타나는 위로 가기", previewRoute: "/v5/#discover-programs" },
     { id: "header", name: "Header", source: "components/Header.tsx", exportName: "default", kind: "ui", guide: "components/registry", purpose: "주 메뉴·회원 경로·검색과 전체 메뉴", previewRoute: "/v5/#header" },
@@ -78,7 +78,7 @@ const definitions: readonly ComponentDefinition[] = [
     { id: "home-anchors", name: "HomeAnchorNavigation", source: "components/HomeAnchorNavigation.tsx", exportName: "default", kind: "structure", guide: "components/registry", purpose: "필터·일정·슬라이드를 먼저 펼치는 홈 앵커 탐색" },
     { id: "glass-refraction", name: "GlassRefraction", source: "components/GlassRefraction.tsx", exportName: "default", kind: "internal", guide: "components/liquid-glass", purpose: "LiquidGlass의 가장자리 굴절 지도", parent: "glass" },
     { id: "notification-host", name: "SmallNotificationModalHost", source: "components/SmallNotificationModal.tsx", exportName: "SmallNotificationModalHost", kind: "internal", guide: "components/small-notification", purpose: "3.5초 갱신과 이벤트 구독을 관리하는 알림 호스트", parent: "small-notification" },
-    { id: "violet-fur", name: "VioletFur", source: "components/VioletFur.tsx", exportName: "default", kind: "internal", guide: "motion/quick-menu", purpose: "퀵메뉴 안에서만 동작하는 털 렌더러", parent: "quick-menu" },
+    { id: "quick-menu-fluid", name: "QuickMenuFluid", source: "components/QuickMenuFluid.tsx", exportName: "default", kind: "internal", guide: "motion/quick-menu", purpose: "퀵메뉴 내부의 물결·포인터 반응과 화면 밖 렌더링 중지를 담당하는 유동 재질", parent: "quick-menu" },
     { id: "booking-client", name: "BookingClient", source: "app/booking/[id]/BookingClient.tsx", exportName: "default", kind: "structure", guide: "components/registry", purpose: "좌석 지도를 포함한 페이지 전용 예매 흐름", previewRoute: "/v5/booking/dance/" },
     { id: "program-detail", name: "ProgramDetailClient", source: "app/programs/[id]/ProgramDetailClient.tsx", exportName: "default", kind: "structure", guide: "components/registry", purpose: "프로그램 정보와 실제 예매 경로의 페이지 전용 연결", previewRoute: "/v5/programs/dance/" },
     { id: "catalog-page", name: "CatalogPage", source: "components/CatalogPage.tsx", exportName: "default", kind: "structure", guide: "components/registry", purpose: "게시된 본문·사실표·FAQ·연혁·지도·다운로드·행동과 장소·공지 상세, 분류별 프로그램 및 검색의 조합", previewRoute: "/v5/visit/directions/" },
@@ -123,5 +123,5 @@ export const COMPONENT_REGISTRY: readonly ComponentDefinition[] = definitions.ma
 export const CONTROL_EXCEPTIONS = [
     { source: "components/HomeBookingControls.tsx", tag: "button", part: "calendar-day", owner: "BookingCalendar", reason: "320px 화면에서도 일곱 열과 날짜의 공간 관계를 유지하는 달력 셀" },
     { source: "components/HomeBookingControls.tsx", tag: "button", part: "program-choice", owner: "BookingProgramChoice", reason: "포스터·공연명·장소·회차를 포함하는 프로그램 선택 타일" },
-    { source: "components/VioletQuickMenu.tsx", tag: "button", part: "violet-toggle", owner: "VioletQuickMenu", reason: "회전·포인터 캡처와 털 렌더러를 공유하는 퀵메뉴의 전용 원형 조작" },
+    { source: "components/VioletQuickMenu.tsx", tag: "button", part: "violet-toggle", owner: "VioletQuickMenu", reason: "회전·포인터 캡처와 유동 재질을 공유하는 퀵메뉴의 전용 원형 조작" },
 ] as const;

@@ -249,6 +249,20 @@ export const GLASS_MATERIALS = Object.freeze({
 }) satisfies Readonly<Record<string, GlassMaterial>>;
 export type GlassMaterialVariant = keyof typeof GLASS_MATERIALS;
 
+// [퀵메뉴의 유동 재질 / Fluid material confined to the quick menu]
+export const QUICK_MENU_MATERIAL = Object.freeze({
+    colors: Object.freeze({
+        yellow: "--color-yellow",
+        lemon: "--color-quick-lemon",
+        green: "--color-quick-green",
+        mint: "--color-quick-mint",
+        ink: "--color-black",
+        light: "--color-white",
+        clear: "--color-transparent",
+    }),
+    motion: Object.freeze({ period: 14, desktopFps: 30, mobileFps: 24, response: 5, maxInput: 0.16 }),
+});
+
 type TokenValues = Readonly<Record<`--${string}`, string>>;
 const rem = (pixels: number) => `${pixels / 16}rem`;
 const reference = (token: string) => `var(--${token})`;
@@ -272,6 +286,9 @@ export const SEMANTIC_COLOR_VALUES = {
     "--color-focus": "#4699AF",
     "--color-state-hover": "#F0F2F4",
     "--color-state-pressed": "#E1E5E9",
+    "--color-quick-lemon": "#F5EEA3",
+    "--color-quick-green": "#64BC7F",
+    "--color-quick-mint": "#B6DF96",
 } satisfies TokenValues;
 
 // [보존된 삽화와 세부 색상의 중앙 팔레트 / Central palette for preserved illustration and detail colors]

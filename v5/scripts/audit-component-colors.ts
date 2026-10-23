@@ -14,7 +14,7 @@ const preserved = new Set([
     ...["cards", "carousel", "motion", "ui"].map(name => `src/components/${name}.ts`),
     ...["design-rules", "flows", "goods", "home", "home-booking", "journeys", "pages", "programs", "search", "story", "utilities"].map(name => `src/features/${name}.ts`),
 ]);
-const illustrationSources = new Set(["components/AccountMiniRoom.tsx", "components/VioletFur.tsx"]);
+const illustrationSources = new Set(["components/AccountMiniRoom.tsx"]);
 
 // [실제 DOM 사용을 단정하지 않는 소스 참조 조사 / Source references without a claim of runtime DOM usage]
 function files(directory: string): string[] {
@@ -66,7 +66,7 @@ const inventory = {
     scope: { root: "v5", folders: roots, frozenEntry: "assets/entry.js", preservedSources: [...preserved].sort(), illustrationSources: [...illustrationSources].sort() },
     classification: {
         active: "Current app, component and stylesheet source references outside the explicit illustration and legacy files; not a runtime reachability claim.",
-        illustration: "References inside the authored AccountMiniRoom or VioletFur drawing implementations.",
+        illustration: "References inside the authored AccountMiniRoom drawing implementation.",
         legacy: "The 18 preserved v4 TypeScript sources, styles/compat, js, v2, and the frozen assets/entry.js.",
     },
     summary: {
