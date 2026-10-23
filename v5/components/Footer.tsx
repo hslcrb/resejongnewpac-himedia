@@ -57,11 +57,11 @@ export default function Footer() {
 
                 <div className="footer-information" id="footer-information" data-home-anchor>
                     <nav className="footer-policy" id="footer-policy" data-home-anchor aria-label="정책과 안내">
-                        <Link data-text="action" href="/policy/privacy" id="footer-policy-privacy" data-home-anchor>개인정보처리방침</Link>
-                        <Link data-text="action" href="/policy/terms" id="footer-policy-terms" data-home-anchor>이용약관</Link>
-                        <Link data-text="action" href="/design-rules" id="footer-policy-design-system" data-home-anchor>디자인 시스템</Link>
-                        <Link data-text="action" href="/visit/support" id="footer-support" data-home-anchor>고객지원</Link>
-                        <Link data-text="action" href="/sitemap" id="footer-sitemap" data-home-anchor>사이트맵</Link>
+                        <Link data-text="navigation" href="/policy/privacy" id="footer-policy-privacy" data-home-anchor>개인정보처리방침</Link>
+                        <Link data-text="navigation" href="/policy/terms" id="footer-policy-terms" data-home-anchor>이용약관</Link>
+                        <Link data-text="navigation" href="/design-rules" id="footer-policy-design-system" data-home-anchor>디자인 시스템</Link>
+                        <Link data-text="navigation" href="/visit/support" id="footer-support" data-home-anchor>고객지원</Link>
+                        <Link data-text="navigation" href="/sitemap" id="footer-sitemap" data-home-anchor>사이트맵</Link>
                     </nav>
                     <address data-text="body">
                         서울특별시 종로구 세종대로 175<br />

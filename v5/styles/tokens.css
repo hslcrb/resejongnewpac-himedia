@@ -837,6 +837,8 @@
     --text-lead: 1.125rem;
     --text-body: 1rem;
     --text-sm: 1rem;
+    --text-navigation: 1.125rem;
+    --text-utility: 1rem;
     --text-action: 1.25rem;
     --text-card-title: 1.25rem;
     --text-meta: 1rem;
@@ -876,6 +878,7 @@
     --hero-gap: clamp(0.75rem, 1.4vw, 1.5rem);
     --section-gap: clamp(5rem, 7vw, 7rem);
     --control-size: 3rem;
+    --icon-header-action-size: 1.75rem;
     --shortcut-size: 4rem;
     --control-flow-button-size: 50px;
     --control-flow-field-size: 54px;

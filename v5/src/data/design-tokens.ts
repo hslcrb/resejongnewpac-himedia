@@ -159,7 +159,25 @@ export const TYPE_SCALE = [
         mobile: 16,
         weight: 500,
         leading: 1.5,
-        use: "메뉴·날짜·고지·도움말",
+        use: "날짜·고지·도움말",
+    },
+    {
+        role: "주 탐색",
+        token: "text-navigation",
+        size: 18,
+        mobile: 18,
+        weight: 500,
+        leading: 1.5,
+        use: "GNB 메뉴와 푸터 정책·안내 링크",
+    },
+    {
+        role: "보조 탐색",
+        token: "text-utility",
+        size: 16,
+        mobile: 16,
+        weight: 500,
+        leading: 1.5,
+        use: "헤더 로그인·프로필·EN 링크",
     },
 ] as const;
 
@@ -179,6 +197,8 @@ export const TEXT_VARIANTS = {
     caption: { ...textVariant(TYPE_SCALE[7]), weight: 400 },
     action: { ...textVariant(TYPE_SCALE[4]), token: "text-action", weight: 600 },
     meta: { ...textVariant(TYPE_SCALE[7]), token: "text-meta" },
+    navigation: textVariant(TYPE_SCALE[8]),
+    utility: textVariant(TYPE_SCALE[9]),
 } as const;
 export type TextVariant = keyof typeof TEXT_VARIANTS;
 
@@ -1073,6 +1093,7 @@ const GEOMETRY_TOKENS = {
     "--hero-gap": "clamp(0.75rem, 1.4vw, 1.5rem)",
     "--section-gap": "clamp(5rem, 7vw, 7rem)",
     "--control-size": rem(48),
+    "--icon-header-action-size": rem(28),
     "--shortcut-size": rem(64),
     "--control-flow-button-size": "50px",
     "--control-flow-field-size": "54px",

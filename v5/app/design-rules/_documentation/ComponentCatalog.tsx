@@ -56,6 +56,7 @@ export default function ComponentCatalog() {
     // [열거값마다 실제 구현을 렌더링 / Render the actual implementation for each allowed value]
     function renderExample(component: string, example: ComponentExample) {
         const value = example.value;
+        if (component === "icon") return value === "header-action" ? <><Icon name="search" group="header-action" /><Icon name="menu" group="header-action" /></> : <Icon name="search" />;
         const state = example.state;
         const styles: SystemControlStyle = {
             ...(example.axis === "variant" ? {variant: value as SystemControlStyle["variant"]} : {}),

@@ -82,6 +82,20 @@
     letter-spacing: -0.015em;
 }
 
+[data-text="navigation"] {
+    font-size: max(var(--text-min), var(--text-navigation));
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: -0.015em;
+}
+
+[data-text="utility"] {
+    font-size: max(var(--text-min), var(--text-utility));
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: -0.015em;
+}
+
 [data-text][data-text-size="display"] {
     font-size: max(var(--text-min), var(--text-display));
 }
@@ -124,6 +138,14 @@
 
 [data-text][data-text-size="meta"] {
     font-size: max(var(--text-min), var(--text-meta));
+}
+
+[data-text][data-text-size="navigation"] {
+    font-size: max(var(--text-min), var(--text-navigation));
+}
+
+[data-text][data-text-size="utility"] {
+    font-size: max(var(--text-min), var(--text-utility));
 }
 
 [data-text][data-text-size="control"] {

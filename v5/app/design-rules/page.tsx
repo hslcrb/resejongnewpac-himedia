@@ -39,6 +39,7 @@ import {
     designTokensCss,
 } from "../../src/data/design-system";
 import type { ChapterId } from "../../src/data/design-system";
+import { HEADER_ACTION_ICONS } from "../../src/system/component-contracts";
 
 const groups = [...new Set(CHAPTERS.map((chapter) => chapter.group))];
 const searchEntries = [
@@ -575,6 +576,9 @@ export default function DesignRulesPage() {
                                         라운드 아이콘과 다른 굵기·스타일을 임의로 섞지 않습니다.
                                     </li>
                                 </ul>
+                                <h3 data-text="subheading">헤더 액션 그룹</h3>
+                                <p data-text="body">검색·전체 메뉴 두 아이콘은 <code data-text="body">group="header-action"</code>으로 구분합니다. 내부 기호는 28px, 원형 조작 영역은 48px이며 중앙 정렬과 원래 비율을 유지합니다. 일반 아이콘은 기존 크기를 사용합니다.</p>
+                                <div className="ds-icon-grid">{HEADER_ACTION_ICONS.map(name => <div key={name}><Icon name={name} group="header-action" /><span data-text="utility">{name === "search" ? "헤더 검색" : "헤더 전체 메뉴"}</span></div>)}</div>
                             </>,
                         )}
                     </>

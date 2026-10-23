@@ -15,6 +15,14 @@ export const ROOM_THEMES = ["paper", "sky", "sun"] as const;
 export const MEMBERSHIP_MODES = ["loading", "guest", "demo", "oauth"] as const;
 export const TICKET_VARIANTS = ["compact", "full"] as const;
 export const PANEL_PRESENTATIONS = ["floating", "drawer"] as const;
+// [헤더 핵심 조작만 확대 / Enlarge only the two primary header actions]
+export const ICON_GROUPS = ["general", "header-action"] as const;
+export const HEADER_ACTION_ICONS = ["search", "menu"] as const;
+export type IconGroup = (typeof ICON_GROUPS)[number];
+export type HeaderActionIcon = (typeof HEADER_ACTION_ICONS)[number];
+export function isHeaderActionIcon(name: string): name is HeaderActionIcon {
+    return (HEADER_ACTION_ICONS as readonly string[]).includes(name);
+}
 export type ControlVariant = (typeof CONTROL_VARIANTS)[number];
 export type ControlContext = (typeof CONTROL_CONTEXTS)[number];
 export type ControlShape = (typeof CONTROL_SHAPES)[number];

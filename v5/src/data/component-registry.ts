@@ -1,9 +1,10 @@
-import { CONTROL_VARIANTS, CONTROL_CONTEXTS, CONTROL_SHAPES, FIELD_ELEMENTS, BADGE_TONES, APPEARANCES, TAB_ORIENTATIONS, SURFACE_VARIANTS, SURFACE_PADDINGS, SURFACE_RADII, HERO_SLIDE_LAYOUTS, HERO_SLIDE_PREVIEWS, ROOM_THEMES, MEMBERSHIP_MODES, TICKET_VARIANTS, PANEL_PRESENTATIONS, contractExamples } from "../system/component-contracts.ts";
+import { CONTROL_VARIANTS, CONTROL_CONTEXTS, CONTROL_SHAPES, FIELD_ELEMENTS, BADGE_TONES, APPEARANCES, TAB_ORIENTATIONS, SURFACE_VARIANTS, SURFACE_PADDINGS, SURFACE_RADII, HERO_SLIDE_LAYOUTS, HERO_SLIDE_PREVIEWS, ROOM_THEMES, MEMBERSHIP_MODES, TICKET_VARIANTS, PANEL_PRESENTATIONS, ICON_GROUPS, contractExamples } from "../system/component-contracts.ts";
 import type { ComponentAxes, ComponentExample } from "../system/component-contracts.ts";
 import { TEXT_VARIANTS, TEXT_SIZES, GLASS_MATERIALS } from "./design-tokens.ts";
 import type { ComponentProps } from "react";
 import type HeroSlide from "../../components/HeroSlide";
 import type Header from "../../components/Header";
+import type Icon from "../../components/Icon";
 import type AccountMiniRoom from "../../components/AccountMiniRoom";
 import type { AccountTicket, AccountMembershipCard } from "../../components/AccountPanels";
 import type { SystemFieldProps } from "../../components/SystemPrimitives";
@@ -90,6 +91,7 @@ const enumAxis = <Enum extends string>() => <const Values extends readonly Enum[
 
 const liveContracts: Readonly<Record<string, { axes: ComponentAxes; states: readonly string[] }>> = {
     text: { axes: { variant: Object.keys(TEXT_VARIANTS), size: Object.keys(TEXT_SIZES) }, states: [] },
+    icon: { axes: { group: enumAxis<NonNullable<ComponentProps<typeof Icon>["group"]>>()([...ICON_GROUPS]) }, states: [] },
     surface: { axes: { variant: SURFACE_VARIANTS, padding: SURFACE_PADDINGS, radius: SURFACE_RADII }, states: [] },
     button: { axes: { variant: CONTROL_VARIANTS, context: CONTROL_CONTEXTS, shape: CONTROL_SHAPES }, states: ["default", "disabled", "pressed"] },
     "button-link": { axes: { variant: CONTROL_VARIANTS, context: CONTROL_CONTEXTS, shape: CONTROL_SHAPES }, states: [] },

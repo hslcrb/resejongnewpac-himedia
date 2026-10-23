@@ -59,9 +59,7 @@
 }
 
 .desktop-nav a {
-    padding-block: 32px;
-    font-size: max(var(--text-min), 16px);
-    font-weight: 650;
+    padding-block: var(--space-8);
     white-space: nowrap;
 }
 
@@ -78,13 +76,22 @@
 }
 
 .account-link, .english-link {
-    font-size: max(var(--text-min), var(--text-sm));
-    font-weight: 550;
     white-space: nowrap;
 }
 
 .english-link {
     margin-inline: 8px;
+}
+
+/* [메뉴와 보조 탐색의 공통 기준선 / Shared baseline for primary and utility navigation]
+   같은 세로 여백으로 기준선을 맞추고 아이콘은 원 안에 중앙 정렬합니다.
+   Equal vertical insets align text baselines; icon controls retain their centered targets. */
+@media (min-width: 961px) {
+    .masthead { align-items: baseline; }
+    .sejong-brand { align-self: center; }
+    .desktop-nav, .masthead-actions { align-items: baseline; }
+    .masthead-actions > a { padding-block: var(--space-8); }
+    .masthead-actions > .ds-icon-button { align-self: center; }
 }
 
 .round-button {
@@ -368,8 +375,6 @@ body:has(.navigation-dialog[open]) {
     flex-wrap: wrap;
     gap: 12px 24px;
     margin-bottom: 24px;
-    font-size: max(var(--text-min), var(--text-sm));
-    font-weight: 650;
 }
 
 .footer-information address {
@@ -484,10 +489,6 @@ body:has(.navigation-dialog[open]) {
 @media (max-width: 1180px) {
     .desktop-nav {
         gap: 20px;
-    }
-
-    .desktop-nav a {
-        font-size: max(var(--text-min), var(--text-sm));
     }
 
     .sejong-wordmark {

@@ -81,7 +81,7 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                         const active =
                             pathname === item.path || pathname.startsWith(item.path + "/");
                         return (
-                            <Link data-text="action"
+                            <Link data-text="navigation"
                                 key={item.id}
                                 href={item.path}
                                 data-nav={item.id}
@@ -96,11 +96,11 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
 
                 <div data-text="body" className="masthead-actions">
                     {/* [실제 세션의 회원 진입 / Account access for the authenticated session] */}
-                    {isLoggedIn ? <Link data-text="action" href="/account" className="account-link">마이페이지</Link> : <>
-                        <Link data-text="action" href="/account/login" className="account-link">로그인</Link>
-                        <Link data-text="action" href="/account/signup" className="account-link signup-link">프로필 만들기</Link>
+                    {isLoggedIn ? <Link data-text="utility" href="/account" className="account-link">마이페이지</Link> : <>
+                        <Link data-text="utility" href="/account/login" className="account-link">로그인</Link>
+                        <Link data-text="utility" href="/account/signup" className="account-link signup-link">프로필 만들기</Link>
                     </>}
-                    <Link data-text="action" href="/english" className="english-link" lang="en">
+                    <Link data-text="utility" href="/english" className="english-link" lang="en">
                         EN
                     </Link>
                     <SystemIconButton data-text="action"
@@ -116,7 +116,7 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                         aria-expanded={searchOpen}
                         aria-controls="search-dialog"
                     >
-                        <Icon name="search" size={22} />
+                        <Icon name="search" group="header-action" />
                     </SystemIconButton>
                     <SystemIconButton data-text="action"
                         variant={headerVariant === "inverse" ? "inverse-quiet" : "quiet"}
@@ -137,7 +137,7 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                             void warmPanelSnapshot();
                         }}
                     >
-                        <Icon name="menu" size={22} />
+                        <Icon name="menu" group="header-action" />
                     </SystemIconButton>
                 </div>
             </div>
