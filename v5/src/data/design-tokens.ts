@@ -217,11 +217,15 @@ export type GlassMaterial = Readonly<{
     thickness: number;
 }>;
 
+// [밝고 어두운 알림이 공유하는 렌즈 / One lens for light and dark notifications]
+const NOTIFICATION_GLASS_MATERIAL = Object.freeze({ opacity: 0.82, refraction: 70, blur: 18, thickness: 24 }) satisfies GlassMaterial;
+
 export const GLASS_MATERIALS = Object.freeze({
     surface: Object.freeze({ opacity: 0.82, refraction: 64, blur: 18, thickness: 32 }),
     drawer: Object.freeze({ opacity: 0.94, refraction: 96, blur: 24, thickness: 40 }),
     hero: Object.freeze({ opacity: 0.84, refraction: 72, blur: 20, thickness: 28 }),
-    black: Object.freeze({ opacity: 0.82, refraction: 70, blur: 18, thickness: 24 }),
+    white: NOTIFICATION_GLASS_MATERIAL,
+    black: NOTIFICATION_GLASS_MATERIAL,
 }) satisfies Readonly<Record<string, GlassMaterial>>;
 export type GlassMaterialVariant = keyof typeof GLASS_MATERIALS;
 

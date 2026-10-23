@@ -5,6 +5,7 @@ import type { LinkProps } from "next/link";
 import { forwardRef, useId } from "react";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, ReactNode, Ref, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
 import Icon from "./Icon";
+import LiquidGlass from "./LiquidGlass";
 import type { ControlVariant, ControlContext, ControlShape, BadgeTone, Appearance } from "../src/system/component-contracts";
 
 // [공통 조작과 링크 / Shared controls and links]
@@ -96,8 +97,8 @@ export type SystemNoticeProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & 
 export const SystemNotice = forwardRef<HTMLDivElement, SystemNoticeProps>(function SystemNotice(
     { title, children, error = false, variant = "default", className = "", role, ...props }, ref,
 ) {
-    return <div data-text="body" {...props} ref={ref} className={`ds-notice ${className}`.trim()} role={role || (error ? "alert" : "status")} data-component="notice" data-component-id="notice" data-variant={variant} data-stroke="inner" data-error={error || undefined}>
+    return <LiquidGlass {...props} ref={ref} variant="white" className={`ds-notice ${className}`.trim()} role={role || (error ? "alert" : "status")} data-component="notice" data-component-id="notice" data-variant={variant} data-stroke="inner" data-error={error || undefined}>
         {variant !== "flow" && <Icon name={error ? "close" : "check"} size={24} />}
         <div data-text="body">{title != null && <strong data-text="item-title">{title}</strong>}<div data-text="body" className="ds-notice-content">{children}</div></div>
-    </div>;
+    </LiquidGlass>;
 });

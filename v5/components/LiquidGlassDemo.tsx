@@ -34,6 +34,7 @@ export default function LiquidGlassDemo({
                     <option data-text="label" value="surface">Surface · 기본 표면</option>
                     <option data-text="label" value="drawer">Drawer · 모바일 서랍</option>
                     <option data-text="label" value="hero">Hero · 히어로 안내</option>
+                    <option data-text="label" value="white">White · 밝은 알림</option>
                     <option data-text="label" value="black">Black · 알림 캡슐</option>
                 </select>
             </div>

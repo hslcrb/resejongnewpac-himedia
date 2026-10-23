@@ -329,14 +329,16 @@ export const COMPONENT_USAGE = {
         "productUses": [
             "components/FloatingPanel.tsx#PanelSurface",
             "components/HeroCompanion.tsx#HeroCompanion",
-            "components/SmallNotificationModal.tsx#SmallNotificationModal"
+            "components/SmallNotificationModal.tsx#SmallNotificationModal",
+            "components/SystemPrimitives.tsx#SystemNotice"
         ],
         "guideUses": [
             "components/ComponentCatalog.tsx#renderExample",
             "components/FloatingPanel.tsx#PanelSurface",
             "components/HeroCompanion.tsx#HeroCompanion",
             "components/LiquidGlassDemo.tsx#LiquidGlassDemo",
-            "components/SmallNotificationModal.tsx#SmallNotificationModal"
+            "components/SmallNotificationModal.tsx#SmallNotificationModal",
+            "components/SystemPrimitives.tsx#SystemNotice"
         ]
     },
     "glass-demo": {

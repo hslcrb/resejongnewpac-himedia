@@ -926,6 +926,10 @@
     --glass-hero-refraction: 72;
     --glass-hero-blur: 20px;
     --glass-hero-thickness: 28px;
+    --glass-white-opacity: 0.82;
+    --glass-white-refraction: 70;
+    --glass-white-blur: 18px;
+    --glass-white-thickness: 24px;
     --glass-black-opacity: 0.82;
     --glass-black-refraction: 70;
     --glass-black-blur: 18px;

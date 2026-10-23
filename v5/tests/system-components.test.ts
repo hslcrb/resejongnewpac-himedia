@@ -14,8 +14,10 @@ registerHooks({
     resolve(specifier, context, nextResolve) {
         if (specifier === "next/link") return nextResolve("next/link.js", context);
         if (specifier.startsWith(".") && context.parentURL) {
-            const candidate = new URL(`${specifier}.tsx`, context.parentURL);
-            if (existsSync(candidate)) return nextResolve(candidate.href, context);
+            for (const extension of [".tsx", ".ts"]) {
+                const candidate = new URL(`${specifier}${extension}`, context.parentURL);
+                if (existsSync(candidate)) return nextResolve(candidate.href, context);
+            }
         }
         return nextResolve(specifier, context);
     },
@@ -35,6 +37,26 @@ registerHooks({
 
 const primitives = await import("../components/SystemPrimitives.tsx");
 const render = (component, props) => renderToStaticMarkup(createElement(component, props));
+
+// [오류·결과와 두 레이아웃의 공통 흰 유리 / Shared white glass across error, status and both layouts]
+test("all notice contexts and states compose white LiquidGlass while preserving their semantics", () => {
+    for (const variant of ["default", "flow"]) for (const error of [false, true]) {
+        const html = render(primitives.SystemNotice, {
+            id: "notice-result", variant, error, title: "처리 결과", children: "요청을 확인했습니다.",
+            "aria-describedby": "notice-help", tabIndex: -1,
+        });
+        assert.match(html, /data-glass-variant="white"/);
+        assert.match(html, /class="[^"]*liquid-glass[^"]*ds-notice/);
+        assert.match(html, /class="liquid-glass-optics" aria-hidden="true"/);
+        assert.match(html, /data-component-id="notice"/);
+        assert.match(html, new RegExp(`role="${error ? "alert" : "status"}"`));
+        assert.match(html, /id="notice-result"/);
+        assert.match(html, /aria-describedby="notice-help"/);
+        assert.match(html, /tabindex="-1"/);
+        assert.match(html, /처리 결과/);
+        assert.match(html, /요청을 확인했습니다\./);
+    }
+});
 
 // [네이티브 조작과 폼 계약 / Native control and form contracts]
 test("buttons preserve native submit and accessibility attributes and expose flow context", () => {

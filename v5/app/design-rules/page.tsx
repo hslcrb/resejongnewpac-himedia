@@ -1192,7 +1192,7 @@ export default function DesignRulesPage() {
                                     label="LiquidGlass 컴포넌트 속성"
                                     headings={["속성", "기본값", "역할"]}
                                     rows={[
-                                        ["variant", "surface", "surface · 기본 표면 / drawer · 서랍형 유리 / hero · 히어로 유리"],
+                                        ["variant", "surface", "surface · 기본 표면 / drawer · 서랍 / hero · 히어로 / white · 밝은 알림 / black · 어두운 알림"],
                                         ["opacity", GLASS_MATERIALS.surface.opacity, "흰 유리의 불투명도 · 0–1"],
                                         ["refraction", GLASS_MATERIALS.surface.refraction, "굴절 강도 · 0–120"],
                                         ["blur", GLASS_MATERIALS.surface.blur, "중심부 배경 흐림 · 0–40px"],
@@ -1406,6 +1406,7 @@ export default function DesignRulesPage() {
                             "feedback",
                             "상태와 대화상자",
                             <>
+                                <p data-text="body">SystemNotice는 LiquidGlass의 white 베리언트를 조합합니다. default·flow 레이아웃과 status·error 상태는 같은 흰 유리 재질을 사용합니다.</p>
                                 <div className="ds-demo-stack">
                                     <div className="ds-demo-row">
                                         <SystemBadge data-text="meta">안내</SystemBadge>

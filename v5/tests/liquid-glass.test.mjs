@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { GLASS_DEFAULTS, resolveGlassOptions, createGlassMap } from "../src/lib/liquid-glass.ts";
 
+test("white notices and black notification capsules share one optical material", () => {
+    assert.deepEqual(resolveGlassOptions({}, "white"), resolveGlassOptions({}, "black"));
+});
+
 // [공통 유리 표면의 안전한 설정 / Safe settings for a reusable glass surface]
 test("the shared surface is denser and more refractive than the previous menu", () => {
     assert.ok(GLASS_DEFAULTS.opacity > 0.68);

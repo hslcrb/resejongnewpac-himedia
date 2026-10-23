@@ -39,6 +39,23 @@
     --glass-thickness: var(--glass-hero-thickness);
 }
 
+/* [알림소형모달과 같은 렌즈의 흰 유리 / White glass with the notification capsule's lens]
+   인라인 안내에는 옅은 안쪽 경계와 작은 그림자를 사용합니다.
+   Inline notices use a soft inset rim and a compact shadow. */
+.liquid-glass[data-glass-variant="white"] {
+    --glass-opacity: var(--glass-white-opacity);
+    --glass-refraction: var(--glass-white-refraction);
+    --glass-blur: var(--glass-white-blur);
+    --glass-thickness: var(--glass-white-thickness);
+    --glass-shadow: var(--surface-shadow-elevated);
+    border: 0;
+    box-shadow:
+        var(--glass-shadow),
+        inset 0 0 0 var(--stroke-width) var(--glass-edge),
+        inset 0 1px 0 var(--glass-reflection-rim),
+        inset 0 -2px 1px var(--glass-edge-shadow);
+}
+
 /* [브랜드 오프블랙 렌즈와 절제된 반사 / Brand off-black lens with restrained reflections]
    같은 굴절 지도를 사용하며 재질 밀도와 반사광을 함께 바꿉니다.
    Reuse the refraction map while changing material density and reflected light. */
