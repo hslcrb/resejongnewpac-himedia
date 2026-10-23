@@ -134,20 +134,6 @@
     gap: 4px;
 }
 
-.quick-month-controls button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 48px;
-    min-height: 48px;
-    padding: 8px;
-    border: 1px solid var(--border-default);
-    border-radius: 50%;
-    background: var(--color-white);
-    font-size: max(var(--text-min), 16px);
-    color: var(--color-detail-292d29);
-}
-
 .quick-calendar-week,
 .quick-calendar-grid {
     display: grid;
@@ -162,13 +148,15 @@
 }
 
 .quick-calendar-grid {
-    min-height: 336px;
+    min-height: calc(6 * var(--control-size) + 7 * var(--space-2));
     align-content: start;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
 }
 
 .quick-date,
 .quick-calendar-blank {
-    min-height: 56px;
+    min-height: var(--control-size);
 }
 
 .quick-date {
@@ -177,11 +165,25 @@
     align-items: center;
     justify-content: center;
     min-width: 0;
-    border: 1px solid var(--border-default);
-    border-radius: 50%;
-    color: var(--color-detail-282d28);
-    font-size: max(var(--text-min), 18px);
+    width: min(100%, var(--control-size));
+    justify-self: center;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-control);
+    background: var(--color-transparent);
+    color: var(--text-primary);
+    font-size: max(var(--text-min), var(--text-body));
     font-weight: 500;
+    transition: background var(--duration-fast), color var(--duration-fast);
+}
+
+.quick-date:hover:not(.is-selected) {
+    background: var(--surface-default);
+}
+
+.quick-date:focus-visible {
+    outline: var(--focus-width) solid var(--border-focus);
+    outline-offset: var(--focus-offset);
 }
 
 .quick-date.is-today {
@@ -190,8 +192,8 @@
 }
 
 .quick-date.is-selected {
-    background: var(--color-detail-262b27);
-    color: var(--color-white);
+    background: var(--surface-inverse);
+    color: var(--text-inverse);
 }
 
 .quick-date i,
@@ -220,6 +222,91 @@
 
 .quick-native-date {
     display: none;
+}
+
+/* [커서 옆의 날짜별 프로그램 표면 / Program surface beside the cursor]
+   Portal로 달력의 overflow와 분리하고 위치·크기는 화면 안에서 제한합니다.
+   A portal escapes calendar clipping while staying within viewport bounds. */
+.booking-date-preview {
+    position: fixed;
+    inset: 0 auto auto 0;
+    z-index: 90;
+    width: min(352px, calc(100vw - 24px));
+    max-height: min(480px, calc(100dvh - 24px));
+    margin: 0;
+    animation: calendar-preview-enter 140ms ease-out;
+    /* 커서 좌표는 보간하지 않습니다. 전역 모션 감소 규칙의 암묵적 all 전환도 차단합니다.
+       Cursor coordinates are immediate, including under the global reduced-motion rule. */
+    transition: none;
+}
+
+.booking-date-preview-surface {
+    max-height: inherit;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.booking-date-preview-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+}
+
+.booking-date-preview-heading > span,
+.booking-date-preview-list li > div > span,
+.booking-date-preview-more {
+    color: var(--text-secondary);
+}
+
+.booking-date-preview-list {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.booking-date-preview-list li {
+    display: grid;
+    grid-template-columns: 54px minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: start;
+}
+
+.booking-date-preview-list img {
+    display: block;
+    width: 54px;
+    height: 72px;
+    object-fit: cover;
+    border-radius: var(--radius-control);
+}
+
+.booking-date-preview-list li > div {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.booking-date-preview-more {
+    margin-top: var(--space-4);
+}
+
+.booking-date-preview-empty {
+    margin: 0;
+}
+
+@keyframes calendar-preview-enter {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .booking-date-preview { animation: none; }
+    .quick-date { transition: none; }
 }
 
 .quick-day-heading p,
@@ -619,10 +706,6 @@
 
     .quick-calendar-heading h3 {
         font-size: max(var(--text-min), 24px);
-    }
-
-    .quick-calendar-grid {
-        min-height: 288px;
     }
 
     .quick-date,

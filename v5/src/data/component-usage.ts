@@ -94,6 +94,15 @@ export const COMPONENT_USAGE = {
         ],
         "guideUses": []
     },
+    "booking-date-preview": {
+        "status": "product",
+        "productUses": [
+            "components/HomeBookingControls.tsx#BookingCalendar"
+        ],
+        "guideUses": [
+            "components/HomeBookingControls.tsx#BookingCalendar"
+        ]
+    },
     "booking-invitation": {
         "status": "guide-only",
         "productUses": [],
@@ -260,7 +269,8 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountDiary",
             "components/CatalogPage.tsx#CatalogPage",
             "components/Footer.tsx#Footer",
-            "components/Header.tsx#Header"
+            "components/Header.tsx#Header",
+            "components/HomeBookingControls.tsx#BookingCalendar"
         ],
         "guideUses": [
             "app/design-rules/page.tsx#DesignRulesPage",
@@ -269,7 +279,8 @@ export const COMPONENT_USAGE = {
             "components/ComponentCatalog.tsx#ComponentCatalog",
             "components/ComponentCatalog.tsx#renderExample",
             "components/Footer.tsx#Footer",
-            "components/Header.tsx#Header"
+            "components/Header.tsx#Header",
+            "components/HomeBookingControls.tsx#BookingCalendar"
         ]
     },
     "filter-button": {
@@ -570,12 +581,14 @@ export const COMPONENT_USAGE = {
             "app/not-found.tsx#NotFound",
             "app/page.tsx#HomePage",
             "components/AccountExperience.tsx#AccountExperience",
+            "components/BookingDatePreview.tsx#BookingDatePreview",
             "components/CatalogPage.tsx#CatalogPage",
             "components/CatalogPage.tsx#blocks",
             "components/IntroductionExperience.tsx#IntroductionExperience"
         ],
         "guideUses": [
             "app/design-rules/page.tsx#renderChapter",
+            "components/BookingDatePreview.tsx#BookingDatePreview",
             "components/ComponentCatalog.tsx#renderExample"
         ]
     },
@@ -612,8 +625,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 49,
-    "product": 46,
+    "total": 50,
+    "product": 47,
     "documentationOnly": 3,
     "unused": 0
 } as const;

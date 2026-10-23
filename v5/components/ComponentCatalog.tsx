@@ -155,6 +155,7 @@ export default function ComponentCatalog() {
                 <BookingCalendar month={month} selectedDate={date} today="2026-10-21" programs={PROGRAMS} dateLabel={value => value.replaceAll("-", ".")} onMonthChange={setMonth} onDateChange={setDate} />
                 <BookingProgramChoice program={PROGRAMS[0]} selected={selected} available past={false} onSelect={() => setSelected(value => !value)} />
             </div>
+            <p data-text="body">달력의 날짜에 마우스를 올리거나 키보드 초점을 맞추면 그날의 프로그램을 미리 볼 수 있습니다. 미리보기는 날짜 선택을 바꾸지 않으며 Escape로 닫습니다. 좁은 화면에서는 날짜 입력을 사용합니다.</p>
             <p data-text="caption" className="ds-caption">일반 버튼의 규격을 좌석·달력·복합 선택 타일에 강제로 적용하지 않습니다. 아래 예외는 소유 구현과 이유를 검사하며, 파일 전체를 예외로 두지 않습니다.</p>
             <ul className="component-exceptions">{CONTROL_EXCEPTIONS.map(exception => <li data-text="body" key={`${exception.source}-${exception.part}`}><strong data-text="item-title">{exception.owner} · {exception.part}</strong><span data-text="body">{exception.reason}</span></li>)}</ul>
 

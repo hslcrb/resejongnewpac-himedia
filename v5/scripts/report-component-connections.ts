@@ -8,7 +8,7 @@ import { COMPONENT_COUNTS, COMPONENT_USAGE } from "../src/data/component-usage.t
 const root = fileURLToPath(new URL("..", import.meta.url));
 const target = resolve(root, "docs/component-connections.md");
 const baseline = 47;
-const introduced = ["catalog-page", "catalog-provider"];
+const introduced = ["catalog-page", "catalog-provider", "booking-date-preview"];
 const kinds = { ui: "재사용 UI", structure: "구조·페이지 연결", internal: "내부 지원", demo: "문서 도구" };
 const cell = (value: string) => value.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
 const code = (value: string) => `\`${cell(value)}\``;
