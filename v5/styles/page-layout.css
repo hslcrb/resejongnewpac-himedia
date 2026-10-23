@@ -533,5 +533,4 @@
 .renewal-header[data-header-variant="inverse"] { background: var(--surface-inverse); color: var(--text-inverse); }
 .renewal-header[data-header-variant="inverse"] .sejong-wordmark { filter: invert(1); }
 .renewal-header[data-header-variant="inverse"] .desktop-nav a,
-.renewal-header[data-header-variant="inverse"] .masthead-actions > a,
-.renewal-header[data-header-variant="inverse"] .masthead-actions > button { color: var(--text-inverse); }
+.renewal-header[data-header-variant="inverse"] .masthead-actions > a { color: var(--text-inverse); }

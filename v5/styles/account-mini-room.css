@@ -51,10 +51,6 @@
     gap: var(--space-2);
 }
 
-.mini-room-actions img {
-    display: block;
-}
-
 /* [한마디와 반응형 고정 구성 장면 / Personal note and responsive authored scene] */
 .mini-room-figure {
     margin: 0;

@@ -1,5 +1,7 @@
 "use client";
 
+import Icon from "../../../components/Icon";
+
 import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
@@ -144,9 +146,7 @@ export default function LoginPage() {
 
                         <SystemButton data-text="action" context="flow" className="flow-button-full" type="submit" disabled={emailPending || oauthPending} aria-busy={emailPending}>
                             {emailPending ? "로그인 링크 전송 중…" : "이메일로 로그인 링크 받기"}
-                            <svg className="material-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                <path d="M5 12h14M12 5l7 7-7 7" />
-                            </svg>
+                            <Icon name="arrow" size={20} />
                         </SystemButton>
 
                         {successMessage && <SystemNotice data-text="body" variant="flow" className="flow-info-box">{successMessage} 받은 이메일의 링크를 열어 주세요.</SystemNotice>}

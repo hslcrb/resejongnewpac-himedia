@@ -8,6 +8,19 @@ const script = new URL("../scripts/audit-component-system.ts", import.meta.url);
 const chapters = [{ id: "components", sections: [["registry", "Registry"], ["buttons", "Buttons"]] }];
 const entry = (id, source, exportName = "default", extra = {}) => ({ id, name: id, source, exportName, kind: "ui", guide: "components/registry", purpose: "Fixture component", ...extra });
 
+// [제품의 조작 아이콘 우회 방지 / Prevent product glyphs from bypassing the shared icon]
+test("native material glyphs use the registered Icon while authored SVG scenes remain valid", async () => {
+    await fixture({
+        "components/Icon.tsx": `export default function Icon() { return <svg data-component-id="icon" className="material-icon"><path d="M1 1" /></svg>; }`,
+        "app/page.tsx": `import Icon from "../components/Icon";
+            export default function Page() { return <main><svg className="material-icon"><path d="M1 1" /></svg><img src="/v5/assets/icons/rounded/lightbulb.svg" /><Icon /><svg className="room-scene"><path d="M2 2" /></svg></main>; }`,
+    }, [entry("icon", "components/Icon.tsx")], result => {
+        const issues = result.issues.filter(issue => issue.code === "raw-control-icon");
+        assert.equal(issues.length, 2);
+        assert.equal(issues[0].source, "app/page.tsx");
+    });
+});
+
 async function fixture(files, registry, run, extra = {}) {
     assert.ok(existsSync(script), "the component governance analyzer must exist");
     const { auditComponentSystem } = await import(script.href);

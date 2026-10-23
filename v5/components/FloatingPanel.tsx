@@ -135,7 +135,7 @@ function PanelSurface({
                     </div>
                     <div data-text="body" className="glass-menu-actions">
                         {variant === "floating" && <SystemButton data-text="action"
-                            variant={moveMode ? "primary" : "quiet"}
+                            variant="quiet"
                             shape="pill"
                             type="button"
                             className="glass-menu-move"
@@ -145,14 +145,7 @@ function PanelSurface({
                             aria-describedby={`${labelId}-move-help`}
                             onClick={() => setMoveMode(!moveMode)}
                         >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                                src="/v5/assets/icons/rounded/open_with.svg"
-                                width="24"
-                                height="24"
-                                alt=""
-                                aria-hidden="true"
-                            />
+                            <Icon name="open_with" />
                             <span data-text="body">이동</span>
                         </SystemButton>}
                         <SystemIconButton data-text="action"

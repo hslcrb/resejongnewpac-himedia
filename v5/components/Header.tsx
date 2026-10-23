@@ -7,6 +7,7 @@ import { NAV } from "../src/data/catalog";
 import FloatingMenu from "./FloatingMenu";
 import { SystemField, SystemIconButton } from "./SystemPrimitives";
 import SystemDialog from "./SystemDialog";
+import Icon from "./Icon";
 import type { PanelPoint } from "../src/lib/floating-panel";
 import { warmPanelSnapshot } from "../src/lib/panel-snapshot";
 import useAccountIdentity from "./useAccountIdentity";
@@ -17,6 +18,7 @@ export type HeaderVariant = (typeof HEADER_VARIANTS)[number];
 export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
     const pathname = usePathname();
     const router = useRouter();
+    const headerVariant = variant || (pathname === "/about/introduction" || pathname === "/about/introduction/" ? "inverse" : "default");
     const { isLoggedIn } = useAccountIdentity();
     const [searchOpen, setSearchOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -54,7 +56,7 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
     };
 
     return (
-        <header id="header" className="renewal-header" data-component-id="header" data-header-variant={variant || (pathname === "/about/introduction" || pathname === "/about/introduction/" ? "inverse" : "default")}>
+        <header id="header" className="renewal-header" data-component-id="header" data-header-variant={headerVariant}>
             <div className="masthead container">
                 <Link data-text="action" href="/" className="sejong-brand" aria-label="세종문화회관 홈">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -102,6 +104,7 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                         EN
                     </Link>
                     <SystemIconButton data-text="action"
+                        variant={headerVariant === "inverse" ? "inverse-quiet" : "quiet"}
                         ref={searchTrigger}
                         type="button"
                         onClick={() => {
@@ -113,17 +116,10 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                         aria-expanded={searchOpen}
                         aria-controls="search-dialog"
                     >
-                        <svg
-                            className="material-icon"
-                            width="22"
-                            height="22"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                        >
-                            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-                        </svg>
+                        <Icon name="search" size={22} />
                     </SystemIconButton>
                     <SystemIconButton data-text="action"
+                        variant={headerVariant === "inverse" ? "inverse-quiet" : "quiet"}
                         ref={menuTrigger}
                         type="button"
                         onClick={() => {
@@ -141,15 +137,7 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                             void warmPanelSnapshot();
                         }}
                     >
-                        <svg
-                            className="material-icon"
-                            width="22"
-                            height="22"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                        >
-                            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
-                        </svg>
+                        <Icon name="menu" size={22} />
                     </SystemIconButton>
                 </div>
             </div>
@@ -170,15 +158,7 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                         onClick={() => setSearchOpen(false)}
                         aria-label="검색 닫기"
                     >
-                        <svg
-                            className="material-icon"
-                            width="22"
-                            height="22"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                        >
-                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
-                        </svg>
+                        <Icon name="close" size={22} />
                     </SystemIconButton>
                 </div>
                 <h2 data-text="heading" id="search-heading">어떤 예술을 찾고 계세요?</h2>
@@ -198,15 +178,7 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
                     <SystemIconButton data-text="action" type="submit" aria-label="검색">
-                        <svg
-                            className="material-icon"
-                            width="22"
-                            height="22"
-                            viewBox="0 0 24 24"
-                            fill="currentColor"
-                        >
-                            <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-                        </svg>
+                        <Icon name="search" size={22} />
                     </SystemIconButton>
                 </form>
                 <div data-text="body" className="search-terms">

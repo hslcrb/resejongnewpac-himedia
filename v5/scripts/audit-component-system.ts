@@ -401,6 +401,10 @@ export function auditComponentSystem({ root, registry, exceptions = [], chapters
                 const implementation = nearestScope(node, true);
                 const product = containingScope && productScopes.has(containingScope);
                 if (product) {
+                    if (source !== "components/Icon.tsx" && (
+                        tag === "svg" && /(?:^|\s)material-icon(?:\s|$)/.test(attributeText(node.attributes, "className")) ||
+                        tag === "img" && /\/assets\/icons\/rounded\//.test(attributeText(node.attributes, "src"))
+                    )) addIssue("raw-control-icon", source, "Use the registered Icon so glyphs inherit the control foreground in every state; authored SVG artwork remains allowed.", node);
                     const owned = implementation && nativeOwnership.get(implementation)?.has(tag);
                     if (nativeTags.has(tag) && !owned && !accepted)
                         addIssue("raw-control", source, `Raw <${tag}> must use the shared library or an exact documented data-system-part exception.`, node);

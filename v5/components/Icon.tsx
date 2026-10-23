@@ -38,7 +38,7 @@ interface IconProps {
 
 export default function Icon({ name, size = 24, className = "", filled = false }: IconProps) {
     const symbol = names[name] || name || "arrow_forward";
-    const isHeart = symbol === "favorite";
+    const hasFilledVariant = symbol === "favorite" || symbol === "lightbulb";
 
     return (
         <svg
@@ -52,7 +52,7 @@ export default function Icon({ name, size = 24, className = "", filled = false }
             focusable="false"
         >
             <use
-                href={`/v5/assets/icons/material-symbols-rounded.svg#${isHeart && filled ? "favorite-fill" : symbol}`}
+                href={`/v5/assets/icons/material-symbols-rounded.svg#${hasFilledVariant && filled ? `${symbol}-fill` : symbol}`}
             />
         </svg>
     );

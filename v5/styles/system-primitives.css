@@ -3,14 +3,21 @@
    Preserve the palette and font while sharing token based control dimensions. */
 
 .ds-button[data-context] {
+    --control-target-size: var(--control-size);
     --control-stroke-color: var(--color-transparent);
+    --control-focus-color: var(--border-focus);
+    --control-selected-background: var(--action-primary);
+    --control-selected-color: var(--text-inverse);
+    --control-selected-hover-background: var(--action-primary-hover);
+    --control-selected-focus: var(--focus-on-dark);
+    --control-selected-stroke: var(--color-transparent);
     box-sizing: border-box;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--space-2);
-    min-width: var(--control-size);
-    min-height: var(--control-size);
+    min-width: var(--control-target-size);
+    min-height: var(--control-target-size);
     padding: 10px 20px;
     border: 0;
     border-radius: var(--radius-control);
@@ -24,7 +31,7 @@
 }
 
 .ds-button[data-context="flow"] {
-    min-height: var(--control-flow-button-size, 50px);
+    --control-target-size: var(--control-flow-button-size);
     padding: 14px 22px;
     border-radius: var(--radius-flow);
     line-height: 1.45;
@@ -77,39 +84,92 @@
     background: var(--color-transparent);
 }
 
+/* [밝은/어두운 토글과 브랜드 선택 / Paired neutral inversion and retained brand fills]
+   배경·전경·초점·경계를 같은 상태에서 결정합니다. / Resolve the whole palette from one state. */
+.ds-button:is(.ds-button-primary, .ds-button-inverse-outline, .ds-button-inverse-quiet)[data-context] {
+    --control-selected-background: var(--surface-default);
+    --control-selected-color: var(--text-primary);
+    --control-selected-hover-background: var(--surface-subtle);
+    --control-selected-focus: var(--border-focus);
+    --control-selected-stroke: var(--stroke-control);
+}
+
+.ds-button.ds-button-accent[data-context] {
+    --control-selected-background: var(--action-secondary);
+    --control-selected-color: var(--text-on-brand);
+    --control-selected-hover-background: var(--action-secondary);
+    --control-selected-focus: var(--focus-on-brand);
+    --control-selected-stroke: var(--stroke-control);
+}
+
+.ds-button.ds-button-highlight[data-context] {
+    --control-selected-background: var(--accent-highlight);
+    --control-selected-color: var(--text-on-brand);
+    --control-selected-hover-background: var(--accent-highlight);
+    --control-selected-focus: var(--focus-on-brand);
+    --control-selected-stroke: var(--stroke-control);
+}
+
 .ds-button[data-context][data-shape="pill"] {
     border-radius: var(--radius-pill);
 }
 
 .ds-button[data-context][data-shape="circle"] {
-    width: var(--control-size);
-    height: var(--control-size);
+    flex: none;
+    width: var(--control-target-size);
+    height: var(--control-target-size);
     padding: 0;
     border-radius: 50%;
 }
 
 .ds-button.ds-icon-button[data-context] {
     flex: none;
-    min-width: var(--control-size);
-    min-height: var(--control-size);
+    min-width: var(--control-target-size);
+    min-height: var(--control-target-size);
     padding: 0;
 }
 
 @media (hover: hover) {
-    .ds-button.ds-button-primary[data-context]:hover:not(:disabled) {
+    .ds-button.ds-button-primary[data-context]:hover:not(:disabled):not([aria-pressed="true"]) {
+        color: var(--text-inverse);
         background: var(--action-primary-hover);
     }
 
-    .ds-button:is(.ds-button-secondary, .ds-button-quiet, .ds-button-inverse)[data-context]:hover:not(:disabled) {
+    .ds-button:is(.ds-button-secondary, .ds-button-quiet, .ds-button-inverse)[data-context]:hover:not(:disabled):not([aria-pressed="true"]) {
+        color: var(--text-primary);
         background: var(--surface-subtle);
     }
 
-    .ds-button:is(.ds-button-accent, .ds-button-highlight)[data-context]:hover:not(:disabled) {
+    .ds-button:is(.ds-button-accent, .ds-button-highlight)[data-context]:hover:not(:disabled):not([aria-pressed="true"]) {
+        color: var(--text-on-brand);
         --control-stroke-color: var(--stroke-control);
     }
 
-    .ds-button:is(.ds-button-inverse-outline, .ds-button-inverse-quiet)[data-context]:hover:not(:disabled) {
+    .ds-button:is(.ds-button-inverse-outline, .ds-button-inverse-quiet)[data-context]:hover:not(:disabled):not([aria-pressed="true"]) {
+        color: var(--text-inverse);
         background: var(--color-detail-1rqvsa);
+    }
+}
+
+/* [선택과 hover의 결합 / Selection with hover]
+   선택된 버튼에 기본 hover 팔레트가 섞이지 않게 합니다. / Never mix resting hover with selected foreground. */
+.ds-button[data-context][aria-pressed] {
+    /* 반전 중 중간 회색끼리 겹치는 프레임을 만들지 않습니다.
+       Switch both faces atomically; hover remains a tone change within the selected palette. */
+    transition-property: box-shadow;
+}
+
+.ds-button[data-context][aria-pressed="true"]:not(:disabled) {
+    --control-focus-color: var(--control-selected-focus);
+    --control-stroke-color: var(--control-selected-stroke);
+    color: var(--control-selected-color);
+    background: var(--control-selected-background);
+}
+
+@media (hover: hover) {
+    .ds-button[data-context][aria-pressed="true"]:hover:not(:disabled) {
+        color: var(--control-selected-color);
+        background: var(--control-selected-hover-background);
     }
 }
 
@@ -131,16 +191,6 @@
 .ds-disclosure summary:focus-visible {
     outline: var(--focus-width) solid var(--control-focus-color, var(--border-focus));
     outline-offset: var(--focus-offset);
-}
-
-.ds-filter-button[data-component="filter-button"][aria-pressed="true"] {
-    --control-stroke-color: var(--color-transparent);
-    color: var(--text-inverse);
-    background: var(--action-primary);
-}
-
-.ds-filter-button[data-component="filter-button"][aria-pressed="true"]:hover {
-    background: var(--action-primary-hover);
 }
 
 /* [폼과 선택 / Forms and selection] */

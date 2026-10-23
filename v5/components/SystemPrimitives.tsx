@@ -36,7 +36,9 @@ export const SystemLink = forwardRef<HTMLAnchorElement, SystemLinkProps>(functio
     return <Link data-text="action" data-text-size="control" {...props} {...shared} href={href} />;
 });
 
-export const SystemIconButton = forwardRef<HTMLButtonElement, SystemButtonProps>(function SystemIconButton(
+// 원형 아이콘 조작은 이름을 반드시 제공합니다. / Icon-only controls always require an accessible name.
+export type SystemIconButtonProps = SystemButtonProps & ({ "aria-label": string } | { "aria-labelledby": string });
+export const SystemIconButton = forwardRef<HTMLButtonElement, SystemIconButtonProps>(function SystemIconButton(
     { variant = "quiet", className = "", shape = "circle", ...props }, ref,
 ) {
     return <SystemButton data-component-id="icon-button" data-text="action" data-text-size="control" {...props} ref={ref} variant={variant} shape={shape} className={`ds-icon-button ${className}`.trim()} data-component="icon-button" />;

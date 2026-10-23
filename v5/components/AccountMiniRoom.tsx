@@ -6,6 +6,7 @@ import { useId } from "react";
 import type { Program } from "../types/sejong.ts";
 import { mediaPath } from "../src/lib/media";
 import { SystemButton, SystemIconButton } from "./SystemPrimitives";
+import Icon from "./Icon";
 
 export interface AccountMiniRoomProps {
     name: string;
@@ -364,8 +365,7 @@ export default function AccountMiniRoom({
                         disabled={!onToggleLight}
                         title={lightOn ? "조명 끄기" : "조명 켜기"}
                     >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={`/v5/assets/icons/rounded/lightbulb${lightOn ? "-fill" : ""}.svg`} width={24} height={24} alt="" />
+                        <Icon name="lightbulb" filled={lightOn} />
                     </SystemIconButton>
                     <SystemButton data-text="action" variant="secondary" onClick={onEdit} disabled={!onEdit}>공간 꾸미기</SystemButton>
                 </div>

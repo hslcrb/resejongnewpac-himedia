@@ -93,7 +93,7 @@ const liveContracts: Readonly<Record<string, { axes: ComponentAxes; states: read
     surface: { axes: { variant: SURFACE_VARIANTS, padding: SURFACE_PADDINGS, radius: SURFACE_RADII }, states: [] },
     button: { axes: { variant: CONTROL_VARIANTS, context: CONTROL_CONTEXTS, shape: CONTROL_SHAPES }, states: ["default", "disabled", "pressed"] },
     "button-link": { axes: { variant: CONTROL_VARIANTS, context: CONTROL_CONTEXTS, shape: CONTROL_SHAPES }, states: [] },
-    "icon-button": { axes: { variant: CONTROL_VARIANTS, context: CONTROL_CONTEXTS, shape: CONTROL_SHAPES }, states: ["disabled"] },
+    "icon-button": { axes: { variant: CONTROL_VARIANTS, context: CONTROL_CONTEXTS, shape: CONTROL_SHAPES }, states: ["disabled", "pressed"] },
     "filter-button": { axes: { variant: CONTROL_VARIANTS, context: CONTROL_CONTEXTS, shape: CONTROL_SHAPES, selected: ["false", "true"] }, states: ["disabled"] },
     field: { axes: { as: enumAxis<NonNullable<SystemFieldProps["as"]>>()([...FIELD_ELEMENTS]), variant: CONTROL_CONTEXTS }, states: ["default", "disabled", "error", "required", "readonly"] },
     checkbox: { axes: {}, states: ["unchecked", "checked", "disabled"] },
