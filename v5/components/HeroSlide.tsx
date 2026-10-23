@@ -1,5 +1,7 @@
 "use client";
 
+import type { HeroSlideLayout, HeroSlidePreview } from "../src/system/component-contracts";
+
 import { Fragment } from "react";
 import Icon from "./Icon";
 import { SystemButton, SystemLink } from "./SystemPrimitives";
@@ -7,23 +9,24 @@ import { mediaPath } from "../src/lib/media";
 import type { HomeFeature } from "../src/data/home-features";
 
 // [작품 중심 히어로의 공통 규격 / Shared artwork-led hero slide]
-export default function HeroSlide({ feature, active, entering = false, preview, onSelect, layout = "with-companion" }: {
+export default function HeroSlide({ feature, active, entering = false, preview, onSelect, layout = "with-companion", idPrefix = "home-feature" }: {
     feature: HomeFeature;
     active: boolean;
     entering?: boolean;
-    preview?: "previous" | "next";
+    preview?: HeroSlidePreview;
     onSelect?: () => void;
-    layout?: "standalone" | "with-companion";
+    layout?: HeroSlideLayout;
+    idPrefix?: string;
 }) {
     return (
         <article
             className={`card card--hero season-slide season-${feature.theme}${active ? " is-active" : ""}${entering ? " is-entering" : ""}`}
             data-card="hero"
-            data-component="HeroSlide"
+            data-component="HeroSlide" data-component-id="hero-slide"
             data-layout={layout}
             data-feature={feature.id}
             data-preview={preview}
-            id={active ? `home-feature-${feature.id}` : undefined}
+            id={active ? `${idPrefix}-${feature.id}` : undefined}
             data-home-anchor={active ? "" : undefined}
             aria-hidden={!active && !preview}
         >
@@ -31,8 +34,8 @@ export default function HeroSlide({ feature, active, entering = false, preview, 
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                     className="season-image"
-                    src={mediaPath(`assets/images/${feature.image}`)}
-                    alt={feature.alt}
+                    src={feature.image ? mediaPath(`assets/images/${feature.image}`) : mediaPath()}
+                    alt={feature.image && feature.alt ? feature.alt : "세종문화회관 공간 사진"}
                     width={1672}
                     height={941}
                     draggable={false}
@@ -41,11 +44,12 @@ export default function HeroSlide({ feature, active, entering = false, preview, 
                         if (event.currentTarget.dataset.fallback) return;
                         event.currentTarget.dataset.fallback = "true";
                         event.currentTarget.src = mediaPath();
+                        event.currentTarget.alt = "세종문화회관 공간 사진";
                     }}
                 />
                 <div className="season-copy" aria-hidden={!active}>
                     <p data-text="label" className="season-label">{feature.label}</p>
-                    <h2 data-text="heading">{feature.title.split("\n").map((line, index, lines) => (
+                    <h2 data-text="heading" data-text-size={layout === "standalone" ? "hero-standalone" : "hero-with-companion"}>{feature.title.split("\n").map((line, index, lines) => (
                         <Fragment key={index}>{line}{index < lines.length - 1 && <br />}</Fragment>
                     ))}</h2>
                     <p data-text="body" className="season-name">{feature.name}</p>

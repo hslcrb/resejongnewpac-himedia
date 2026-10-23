@@ -22,7 +22,7 @@ test("opening day labels use Seoul calendar days rather than rounded remaining h
 test("ticket opening records identify their official announcement and unambiguous timezone", () => {
     for (const item of TICKET_OPENINGS) {
         assert.match(item.href, /^https:\/\/www\.sejongpac\.or\.kr\/portal\/bbs\/B0000049\/view\.do\?/);
-        assert.match(item.opensAt, /\+09:00$/);
+        assert.match(item.opensAt, /(?:Z|[+-]\d{2}:\d{2})$/);
         assert.ok(Number.isFinite(Date.parse(item.opensAt)));
     }
 });

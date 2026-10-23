@@ -1,11 +1,9 @@
-import React from "react";
-import Link from "next/link";
-import { SystemLink } from "../../components/SystemPrimitives";
-import { SystemControlGroup } from "../../components/SystemControlGroup";
-import { PAGES, NAV, VENUES, NOTICES } from "../../src/data/catalog";
-import type { PageMeta } from "../../types/sejong.ts";
+import { notFound } from "next/navigation";
+import CatalogPage from "../../components/CatalogPage";
+import { PAGES, VENUES, NOTICES } from "../../src/data/catalog";
+import { CATALOG_SNAPSHOT } from "../../src/catalog/snapshot";
 
-// [등록된 안내 경로의 정적 생성 / Static generation for registered information routes]
+// [게시 경로의 정적 생성 / Generate published information routes]
 export function generateStaticParams() {
     const routes = new Set<string>();
 
@@ -39,121 +37,11 @@ export function generateStaticParams() {
     }));
 }
 
-// [공통 지면과 읽기 폭을 나누는 안내 / Information with a shared frame and reading measure]
-export default function CatalogDynamicPage({
-    params,
-}: {
-    params: { slug: string[] };
-}) {
-    const path = "/" + (params.slug?.join("/") || "");
-    const pageMeta = PAGES.find((p: any) => p.path === path) as PageMeta | undefined;
-    const currentGroup = NAV.find((g: any) => path.startsWith(g.path));
 
-    // venue 상세 또는 notice 상세인지 체크
-    const venueMatch = VENUES.find((v: any) => path.endsWith(`/${v.id}`));
-    const noticeMatch = NOTICES.find((n: any) => path.endsWith(`/${n.id}`));
-
-    const title = pageMeta?.title || venueMatch?.name || noticeMatch?.title || "세종문화회관 안내";
-    const description = pageMeta?.description || venueMatch?.description || (noticeMatch ? `등록일: ${noticeMatch.date}` : "세종문화회관의 서비스와 공간 상세 안내입니다.");
-
-    return (
-        <div className="container page-layout catalog-page">
-            <nav data-text="body" className="page-layout-breadcrumbs" aria-label="현재 위치">
-                <Link data-text="action" href="/">홈</Link>
-                {currentGroup && (
-                    <>
-                        <span data-text="body" aria-hidden="true">/</span>
-                        <Link data-text="action" href={currentGroup.path}>{currentGroup.title}</Link>
-                    </>
-                )}
-                <span data-text="body" aria-hidden="true">/</span>
-                <span data-text="body" aria-current="page">{title}</span>
-            </nav>
-
-            <header data-text="body" className="page-layout-heading catalog-page-heading">
-                {currentGroup && (
-                    <span data-text="caption" className="catalog-page-category">
-                        {currentGroup.title.toUpperCase()}
-                    </span>
-                )}
-                <h1 data-text="title">
-                    {title}
-                </h1>
-                <p data-text="body">
-                    {description}
-                </p>
-
-                {/* [줄바꿈 가능한 하위 탐색 / Wrapping navigation within the current group] */}
-                {currentGroup && currentGroup.items && (
-                    <SystemControlGroup as="nav" data-text="body" className="catalog-page-navigation" aria-label={`${currentGroup.title} 메뉴`}>
-                        {currentGroup.items.map(([label, subPath]: [string, string]) => {
-                            const active = path === subPath;
-                            return (
-                                <SystemLink data-text="action"
-                                    key={subPath}
-                                    href={subPath}
-                                    variant={active ? "primary" : "secondary"}
-                                    aria-current={active ? "page" : undefined}
-                                >
-                                    {label}
-                                </SystemLink>
-                            );
-                        })}
-                    </SystemControlGroup>
-                )}
-            </header>
-
-            {/* [정보 종류별 내용과 공통 행동 / Information content and shared navigation actions] */}
-            <section data-text="body" className="catalog-page-content">
-                {venueMatch ? (
-                    <div className="page-layout-prose">
-                        <h2 data-text="heading">공간 세부 정보</h2>
-                        <dl className="page-layout-facts">
-                            <dt data-text="label">수용 인원</dt>
-                            <dd data-text="body">{venueMatch.capacity}석</dd>
-                            <dt data-text="label">특징</dt>
-                            <dd data-text="body">{venueMatch.description}</dd>
-                        </dl>
-                        <div className="page-layout-actions catalog-page-actions">
-                            <SystemLink data-text="action" href="/rental/guide">
-                                대관 신청 및 가이드 보기 →
-                            </SystemLink>
-                        </div>
-                    </div>
-                ) : noticeMatch ? (
-                    <div className="page-layout-prose">
-                        <div className="catalog-page-meta">
-                            <span data-text="body">구분: {noticeMatch.category}</span>
-                            <span data-text="body">작성일: {noticeMatch.date}</span>
-                        </div>
-                        <div>
-                            <p data-text="body">{noticeMatch.content || "세종문화회관을 이용해 주시는 시민 여러분께 감사드립니다. 본 공지사항의 자세한 사항은 고객센터(02-399-1000)로 문의해 주시기 바랍니다."}</p>
-                        </div>
-                        <div className="page-layout-actions catalog-page-actions">
-                            <SystemLink data-text="action"
-                                href="/news/notices"
-                                variant="secondary"
-                            >
-                                공지사항 목록으로 돌아가기
-                            </SystemLink>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="page-layout-prose">
-                        <h2 data-text="heading">
-                            서비스 및 공간 안내
-                        </h2>
-                        <p data-text="body">
-                            세종문화회관의 서비스와 공간을 페이지별로 정리한 안내입니다.
-                        </p>
-                        <div className="page-layout-actions catalog-page-actions">
-                            <SystemLink data-text="action" href="/programs" variant="primary">
-                                프로그램 보러가기 →
-                            </SystemLink>
-                        </div>
-                    </div>
-                )}
-            </section>
-        </div>
-    );
+// [제목뿐인 범용 본문을 사용하지 않는 경로 / Resolve an actual content record]
+export default function CatalogDynamicPage({ params }: { params: { slug: string[] } }) {
+    const path = "/" + params.slug.join("/");
+    const known = CATALOG_SNAPSHOT.pages.some(page => page.path === path) || VENUES.some(venue => path === `/visit/spaces/${venue.id}` || path === `/rental/venues/${venue.id}`) || NOTICES.some(notice => path === `/news/notices/${notice.id}`);
+    if (!known) notFound();
+    return <CatalogPage path={path} />;
 }

@@ -118,7 +118,7 @@ const BookingInvitation = memo(function BookingInvitation({
     }, [text]);
 
     return (
-        <h2 data-text="heading" id={id} className="booking-invitation" aria-label={text} ref={headingRef} data-lifecycle="deprecated">
+        <h2 data-text="heading" id={id} className="booking-invitation" aria-label={text} ref={headingRef} data-lifecycle="deprecated" data-component-id="booking-invitation">
             <span data-text="body" aria-hidden="true">
                 {text.split(" ").map((word, wordIndex) => (
                     <Fragment key={`${word}-${wordIndex}`}>

@@ -1,23 +1,26 @@
 "use client";
 
+import type { MembershipMode, TicketVariant } from "../src/system/component-contracts";
+
 import { useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
 import type { Program } from "../types/sejong.ts";
 import type { AccountBooking, AccountNote, AccountNoteDraft } from "../src/lib/account-space.ts";
 import { mediaPath } from "../src/lib/media";
+import { reservationStatusLabel } from "../src/lib/reservations.ts";
 import { SystemBadge, SystemButton, SystemField, SystemIconButton, SystemLink, SystemNotice } from "./SystemPrimitives";
 import Icon from "./Icon";
 
 // [개인 프로필과 멤버십 길잡이 / Personal profile and membership navigation]
 export function AccountMembershipCard({ name, message, mode, counts, onEdit, onLogout }: {
-    name: string; message: string; mode: "loading" | "guest" | "demo" | "oauth";
+    name: string; message: string; mode: MembershipMode;
     counts: { upcoming: number; favorites: number; notes: number };
     onEdit: () => void; onLogout: () => void;
 }) {
     const signedIn = mode === "oauth";
     return (
-        <section className="account-identity" data-component="AccountMembershipCard" aria-label="나의 프로필">
+        <section className="account-identity" data-component="AccountMembershipCard" data-component-id="account-membership" aria-label="나의 프로필">
             <div className="account-identity-top"><span data-text="body" className="account-avatar" aria-hidden="true">{Array.from(name)[0] || "나"}</span><SystemBadge data-text="meta" tone={mode === "oauth" ? "info" : "neutral"}>{mode === "oauth" ? "로그인됨" : mode === "demo" ? "내 프로필" : "방문자 공간"}</SystemBadge></div>
             <h2 data-text="heading">{name}<span data-text="body">님의 세종</span></h2>
             <p data-text="body" className="account-status-message">{message || "나만의 한 줄을 남겨 보세요."}</p>
@@ -39,22 +42,26 @@ export function AccountMembershipCard({ name, message, mode, counts, onEdit, onL
 
 // [같은 티켓의 요약형과 상세형 / Compact and detailed views of the same ticket]
 export function AccountTicket({ booking, program, variant = "full", onCancel }: {
-    booking: AccountBooking; program?: Program; variant?: "compact" | "full";
+    booking: AccountBooking; program?: Program; variant?: TicketVariant;
     onCancel?: (booking: AccountBooking, trigger: HTMLButtonElement) => void;
 }) {
-    const cancelled = booking.status === "cancelled";
+    const active = booking.status === "held" || booking.status === "reserved_unpaid";
+    const closed = booking.status === "cancelled" || booking.status === "expired" || booking.status === "released";
+    const expires = booking.expiresAt && Number.isFinite(Date.parse(booking.expiresAt))
+        ? new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(booking.expiresAt)) : "";
     return (
-        <article className="account-ticket" data-component="AccountTicket" data-variant={variant} data-cancelled={cancelled || undefined}>
+        <article className="account-ticket" data-component="AccountTicket" data-component-id="account-ticket" data-variant={variant} data-cancelled={closed || undefined} data-reservation-status={booking.status}>
             <div className="account-ticket-date"><strong data-text="item-title">{booking.date.slice(5).replace("-", ".")}</strong><span data-text="body">{booking.time}</span></div>
-            <img className="account-ticket-poster" src={mediaPath(program?.image)} alt={booking.title} width={450} height={600} loading="lazy" />
+            {program?.image ? <img className="account-ticket-poster" src={mediaPath(program.image)} alt={program.imageAlt || booking.title} width={450} height={600} loading="lazy" /> : <div className="account-ticket-poster" data-text="body" role="img" aria-label="공식 이미지 준비 중">공식 이미지 준비 중</div>}
             <div data-text="body" className="account-ticket-body">
-                <SystemBadge data-text="meta" tone={cancelled ? "neutral" : "info"}>{cancelled ? "취소 완료" : "저장한 예매"}</SystemBadge>
+                <SystemBadge data-text="meta" tone={active ? "info" : "neutral"}>{reservationStatusLabel(booking.status)}</SystemBadge>
                 <h3 data-text="subheading"><Link data-text="action" href={`/programs/${booking.programId}/`}>{booking.title}</Link></h3>
                 <p data-text="body">{booking.venue}</p>
                 <p data-text="body">{booking.seats.join(", ")} · {booking.seats.length}매</p>
                 {variant === "full" && <p data-text="body" className="account-ticket-reference">{booking.id} · {booking.total.toLocaleString()}원</p>}
+                {active && expires && <p data-text="body">{booking.status === "held" ? "좌석 보류" : "미결제 예약"} 기한: {expires} (서울)</p>}
             </div>
-            <div data-text="body" className="account-ticket-action">{variant === "compact" ? <SystemLink data-text="action" variant="secondary" href={`/programs/${booking.programId}/`}>공연 상세 <Icon name="arrow" size={20} /></SystemLink> : !cancelled && onCancel ? <SystemButton data-text="action" variant="quiet" onClick={event => onCancel(booking, event.currentTarget)}>예매 기록 취소</SystemButton> : null}</div>
+            <div data-text="body" className="account-ticket-action">{variant === "compact" ? <SystemLink data-text="action" variant="secondary" href={`/programs/${booking.programId}/`}>공연 상세 <Icon name="arrow" size={20} /></SystemLink> : active && onCancel ? <SystemButton data-text="action" variant="quiet" onClick={event => onCancel(booking, event.currentTarget)}>예약 취소</SystemButton> : null}</div>
         </article>
     );
 }
@@ -80,7 +87,7 @@ export function AccountDiary({ programs, notes, today, onSave, onDelete }: {
         finally { setSaving(false); }
     }
     return (
-        <section className="account-diary" data-component="AccountDiary" aria-labelledby="account-diary-heading">
+        <section className="account-diary" data-component="AccountDiary" data-component-id="account-diary" aria-labelledby="account-diary-heading">
             <div className="account-section-heading"><div><p data-text="body" className="account-section-kicker">공연이 끝난 뒤에도</p><h2 data-text="heading" id="account-diary-heading">나의 관람노트</h2></div><span data-text="body">{notes.length}개의 기록</span></div>
             <form className="account-note-form" onSubmit={submit}>
                 <div className="account-form-pair"><SystemField data-text="body" as="select" label="기록할 프로그램" id="account-note-program" value={programId} onChange={event => setProgramId(event.target.value)} required>{programs.map(program => <option data-text="label" key={program.id} value={program.id}>{program.title}</option>)}</SystemField><SystemField data-text="body" label="관람일" type="date" id="account-note-date" value={date} max={today} onChange={event => setDate(event.target.value)} required /></div>

@@ -17,7 +17,7 @@ export default function Footer() {
     };
 
     return (
-        <footer id="footer" className="renewal-footer" data-home-anchor>
+        <footer data-component-id="footer" id="footer" className="renewal-footer" data-home-anchor>
             <div className="footer-utility" id="footer-newsletter" data-home-anchor>
                 <div className="container">
                     <p data-text="body">세종문화회관의 새 소식.</p>

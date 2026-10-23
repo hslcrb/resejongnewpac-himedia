@@ -9,12 +9,15 @@ import Icon from "./Icon";
 import useFavorites from "./useFavorites";
 import { toggleFavorite } from "../src/lib/favorites";
 import { mediaPath } from "../src/lib/media";
+import { useCatalog } from "../src/catalog/CatalogProvider";
 
 interface ProgramCardProps {
     program: Program;
 }
 
 export default function ProgramCard({ program }: ProgramCardProps) {
+    const { catalog } = useCatalog();
+    const hasVerifiedSession = catalog.sessions.some(session => session.programId === program.id && session.bookingEnabled && session.sourceState === "verified" && new Date(session.startsAt).valueOf() > Date.now());
     const isFavorite = useFavorites().includes(program.id);
 
     const handleFavorite = async (e: React.MouseEvent) => {
@@ -34,7 +37,7 @@ export default function ProgramCard({ program }: ProgramCardProps) {
     const formatDate = (val?: string) => String(val || "").replaceAll("-", ".");
 
     return (
-        <article className="card card--poster program-card" data-card="poster">
+        <article data-component-id="poster" className="card card--poster program-card" data-card="poster">
             <Link data-text="action"
                 href={`/programs/${program.id}`}
                 className="card-poster-link"
@@ -45,7 +48,7 @@ export default function ProgramCard({ program }: ProgramCardProps) {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={imagePath}
-                        alt={program.imageAlt || program.title}
+                        alt={program.image ? (program.imageAlt || program.title) : "세종문화회관 공간 사진"}
                         loading="lazy"
                         width={450}
                         height={600}
@@ -64,8 +67,8 @@ export default function ProgramCard({ program }: ProgramCardProps) {
                 </div>
 
                 <div className="program-card-meta">
-                    <span data-text="body">{program.genre || "클래식"}</span>
-                    <span data-text="body">{program.status || "예매중"}</span>
+                    <span data-text="body">{program.genre || program.category}</span>
+                    <span data-text="body">{hasVerifiedSession ? "예약 가능" : "일정 확인"}</span>
                 </div>
 
                 <h3 data-text="subheading">{program.title}</h3>

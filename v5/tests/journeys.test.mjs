@@ -25,16 +25,18 @@ test("an empty visit plan asks for a date and space without inventing a program"
     assert.deepEqual(plan.issues, []);
 });
 
-test("selected performances retain real date, session and matching venue across a shared URL", () => {
+test("selected performances retain date and venue without inventing unverified sessions", () => {
     assert.ok(journeys, "journeys feature is implemented");
     const program = PROGRAMS.find(item => item.id === "dance");
     const plan = journeys.getVisitPlan(new URLSearchParams({
-        program: "dance", date: program.start, time: program.times[0],
+        program: "dance", date: program.start, time: "19:30",
         transport: "gyeongbokgung", access: "wheelchair",
     }));
-    assert.equal(plan.ready, true);
+    assert.deepEqual(program.times, [], "the snapshot has no verified session for this program");
+    assert.equal(plan.ready, false);
     assert.equal(plan.venue.id, "grand");
-    assert.equal(plan.time, program.times[0]);
+    assert.equal(plan.time, "");
+    assert.ok(plan.issues.some(issue => issue.includes("회차")));
     assert.equal(plan.access, "wheelchair");
     const restored = journeys.getVisitPlan(new URLSearchParams(plan.query));
     assert.equal(restored.date, program.start);
@@ -63,13 +65,13 @@ test("a space-only visit is valid while a program visit requires a session", () 
     assert.equal(journeys.getVisitPlan(new URLSearchParams({ program: "dance", date: program.start })).ready, false);
 });
 
-test("education venues and bus travel use general transport guidance without a default destination", () => {
+test("unverified education sessions do not invent arrival routes and bus travel uses general guidance", () => {
     for (const id of ["academy", "art-class"]) {
         const program = PROGRAMS.find(item => item.id === id);
-        const query = new URLSearchParams({ program: id, date: program.start, time: program.times[0] });
+        assert.deepEqual(program.times, []);
+        const query = new URLSearchParams({ program: id, date: program.start });
+        assert.equal(journeys.getVisitPlan(query).ready, false);
         const html = journeys.renderJourneys("/visit/plan", query);
-        assert.ok(html.includes('href="#/visit/directions?overview=1"'), id);
-        assert.ok(html.includes("교통 안내 확인"), id);
         assert.ok(!html.includes('href="#/visit/directions?origin='), id);
     }
     const bus = journeys.renderJourneys("/visit/plan", new URLSearchParams("venue=grand&date=2026-10-20&transport=bus"));

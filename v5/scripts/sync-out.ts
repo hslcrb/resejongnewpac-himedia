@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { finalizeReadableExport } from './readable-finalize.ts';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const v5Root = path.resolve(__dirname, "..");
@@ -26,6 +27,7 @@ if (fs.existsSync(outDir)) {
     if (["development", "webpack"].some((name) => fs.existsSync(path.join(staticDir, name)))) {
         throw new Error("Development assets found in the export. Stop the dev server, remove v5/.next and v5/out, then run the production build again.");
     }
+    finalizeReadableExport(v5Root);
     console.log("Syncing out/ to v5 root for direct static hosting...");
     const nextDir = path.join(v5Root, "_next");
     if (fs.existsSync(nextDir)) {

@@ -826,6 +826,9 @@
     --semantic-info-subtle: var(--surface-subtle);
     --semantic-info-border: var(--border-default);
     --text-min: 1rem;
+    --text-hero-with-companion: clamp(2.5rem, 3.7vw, 3.5rem);
+    --text-hero-standalone: clamp(2.625rem, 4.3vw, 4.125rem);
+    --text-quick-action: 1rem;
     --text-display: clamp(2.5rem, 5vw, 4rem);
     --text-title: clamp(2.25rem, 3.5vw, 3rem);
     --text-heading: clamp(1.75rem, 2.5vw, 2rem);
@@ -931,4 +934,17 @@
     --glass-saturation: 1.4;
     --glass-edge: color-mix(in srgb, var(--color-white) 88%, var(--color-transparent));
     --glass-shadow: 0 24px 80px color-mix(in srgb, var(--color-black) 18%, var(--color-transparent)), 0 4px 16px color-mix(in srgb, var(--color-black) 9%, var(--color-transparent));
+}
+
+@media (max-width: 800px) {
+    :root {
+        --text-hero-standalone: 2.875rem;
+    }
+}
+
+@media (max-width: 600px) {
+    :root {
+        --text-hero-with-companion: clamp(1.875rem, 7vw, 2.5rem);
+        --text-hero-standalone: clamp(2.125rem, 8.5vw, 2.75rem);
+    }
 }

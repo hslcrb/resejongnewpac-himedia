@@ -1,4 +1,6 @@
 import React from "react";
+import { CatalogProvider } from "../src/catalog/CatalogProvider";
+import { DESIGN_COLORS } from "../src/data/design-tokens";
 import SiteShell from "../components/SiteShell";
 
 import "../styles/compat/shared.css";
@@ -44,6 +46,8 @@ export const metadata = {
     description: "공연·전시·교육 일정과 예매, 이용 안내를 한곳에서 확인하세요.",
 };
 
+export const viewport = { themeColor: DESIGN_COLORS.find(color => color.token === "color-white")!.hex };
+
 export default function RootLayout({
     children,
 }: {
@@ -52,14 +56,11 @@ export default function RootLayout({
     return (
         <html lang="ko">
             <head>
-                <meta charSet="UTF-8" />
-                <meta name="viewport" content="width=device-width, initial-scale=1" />
-                <meta name="theme-color" content="#ffffff" />
                 <link rel="icon" type="image/svg+xml" href="/v5/assets/favicon.svg" />
                 <link rel="preload" href="/v5/assets/fonts/woff2/WantedSansVariable.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
             </head>
             <body>
-                <SiteShell>{children}</SiteShell>
+                <CatalogProvider><SiteShell>{children}</SiteShell></CatalogProvider>
             </body>
         </html>
     );

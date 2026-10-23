@@ -5,6 +5,7 @@ import { chromium, expect } from "playwright/test";
 import type { BrowserContext, Page, Route } from "playwright";
 import { accountToday } from "../src/lib/account-space.ts";
 import { PROGRAMS } from "../src/data/catalog.ts";
+import { loadPublishedCatalog } from "../src/catalog/snapshot.ts";
 
 // [실제 SDK와 모의 회원 DB / Real SDK with a simulated member database]
 // 실제 이메일을 보내거나 원격 회원 데이터를 변경하지 않습니다.
@@ -23,6 +24,11 @@ const memberA = "123e4567-e89b-42d3-a456-426614174000";
 const memberB = "123e4567-e89b-42d3-a456-426614174001";
 const program = PROGRAMS.find(item => item.id === "winter")!;
 assert.ok(program, "The winter program is available to the booking fixture.");
+const fixtureSession = "test-winter-verified";
+const fixtureSeats = ["A1", "A2", "B1", "B2", "C1", "C2", "D1", "D2"].map((label, index) => ({ id: `test-seat-${label}`, label, row: label[0], number: index % 2 + 1, price: 1000 }));
+const catalog = structuredClone(loadPublishedCatalog());
+Object.assign(catalog.programs.find(item => item.id === program.id)!, { price: 1000, sourceState: "verified", bookingEnabled: true, times: ["19:30"], status: "예약 가능" });
+catalog.sessions.push({ id: fixtureSession, programId: program.id, venueId: "m-theater", startsAt: `${program.start}T19:30:00+09:00`, bookingEnabled: true, sourceState: "verified" });
 type Row = Record<string, any>;
 type LoggedRequest = { table: string; method: string; userId: string; body: Row | null; url: string };
 const users: Record<string, Row> = Object.fromEntries([memberA, memberB].map((id, index) => [id, {
@@ -76,6 +82,51 @@ async function respond(route: Route, rows: Row[], status = 200) {
     await route.fulfill({ status, json: single ? rows[0] || null : rows });
 }
 
+// [서버 RPC 계약의 HTTP 대역 / HTTP fixture for RPC semantics, not a database/RLS proof]
+const rpcReads = new Set(["rpc/sejong_catalog_snapshot", "rpc/get_session_seats", "rpc/get_member_reservations"]);
+const memberWrites = () => requests.filter(request => request.method !== "GET" && !rpcReads.has(request.table));
+function expireReservations() {
+    for (const row of store.sejong_bookings) if (["held", "reserved_unpaid"].includes(row.status) && Date.parse(row.expires_at) <= Date.now()) row.status = "expired";
+}
+function reservationResult(row: Row) {
+    return { kind: "reservation", serverNow: new Date().toISOString(), reservation: { id: row.id, programId: row.program_id, sessionId: row.session_id, title: row.title, date: row.event_date, time: row.event_time, venue: row.venue, seats: row.seats, total: row.total, reference: row.id, status: row.status, expiresAt: row.expires_at, createdAt: row.created_at } };
+}
+function rpcResult(name: string, owner: string, body: Row) {
+    expireReservations();
+    if (name === "sejong_catalog_snapshot") return catalog;
+    if (name === "get_member_reservations") return store.sejong_bookings.filter(row => row.user_id === owner).map(row => ({ ...row }));
+    if (name === "get_session_seats") return body.p_session_id !== fixtureSession ? { kind: "error", code: "SESSION_NOT_FOUND" } : {
+        kind: "inventory", sessionId: fixtureSession, bookingEnabled: true, serverNow: new Date().toISOString(),
+        seats: fixtureSeats.map(seat => ({ ...seat, available: !store.sejong_bookings.some(row => row.session_id === fixtureSession && ["held", "reserved_unpaid"].includes(row.status) && row.seat_ids.includes(seat.id)) })),
+    };
+    if (name === "hold_seats") {
+        const ids = [...body.p_seat_ids].sort();
+        const fingerprint = JSON.stringify([body.p_session_id, ids]);
+        const previous = store.sejong_bookings.find(row => row.user_id === owner && row.hold_request_key === body.p_request_key);
+        if (previous) return previous.hold_fingerprint === fingerprint ? reservationResult(previous) : { kind: "error", code: "IDEMPOTENCY_CONFLICT" };
+        if (body.p_session_id !== fixtureSession || !ids.length || new Set(ids).size !== ids.length || ids.some(id => !fixtureSeats.some(seat => seat.id === id))) return { kind: "error", code: "INVALID_SELECTION" };
+        const active = store.sejong_bookings.filter(row => row.session_id === fixtureSession && ["held", "reserved_unpaid"].includes(row.status));
+        if (active.filter(row => row.user_id === owner).reduce((sum, row) => sum + row.seats.length, 0) + ids.length > 4) return { kind: "error", code: "MEMBER_LIMIT" };
+        if (active.some(row => row.seat_ids.some((id: string) => ids.includes(id)))) return { kind: "error", code: "SEATS_UNAVAILABLE" };
+        const seats = ids.map(id => fixtureSeats.find(seat => seat.id === id)!);
+        const row = { id: randomUUID(), user_id: owner, session_id: fixtureSession, program_id: program.id, title: program.title, event_date: program.start, event_time: "19:30", venue: program.venue, seat_ids: ids, seats: seats.map(seat => seat.label), total: seats.reduce((sum, seat) => sum + seat.price, 0), status: "held", expires_at: new Date(Date.now() + 300000).toISOString(), created_at: new Date().toISOString(), hold_request_key: body.p_request_key, hold_fingerprint: fingerprint };
+        store.sejong_bookings.push(row);
+        return reservationResult(row);
+    }
+    const row = store.sejong_bookings.find(row => row.id === body.p_reservation_id && row.user_id === owner);
+    if (!row) return { kind: "error", code: "RESERVATION_NOT_FOUND" };
+    if (name === "confirm_reservation") {
+        if (row.confirm_request_key && row.confirm_request_key !== body.p_request_key) return { kind: "error", code: "IDEMPOTENCY_CONFLICT" };
+        if (row.status === "held") Object.assign(row, { status: "reserved_unpaid", confirm_request_key: body.p_request_key, expires_at: new Date(Date.now() + 1800000).toISOString() });
+        return reservationResult(row);
+    }
+    if (name === "cancel_reservation") {
+        if (["held", "reserved_unpaid"].includes(row.status)) row.status = "cancelled";
+        return reservationResult(row);
+    }
+    throw new Error(`Unexpected RPC: ${name}`);
+}
+
 // [인증과 PostgREST 요청 경계 / Auth and PostgREST request boundaries]
 async function mockBackend(route: Route) {
     const request = route.request();
@@ -101,12 +152,31 @@ async function mockBackend(route: Route) {
         return route.fulfill({ json: session(id) });
     }
     const table = url.pathname.replace(/^\/rest\/v1\//, "");
+    if (table.startsWith("rpc/")) {
+        const body = request.postDataJSON() || {};
+        requests.push({ table, method, userId: owner, body, url: url.href });
+        if (method !== "POST" || (!rpcReads.has(table) && !users[owner]) || (table === "rpc/get_member_reservations" && !users[owner])) {
+            protocolErrors.push(`Invalid RPC authentication or method: ${table}/${method}`);
+            return route.fulfill({ status: 403, json: { code: "42501", message: "AUTH_REQUIRED" } });
+        }
+        assert.ok(!("p_user_id" in body) && !("p_price" in body) && !("p_title" in body), "Client cannot supply owner or authoritative price/title.");
+        const rule = rules.find(item => !item.used && item.match(table, method, owner));
+        if (rule) { rule.used = true; await rule.wait?.promise; }
+        if (rule?.status && !rule.commitBeforeFailure) return route.fulfill({ status: rule.status, json: { code: "FIXTURE_UNAVAILABLE", message: "Simulated RPC failure" } });
+        const result = rpcResult(table.slice(4), owner, body);
+        if (rule?.commitBeforeFailure) return route.fulfill({ status: rule.status!, json: { code: "FIXTURE_RESPONSE_LOST", message: "Committed, but the successful response was lost" } });
+        return route.fulfill({ json: result });
+    }
     if (!(table in store)) {
         protocolErrors.push(`Unexpected mocked backend request: ${method} ${url.pathname}`);
         return route.fulfill({ status: 404, json: { message: "Unexpected fixture endpoint" } });
     }
     const body = request.postData() ? request.postDataJSON() : null;
     requests.push({ table, method, userId: owner, body, url: url.href });
+    if (table === "sejong_bookings" && method !== "GET") {
+        protocolErrors.push(`Direct booking write is forbidden: ${method}`);
+        return route.fulfill({ status: 403, json: { code: "42501", message: "Direct reservation writes are forbidden" } });
+    }
     if (!users[owner] || (body && body.user_id && body.user_id !== owner) || (method === "GET" && url.searchParams.get("user_id") !== `eq.${owner}`)) {
         protocolErrors.push(`Missing authenticated owner boundary: ${table}/${method}`);
         return route.fulfill({ status: 403, json: { message: "Fixture owner boundary" } });
@@ -172,6 +242,14 @@ async function switchMember(page: Page, id: string, event = "SIGNED_IN") {
     }, { key: storageKey, next: session(id), event });
 }
 async function account(page: Page, path = "account/") { await page.goto(new URL(path, base).href); await ready(page); }
+const seatButton = (page: Page, label: string) => page.getByRole("button", { name: new RegExp(`^${label} · 1,000원`) });
+async function booking(page: Page, label: string) {
+    await page.goto(new URL(`booking/${program.id}/`, base).href);
+    await expect(page.locator(`#booking-session option[value="${fixtureSession}"]`)).toHaveCount(1);
+    await page.locator("#booking-session").selectOption(fixtureSession);
+    await expect(seatButton(page, label)).toBeEnabled();
+    await seatButton(page, label).click();
+}
 async function check(name: string, id: string | null, run: (page: Page, context: BrowserContext) => Promise<void>) {
     const context = await memberContext(id);
     const page = await context.newPage();
@@ -289,76 +367,131 @@ try {
             await expect(favorite).toHaveAttribute("aria-pressed", "false");
         } finally { held.release(); }
         await expect(favorite).toHaveAttribute("aria-pressed", "true");
+        await expect(favorite.locator("svg use")).toHaveAttribute("href", /#favorite-fill$/);
         nextRequest("sejong_favorites", "DELETE", { fail: true });
         await favorite.click();
         await expect(page.locator('[role="status"]').filter({ hasText: "관심 프로그램을 저장하지 못했습니다" })).toBeVisible();
         await expect(favorite).toHaveAttribute("aria-pressed", "true");
+        const notification = page.locator("#toast.small-notification-modal");
+        await expect(notification).toHaveAttribute("aria-hidden", "true", { timeout: 7000 });
+        await expect(notification).not.toHaveClass(/\bvisible\b/);
+        await expect(notification).toHaveCSS("opacity", "0");
         await page.reload();
         await expect(favorite).toHaveAttribute("aria-pressed", "true");
+        await expect(favorite.locator("svg use")).toHaveAttribute("href", /#favorite-fill$/);
     });
 
-    await check("booking inserts are awaited and cancellation persists after reload", memberA, async page => {
-        await page.goto(new URL(`booking/${program.id}/`, base).href);
-        await page.getByRole("button", { name: /좌석 선택하기/ }).click();
-        await page.getByRole("button", { name: "A1 좌석", exact: true }).click();
-        await page.getByRole("button", { name: "선택 내용 확인", exact: true }).click();
-        const held = nextRequest("sejong_bookings", "POST", { hold: true });
+    await check("reservation RPCs await server state, recover failures, and cancellation persists", memberA, async page => {
+        await booking(page, "A1");
+        nextRequest("rpc/hold_seats", "POST", { fail: true });
+        await page.getByRole("button", { name: /1석 보류하기/ }).click();
+        await expect(page.locator('.ds-notice[role="alert"]')).toContainText("예약 요청에 실패했습니다");
+        assert.equal(store.sejong_bookings.length, 0, "Failed hold cannot create a successful local reservation.");
+        const held = nextRequest("rpc/hold_seats", "POST", { hold: true });
         try {
-            await page.getByRole("button", { name: "예매 기록 저장", exact: true }).click();
+            await page.getByRole("button", { name: /1석 보류하기/ }).click();
             await expect.poll(() => held.rule.used).toBe(true);
-            await expect(page.locator("#booking-complete-heading")).toHaveCount(0);
-            await expect(page.getByRole("button", { name: "저장 중…", exact: true })).toBeDisabled();
-            await expect(page.getByRole("button", { name: "좌석 다시 선택", exact: true })).toBeDisabled();
+            await expect(page.getByRole("heading", { name: "좌석 보류 중", exact: true })).toHaveCount(0);
+            await expect(page.getByRole("button", { name: "처리 중…", exact: true })).toBeDisabled();
+            await expect(seatButton(page, "A2")).toBeDisabled();
         } finally { held.release(); }
-        await expect(page.locator("#booking-complete-heading")).toBeVisible();
-        assert.equal(store.sejong_bookings.filter(row => row.user_id === memberA).length, 1);
+        await expect(page.getByRole("heading", { name: "좌석 보류 중", exact: true })).toBeVisible();
+        await expect(page.getByRole("link", { name: "예약 내역 확인", exact: true })).toHaveAttribute("href", "/v5/account/bookings/");
+        assert.equal(store.sejong_bookings[0].status, "held");
+        assert.equal(store.sejong_bookings[0].total, 1000);
+        const confirm = nextRequest("rpc/confirm_reservation", "POST", { hold: true });
+        try {
+            await page.getByRole("button", { name: "예약 접수하기", exact: true }).click();
+            await expect.poll(() => confirm.rule.used).toBe(true);
+            await expect(page.getByRole("button", { name: "예약 접수하기", exact: true })).toBeDisabled();
+            await expect(page.getByRole("heading", { name: "예약됨 · 미결제", exact: true })).toHaveCount(0);
+        } finally { confirm.release(); }
+        await expect(page.getByRole("heading", { name: "예약됨 · 미결제", exact: true })).toBeVisible();
+        await expect(page.getByText("결제와 발권은 아직 진행되지 않았으며", { exact: false })).toBeVisible();
         await account(page, "account/bookings/");
-        await expect(page.locator("#account-panel-bookings .account-ticket")).toHaveCount(1);
-        await page.locator("#account-panel-bookings").getByRole("button", { name: "예매 기록 취소", exact: true }).click();
+        const ticket = page.locator("#account-panel-bookings .account-ticket");
+        await expect(ticket).toHaveCount(1);
+        await expect(ticket).toContainText("예약됨 · 미결제");
+        await expect(ticket).toContainText("미결제 예약 기한");
+        await ticket.getByRole("button", { name: "예약 취소", exact: true }).click();
         await page.locator(".account-cancel-dialog").getByRole("button", { name: "예매 기록 취소", exact: true }).click();
-        await expect(page.locator('#account-panel-bookings .account-ticket[data-cancelled="true"]')).toBeVisible();
+        await expect(ticket).toHaveAttribute("data-reservation-status", "cancelled");
         await page.reload(); await ready(page);
-        await expect(page.locator('#account-panel-bookings .account-ticket[data-cancelled="true"]')).toBeVisible();
+        await expect(ticket).toContainText("취소됨");
+        await expect(ticket.getByRole("button", { name: "예약 취소", exact: true })).toHaveCount(0);
         assert.equal(store.sejong_bookings[0].status, "cancelled");
     });
 
-    await check("ambiguous booking responses retry without duplicates and edited seats use a new request", memberA, async page => {
+    await check("lost hold and confirm responses retry without duplicates; changed seats and owners stay separate", memberA, async page => {
         const before = store.sejong_bookings.length;
-        await page.goto(new URL(`booking/${program.id}/`, base).href);
-        await page.getByRole("button", { name: /좌석 선택하기/ }).click();
-        await page.getByRole("button", { name: "B1 좌석", exact: true }).click();
-        await page.getByRole("button", { name: "선택 내용 확인", exact: true }).click();
-        nextRequest("sejong_bookings", "POST", { commitBeforeFailure: true });
-        await page.getByRole("button", { name: "예매 기록 저장", exact: true }).click();
+        await booking(page, "B1");
+        nextRequest("rpc/hold_seats", "POST", { commitBeforeFailure: true });
+        await page.getByRole("button", { name: /1석 보류하기/ }).click();
         await expect(page.locator('.ds-notice[role="alert"]')).toBeVisible();
+        const committed = store.sejong_bookings.at(-1)!;
+        const holdExpiry = committed.expires_at;
         assert.equal(store.sejong_bookings.length, before + 1);
-        await page.getByRole("button", { name: "예매 기록 저장", exact: true }).click();
-        await expect(page.locator("#booking-complete-heading")).toBeVisible();
-        await expect(page.locator(".booking-page-saved-selection")).toContainText("B1");
-        assert.equal(store.sejong_bookings.length, before + 1, "Retrying the same draft reuses the committed row.");
-        await page.reload();
-        await page.getByRole("button", { name: /좌석 선택하기/ }).click();
-        await page.getByRole("button", { name: "C1 좌석", exact: true }).click();
-        await page.getByRole("button", { name: "선택 내용 확인", exact: true }).click();
-        nextRequest("sejong_bookings", "POST", { commitBeforeFailure: true });
-        await page.getByRole("button", { name: "예매 기록 저장", exact: true }).click();
+        await page.getByRole("button", { name: /1석 보류하기/ }).click();
+        await expect(page.getByRole("heading", { name: "좌석 보류 중", exact: true })).toBeVisible();
+        assert.equal(store.sejong_bookings.length, before + 1);
+        assert.equal(committed.expires_at, holdExpiry, "Retry must preserve the original hold expiry.");
+        nextRequest("rpc/confirm_reservation", "POST", { commitBeforeFailure: true });
+        await page.getByRole("button", { name: "예약 접수하기", exact: true }).click();
         await expect(page.locator('.ds-notice[role="alert"]')).toBeVisible();
-        await page.getByRole("button", { name: "좌석 다시 선택", exact: true }).click();
-        await page.getByRole("button", { name: "C1 좌석", exact: true }).click();
-        await page.getByRole("button", { name: "C2 좌석", exact: true }).click();
-        await page.getByRole("button", { name: "선택 내용 확인", exact: true }).click();
-        await page.getByRole("button", { name: "예매 기록 저장", exact: true }).click();
-        await expect(page.locator("#booking-complete-heading")).toBeVisible();
-        await expect(page.locator(".booking-page-saved-selection")).toContainText("C2");
+        const confirmedExpiry = committed.expires_at;
+        await page.getByRole("button", { name: "예약 접수하기", exact: true }).click();
+        await expect(page.getByRole("heading", { name: "예약됨 · 미결제", exact: true })).toBeVisible();
+        assert.equal(committed.expires_at, confirmedExpiry, "Retry must preserve the confirmed expiry.");
+        await booking(page, "C1");
+        nextRequest("rpc/hold_seats", "POST", { commitBeforeFailure: true });
+        await page.getByRole("button", { name: /1석 보류하기/ }).click();
+        await expect(page.locator('.ds-notice[role="alert"]')).toBeVisible();
+        await seatButton(page, "C1").click();
+        await seatButton(page, "C2").click();
+        await page.getByRole("button", { name: /1석 보류하기/ }).click();
+        await expect(page.getByRole("heading", { name: "좌석 보류 중", exact: true })).toBeVisible();
         const edited = store.sejong_bookings.at(-1)!;
         assert.deepEqual(edited.seats, ["C2"]);
         assert.equal(store.sejong_bookings.length, before + 3);
-        assert.notEqual(edited.id, store.sejong_bookings.at(-2)!.id);
+        assert.notEqual(edited.hold_request_key, store.sejong_bookings.at(-2)!.hold_request_key);
         await switchMember(page, memberB);
-        await expect(page.locator("#booking-complete-heading")).toHaveCount(0);
-        await expect(page.locator("#booking-date-heading")).toBeVisible();
-        await page.getByRole("button", { name: /좌석 선택하기/ }).click();
-        await expect(page.getByRole("button", { name: "C2 좌석", exact: true })).toHaveAttribute("aria-pressed", "false");
+        await expect(page.getByRole("heading", { name: "좌석 보류 중", exact: true })).toHaveCount(0);
+        await expect(page.getByRole("heading", { name: "예약됨 · 미결제", exact: true })).toHaveCount(0);
+        await expect(seatButton(page, "C2")).toHaveAttribute("aria-pressed", "false");
+        assert.ok(store.sejong_bookings.slice(before).every(row => row.user_id === memberA));
+    });
+
+    await check("expired reservations show server state and cannot present a cancellation action", memberA, async page => {
+        const expiring = store.sejong_bookings.find(row => row.user_id === memberA && row.seats.includes("C1"))!;
+        assert.ok(expiring);
+        expiring.expires_at = new Date(Date.now() - 1000).toISOString();
+        await account(page, "account/bookings/");
+        const expired = page.locator('#account-panel-bookings .account-ticket[data-reservation-status="expired"]');
+        await expect(expired).toHaveCount(1);
+        await expect(expired).toContainText("기한 만료");
+        await expect(expired.getByRole("button", { name: "예약 취소", exact: true })).toHaveCount(0);
+        await expect(page.locator('#account-panel-bookings .account-ticket[data-reservation-status="reserved_unpaid"]')).toContainText("예약됨 · 미결제");
+        await expect(page.locator('#account-panel-bookings .account-ticket[data-reservation-status="held"]')).toContainText("좌석 보류 중");
+    });
+
+    await check("a delayed reservation response cannot appear under the newly signed-in member", memberA, async page => {
+        await booking(page, "D1");
+        const held = nextRequest("rpc/hold_seats", "POST", { hold: true, owner: memberA });
+        let response: Promise<import("playwright").Response> | undefined;
+        try {
+            await page.getByRole("button", { name: /1석 보류하기/ }).click();
+            await expect.poll(() => held.rule.used).toBe(true);
+            await switchMember(page, memberB);
+            await expect(seatButton(page, "D1")).toHaveAttribute("aria-pressed", "false");
+            response = page.waitForResponse(response => response.url().endsWith("/rpc/hold_seats"));
+        } finally { held.release(); }
+        if (response) await (await response).finished();
+        await expect(page.getByRole("button", { name: /0석 보류하기/ })).toBeDisabled();
+        await expect(page.getByRole("heading", { name: "좌석 보류 중", exact: true })).toHaveCount(0);
+        await expect(page.getByRole("heading", { name: "예약됨 · 미결제", exact: true })).toHaveCount(0);
+        assert.equal(store.sejong_bookings.find(row => row.seats.includes("D1"))?.user_id, memberA);
+        await account(page, "account/bookings/");
+        await expect(page.locator("#account-panel-bookings .account-ticket")).toHaveCount(0);
     });
 
     await check("profile changes persist in the member table without mutating provider metadata", memberA, async page => {
@@ -434,21 +567,18 @@ try {
         await expect(page.locator(".mini-room-note cite")).not.toContainText("DB에서 이어지는 공간");
         await page.getByRole("tab", { name: "관심 프로그램 (0)", exact: true }).click();
         await expect(page.locator("#account-panel-favorites .program-card")).toHaveCount(0);
-        const before = requests.filter(request => request.method !== "GET").length;
+        const before = memberWrites().length;
         await page.goto(new URL("programs/", base).href);
         const favorite = page.locator(".program-card .favorite-button").first();
         await page.locator(".program-card").first().hover();
         await favorite.click();
         await expect(page.locator('[role="status"]').filter({ hasText: /로그인한 뒤/ })).toBeVisible();
         await expect(favorite).toHaveAttribute("aria-pressed", "false");
-        await page.goto(new URL(`booking/${program.id}/`, base).href);
-        await page.getByRole("button", { name: /좌석 선택하기/ }).click();
-        await page.getByRole("button", { name: "A2 좌석", exact: true }).click();
-        await page.getByRole("button", { name: "선택 내용 확인", exact: true }).click();
-        await page.getByRole("button", { name: "예매 기록 저장", exact: true }).click();
+        await booking(page, "A2");
+        await page.getByRole("button", { name: /1석 보류하기/ }).click();
         await expect(page.locator('.ds-notice[role="alert"]')).toContainText("로그인한 뒤");
-        await expect(page.locator("#booking-complete-heading")).toHaveCount(0);
-        assert.equal(requests.filter(request => request.method !== "GET").length, before);
+        await expect(page.getByRole("heading", { name: "좌석 보류 중", exact: true })).toHaveCount(0);
+        assert.equal(memberWrites().length, before);
     });
 
     await check("late account A data cannot replace account B after an SDK session change", memberA, async page => {
@@ -478,12 +608,13 @@ try {
         await expect(page.locator(".account-main")).not.toContainText("다른 브라우저에서도 이어지는 나의 한마디");
     });
 
-    const expectedTables = ["sejong_profiles", "sejong_spaces", "sejong_favorites", "sejong_notes", "sejong_bookings"];
+    const expectedTables = ["sejong_profiles", "sejong_spaces", "sejong_favorites", "sejong_notes", "rpc/hold_seats", "rpc/confirm_reservation", "rpc/cancel_reservation"];
     for (const table of expectedTables) assert.ok(requests.some(request => request.table === table && request.method !== "GET"), `${table} has an exercised write path.`);
+    assert.equal(requests.filter(request => request.table === "sejong_bookings" && request.method !== "GET").length, 0, "No direct reservation writes are allowed.");
     assert.deepEqual(protocolErrors, []);
     assert.deepEqual(runtimeErrors, []);
 } finally {
-    fs.writeFileSync(`${directory}/report.json`, JSON.stringify({ base, verifiedAt: new Date().toISOString(), mode: "actual Supabase SDK with mocked Auth and PostgREST; not live RLS verification", results, protocolErrors, runtimeErrors, requestCounts: Object.fromEntries(Object.keys(store).map(table => [table, requests.filter(request => request.table === table).length])) }, null, 2));
+    fs.writeFileSync(`${directory}/report.json`, JSON.stringify({ base, verifiedAt: new Date().toISOString(), mode: "actual Supabase SDK with mocked Auth, PostgREST and reservation RPC; not live RLS verification", results, protocolErrors, runtimeErrors, requestCounts: Object.fromEntries([...new Set(requests.map(request => request.table))].map(table => [table, requests.filter(request => request.table === table).length])) }, null, 2));
     await browser.close();
 }
 if (results.some(result => !result.passed)) process.exitCode = 1;

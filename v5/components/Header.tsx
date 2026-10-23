@@ -11,7 +11,10 @@ import type { PanelPoint } from "../src/lib/floating-panel";
 import { warmPanelSnapshot } from "../src/lib/panel-snapshot";
 import useAccountIdentity from "./useAccountIdentity";
 
-export default function Header() {
+export const HEADER_VARIANTS = ["default", "inverse"] as const;
+export type HeaderVariant = (typeof HEADER_VARIANTS)[number];
+
+export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
     const pathname = usePathname();
     const router = useRouter();
     const { isLoggedIn } = useAccountIdentity();
@@ -51,7 +54,7 @@ export default function Header() {
     };
 
     return (
-        <header id="header" className="renewal-header">
+        <header id="header" className="renewal-header" data-component-id="header" data-header-variant={variant || (pathname === "/about/introduction" || pathname === "/about/introduction/" ? "inverse" : "default")}>
             <div className="masthead container">
                 <Link data-text="action" href="/" className="sejong-brand" aria-label="세종문화회관 홈">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -90,7 +93,7 @@ export default function Header() {
                 </nav>
 
                 <div data-text="body" className="masthead-actions">
-                    {/* [실제 세션과 체험 계정 공통 진입 / Shared access for real sessions and demo accounts] */}
+                    {/* [실제 세션의 회원 진입 / Account access for the authenticated session] */}
                     {isLoggedIn ? <Link data-text="action" href="/account" className="account-link">마이페이지</Link> : <>
                         <Link data-text="action" href="/account/login" className="account-link">로그인</Link>
                         <Link data-text="action" href="/account/signup" className="account-link signup-link">프로필 만들기</Link>

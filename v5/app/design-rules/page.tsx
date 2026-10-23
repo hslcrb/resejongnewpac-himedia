@@ -169,7 +169,7 @@ export default function DesignRulesPage() {
     const navigationDialog = useRef<HTMLDialogElement>(null);
     const demoDialog = useRef<HTMLDialogElement>(null);
     const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const pendingTarget = useRef<{ chapter: ChapterId; anchor: string } | null>(null);
+    const pendingTarget = useRef<{ chapter: ChapterId; anchor: string; example?: string } | null>(null);
     const chapter = CHAPTERS.find((item) => item.id === chapterId)!;
     const chapterIndex = CHAPTERS.findIndex((item) => item.id === chapterId);
     const normalizedQuery = query.toLocaleLowerCase().replace(/\s/g, "");
@@ -223,7 +223,7 @@ export default function DesignRulesPage() {
             )
                 ? parts[1]
                 : "";
-            pendingTarget.current = { chapter: next.id, anchor };
+            pendingTarget.current = { chapter: next.id, anchor, example: next.id === "components" && anchor === "registry" && /^example-[a-z0-9-]+$/.test(parts[2] || "") ? parts[2] : undefined };
             setMessage("");
             setCopied("");
             setChapterId(next.id);
@@ -257,7 +257,7 @@ export default function DesignRulesPage() {
         if (pending?.chapter === chapter.id) {
             pendingTarget.current = null;
             frame = requestAnimationFrame(() => {
-                const target = pending.anchor
+                const target = pending.example ? document.getElementById(pending.example) : pending.anchor
                     ? document.getElementById(`${chapter.id}-${pending.anchor}`)
                     : document.getElementById("doc-page-title");
                 if (pending.anchor && target) {
@@ -720,7 +720,7 @@ export default function DesignRulesPage() {
                                     새 텍스트는 SystemText의 variant로 역할을 고릅니다. 기존
                                     제목·링크·레이블은 data-text 또는 textAttributes로 같은 역할에
                                     연결하며, HTML의 의미와 조작은 유지합니다. size를 지정할 때도
-                                    같은 역할 이름을 사용합니다.
+                                    역할 또는 control·hero-with-companion·hero-standalone·quick-action 크기를 사용합니다.
                                 </p>
                                 <pre data-text="body"><code data-text="meta">{`<SystemText as="h2" variant="heading">관람 예약</SystemText>
 <p {...textAttributes("caption")}>날짜와 관람 안내</p>

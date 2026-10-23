@@ -1,15 +1,18 @@
 "use client";
+import { useCatalog } from "../src/catalog/CatalogProvider";
 
 import { memo, useEffect, useState } from "react";
 import Icon from "./Icon";
 import LiquidGlass from "./LiquidGlass";
-import { TICKET_OPENINGS, TICKET_OPENINGS_URL } from "../src/data/ticket-openings";
+import { TICKET_OPENINGS_URL } from "../src/data/ticket-openings";
 import { openingDateLabel, openingDayLabel, seoulClock, upcomingTicketOpenings } from "../src/lib/ticket-openings";
 
 // [작품 옆의 예매 정보 / Booking information beside the featured work]
 // 실시간 시계만 독립적으로 갱신하고 목록은 공식 공지로 연결합니다.
 // Update the clock independently and link each release to its official announcement.
 function HeroCompanion() {
+    const { catalog } = useCatalog();
+    const TICKET_OPENINGS = catalog.ticketOpenings;
     const [now, setNow] = useState<number | null>(null);
     useEffect(() => {
         let timer: ReturnType<typeof setInterval> | undefined;
@@ -35,7 +38,7 @@ function HeroCompanion() {
     }).format(now);
 
     return (
-        <aside className="hero-companion" aria-label="티켓오픈과 현재 시각">
+        <aside data-component-id="hero-companion" className="hero-companion" aria-label="티켓오픈과 현재 시각">
             <section className="hero-release-list" aria-labelledby="hero-release-heading">
                 <div className="hero-companion-heading">
                     <h2 data-text="heading" id="hero-release-heading">티켓오픈</h2>

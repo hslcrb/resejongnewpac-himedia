@@ -1,5 +1,7 @@
 ﻿"use client";
 
+import type { RoomTheme } from "../src/system/component-contracts";
+
 import { useId } from "react";
 import type { Program } from "../types/sejong.ts";
 import { mediaPath } from "../src/lib/media";
@@ -8,7 +10,7 @@ import { SystemButton, SystemIconButton } from "./SystemPrimitives";
 export interface AccountMiniRoomProps {
     name: string;
     message: string;
-    theme: "paper" | "sky" | "sun";
+    theme: RoomTheme;
     lightOn: boolean;
     programs: readonly Program[];
     hasFavorites: boolean;
@@ -349,7 +351,7 @@ export default function AccountMiniRoom({
     const lightLabel = lightOn ? "공연장 조명이 켜져 있어요. 조명 끄기" : "공연장 조명이 꺼져 있어요. 조명 켜기";
 
     return (
-        <section className="account-mini-room" data-component="AccountMiniRoom" data-theme={theme} data-light={lightOn ? "on" : "off"} aria-labelledby={headingId}>
+        <section className="account-mini-room" data-component="AccountMiniRoom" data-component-id="account-mini-room" data-theme={theme} data-light={lightOn ? "on" : "off"} aria-labelledby={headingId}>
             {/* [제목과 공통 조작 / Heading and shared controls] */}
             <header className="mini-room-header">
                 <h2 data-text="heading" id={headingId}>나의 작은 공연장</h2>

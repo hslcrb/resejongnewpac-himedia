@@ -361,7 +361,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
         ><span className={styles.menuLabel}><Icon name={item.icon} size={24} /><span data-text="body">{item.label}</span></span></Link>;
     };
 
-    return <div ref={rootRef} className={styles.experience} data-violet-menu data-placement={placement} data-visible={visible} data-state={open ? "open" : "closed"} data-sleeping={sleeping || !visible} aria-hidden={!visible}>
+    return <div data-component-id="quick-menu" ref={rootRef} className={styles.experience} data-violet-menu data-placement={placement} data-visible={visible} data-state={open ? "open" : "closed"} data-sleeping={sleeping || !visible} aria-hidden={!visible}>
         <div className={styles.horizon} aria-hidden="true"><span className={styles.ribbon} /></div>
         <div
             ref={dockRef}
@@ -408,7 +408,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
                         </div>
                         <span className={styles.marker} aria-hidden="true" />
                         <Link data-text="action" href={current.href} prefetch={false} className={styles.current} data-violet-current data-no-drag tabIndex={open ? 0 : -1} onClick={event => onNavigate(event, current)} aria-label={`${current.label}로 이동`}>
-                            <strong data-text="item-title">{current.label}</strong>
+                            <strong data-text="item-title" data-text-size="quick-action">{current.label}</strong>
                             <Icon name="diagonal" size={19} />
                         </Link>
                         <span data-text="body" className="sr-only" aria-live="polite" aria-atomic="true">{open && !dragging ? `선택한 메뉴: ${current.label}.` : ""}</span>

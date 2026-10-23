@@ -15,6 +15,7 @@ export type AuditOptions = {
     exceptions?: readonly ControlException[];
     chapters: readonly { id: string; sections: readonly (readonly string[])[] }[];
     canonicalTokens?: readonly string[];
+    enforceIdentity?: boolean;
 };
 type Scope = { id: string; source: string; name: string; node: ts.Node; body: ts.Node; edges: Set<Scope> };
 
@@ -32,8 +33,34 @@ function filesBelow(directory: string): string[] {
     }).sort();
 }
 
+// [복사하는 JSX도 같은 속성 계약을 검사 / Copied JSX follows the same prop contracts]
+export function auditCopiedComponentCode(code: string, registry: readonly ComponentDefinition[], source = "copied-example"): AuditIssue[] {
+    if (/^\s*\/\/ DOCUMENTATION_ONLY\b/.test(code)) return [];
+    const file = ts.createSourceFile("example.tsx", code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const issues: AuditIssue[] = [];
+    const inspect = (node: ts.Node) => {
+        if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+            const tag = node.tagName.getText(file);
+            const record = registry.find(entry => entry.name === tag || entry.exportName === tag || entry.source.split("/").pop() === `${tag}.tsx`);
+            for (const attribute of node.attributes.properties) {
+                if (!ts.isJsxAttribute(attribute)) continue;
+                const axis = attribute.name.getText(file);
+                if (tag === "LiquidGlass" && ["opacity", "refraction", "blur", "thickness"].includes(axis))
+                    issues.push({ code: "copied-glass-override", source, message: "Product copy must select a LiquidGlass variant; material experiments require the DOCUMENTATION_ONLY label." });
+                const initializer = attribute.initializer;
+                const value = initializer && ts.isStringLiteral(initializer) ? initializer.text : undefined;
+                if (value !== undefined && !value.includes("__dynamic__") && record?.axes?.[axis] && !record.axes[axis].includes(value))
+                    issues.push({ code: "copied-axis-value", source, message: `${tag}.${axis} uses unknown value ${value}.` });
+            }
+        }
+        ts.forEachChild(node, inspect);
+    };
+    inspect(file);
+    return issues;
+}
+
 // [구문과 심벌을 이용한 컴포넌트 단위 분석 / Component-scoped syntax and symbol analysis]
-export function auditComponentSystem({ root, registry, exceptions = [], chapters, canonicalTokens = [] }: AuditOptions): AuditResult {
+export function auditComponentSystem({ root, registry, exceptions = [], chapters, canonicalTokens = [], enforceIdentity = false }: AuditOptions): AuditResult {
     root = resolve(root);
     const issues: AuditIssue[] = [];
     const addIssue = (code: string, source: string, message: string, node?: ts.Node) => {
@@ -128,9 +155,10 @@ export function auditComponentSystem({ root, registry, exceptions = [], chapters
     };
     const callable = (scope: Scope) => {
         if (ts.isFunctionDeclaration(scope.node) || ts.isClassDeclaration(scope.node)) return true;
-        const expression = ts.isVariableDeclaration(scope.node) ? scope.node.initializer
+        let expression = ts.isVariableDeclaration(scope.node) ? scope.node.initializer
             : ts.isExportAssignment(scope.node) ? scope.node.expression : undefined;
         if (!expression) return false;
+        while (ts.isAsExpression(expression) || ts.isSatisfiesExpression(expression) || ts.isParenthesizedExpression(expression)) expression = expression.expression;
         if (ts.isArrowFunction(expression) || ts.isFunctionExpression(expression)) return true;
         return ts.isCallExpression(expression) && /(?:^|\.)(?:memo|forwardRef)$/.test(expression.expression.getText());
     };
@@ -165,12 +193,36 @@ export function auditComponentSystem({ root, registry, exceptions = [], chapters
         if (!record.name?.trim() || !record.purpose?.trim() || !["ui", "structure", "internal", "demo"].includes(record.kind))
             addIssue("invalid-record", source, `Component ${record.id} needs a name, purpose and valid kind.`);
         if (!guidePaths.has(record.guide)) addIssue("invalid-guide", source, `Component ${record.id} points to unknown guide section ${record.guide}.`);
-        if (!(source.startsWith("components/") || source.startsWith("app/")) || !source.endsWith(".tsx") || source.split("/").includes("..") || routeFile(source)) {
+        if (!(source.startsWith("components/") || source.startsWith("app/") || source.startsWith("src/")) || !source.endsWith(".tsx") || source.split("/").includes("..") || routeFile(source)) {
             addIssue("invalid-source", source, `Component ${record.id} must refer to a shared or colocated component, not a route file.`);
         }
         if (!sourceFiles.has(source)) {
             addIssue("missing-source", source, `Component ${record.id} source does not exist.`);
             continue;
+        }
+        if (enforceIdentity && (record.kind === "ui" || record.kind === "demo")) {
+            const markerIds = new Set<string>();
+            const findMarkers = (node: ts.Node) => {
+                if (ts.isJsxAttribute(node) && node.name.getText() === "data-component-id" && node.initializer && ts.isStringLiteral(node.initializer)) markerIds.add(node.initializer.text);
+                if ((ts.isPropertyAssignment(node) || ts.isBindingElement(node)) && (ts.isPropertyAssignment(node) ? node.name.getText().replace(/["']/g, "") : node.propertyName?.getText().replace(/["']/g, "")) === "data-component-id"
+                    && node.initializer && ts.isStringLiteral(node.initializer)) markerIds.add(node.initializer.text);
+                ts.forEachChild(node, findMarkers);
+            };
+            findMarkers(sourceFiles.get(source)!);
+            if (!markerIds.has(record.id)) addIssue("missing-component-id", source, `Component ${record.id} must expose its canonical data-component-id on its existing root.`);
+        }
+        if (enforceIdentity && record.kind === "internal" && record.parent) {
+            const parts = new Set<string>();
+            const owners = new Set<string>();
+            const findParts = (node: ts.Node) => {
+                if (ts.isJsxAttribute(node) && node.initializer && ts.isStringLiteral(node.initializer)) {
+                    if (node.name.getText() === "data-component-part") parts.add(node.initializer.text);
+                    if (node.name.getText() === "data-component-owner") owners.add(node.initializer.text);
+                }
+                ts.forEachChild(node, findParts);
+            };
+            findParts(sourceFiles.get(source)!);
+            if (!parts.has(record.id) || !owners.has(record.parent)) addIssue("missing-component-owner", source, `Internal ${record.id} must annotate its existing part with owner ${record.parent}; do not add a wrapper.`);
         }
         const targets = exportTargets.get(`${source}#${record.exportName}`);
         if (!targets?.size) {
@@ -189,23 +241,49 @@ export function auditComponentSystem({ root, registry, exceptions = [], chapters
         if (record.nativeControls && (!record.nativeControls.length || new Set(record.nativeControls).size !== record.nativeControls.length
             || record.nativeControls.some((tag) => !nativeTags.has(tag))))
             addIssue("invalid-native-ownership", source, `Component ${record.id} nativeControls must contain unique native control tags.`);
-        if (record.variants && (!record.variants.length || new Set(record.variants).size !== record.variants.length || record.variants.some((variant) => !variant.trim())))
-            addIssue("invalid-variants", source, `Component ${record.id} variants must be nonempty and unique.`);
+        for (const [axis, values] of Object.entries(record.axes || {})) {
+            if (!axis.trim() || !values.length || new Set(values).size !== values.length || values.some(value => !value.trim()))
+                addIssue("invalid-axis", source, `Component ${record.id} axis ${axis} must contain unique nonempty values.`);
+            if (record.examples && values.some(value => !record.examples!.some(example => example.axis === axis && example.value === value)))
+                addIssue("missing-axis-example", source, `Component ${record.id} axis ${axis} requires a live example for every allowed value.`);
+        }
+        const exampleIds = new Set<string>();
+        for (const example of record.examples || []) {
+            if (exampleIds.has(example.id) || !/^example-[a-z0-9-]+$/.test(example.id)) addIssue("invalid-example", source, `Invalid or duplicate example anchor ${example.id}.`);
+            exampleIds.add(example.id);
+            if (example.axis && !record.axes?.[example.axis]?.includes(example.value || "")) addIssue("invalid-example-value", source, `Example ${example.id} uses an unknown axis value.`);
+            if (example.state && !record.states?.includes(example.state)) addIssue("invalid-example-state", source, `Example ${example.id} uses an unknown state.`);
+        }
+        for (const state of record.states || []) if (record.examples && !record.examples.some(example => example.state === state))
+            addIssue("missing-state-example", source, `Component ${record.id} requires a live example for state ${state}.`);
         if (record.previewRoute && !record.previewRoute.startsWith("/")) addIssue("invalid-preview", source, `Component ${record.id} preview route must be an absolute site path.`);
+        if (record.layoutOwner && (!routeFile(record.layoutOwner) || !sourceFiles.has(record.layoutOwner))) addIssue("invalid-layout-owner", source, `Component ${record.id} must name an existing layout route owner.`);
     }
     for (const record of registry) {
         if (record.parent && (!ids.has(record.parent) || record.parent === record.id)) addIssue("invalid-parent", slash(record.source), `Component ${record.id} has invalid parent ${record.parent}.`);
+        if (record.kind === "internal" && !record.parent) addIssue("missing-parent", slash(record.source), `Internal component ${record.id} requires its owning component relation.`);
     }
     for (const [source, components] of exportedComponents) {
-        if (!(source.startsWith("components/") || source.startsWith("app/")) || !source.endsWith(".tsx") || routeFile(source)) continue;
+        if (!(source.startsWith("components/") || source.startsWith("app/") || source.startsWith("src/")) || !source.endsWith(".tsx") || routeFile(source)) continue;
         for (const { scope, exports } of components) if (!registeredScopes.has(scope)) {
             addIssue("unregistered-component", source, `Exported React component ${exports.join(" / ")} (${scope.name}) is not registered.`, scope.node);
         }
     }
 
     // [도달 가능한 함수만 따라가는 사용처 분석 / Follow only reachable component and helper scopes]
-    const rootEntries = (guide: boolean) => [...sourceFiles.keys()].filter((source) => source.startsWith("app/") && routeFile(source) && isGuide(source) === guide)
-        .flatMap((source) => [...(exportTargets.get(`${source}#default`) || [])].map((scope) => ({ source, scope })));
+    const rootEntries = (guide: boolean) => {
+        const routes = [...sourceFiles.keys()].filter(source => source.startsWith("app/") && routeFile(source) && isGuide(source) === guide);
+        const inherited = routes.flatMap(source => {
+            const ancestors: string[] = [];
+            let directory = dirname(source).replace(/\\/g, "/");
+            while (directory === "app" || directory.startsWith("app/")) {
+                for (const name of ["layout", "template"]) if (sourceFiles.has(`${directory}/${name}.tsx`)) ancestors.push(`${directory}/${name}.tsx`);
+                directory = dirname(directory).replace(/\\/g, "/");
+            }
+            return ancestors;
+        });
+        return sortStrings([...routes, ...inherited]).flatMap(source => [...(exportTargets.get(`${source}#default`) || [])].map(scope => ({ source, scope })));
+    };
     const reach = (initial: Scope[]) => {
         const result = new Set<Scope>();
         const pending = [...initial];
@@ -232,6 +310,8 @@ export function auditComponentSystem({ root, registry, exceptions = [], chapters
         const productUses = uses(targets, productScopes, productEntries);
         const guideUses = uses(targets, guideScopes, guideEntries);
         usage[record.id] = { status: productUses.length ? "product" : guideUses.length ? "guide-only" : "unused", productUses, guideUses };
+        if (productUses.length && record.lifecycle === "deprecated") addIssue("deprecated-product-use", record.source, `Deprecated ${record.id} is reachable from product routes.`);
+        if (productUses.length && record.kind === "demo") addIssue("demo-product-use", record.source, `Documentation-only ${record.id} is reachable from product routes.`);
     }
 
     // [소스·태그·표식이 일치하는 예외만 허용 / Require exact source, tag and marker for exceptions]
@@ -306,6 +386,10 @@ export function auditComponentSystem({ root, registry, exceptions = [], chapters
             .filter((statement) => ts.isStringLiteral(statement.moduleSpecifier) && statement.moduleSpecifier.text === "next/link")
             .map((statement) => statement.importClause?.name?.text).filter((name): name is string => !!name));
         const inspect = (node: ts.Node) => {
+            if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) || ts.isTemplateExpression(node)) {
+                const code = ts.isTemplateExpression(node) ? node.head.text + node.templateSpans.map(span => `__dynamic__${span.literal.text}`).join("") : node.text;
+                if (/<[A-Z][A-Za-z]*\b/.test(code)) issues.push(...auditCopiedComponentCode(code, registry, source));
+            }
             if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
                 const tag = node.tagName.getText();
                 const part = attributeText(node.attributes, "data-system-part", true);
@@ -453,7 +537,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     const { CHAPTERS } = await import("../src/data/design-system.ts");
     const { DESIGN_TOKEN_VALUES } = await import("../src/data/design-tokens.ts");
     const result = auditComponentSystem({ root: fileURLToPath(new URL("..", import.meta.url)), registry: COMPONENT_REGISTRY,
-        exceptions: CONTROL_EXCEPTIONS, chapters: CHAPTERS, canonicalTokens: Object.keys(DESIGN_TOKEN_VALUES) });
+        exceptions: CONTROL_EXCEPTIONS, chapters: CHAPTERS, canonicalTokens: Object.keys(DESIGN_TOKEN_VALUES), enforceIdentity: true });
     const args = process.argv.slice(2);
     if (args.some((argument) => !["--check", "--write"].includes(argument)) || args.includes("--check") && args.includes("--write")) {
         console.error("Usage: node scripts/audit-component-system.ts [--check | --write]");

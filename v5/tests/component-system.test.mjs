@@ -251,3 +251,48 @@ test("shared product controls reject ad hoc geometry and colors while layout and
         assert.equal(result.issues.length, 1);
     });
 });
+
+// [반드시 살아 있는 계약과 상속 레이아웃 / Live contracts and inherited layouts]
+test("guide reachability includes its ancestor layout and blocks documentation and deprecated components in products", async () => {
+    await fixture({
+        "components/Shell.tsx": "export default function Shell({children}) { return <main>{children}</main>; }",
+        "components/Old.tsx": "export default function Old() { return <div />; }",
+        "components/Demo.tsx": "export default function Demo() { return <div />; }",
+        "app/layout.tsx": "import Shell from '../components/Shell'; export default function Layout({children}) { return <Shell>{children}</Shell>; }",
+        "app/page.tsx": "import Old from '../components/Old'; import Demo from '../components/Demo'; export default function Page() { return <><Old /><Demo /></>; }",
+        "app/design-rules/page.tsx": "export default function Guide() { return <p>Guide</p>; }",
+    }, [entry("shell", "components/Shell.tsx", "default", {kind:"structure"}), entry("old", "components/Old.tsx", "default", {lifecycle:"deprecated"}), entry("demo", "components/Demo.tsx", "default", {kind:"demo"})], result => {
+        assert.ok(result.usage.shell.guideUses.length, "shared ancestor layout belongs to the guide graph");
+        assert.ok(result.issues.some(issue => issue.code === "deprecated-product-use"));
+        assert.ok(result.issues.some(issue => issue.code === "demo-product-use"));
+    });
+});
+
+// [생략되거나 잘못 복사한 계약 예시 / Missing or incorrectly copied contract examples]
+test("axis and state specimens cover official values and product copy rejects glass experiments", async () => {
+    const { auditCopiedComponentCode } = await import(script.href);
+    const registry = [entry("glass", "components/LiquidGlass.tsx", "default", {axes:{variant:["surface", "hero"]}})];
+    assert.ok(auditCopiedComponentCode('<LiquidGlass variant="unknown" />', registry).some(issue => issue.code === "copied-axis-value"));
+    assert.ok(auditCopiedComponentCode('<LiquidGlass opacity={0.5} />', registry).some(issue => issue.code === "copied-glass-override"));
+    assert.deepEqual(auditCopiedComponentCode('// DOCUMENTATION_ONLY\n<LiquidGlass opacity={0.5} />', registry), []);
+    await fixture({"components/Kit.tsx":"export default function Kit() { return <div />; }"},
+        [entry("kit","components/Kit.tsx","default",{axes:{variant:["one","two"]},states:["disabled"],examples:[{id:"example-kit-variant-one",axis:"variant",value:"one"}]})], result => {
+        assert.ok(result.issues.some(issue => issue.code === "missing-axis-example"));
+        assert.ok(result.issues.some(issue => issue.code === "missing-state-example"));
+    });
+});
+
+test("polymorphic forwardRef casts keep canonical identity and source providers retain their layout owner", async () => {
+    await fixture({
+        "components/Copy.tsx": 'import {forwardRef} from "react"; export const Copy = forwardRef(function Copy(props, ref) { return <p ref={ref} data-component-id="copy" />; }) as (props: any) => any;',
+        "src/Provider.tsx": 'export function Provider({children}) { return <>{children}</>; }',
+        "app/layout.tsx": 'import {Copy} from "../components/Copy"; import {Provider} from "../src/Provider"; export default function Layout({children}) { return <Provider><Copy />{children}</Provider>; }',
+        "app/design-rules/page.tsx": 'export default function Guide() { return <p />; }',
+    }, [entry("copy","components/Copy.tsx","Copy"), entry("provider","src/Provider.tsx","Provider",{kind:"structure",layoutOwner:"app/layout.tsx"})], result => {
+        assert.deepEqual(result.issues, []);
+        assert.ok(result.usage.provider.guideUses.length);
+    }, {enforceIdentity:true});
+    await fixture({"components/Copy.tsx":"export default function Copy() { return <p />; }"}, [entry("copy","components/Copy.tsx")], result => {
+        assert.ok(result.issues.some(issue => issue.code === "missing-component-id"));
+    }, {enforceIdentity:true});
+});

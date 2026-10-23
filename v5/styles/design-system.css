@@ -1194,3 +1194,39 @@
         overflow: visible;
     }
 }
+
+/* [컴포넌트의 공식 축과 상태 표본 / Official component axes and state specimens] */
+.component-contract-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: var(--space-4);
+    margin-block: var(--space-6);
+}
+
+.component-contract-group > h4 {
+    grid-column: 1 / -1;
+}
+
+.component-contract-example {
+    min-width: 0;
+    padding: var(--space-4);
+    border-radius: var(--surface-radius-compact);
+    box-shadow: inset 0 0 0 var(--stroke-width) var(--border-default);
+    scroll-margin-top: var(--space-8);
+}
+
+.component-contract-example > p:first-child {
+    margin-block: 0 var(--space-3);
+}
+
+.component-contract-example.is-inverse {
+    color: var(--text-inverse);
+    background: var(--color-black);
+}
+
+.component-contract-group:has([data-component-example="hero-slide"]),
+.component-contract-group:has([data-component-example="account-ticket"]),
+.component-contract-group:has([data-component-example="account-mini-room"]),
+.component-contract-group:has([data-component-example="glass"]) {
+    grid-template-columns: 1fr;
+}

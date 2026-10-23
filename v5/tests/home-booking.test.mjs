@@ -68,9 +68,9 @@ test("회차·일정·상태·인원이 유효해야 예매 주소를 만든다"
     assert.equal(bookingDestination(valid, programs, "2026-10-17"), "");
 });
 
-test("교육은 선택 날짜·회차·인원을 교육 신청 경로에 보존한다", () => {
+test("교육은 선택 날짜·회차·인원을 공통 예매 경로에 보존한다", () => {
     const selected = { ...createBookingState("2026-10-20"), programId: "class", time: "18:00", participants: 3 };
-    assert.equal(bookingDestination(selected, programs, "2026-10-16"), "/apply/education?program=class&date=2026-10-20&time=18%3A00&participants=3&source=home");
+    assert.equal(bookingDestination(selected, programs, "2026-10-16"), "/booking/class?date=2026-10-20&time=18%3A00&participants=3&source=home");
     assert.equal(bookingDestination({ ...selected, programId: "gallery", time: "10:00" }, programs, "2026-10-16"), "/booking/gallery?date=2026-10-20&time=10%3A00&participants=3&source=home");
 });
 

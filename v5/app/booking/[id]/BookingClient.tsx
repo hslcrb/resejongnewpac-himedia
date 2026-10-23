@@ -1,232 +1,73 @@
 "use client";
-
-import React, { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import type { Program } from "../../../types/sejong.ts";
-import { showToast } from "../../../components/Toast";
-import { SystemButton, SystemField, SystemLink, SystemNotice } from "../../../components/SystemPrimitives";
+import React,{useEffect,useRef,useState} from "react";
+import type {Program} from "../../../types/sejong.ts";
+import {SystemButton,SystemField,SystemLink,SystemNotice} from "../../../components/SystemPrimitives";
 import SystemSurface from "../../../components/SystemSurface";
-import { createMemberBooking } from "../../../src/lib/account-db.ts";
-import type { AccountBooking } from "../../../src/lib/account-space.ts";
 import useAccountIdentity from "../../../components/useAccountIdentity";
+import {useCatalog} from "../../../src/catalog/CatalogProvider";
+import {cancelReservation,confirmReservation,getSessionSeats,holdSeats,reservationError,reservationStatusLabel,sessionLocalParts,validateBookingPrefill} from "../../../src/lib/reservations.ts";
+import type {InventoryResult,Reservation,ReservationResult} from "../../../src/lib/reservations.ts";
 
-interface BookingClientProps {
-    program: Program;
-}
-
-// [선택한 내용과 회원 DB 저장 / Booking selection and authenticated database persistence]
-export default function BookingClient({ program }: BookingClientProps) {
-    const identity = useAccountIdentity();
-    const activeIdentity = useRef(identity.identityId);
-    activeIdentity.current = identity.identityId;
-    const [step, setStep] = useState<number>(1);
-    const [selectedDate, setSelectedDate] = useState<string>(program?.start || "2026-05-01");
-    const [selectedTime, setSelectedTime] = useState<string>("19:30");
-    const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
-    const [completed, setCompleted] = useState<AccountBooking | null>(null);
-    const [saving, setSaving] = useState(false);
-    const [saveError, setSaveError] = useState("");
-    const bookingAttempts = useRef(new Map<string, string>());
-
-    useEffect(() => {
-        setCompleted(null);
-        setSaveError("");
-        setSelectedSeats([]);
-        setStep(1);
-        bookingAttempts.current.clear();
-    }, [identity.identityId]);
-
-    const pricePerSeat = 70000;
-    const totalAmount = selectedSeats.length * pricePerSeat;
-    const seatsGrid = [
-        ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"],
-        ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"],
-        ["C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8"],
-        ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8"],
-        ["E1", "E2", "E3", "E4", "E5", "E6", "E7", "E8"],
-    ];
-
-    const toggleSeat = (seat: string) => {
-        if (selectedSeats.includes(seat)) {
-            setSelectedSeats(selectedSeats.filter((item) => item !== seat));
-        } else {
-            if (selectedSeats.length >= 4) {
-                showToast("최대 4매까지 선택 가능합니다.");
-                return;
-            }
-            setSelectedSeats([...selectedSeats, seat]);
-        }
-    };
-
-    const handleCompleteBooking = async () => {
-        if (saving || !selectedSeats.length) return;
-        if (!identity.isLoggedIn) { setSaveError("로그인한 뒤 예매 내용을 저장해 주세요."); return; }
-        const owner = identity.identityId;
-        setSaving(true);
-        setSaveError("");
-        try {
-            // 같은 선택을 재시도하면 같은 키를 사용 / Reuse the request key only for the same booking draft.
-            const draftKey = JSON.stringify([owner, program.id, selectedDate, selectedTime, [...selectedSeats].sort(), totalAmount]);
-            const bookingId = bookingAttempts.current.get(draftKey) || crypto.randomUUID();
-            bookingAttempts.current.set(draftKey, bookingId);
-            const newBooking = {
-                id: bookingId,
-                programId: program.id,
-                title: program.title,
-                date: selectedDate,
-                time: selectedTime,
-                venue: program.venue,
-                seats: selectedSeats,
-                total: totalAmount,
-                reference: bookingId,
-                createdAt: new Date().toISOString(),
-            };
-            const saved = await createMemberBooking(newBooking, owner);
-            if (activeIdentity.current !== owner) return;
-            setCompleted(saved);
-            showToast("예매 내용을 저장했습니다.");
-        } catch (error) { if (activeIdentity.current === owner) setSaveError(error instanceof Error ? error.message : "예매 내용을 저장하지 못했습니다."); }
-        finally { setSaving(false); }
-    };
-
-    // [넓은 페이지와 내용에 맞춘 예매 단계 / A wide frame with intrinsic booking steps]
-    return (
-        <div className="container page-layout booking-page">
-            <nav className="page-layout-breadcrumbs" aria-label="현재 위치">
-                <Link data-text="action" href="/">홈</Link>
-                <span data-text="body" aria-hidden="true">/</span>
-                <Link data-text="action" href={`/programs/${program.id}`}>{program.title}</Link>
-                <span data-text="body" aria-hidden="true">/</span>
-                <span data-text="body" aria-current="page">예매</span>
-            </nav>
-
-            <header className="page-layout-heading">
-                <div className="page-layout-actions">
-                    <span data-text="body">{program.venue}</span>
-                </div>
-                <h1 data-text="title">{program.title}</h1>
-            </header>
-
-            <div data-text="body" className="booking-page-content">
-                {saveError && <SystemNotice data-text="body" error title="예매 내용을 저장하지 못했습니다">{saveError}<SystemLink data-text="action" variant="quiet" href="/account/login/">로그인하기</SystemLink></SystemNotice>}
-                <ol className="booking-page-steps" aria-label="예매 진행 단계">
-                    {[
-                        { num: 1, label: "회차 선택" },
-                        { num: 2, label: "좌석 선택" },
-                        { num: 3, label: "내용 확인" },
-                    ].map((item) => (
-                        <li data-text="body" key={item.num} aria-current={step === item.num ? "step" : undefined}>
-                            <span data-text="body" aria-hidden="true">{item.num}</span>
-                            {item.label}
-                        </li>
-                    ))}
-                </ol>
-
-                {!completed ? (
-                    <div data-text="body">
-                        {step === 1 && (
-                            <SystemSurface as="section" padding="lg" className="booking-page-panel" aria-labelledby="booking-date-heading">
-                                <h2 data-text="heading" id="booking-date-heading">관람 일시 선택</h2>
-                                <div className="booking-page-fields">
-                                    <SystemField data-text="body"
-                                        variant="flow"
-                                        id="booking-date"
-                                        label="관람 날짜"
-                                        type="date"
-                                        value={selectedDate}
-                                        onChange={(event) => setSelectedDate(event.target.value)}
-                                    />
-                                    <SystemField data-text="body"
-                                        as="select"
-                                        variant="flow"
-                                        id="booking-time"
-                                        label="회차 시간"
-                                        value={selectedTime}
-                                        onChange={(event) => setSelectedTime(event.target.value)}
-                                    >
-                                        <option data-text="label" value="15:00">1회차 (15:00)</option>
-                                        <option data-text="label" value="19:30">2회차 (19:30)</option>
-                                    </SystemField>
-                                </div>
-                                <div className="page-layout-actions booking-page-actions">
-                                    <SystemButton data-text="action" context="flow" onClick={() => setStep(2)}>
-                                        다음: 좌석 선택하기 →
-                                    </SystemButton>
-                                </div>
-                            </SystemSurface>
-                        )}
-
-                        {/* [좌석 크기를 유지하는 내부 스크롤 / Internal scrolling preserves seat targets] */}
-                        {step === 2 && (
-                            <SystemSurface as="section" padding="lg" className="booking-page-panel" aria-labelledby="booking-seat-heading">
-                                <div className="booking-page-section-heading">
-                                    <h2 data-text="heading" id="booking-seat-heading">좌석 선택 (최대 4매)</h2>
-                                    <p data-text="body" role="status">선택한 좌석: {selectedSeats.length > 0 ? selectedSeats.join(", ") : "없음"}</p>
-                                </div>
-                                <p data-text="body" className="booking-page-seat-help" id="booking-seat-help">좌석도를 좌우로 움직여 전체 좌석을 확인할 수 있어요.</p>
-                                <div className="booking-page-seat-scroll" role="region" aria-label="좌석 배치도" aria-describedby="booking-seat-help" tabIndex={0}>
-                                    <div className="booking-page-seat-canvas">
-                                        <div data-text="body" className="booking-page-stage">STAGE (무대)</div>
-                                        <div data-text="body" className="booking-page-seat-rows">
-                                            {seatsGrid.map((row, rowIndex) => (
-                                                <div data-text="body" className="booking-page-seat-row" key={rowIndex}>
-                                                    {row.map((seat) => (
-                                                        <button data-text="action"
-                                                            className="booking-page-seat"
-                                                            key={seat}
-                                                            type="button"
-                                                            data-system-part="seat"
-                                                            aria-label={`${seat} 좌석`}
-                                                            aria-pressed={selectedSeats.includes(seat)}
-                                                            onClick={() => toggleSeat(seat)}
-                                                        >
-                                                            {seat}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="page-layout-actions booking-page-actions">
-                                    <SystemButton data-text="action" context="flow" variant="secondary" onClick={() => setStep(1)}>이전</SystemButton>
-                                    <SystemButton data-text="action" context="flow" disabled={selectedSeats.length === 0} onClick={() => setStep(3)}>
-                                        선택 내용 확인
-                                    </SystemButton>
-                                </div>
-                            </SystemSurface>
-                        )}
-
-                        {step === 3 && (
-                            <SystemSurface as="section" padding="lg" className="booking-page-panel" aria-labelledby="booking-review-heading">
-                                <h2 data-text="heading" id="booking-review-heading">예매 내용 확인</h2>
-                                <dl className="page-layout-facts booking-page-review">
-                                    <dt data-text="label">프로그램</dt><dd data-text="body">{program.title}</dd>
-                                    <dt data-text="label">일시</dt><dd data-text="body">{selectedDate} {selectedTime}</dd>
-                                    <dt data-text="label">장소</dt><dd data-text="body">{program.venue}</dd>
-                                    <dt data-text="label">선택 좌석</dt><dd data-text="body">{selectedSeats.join(", ")} ({selectedSeats.length}매)</dd>
-                                    <dt data-text="label" className="booking-page-total">선택한 티켓 금액</dt>
-                                    <dd data-text="body" className="booking-page-total"><strong data-text="item-title">{totalAmount.toLocaleString()}원</strong></dd>
-                                </dl>
-                                <div className="page-layout-actions booking-page-actions">
-                                    <SystemButton data-text="action" context="flow" variant="secondary" disabled={saving} onClick={() => setStep(2)}>좌석 다시 선택</SystemButton>
-                                    <SystemButton data-text="action" context="flow" disabled={saving} onClick={handleCompleteBooking}>{saving ? "저장 중…" : "예매 기록 저장"}</SystemButton>
-                                </div>
-                            </SystemSurface>
-                        )}
-                    </div>
-                ) : (
-                    <SystemSurface as="section" padding="lg" className="booking-page-panel booking-page-complete" aria-labelledby="booking-complete-heading">
-                        <h2 data-text="heading" id="booking-complete-heading">예매 내용을 저장했습니다.</h2>
-                        <p data-text="body">저장한 일정과 좌석은 마이페이지의 예매 기록에서 확인할 수 있습니다.</p>
-                        <p data-text="body" className="booking-page-saved-selection">{completed.date} {completed.time} · {completed.seats.join(", ")} · {completed.total.toLocaleString()}원</p>
-                        <div className="page-layout-actions">
-                            <SystemLink data-text="action" context="flow" href="/account">예매 내역 확인하기 →</SystemLink>
-                            <SystemLink data-text="action" context="flow" variant="secondary" href="/programs">다른 프로그램 둘러보기</SystemLink>
-                        </div>
-                    </SystemSurface>
-                )}
-            </div>
+// [서버 회차·좌석과 실제 예약 / Server sessions, inventory, and unpaid reservations]
+export default function BookingClient({program:initialProgram}:{program:Program}) {
+    const identity=useAccountIdentity();
+    const owner=useRef(identity.identityId);owner.current=identity.identityId;
+    const {catalog,error:catalogError,loading:catalogLoading}=useCatalog();
+    const program=catalog.programs.find(item=>item.id===initialProgram.id)||initialProgram;
+    const sessions=catalog.sessions.filter(session=>session.programId===program.id);
+    const [sessionId,setSessionId]=useState("");
+    const [participants,setParticipants]=useState(1);
+    const [inventory,setInventory]=useState<InventoryResult|null>(null);
+    const [selected,setSelected]=useState<string[]>([]);
+    const [reservation,setReservation]=useState<Reservation|null>(null);
+    const [error,setError]=useState("");
+    const [busy,setBusy]=useState(false);
+    const [now,setNow]=useState(Date.now());
+    const clockOffset=useRef(0);
+    const attempts=useRef(new Map<string,string>());
+    const prefilling=useRef(false);
+    useEffect(()=>{if(prefilling.current||catalogLoading)return;prefilling.current=true;const prefill=validateBookingPrefill(new URLSearchParams(window.location.search),sessions);setSessionId(prefill.sessionId);setParticipants(prefill.participants);setError(prefill.error);},[sessions,catalogLoading]);
+    useEffect(()=>{setReservation(null);setSelected([]);attempts.current.clear();},[identity.identityId]);
+    useEffect(()=>{const timer=setInterval(()=>setNow(Date.now()+clockOffset.current),1000);return()=>clearInterval(timer);},[]);
+    async function refreshSeats(id=sessionId) {if(!id)return;const result=await getSessionSeats(id);if(result.kind==="inventory")clockOffset.current=new Date(result.serverNow).valueOf()-Date.now();setInventory(result);}
+    useEffect(()=>{let current=true;setSelected([]);setInventory(null);if(sessionId)getSessionSeats(sessionId).then(result=>{if(current){setInventory(result);if(result.kind==="inventory")clockOffset.current=new Date(result.serverNow).valueOf()-Date.now();}}).catch(cause=>{if(current)setError(cause.message);});return()=>{current=false;};},[sessionId]);
+    const remaining=reservation?Math.max(0,Math.ceil((new Date(reservation.expiresAt).valueOf()-now)/1000)):0;
+    const active=reservation&&["held","reserved_unpaid"].includes(reservation.status)&&remaining>0;
+    const requestKey=(key:string)=>{const saved=attempts.current.get(key)||crypto.randomUUID();attempts.current.set(key,saved);return saved;};
+    async function act(operation:()=>Promise<ReservationResult>) {
+        if(busy)return;if(!identity.isLoggedIn){setError("로그인한 뒤 예약해 주세요.");return;}
+        const expected=owner.current;setBusy(true);setError("");
+        try {const result=await operation();if(owner.current!==expected)return;if(result.kind==="error")setError(reservationError(result.code));else{setReservation(result.reservation);clockOffset.current=new Date(result.serverNow).valueOf()-Date.now();setNow(new Date(result.serverNow).valueOf());}await refreshSeats();}
+        catch(cause){if(owner.current===expected)setError(cause instanceof Error?cause.message:"예약 요청을 처리하지 못했습니다.");}finally{setBusy(false);}
+    }
+    const seats=inventory?.kind==="inventory"?inventory.seats:[];
+    const total=seats.filter(seat=>selected.includes(seat.id)).reduce((sum,seat)=>sum+seat.price,0);
+    if(!catalogLoading&&!catalogError&&!catalog.programs.some(item=>item.id===initialProgram.id)) return <div className="container page-layout"><SystemNotice title="공개가 종료된 프로그램입니다"><SystemLink href="/programs/">프로그램 목록</SystemLink></SystemNotice></div>;
+    return <div className="container page-layout booking-page">
+        <nav className="page-layout-breadcrumbs" aria-label="현재 위치"><SystemLink variant="quiet" href="/">홈</SystemLink><span data-text="body">/</span><SystemLink variant="quiet" href={`/programs/${program.id}`}>{program.title}</SystemLink><span data-text="body">/ 예약</span></nav>
+        <header className="page-layout-heading"><p data-text="body">{program.venue}</p><h1 data-text="title">{program.title}</h1></header>
+        <div className="booking-page-content" data-text="body">
+            {(error||catalogError)&&<SystemNotice error title="확인이 필요합니다">{error||catalogError}</SystemNotice>}
+            {!identity.isLoggedIn&&<SystemNotice title="로그인 후 예약할 수 있습니다"><SystemLink href="/account/login/">로그인하기</SystemLink></SystemNotice>}
+            <SystemSurface as="section" padding="lg" className="booking-page-panel"><h2 data-text="heading">회차와 인원</h2>
+                {sessions.length?<div className="booking-page-fields"><SystemField as="select" variant="flow" id="booking-session" label="관람 회차" value={sessionId} disabled={Boolean(active)||busy} onChange={event=>{setSessionId(event.target.value);setReservation(null);setError("");}}>
+                    <option data-text="label" value="">회차 선택</option>{sessions.map(session=>{const local=sessionLocalParts(session);return <option data-text="label" key={session.id} value={session.id} disabled={!session.bookingEnabled}>{local.date} {local.time}{!session.bookingEnabled?" · 예약 준비 중":""}</option>;})}</SystemField>
+                    <SystemField as="select" variant="flow" id="booking-participants" label="인원" value={participants} disabled={Boolean(active)||busy} onChange={event=>{setParticipants(Number(event.target.value));setSelected([]);}}>{[1,2,3,4].map(count=><option data-text="label" key={count} value={count}>{count}명</option>)}</SystemField></div>
+                :<SystemNotice title="예약 가능한 회차를 준비하고 있습니다">확인된 관람 일정과 좌석이 등록되면 이곳에서 예약할 수 있습니다.</SystemNotice>}
+            </SystemSurface>
+            {sessionId&&<SystemSurface as="section" padding="lg" className="booking-page-panel"><h2 data-text="heading">좌석 선택</h2>
+                {!inventory?<p data-text="body" role="status">좌석을 불러오는 중입니다.</p>:inventory.kind==="error"?<SystemNotice error title="회차 확인">{reservationError(inventory.code)}</SystemNotice>:!inventory.bookingEnabled?<SystemNotice title="예약 준비 중">현재 선택할 수 없는 회차입니다.</SystemNotice>:<>
+                    {!seats.some(seat=>seat.available)&&!active&&<SystemNotice title="현재 선택 가능한 좌석이 없습니다">좌석을 새로 불러와 다시 확인할 수 있습니다.</SystemNotice>}
+                    <p data-text="body">{participants}석을 선택해 주세요. 선택한 좌석은 5분간 보류됩니다.</p>
+                    <div className="booking-page-seat-scroll" role="region" aria-label="좌석 목록" tabIndex={0}><div className="booking-page-seat-rows">{[...new Set(seats.map(seat=>seat.row))].map(row=><div className="booking-page-seat-row" key={row}>{seats.filter(seat=>seat.row===row).map(seat=><SystemButton key={seat.id} variant={selected.includes(seat.id)?"primary":"secondary"} aria-pressed={selected.includes(seat.id)} disabled={Boolean(active)||busy||!seat.available} onClick={()=>setSelected(current=>current.includes(seat.id)?current.filter(id=>id!==seat.id):current.length<participants?[...current,seat.id]:current)}>{seat.label} · {seat.price.toLocaleString()}원{!seat.available?" · 선택 불가":""}</SystemButton>)}</div>)}</div></div>
+                    {!active&&<div className="page-layout-actions"><SystemButton variant="secondary" disabled={busy} onClick={()=>refreshSeats().catch(cause=>setError(cause.message))}>좌석 새로고침</SystemButton><SystemButton disabled={busy||selected.length!==participants} onClick={()=>act(()=>holdSeats(sessionId,selected,requestKey(`hold:${identity.identityId}:${sessionId}:${[...selected].sort().join(",")}`)))}>{busy?"처리 중…":`${total.toLocaleString()}원 · ${selected.length}석 보류하기`}</SystemButton></div>}
+                </>}
+            </SystemSurface>}
+            {reservation&&<SystemSurface as="section" padding="lg" className="booking-page-panel"><h2 data-text="heading">{active?reservationStatusLabel(reservation.status):["held","reserved_unpaid"].includes(reservation.status)?"기한 만료":reservationStatusLabel(reservation.status)}</h2>
+                <p data-text="body">{reservation.date} {reservation.time} · {reservation.seats.join(", ")} · {reservation.total.toLocaleString()}원</p>{active&&<p data-text="body" role="timer">남은 시간 {Math.floor(remaining/60)}분 {remaining%60}초</p>}
+                <p data-text="body">{reservation.status==="reserved_unpaid"?"예약이 접수되었습니다. 결제와 발권은 아직 진행되지 않았으며, 기한이 지나면 좌석이 해제됩니다.":"예약 내용을 확인한 뒤 예약을 접수해 주세요."}</p>
+                <div className="page-layout-actions">{active&&reservation.status==="held"&&<SystemButton disabled={busy} onClick={()=>act(()=>confirmReservation(reservation.id,requestKey(`confirm:${reservation.id}`)))}>예약 접수하기</SystemButton>}{active&&<SystemButton variant="secondary" disabled={busy} onClick={()=>act(()=>cancelReservation(reservation.id))}>예약 취소</SystemButton>}{!active&&<SystemButton variant="secondary" disabled={busy} onClick={()=>{attempts.current.clear();setReservation(null);setSelected([]);void refreshSeats().catch(cause=>setError(cause.message));}}>새 예약 선택</SystemButton>}<SystemLink href="/account/bookings/">예약 내역 확인</SystemLink></div>
+            </SystemSurface>}
         </div>
-    );
+    </div>;
 }

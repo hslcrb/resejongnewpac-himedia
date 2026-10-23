@@ -1,20 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { HTMLAttributes } from "react";
 import { createPortal } from "react-dom";
 import LiquidGlass from "./LiquidGlass";
 import { textAttributes } from "./SystemText";
 
-export type SmallNotificationModalProps = { open: boolean; message: string; id?: string };
+export type SmallNotificationModalProps = HTMLAttributes<HTMLDivElement> & { open: boolean; message: string; id?: string };
 
 // [알림소형모달: 비차단 캡슐 / Small notification modal: a nonblocking capsule]
-export default function SmallNotificationModal({ open, message, id }: SmallNotificationModalProps) {
+export default function SmallNotificationModal({ open, message, id, ...props }: SmallNotificationModalProps) {
     const [mounted, setMounted] = useState(false);
     useEffect(() => setMounted(true), []);
     if (!mounted) return null;
     return createPortal(
-        <LiquidGlass id={id} variant="black" className={`toast small-notification-modal${open ? " visible" : ""}`}
-            data-component="알림소형모달" role="status" aria-live="polite" aria-atomic="true"
+        <LiquidGlass {...props} id={id} variant="black" className={`toast small-notification-modal${open ? " visible" : ""}`}
+            data-component="알림소형모달" data-component-id="small-notification" role="status" aria-live="polite" aria-atomic="true"
             aria-hidden={!open || undefined}>
             <span {...textAttributes("body")}>{message}</span>
         </LiquidGlass>, document.body,
@@ -41,5 +42,5 @@ export function SmallNotificationModalHost({ duration = 3500 }: { duration?: num
         window.addEventListener("sejong-toast", show);
         return () => { clearTimeout(timer); window.removeEventListener("sejong-toast", show); };
     }, [duration]);
-    return <SmallNotificationModal id="toast" {...notice} />;
+    return <SmallNotificationModal id="toast" {...notice} data-component-part="notification-host" data-component-owner="small-notification" />;
 }

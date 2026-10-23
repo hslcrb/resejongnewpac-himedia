@@ -77,3 +77,15 @@ test("text audit validates explicit variants for static and dynamic native text"
     assert.equal(auditTextBindings('<p data-text="tiny">안내</p>', "Example.tsx")[0]?.code, "text-variant");
     assert.deepEqual(auditTextBindings('<span aria-hidden="true">arrow_forward</span>', "Example.tsx"), []);
 });
+
+// [네이티브 요소도 같은 역할과 크기 / Native elements share role and size contracts]
+test("native typography applies real shared styles and validates the independent size axis", () => {
+    const css = renderTypographyCss();
+    assert.ok(css.includes('[data-text="heading"]'), "native role selector exists");
+    assert.ok(!css.includes('.system-text[data-text="heading"]'), "native roles are not component-class restricted");
+    assert.ok(css.includes('[data-text-size="control"]'));
+    assert.ok(css.includes('[data-text-size="hero-with-companion"]'));
+    assert.ok(css.includes('[data-text-size="hero-standalone"]'));
+    assert.ok(css.includes('[data-text-size="quick-action"]'));
+    assert.equal(auditTextBindings('<input data-text="body" data-text-size="tiny" />', "Example.tsx")[0]?.code, "text-size");
+});

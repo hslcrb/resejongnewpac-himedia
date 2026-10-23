@@ -18,9 +18,11 @@ export default function LiquidGlassDemo({
     const [opacity, setOpacity] = useState(GLASS_DEFAULTS.opacity);
     const [refraction, setRefraction] = useState(GLASS_DEFAULTS.refraction);
     const material = GLASS_VARIANTS[variant];
-    const code = `import LiquidGlass from "@/components/LiquidGlass";\n\n<LiquidGlass\n    variant="${variant}"\n    opacity={${opacity.toFixed(2)}}\n    refraction={${refraction}}\n    blur={${material.blur}}\n    thickness={${material.thickness}}\n>\n    <h2 data-text="heading">세종문화회관</h2>\n    <p data-text="body">유리 위의 콘텐츠는 선명하게 유지됩니다.</p>\n</LiquidGlass>`;
+    const code = `import LiquidGlass from "@/components/LiquidGlass";\n\n<LiquidGlass variant="${variant}">\n    <h2 data-text="heading">세종문화회관</h2>\n    <p data-text="body">유리 위의 콘텐츠는 선명하게 유지됩니다.</p>\n</LiquidGlass>`;
+    // [문서에서만 사용하는 재질 실험 코드 / Material experiment code for documentation only]
+    const documentationOnlyCode = `// DOCUMENTATION_ONLY: LiquidGlassDemo 안에서만 사용\n<LiquidGlass variant="${variant}" opacity={${opacity.toFixed(2)}} refraction={${refraction}} blur={${material.blur}} thickness={${material.thickness}}>\n    <p data-text="body">문서 전용 재질 실험</p>\n</LiquidGlass>`;
     return (
-        <>
+        <div data-component-id="glass-demo" data-component-owner="glass" data-documentation-only>
             <div className="ds-glass-variant">
                 <label data-text="label" htmlFor="glass-variant">재질 베리언트</label>
                 <select id="glass-variant" value={variant} onChange={event => {
@@ -91,12 +93,18 @@ export default function LiquidGlassDemo({
                     기본값으로
                 </SystemButton>
                 <SystemButton variant="secondary" onClick={() => onCopy(code)}>
-                    {copied ? "복사됨" : "코드 복사"}
+                    {copied ? "복사됨" : "제품 코드 복사"}
                 </SystemButton>
             </div>
             <pre className="ds-code-block">
                 <code data-text="body">{code}</code>
             </pre>
-        </>
+            <p data-text="caption">제품에서는 variant로 재질을 선택합니다. 아래 조절값 코드는 가이드 안의 재질 실험 전용입니다.</p>
+            <details>
+                <summary data-text="label">문서 전용 실험 코드</summary>
+                <pre className="ds-code-block"><code data-text="body">{documentationOnlyCode}</code></pre>
+                <SystemButton variant="secondary" onClick={() => onCopy(documentationOnlyCode)}>문서 전용 코드 복사</SystemButton>
+            </details>
+        </div>
     );
 }

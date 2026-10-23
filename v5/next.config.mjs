@@ -1,3 +1,10 @@
+import { fileURLToPath } from 'node:url';
+import { configureReadableBuild } from './scripts/readable-build.ts';
+import { calculateReleaseId } from './scripts/readable-release.ts';
+
+const projectRoot = fileURLToPath(new URL('.', import.meta.url));
+const releaseId = calculateReleaseId(projectRoot);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
@@ -7,7 +14,10 @@ const nextConfig = {
     unoptimized: true,
   },
   reactStrictMode: false,
-  swcMinify: true,
+  swcMinify: false,
+  productionBrowserSourceMaps: true,
+  generateBuildId: async () => releaseId,
+  webpack: (config, context) => configureReadableBuild(config, context, releaseId, projectRoot),
   poweredByHeader: false,
   eslint: {
     ignoreDuringBuilds: true,

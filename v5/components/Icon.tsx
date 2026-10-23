@@ -42,6 +42,7 @@ export default function Icon({ name, size = 24, className = "", filled = false }
 
     return (
         <svg
+            data-component-id="icon"
             className={`material-icon ${className}`.trim()}
             width={size}
             height={size}

@@ -4,7 +4,8 @@ import SystemSurface from "../components/SystemSurface";
 
 import React, { useState, useRef } from "react";
 import Link from "next/link";
-import { PROGRAMS, NOTICES } from "../src/data/catalog";
+import { useCatalog } from "../src/catalog/CatalogProvider";
+import { sessionLocalParts } from "../src/lib/reservations";
 import ProgramCard from "../components/ProgramCard";
 import Icon from "../components/Icon";
 import VioletQuickMenu from "../components/VioletQuickMenu";
@@ -98,6 +99,10 @@ export default function HomePage() {
     const [selectedTime, setSelectedTime] = useState<string>("");
     const [participants, setParticipants] = useState<number>(1);
 
+    const { catalog } = useCatalog();
+    const PROGRAMS = catalog.programs.map(program => ({ ...program, times: catalog.sessions.filter(session => session.programId === program.id && session.bookingEnabled && session.sourceState === "verified" && sessionLocalParts(session).date === bookingDate).map(session => sessionLocalParts(session).time) }));
+    const NOTICES = catalog.notices;
+
     const programsOnBookingDate = programsForDate(PROGRAMS, bookingDate);
     const selectedProgram = (PROGRAMS as unknown as Program[]).find((p) => p.id === selectedProgramId);
 
@@ -155,13 +160,7 @@ export default function HomePage() {
             : "공연 예매로";
 
     const bookingDestinationUrl = selectedProgram
-        ? selectedProgram.category === "교육"
-            ? `/apply/education?program=${selectedProgram.id}&date=${bookingDate}&time=${encodeURIComponent(
-                  selectedTime
-              )}&participants=${participants}&source=home`
-            : `/booking/${selectedProgram.id}?date=${bookingDate}&time=${encodeURIComponent(
-                  selectedTime
-              )}&participants=${participants}&source=home`
+        ? `/booking/${selectedProgram.id}?date=${bookingDate}&time=${encodeURIComponent(selectedTime)}&participants=${participants}&source=home`
         : "";
 
     // 4. 프로그램 탐색 섹션 상태
@@ -456,7 +455,7 @@ export default function HomePage() {
                 <div className="visit-editorial">
                     <h2 data-text="heading" id="visit-heading">오시는 길</h2>
                     <p data-text="body" className="visit-description">
-                        지하철 광화문역 출구 안내부터 주차.
+                        지하철과 주차장 이용부터
                         <br />
                         접근성 서비스와 관람 예절까지 정리했습니다.
                     </p>
@@ -553,9 +552,9 @@ export default function HomePage() {
                     <aside className="membership-feature" id="home-membership" data-home-anchor aria-labelledby="membership-heading">
                         <p data-text="label" className="membership-label">세종 멤버십</p>
                         <h3 data-text="subheading" id="membership-heading">
-                            자주 관람한다면,
+                            다시 찾는 관객을 위한
                             <br />
-                            멤버십이 유리합니다.
+                            멤버십 혜택을 확인하세요
                         </h3>
                         <p data-text="body">
                             등급별 예매 할인과 초대 공연 혜택
@@ -598,14 +597,14 @@ export default function HomePage() {
                 <div className="container identity-layout">
                     <div>
                         <h2 data-text="heading" id="identity-heading">
-                            서울의 중심,
+                            광화문의 문화공간
                             <br />
-                            예술의 다음.
+                            세종문화회관
                         </h2>
                         <p data-text="body" className="identity-description">
-                            하늘과 땅, 그리고 사람.
+                            1978년 문을 연 공연장과 전시장에서
                             <br />
-                            서로 다른 우리가 예술로 만나는 곳입니다.
+                            공연과 전시, 예술교육을 만나세요.
                         </p>
                         <Link data-text="action" className="identity-link" href="/about" id="home-identity-about" data-home-anchor>
                             세종문화회관을 소개합니다 <Icon name="arrow" size={23} />

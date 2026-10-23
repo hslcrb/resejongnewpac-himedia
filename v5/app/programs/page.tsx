@@ -2,13 +2,15 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { PROGRAMS } from "../../src/data/catalog";
+import { useCatalog } from "../../src/catalog/CatalogProvider";
 import ProgramCard from "../../components/ProgramCard";
 import { SystemField, SystemFilterButton } from "../../components/SystemPrimitives";
 import type { Program } from "../../types/sejong.ts";
 
 // [넓은 지면의 프로그램 탐색 / Program discovery across the shared page frame]
 export default function ProgramsPage() {
+    const { catalog } = useCatalog();
+    const PROGRAMS = catalog.programs;
     const [category, setCategory] = useState<string>("전체");
     const [search, setSearch] = useState<string>("");
 
@@ -33,7 +35,7 @@ export default function ProgramsPage() {
                     세종의 프로그램
                 </h1>
                 <p data-text="body">
-                    서울시향, 서울시무용단, 서울시극단의 정기공연부터 기획전시와 예술아카데미까지.
+                    공연과 전시, 예술교육 프로그램의 일정과 장소를 확인하세요.
                 </p>
             </header>
 

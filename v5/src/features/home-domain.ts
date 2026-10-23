@@ -109,12 +109,11 @@ export function bookingDestination(state: BookingState, programs: Program[], tod
     )
         return "";
     const params = new URLSearchParams();
-    if (program.category === "교육") params.set("program", program.id);
     params.set("date", state.date);
     params.set("time", state.time);
     params.set("participants", String(state.participants));
     params.set("source", "home");
-    return `${program.category === "교육" ? "/apply/education" : `/booking/${encodeURIComponent(program.id)}`}?${params}`;
+    return `/booking/${encodeURIComponent(program.id)}?${params}`;
 }
 
 const seasonPrograms = new Set([

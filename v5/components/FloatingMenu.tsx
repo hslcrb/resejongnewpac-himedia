@@ -45,7 +45,7 @@ export default function FloatingMenu({
             closeLabel="전체 메뉴 닫기"
             moveLabel="메뉴 위치 이동"
         >
-            <div className="glass-menu-content">
+            <div className="glass-menu-content" data-component-id="floating-menu" data-component-owner="floating-panel">
                 <div className="glass-menu-journeys">
                     <a data-text="action" href="/v5/visit/plan/">
                         <span data-text="body">관람할 날부터 이동 안내까지</span>

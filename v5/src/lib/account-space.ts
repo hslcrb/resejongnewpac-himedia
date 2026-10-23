@@ -7,7 +7,7 @@ export type AccountTheme = "paper" | "sky" | "sun";
 export type AccountSpace = { nickname: string; message: string; theme: AccountTheme; lightOn: boolean };
 export type AccountNoteDraft = { programId: string; date: string; body: string };
 export type AccountNote = AccountNoteDraft & { id: string };
-export type AccountBooking = BookingRecord & { status?: "confirmed" | "cancelled" };
+export type AccountBooking = BookingRecord & { status?: "held" | "reserved_unpaid" | "expired" | "cancelled" | "released"; expiresAt?: string; sessionId?: string };
 export const ACCOUNT_THEMES: readonly { id: AccountTheme; label: string }[] = [
     { id: "paper", label: "종이빛" }, { id: "sky", label: "하늘빛" }, { id: "sun", label: "햇살빛" },
 ];
@@ -49,7 +49,7 @@ export function parseAccountBookings(raw: string | null): AccountBooking[] {
     return data.filter((entry): entry is AccountBooking => entry && typeof entry.id === "string" && typeof entry.programId === "string" && typeof entry.title === "string" && typeof entry.date === "string" && validAccountDate(entry.date) && typeof entry.time === "string" && typeof entry.venue === "string" && Array.isArray(entry.seats) && entry.seats.every((seat: unknown) => typeof seat === "string") && typeof entry.total === "number" && Number.isFinite(entry.total));
 }
 export function accountBookingSummary<T extends { date: string; time: string; status?: string }>(bookings: readonly T[], today: string) {
-    const active = bookings.filter(booking => booking.status !== "cancelled");
+    const active = bookings.filter(booking => booking.status === "held" || booking.status === "reserved_unpaid");
     const upcoming = active.filter(booking => booking.date >= today).sort((a, b) => `${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
-    return { next: upcoming[0], upcoming: upcoming.length, cancelled: bookings.length - active.length, visited: active.filter(booking => booking.date < today).length };
+    return { next: upcoming[0], upcoming: upcoming.length, cancelled: bookings.filter(booking => booking.status === "cancelled").length, visited: active.filter(booking => booking.date < today).length };
 }

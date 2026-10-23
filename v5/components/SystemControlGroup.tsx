@@ -61,6 +61,7 @@ export function SystemControlGroup<Element extends SystemControlGroupTag = "div"
         className: `system-control-group ${className}`.trim(),
         style: groupStyle,
         "data-component": "control-group",
+        "data-component-id": "control-group",
         "data-control-count": items.length,
     }, items.map(({ child, key }) => createElement(itemTag, {
         key,

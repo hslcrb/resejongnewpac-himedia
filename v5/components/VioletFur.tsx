@@ -162,5 +162,5 @@ export default function VioletFur({ awake, animated, expanded = false, interacti
         return () => cancelAnimationFrame(frame);
     }, [awake, animated, expanded, interaction]);
 
-    return <canvas ref={canvasRef} className={styles.fur} data-violet-fur={expanded ? "expanded" : "resting"} aria-hidden="true" />;
+    return <canvas data-component-part="violet-fur" data-component-owner="quick-menu" ref={canvasRef} className={styles.fur} data-violet-fur={expanded ? "expanded" : "resting"} aria-hidden="true" />;
 }

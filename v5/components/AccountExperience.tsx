@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
 import type { UserProfile } from "../types/sejong.ts";
-import { PROGRAMS } from "../src/data/catalog";
+import { useCatalog } from "../src/catalog/CatalogProvider";
 import {
     ACCOUNT_THEMES, DEFAULT_ACCOUNT_SPACE, accountBookingSummary, accountToday, validateAccountNote,
 } from "../src/lib/account-space.ts";
@@ -26,8 +26,6 @@ import { cancelMemberBooking, createMemberNote, loadMemberAccount, removeMemberN
 export type AccountTab = "space" | "bookings" | "favorites" | "notes" | "services" | "profile";
 const ACCOUNT_TABS: readonly AccountTab[] = ["space", "bookings", "favorites", "notes", "services", "profile"];
 const OFFICIAL_ACCOUNT = "https://www.sejongpac.or.kr/portal/myPage/individual/list.do?menuNo=200479";
-const RECOMMENDATIONS = PROGRAMS.filter(program => program.category === "공연").slice(0, 3);
-const PROGRAM_IDS = new Set(PROGRAMS.map(program => program.id));
 
 function accountTabFromHash(hash: string): AccountTab | null {
     const id = hash.replace(/^#account-panel-/, "");
@@ -36,6 +34,10 @@ function accountTabFromHash(hash: string): AccountTab | null {
 
 // [하나의 마이페이지와 직접 접근 경로 / One account experience with direct panel routes]
 export default function AccountExperience({ initialTab = "space" }: { initialTab?: AccountTab }) {
+    const { catalog } = useCatalog();
+    const PROGRAMS = catalog.programs;
+    const RECOMMENDATIONS = PROGRAMS.filter(program => program.category === "공연").slice(0, 3);
+    const PROGRAM_IDS = new Set(PROGRAMS.map(program => program.id));
     const identity = useAccountIdentity();
     const favorites = useFavorites();
     const [activeTab, setActiveTab] = useState<AccountTab>(initialTab);
@@ -114,7 +116,7 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
     });
     const displayedPrograms = favoritePrograms.length ? favoritePrograms.slice(0, 3) : RECOMMENDATIONS;
     const summary = accountBookingSummary(bookings, today);
-    const visibleBookings = bookings.filter(booking => bookingFilter === "cancelled" ? booking.status === "cancelled" : bookingFilter === "upcoming" ? booking.status !== "cancelled" && booking.date >= today : true);
+    const visibleBookings = bookings.filter(booking => bookingFilter === "cancelled" ? booking.status === "cancelled" : bookingFilter === "upcoming" ? (booking.status === "held" || booking.status === "reserved_unpaid") && booking.date >= today : true);
     const displayName = (dataReady ? space.nickname : "") || identity.profile.name || "관람객";
     const latestNote = notes[0];
 
@@ -165,7 +167,7 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
         finally { setAccountBusy(false); }
     }
 
-    // [기존 체험 예매의 확인 후 취소 / Confirm before cancelling an existing demo booking]
+    // [서버 예약의 확인 후 취소 / Confirm before cancelling a reservation]
     function openCancellation(booking: AccountBooking, trigger: HTMLButtonElement) {
         cancelTriggerRef.current = trigger;
         setPendingCancellation(booking);
@@ -177,17 +179,17 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
         const owner = identity.identityId;
         setAccountBusy(true);
         try {
-            await cancelMemberBooking(pendingCancellation.id, owner);
+            const result = await cancelMemberBooking(pendingCancellation.id, owner);
             if (activeIdentity.current !== owner) return;
             cancelTriggerRef.current = document.getElementById("account-bookings-heading");
-            setBookings(current => current.map(booking => booking.id === pendingCancellation.id ? { ...booking, status: "cancelled" as const } : booking));
+            setBookings(current => current.map(booking => booking.id === pendingCancellation.id ? result : booking));
             setCancelOpen(false);
-            showSmallNotification("예매 기록을 취소했어요.");
+            showSmallNotification(result.status === "cancelled" ? "예약을 취소했습니다." : "예약 상태가 변경되었습니다. 내역을 확인해 주세요.");
         } catch (error) { if (activeIdentity.current === owner) showSmallNotification(error instanceof Error ? error.message : "예매 기록을 취소하지 못했습니다."); }
         finally { setAccountBusy(false); }
     }
 
-    // [회원별 브라우저 관람노트 / Identity-scoped browser diary]
+    // [회원 DB의 관람노트 / Identity-scoped database diary]
     async function saveNote(draft: AccountNoteDraft): Promise<boolean> {
         if (!dataReady) return false;
         const valid = validateAccountNote(draft, PROGRAM_IDS, today);
@@ -241,7 +243,7 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
 
             <section data-text="body" className="account-next-visit" aria-labelledby="account-next-heading">
                 <div className="account-section-heading"><h2 data-text="heading" id="account-next-heading">다음에 만날 무대</h2><a data-text="action" href="#account-panel-bookings">예매내역 보기 <Icon name="arrow" size={20} /></a></div>
-                {summary.next ? <AccountTicket booking={summary.next} program={PROGRAMS.find(program => program.id === summary.next?.programId)} variant="compact" /> : <div className="account-empty-inline"><div><h3 data-text="subheading">기다리는 공연이 생기면 여기에.</h3><p data-text="body">아직 저장한 예매가 없어요. 다음에 만나고 싶은 무대를 골라 보세요.</p></div><SystemLink data-text="action" variant="secondary" href="/programs/">공연 둘러보기 <Icon name="arrow" size={20} /></SystemLink></div>}
+                {summary.next ? <AccountTicket booking={summary.next} program={PROGRAMS.find(program => program.id === summary.next?.programId)} variant="compact" /> : <div className="account-empty-inline"><div><h3 data-text="subheading">관람 예정인 예약이 없습니다</h3><p data-text="body">프로그램을 둘러보고 관람 일정을 확인하세요.</p></div><SystemLink data-text="action" variant="secondary" href="/programs/">공연 둘러보기 <Icon name="arrow" size={20} /></SystemLink></div>}
             </section>
 
             <section aria-labelledby="account-curation-heading">
@@ -251,7 +253,7 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
 
             <section data-text="body" className="account-latest-note" aria-labelledby="account-latest-note-heading">
                 <div className="account-section-heading"><h2 data-text="heading" id="account-latest-note-heading">무대가 남긴 한 줄</h2><a data-text="action" href="#account-panel-notes">관람노트 쓰기 <Icon name="plus" size={20} /></a></div>
-                {latestNote ? <div className="account-note-preview"><time data-text="meta" dateTime={latestNote.date}>{latestNote.date.replaceAll("-", ".")}</time><h3 data-text="subheading">{PROGRAMS.find(program => program.id === latestNote.programId)?.title || "나의 관람 기록"}</h3><p data-text="body">{latestNote.body}</p></div> : <p data-text="body" className="account-empty-note">아직 기록하지 않은 여운이 있나요? 오래 기억하고 싶은 장면을 남겨 보세요.</p>}
+                {latestNote ? <div className="account-note-preview"><time data-text="meta" dateTime={latestNote.date}>{latestNote.date.replaceAll("-", ".")}</time><h3 data-text="subheading">{PROGRAMS.find(program => program.id === latestNote.programId)?.title || "나의 관람 기록"}</h3><p data-text="body">{latestNote.body}</p></div> : <p data-text="body" className="account-empty-note">아직 작성한 관람노트가 없습니다. 관람한 프로그램과 날짜를 선택해 기록하세요.</p>}
             </section>
         </div>
     );

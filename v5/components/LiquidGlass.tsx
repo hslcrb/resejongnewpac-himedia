@@ -26,6 +26,7 @@ const LiquidGlass = forwardRef<HTMLDivElement, LiquidGlassProps>(function Liquid
 
     return (
         <div
+            data-component-id="glass"
             {...props}
             ref={surfaceRef}
             data-text="body"

@@ -21,7 +21,7 @@ export type BookingCalendarProps = {
 // Date cells are registered spatial controls, preserving the narrow-screen grid.
 export function BookingCalendar({ month, selectedDate, today, programs, dateLabel, onMonthChange, onDateChange }: BookingCalendarProps) {
     return (
-        <div className="quick-calendar" id="home-booking-calendar" data-home-anchor data-component="BookingCalendar">
+        <div className="quick-calendar" id="home-booking-calendar" data-home-anchor data-component="BookingCalendar" data-component-id="booking-calendar">
             <div className="quick-calendar-heading">
                 <h3 data-text="subheading" id="quick-month" aria-live="polite">{month.replace("-", ". ")}</h3>
                 <div className="quick-month-controls">
@@ -68,7 +68,7 @@ export function BookingProgramChoice({ program, selected, available, past, onSel
         <button data-text="action"
             id={`home-booking-program-${program.id}`}
             data-home-anchor
-            data-component="BookingProgramChoice"
+            data-component="BookingProgramChoice" data-component-id="booking-choice"
             data-system-part="program-choice"
             type="button"
             className={`quick-program${selected ? " is-selected" : ""}`}

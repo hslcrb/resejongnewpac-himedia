@@ -521,3 +521,17 @@
     min-width: 0;
     overflow-wrap: anywhere;
 }
+
+/* [정보 블록의 반응형 배치 / Responsive information blocks] */
+.catalog-content-block { display: grid; gap: 24px; margin-block: 32px 48px; }
+.catalog-space-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 24px; margin-block: 32px; }
+.catalog-space-grid h2 { margin-bottom: 16px; }
+.catalog-space-grid p { margin-bottom: 20px; }
+.page-layout-facts > div { display: contents; }
+.catalog-timeline { display: grid; gap: 32px; list-style: none; padding: 0; }
+.catalog-content-source { margin-block: 40px; color: var(--text-secondary); }
+.renewal-header[data-header-variant="inverse"] { background: var(--surface-inverse); color: var(--text-inverse); }
+.renewal-header[data-header-variant="inverse"] .sejong-wordmark { filter: invert(1); }
+.renewal-header[data-header-variant="inverse"] .desktop-nav a,
+.renewal-header[data-header-variant="inverse"] .masthead-actions > a,
+.renewal-header[data-header-variant="inverse"] .masthead-actions > button { color: var(--text-inverse); }

@@ -9,7 +9,11 @@ export interface Program {
     poster?: string;
     image?: string;
     imageAlt?: string;
-    price?: number | string;
+    price?: number | string | null;
+    times?: string[];
+    sourceState?: "verified" | "unverified";
+    bookingEnabled?: boolean;
+    revision?: number;
     target?: string;
     time?: string;
     runningTime?: string;

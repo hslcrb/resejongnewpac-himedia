@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import type { CSSProperties, PointerEvent } from "react";
-import { HOME_FEATURES } from "../src/data/home-features";
+import { useCatalog } from "../src/catalog/CatalogProvider";
 import { HERO_MOTION } from "../src/data/design-tokens";
 import HeroSlide from "./HeroSlide";
 import HeroCompanion from "./HeroCompanion";
@@ -14,6 +14,8 @@ type Gesture = { id: number; x: number; y: number; time: number; captured: boole
 
 // [작품·양옆 미리보기·정보 레일의 조합 / Compose the work, neighbour previews and information rail]
 const HeroCarousel = forwardRef<HeroCarouselHandle, { externalPaused?: boolean }>(function HeroCarousel({ externalPaused = false }, ref) {
+    const { catalog } = useCatalog();
+    const HOME_FEATURES = catalog.homeFeatures;
     const [active, setActive] = useState(0);
     const [dragX, setDragX] = useState(0);
     const [direction, setDirection] = useState<1 | -1 | 0>(0);
@@ -35,8 +37,10 @@ const HeroCarousel = forwardRef<HeroCarouselHandle, { externalPaused?: boolean }
     const suppressClickUntil = useRef(0);
     const moveRef = useRef<(direction: 1 | -1, manual?: boolean) => void>(() => {});
     const count = HOME_FEATURES.length;
-    const previous = HOME_FEATURES[(active - 1 + count) % count];
-    const next = HOME_FEATURES[(active + 1) % count];
+    const featureSignature = HOME_FEATURES.map(feature => feature.id).join("\0");
+    const safeActive = Math.min(active, Math.max(0, count - 1));
+    const previous = HOME_FEATURES[(safeActive - 1 + count) % count];
+    const next = HOME_FEATURES[(safeActive + 1) % count];
 
     function resetMotion() {
         if (timer.current) clearTimeout(timer.current);
@@ -53,8 +57,8 @@ const HeroCarousel = forwardRef<HeroCarouselHandle, { externalPaused?: boolean }
     }
 
     function move(by: 1 | -1, manual = true) {
-        if (locked.current) return;
-        const target = (active + by + count) % count;
+        if (locked.current || count < 2) return;
+        const target = (safeActive + by + count) % count;
         const finish = () => {
             setActive(target);
             resetMotion();
@@ -72,6 +76,11 @@ const HeroCarousel = forwardRef<HeroCarouselHandle, { externalPaused?: boolean }
         timer.current = setTimeout(finish, HERO_MOTION.transition);
     }
     moveRef.current = move;
+
+    useEffect(() => {
+        resetMotion();
+        setActive(index => Math.min(index, Math.max(0, count - 1)));
+    }, [featureSignature]);
 
     // [공유 앵커와 수명 주기 / Shared anchors and lifecycle cleanup]
     useImperativeHandle(ref, () => ({ showFeature(anchor) {
@@ -110,7 +119,7 @@ const HeroCarousel = forwardRef<HeroCarouselHandle, { externalPaused?: boolean }
         };
     }, []);
 
-    const suspended = paused || hovered || focused || externalPaused || !inView || documentHidden || direction !== 0 || returning || dragging;
+    const suspended = count < 2 || paused || hovered || focused || externalPaused || !inView || documentHidden || direction !== 0 || returning || dragging;
     useEffect(() => {
         if (suspended) return;
         const interval = 50;
@@ -121,7 +130,7 @@ const HeroCarousel = forwardRef<HeroCarouselHandle, { externalPaused?: boolean }
 
     // [가로 드래그와 세로 스크롤을 구분 / Distinguish a horizontal drag from native vertical scroll]
     function startGesture(event: PointerEvent<HTMLDivElement>) {
-        if (locked.current || event.button !== 0 || (event.target as Element).closest("a,button,input,select,textarea")) return;
+        if (count < 2 || locked.current || event.button !== 0 || (event.target as Element).closest("a,button,input,select,textarea")) return;
         gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY, time: performance.now(), captured: false };
         setDragging(true);
     }
@@ -164,11 +173,13 @@ const HeroCarousel = forwardRef<HeroCarouselHandle, { externalPaused?: boolean }
         }
     }
 
+    if (!count) return <section className="season-hero container" data-component-id="hero-carousel" aria-label="이번 달의 문화예술"><p data-text="body">현재 공개된 주요 프로그램이 없습니다.</p></section>;
+
     return <section
         className="season-hero"
         id="featured-season"
         data-home-anchor
-        data-component="HeroCarousel"
+        data-component="HeroCarousel" data-component-id="hero-carousel"
         aria-label="이번 달의 문화예술"
         aria-roledescription="캐러셀"
         ref={section}
@@ -190,7 +201,7 @@ const HeroCarousel = forwardRef<HeroCarouselHandle, { externalPaused?: boolean }
             <div data-text="body" className={`season-track${direction ? " is-moving" : ""}${returning ? " is-returning" : ""}`} style={{ "--drag-x": `${dragX}px` } as CSSProperties}>
                 {[-2, -1, 0, 1, 2].map(offset => <HeroSlide
                     key={offset}
-                    feature={HOME_FEATURES[(active + offset + count) % count]}
+                    feature={HOME_FEATURES[(safeActive + offset + count) % count]}
                     active={offset === 0}
                     entering={direction === offset && direction !== 0}
                     preview={offset === -1 ? "previous" : offset === 1 ? "next" : undefined}
@@ -200,18 +211,18 @@ const HeroCarousel = forwardRef<HeroCarouselHandle, { externalPaused?: boolean }
         </div>
 
         <div className="hero-neighbor-navigation container" role="group" aria-label="양옆 프로그램">
-            <SystemButton data-text="action" variant="quiet" onClick={() => move(-1)} aria-label={`${previous.name} 이전 슬라이드로 보기`}><Icon name="back" size={20} /><span data-text="body">{previous.programTitle}</span></SystemButton>
-            <SystemButton data-text="action" variant="quiet" onClick={() => move(1)} aria-label={`${next.name} 다음 슬라이드로 보기`}><span data-text="body">{next.programTitle}</span><Icon name="arrow" size={20} /></SystemButton>
+            <SystemButton data-text="action" variant="quiet" disabled={count < 2} onClick={() => move(-1)} aria-label={`${previous.name} 이전 슬라이드로 보기`}><Icon name="back" size={20} /><span data-text="body">{previous.programTitle}</span></SystemButton>
+            <SystemButton data-text="action" variant="quiet" disabled={count < 2} onClick={() => move(1)} aria-label={`${next.name} 다음 슬라이드로 보기`}><span data-text="body">{next.programTitle}</span><Icon name="arrow" size={20} /></SystemButton>
         </div>
         <HeroCompanion />
         <div className="season-toolbar container">
             <p data-text="body">이번 달의 문화예술</p>
             <div className="season-controls" id="home-feature-controls" data-home-anchor role="group" aria-label="주요 프로그램 제어">
-                <span className="season-pagination" aria-hidden="true"><span data-text="body">{String(active + 1).padStart(2, "0")}</span><span data-text="body" className="season-pagination-total"> / {String(count).padStart(2, "0")}</span></span>
+                <span className="season-pagination" aria-hidden="true"><span data-text="body">{String(safeActive + 1).padStart(2, "0")}</span><span data-text="body" className="season-pagination-total"> / {String(count).padStart(2, "0")}</span></span>
                 <span className="season-progress" aria-hidden="true"><i style={{ transform: `scaleX(${progress})` }} /></span>
-                <SystemIconButton data-text="action" id="home-feature-previous" className="round-button" onClick={() => move(-1)} aria-label="이전 프로그램"><Icon name="back" size={24} /></SystemIconButton>
-                <SystemIconButton data-text="action" id="home-feature-next" className="round-button" onClick={() => move(1)} aria-label="다음 프로그램"><Icon name="arrow" size={24} /></SystemIconButton>
-                <SystemIconButton data-text="action" id="home-feature-playback" className="round-button" onClick={() => { if (paused) setFocused(false); setPaused(value => !value); }} aria-label={paused ? "자동 재생 시작" : "자동 재생 일시정지"} aria-pressed={paused}><Icon name={paused ? "play" : "pause"} size={24} /></SystemIconButton>
+                <SystemIconButton data-text="action" id="home-feature-previous" disabled={count < 2} className="round-button" onClick={() => move(-1)} aria-label="이전 프로그램"><Icon name="back" size={24} /></SystemIconButton>
+                <SystemIconButton data-text="action" id="home-feature-next" disabled={count < 2} className="round-button" onClick={() => move(1)} aria-label="다음 프로그램"><Icon name="arrow" size={24} /></SystemIconButton>
+                <SystemIconButton data-text="action" id="home-feature-playback" disabled={count < 2} className="round-button" onClick={() => { if (paused) setFocused(false); setPaused(value => !value); }} aria-label={paused ? "자동 재생 시작" : "자동 재생 일시정지"} aria-pressed={paused}><Icon name={paused ? "play" : "pause"} size={24} /></SystemIconButton>
                 <span data-text="body" className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
             </div>
         </div>

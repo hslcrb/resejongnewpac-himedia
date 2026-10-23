@@ -1,67 +1,46 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+
+import { useEffect, useState } from "react";
+import { SystemButton, SystemLink } from "./SystemPrimitives";
+import SystemSurface from "./SystemSurface";
 import "./introduction.css";
 
-const moments=[
- {id:"opening",kicker:"PROLOGUE · SEOUL",title:"광화문, 무대가 열리는 곳",subtitle:"1978년부터 공연·전시·교육이 한 건물에.",tone:"a"},
- {id:"pulse",kicker:"ACT 01 · RHYTHM",title:"옛 춤과 노래를 오늘의 무대로",subtitle:"국악과 전통춤 공연이 시즌마다 상연됩니다.",tone:"b"},
- {id:"space",kicker:"ACT 02 · SPACE",title:"한 건물에, 여러 개의 무대",subtitle:"대극장부터 소극장, 미술관까지 공간을 구경합니다.",tone:"c"},
- {id:"together",kicker:"ACT 03 · PEOPLE",title:"다음 무대의 자리가 비어 있습니다",subtitle:"프로그램 일정을 확인해 보세요.",tone:"d"},
-];
-export default function IntroductionExperience(){
- const root=useRef<HTMLDivElement>(null);
- const [current,setCurrent]=useState(0);
- const [soundless,setSoundless]=useState(true);
- const [active,setActive]=useState("opening");
- useEffect(()=>{
-  document.body.classList.add("sejong-intro-active");
-  const reduce=window.matchMedia("(prefers-reduced-motion: reduce)");
-  const update=()=>{
-   const top=window.scrollY;
-   document.body.classList.toggle("sejong-intro-scrolled",top>80);
-   const footer=document.querySelector(".renewal-footer");
-   if(footer){const rect=footer.getBoundingClientRect();document.body.classList.toggle("sejong-intro-end",rect.top < window.innerHeight*0.9)}
-  };
-  let raf=0;
-  const onScroll=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;update();});};
-  window.addEventListener("scroll",onScroll,{passive:true});update();
-  const sections=root.current?.querySelectorAll("[data-intro-scene]")||[];
-  const observer=new IntersectionObserver(entries=>{
-   entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio).slice(0,1).forEach(e=>{
-    const id=(e.target as HTMLElement).dataset.introScene||"opening";
-    setActive(id); const index=moments.findIndex(m=>m.id===id);if(index>=0)setCurrent(index);
-   });
-  },{threshold:[0.2,0.4,0.6]});
-  sections.forEach(e=>observer.observe(e));
-  return()=>{window.removeEventListener("scroll",onScroll);if(raf)cancelAnimationFrame(raf);observer.disconnect();document.body.classList.remove("sejong-intro-active","sejong-intro-scrolled","sejong-intro-end");};
- },[]);
- const jump=(id:string)=>document.getElementById("intro-"+id)?.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
- return <div ref={root} className="sejong-intro">
-  <div className="intro-progress" role="progressbar" aria-label="소개 페이지 진행" aria-valuemin={0} aria-valuemax={4} aria-valuenow={current+1}>
-   <div style={{width:((current+1)/4*100)+"%"}}/>
-  </div>
-  <nav data-text="body" className="intro-rail" aria-label="기관 소개 장면">
-   {moments.map((m,i)=><button data-text="action" data-system-part="intro-step" key={m.id} type="button" aria-label={`${i+1}번째 장면: ${m.title}`} aria-current={active===m.id?"step":undefined} onClick={()=>jump(m.id)}><span className={active===m.id?"on":""}/><small data-text="caption">0{i+1}</small></button>)}
-  </nav>
-  <section id="intro-opening" data-intro-scene="opening" className="intro-panel intro-cover">
-   <div className="intro-grid" aria-hidden="true"/><div className="intro-wash" aria-hidden="true"/>
-   <div className="intro-title-wrap"><h1 data-text="title">광화문에서<br/><em data-text="body">무대가 열리는 곳.</em></h1><p data-text="body">공연장과 전시장, 예술교육<br/>한 건물에 모았습니다.</p><button data-text="action" data-system-part="intro-next" className="intro-down" onClick={()=>jump("pulse")}>다음 장면 보기 <span data-text="body" aria-hidden="true">↓</span></button></div>
-  </section>
-  <section id="intro-pulse" data-intro-scene="pulse" className="intro-panel intro-pulse">
-   <div className="intro-marquee" aria-hidden="true"><span data-text="body">흥 · 멋 · 빛 · 움직임 · 흥 · 멋 · 빛 · 움직임 · </span></div>
-   <div data-text="body" className="intro-ribbons" aria-hidden="true">{["gold","red","blue","green","cream"].map((x,i)=><i key={x} className={`ribbon ribbon-${x}`} style={{animationDelay:(i*-.45)+"s"}}/>)}</div>
-   <div className="intro-copy"><h2 data-text="heading">전통은<br/><em data-text="body">멈춰 있지 않다.</em></h2><p data-text="body">국악관현악과 전통춤, 탈춤 공연이 시즌마다 다시 무대에 오릅니다. 옛 무대를 오늘의 무대 위에 올려둔 것이 세종의 방식입니다.</p><a data-text="action" href="#intro-space" onClick={e=>{e.preventDefault();jump("space")}}>다음 장면 보기 ↗</a></div>
-  </section>
-  <section id="intro-space" data-intro-scene="space" className="intro-panel intro-space">
-   <div className="intro-photo" role="img" aria-label="세종문화회관에서 선보인 공연의 이미지"/><div className="intro-photo-shade"/>
-   <div className="intro-copy"><h2 data-text="heading">한 건물에<br/><em data-text="body">여러 개의 무대.</em></h2><p data-text="body">대극장부터 소공연장, 미술관까지 무대마다 분위기와 좌석이 다릅니다. 막이 오르기 전에 공간을 먼저 둘러보세요.</p><Link data-text="action" href="/visit/spaces">공간 둘러보기 ↗</Link></div>
-  </section>
-  <section id="intro-together" data-intro-scene="together" className="intro-panel intro-last">
-   <div className="intro-orbit" aria-hidden="true"><i/><i/><i/></div>
-   <div className="intro-copy"><h2 data-text="heading">다음 무대의<br/><em data-text="body">자리가 비어 있습니다.</em></h2><p data-text="body">무대는 예술가가 차리고, 관람은 관객이 완성합니다. 다음 회차 일정을 확인해 보세요.</p>
-    <div className="intro-actions"><Link data-text="action" href="/programs">공연·전시 일정 ↗</Link><Link data-text="action" href="/about/introduction/history">걸어온 역사 ↗</Link></div>
-   </div>
-  </section>
- </div>;
+const scenes = [
+    { id: "opening", label: "세종문화회관" },
+    { id: "pulse", label: "서울시예술단" },
+    { id: "space", label: "공연장과 전시장" },
+    { id: "together", label: "관람 안내" },
+] as const;
+
+// [공연장 사진과 기관 정보로 읽는 소개 / An introduction grounded in venues and people]
+export default function IntroductionExperience() {
+    const [active, setActive] = useState<string>("opening");
+    useEffect(() => {
+        const observer = new IntersectionObserver(entries => {
+            for (const entry of entries) if (entry.isIntersecting) setActive((entry.target as HTMLElement).dataset.introScene || "opening");
+        }, { threshold: 0.45 });
+        document.querySelectorAll("[data-intro-scene]").forEach(element => observer.observe(element));
+        return () => observer.disconnect();
+    }, []);
+    function jump(id: string) {
+        document.getElementById("intro-" + id)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }
+    return <div className="sejong-intro" data-component-id="introduction">
+        <nav className="intro-scenes container" aria-label="기관 소개 장면">{scenes.map(scene => <SystemButton key={scene.id} variant="quiet" aria-current={active === scene.id ? "step" : undefined} onClick={() => jump(scene.id)}>{scene.label}</SystemButton>)}</nav>
+        <section id="intro-opening" data-intro-scene="opening" className="intro-panel intro-cover">
+            <img src="/v5/assets/images/sejong-grand-facade.png" alt="광화문광장에 면한 세종문화회관 외관" width={1160} height={680} />
+            <div className="intro-cover-copy container"><p data-text="label">1978년 개관</p><h1 data-text="title">광화문에서 만나는<br />세종문화회관</h1><p data-text="body">공연과 전시를 보고, 예술을 배우는 서울의 문화공간입니다.</p><SystemButton variant="inverse" onClick={() => jump("pulse")}>세종문화회관 둘러보기</SystemButton></div>
+        </section>
+        <section id="intro-pulse" data-intro-scene="pulse" className="intro-panel container intro-editorial">
+            <div><p data-text="label">서울시예술단</p><h2 data-text="heading">무대를 만드는 사람들</h2><p data-text="body">국악, 무용, 합창, 뮤지컬, 연극과 오페라. 서울시예술단의 공연과 활동을 소개합니다.</p><SystemLink href="/about/companies" variant="secondary">서울시예술단 소개</SystemLink></div>
+            <figure><img src="/v5/assets/images/official/ilmu-stage.jpg" alt="서울시무용단 일무의 공연 장면" width={1200} height={675} loading="lazy" /><figcaption data-text="meta">서울시무용단 〈일무〉</figcaption></figure>
+        </section>
+        <section id="intro-space" data-intro-scene="space" className="intro-panel container intro-editorial intro-editorial-reverse">
+            <figure><img src="/v5/assets/images/sejong-grand-auditorium.png" alt="세종대극장의 객석과 무대" width={1160} height={680} loading="lazy" /><figcaption data-text="meta">세종대극장</figcaption></figure>
+            <div><p data-text="label">공연장과 전시장</p><h2 data-text="heading">공간마다 다른 관람 경험</h2><p data-text="body">대극장과 체임버홀, M씨어터와 S씨어터, 미술관의 위치와 객석을 관람 전에 살펴보세요.</p><SystemLink href="/visit/spaces" variant="secondary">공간과 객석 안내</SystemLink></div>
+        </section>
+        <section id="intro-together" data-intro-scene="together" className="intro-panel container">
+            <SystemSurface as="section" variant="subtle" padding="lg" className="intro-visit"><div><h2 data-text="heading">관람을 준비하세요</h2><p data-text="body">프로그램 일정과 찾아오는 길, 접근성 서비스를 안내합니다.</p></div><div className="page-layout-actions"><SystemLink href="/programs">프로그램 일정</SystemLink><SystemLink href="/visit/directions" variant="secondary">오시는 길</SystemLink><SystemLink href="/visit/accessibility" variant="secondary">접근성 안내</SystemLink><SystemLink href="/about/introduction/history" variant="quiet">연혁</SystemLink></div></SystemSurface>
+        </section>
+    </div>;
 }

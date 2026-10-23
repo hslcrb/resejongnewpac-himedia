@@ -167,7 +167,7 @@ export default function ContextMenu() {
 
     return createPortal(
         <div data-text="body"
-            ref={shellRef}
+            ref={shellRef} data-component-id="context-menu"
             className={ContextMenuStyles.shell}
             role="menu"
             aria-label="페이지 바로가기 메뉴"

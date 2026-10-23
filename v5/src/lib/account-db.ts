@@ -1,4 +1,5 @@
 import { supabase } from "./supabase.ts";
+import { cancelReservation, reservationError } from "./reservations.ts";
 import type { AccountBooking, AccountNote, AccountNoteDraft, AccountSpace } from "./account-space.ts";
 import { DEFAULT_ACCOUNT_SPACE, parseAccountSpace } from "./account-space.ts";
 import type { UserProfile } from "../../types/sejong.ts";
@@ -28,12 +29,12 @@ function checked<T>(result: { data: T; error: { message: string } | null }): T {
 
 type BookingRow = {
     id: string; program_id: string; title: string; event_date: string; event_time: string;
-    venue: string; seats: string[]; total: number; status: "confirmed" | "cancelled"; created_at: string;
+    venue: string; seats: string[]; total: number; status: AccountBooking["status"]; created_at: string; expires_at: string; session_id: string;
 };
 const bookingFromRow = (row: BookingRow): AccountBooking => ({
     id: row.id, programId: row.program_id, title: row.title, date: row.event_date,
     time: row.event_time.slice(0, 5), venue: row.venue, seats: row.seats,
-    total: row.total, reference: row.id, status: row.status, createdAt: row.created_at,
+    total: row.total, reference: row.id, status: row.status, createdAt: row.created_at, expiresAt: row.expires_at, sessionId: row.session_id,
 });
 
 export async function loadMemberAccount(expectedUserId: string) {
@@ -42,7 +43,7 @@ export async function loadMemberAccount(expectedUserId: string) {
     const [spaceResult, notesResult, bookingsResult] = await Promise.all([
         client.from(MEMBER_TABLES.spaces).select("nickname,message,theme,light_on").eq("user_id", user.id).maybeSingle(),
         client.from(MEMBER_TABLES.notes).select("id,program_id,event_date,body").eq("user_id", user.id).order("created_at", { ascending: false }).limit(100),
-        client.from(MEMBER_TABLES.bookings).select("id,program_id,title,event_date,event_time,venue,seats,total,status,created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(100),
+        client.rpc("get_member_reservations"),
     ]);
     const row = checked(spaceResult);
     const space = row ? parseAccountSpace(JSON.stringify({ ...row, lightOn: row.light_on })) : { ...DEFAULT_ACCOUNT_SPACE };
@@ -84,18 +85,14 @@ export async function removeMemberNote(id: string, expectedUserId: string) {
     if (!rows?.length) throw new Error("삭제할 기록을 찾지 못했습니다. 목록을 새로 불러와 주세요.");
 }
 
-export async function createMemberBooking(booking: AccountBooking, expectedUserId: string): Promise<AccountBooking> {
-    const { client, user } = await authenticatedMember();
-    if (user.id !== expectedUserId) throw new Error("로그인한 계정이 변경되었습니다.");
-    const row = checked(await client.from(MEMBER_TABLES.bookings).upsert({ id: booking.id, user_id: user.id, program_id: booking.programId, title: booking.title, event_date: booking.date, event_time: booking.time, venue: booking.venue, seats: booking.seats, total: booking.total }, { onConflict: "id", ignoreDuplicates: true }).select("id,program_id,title,event_date,event_time,venue,seats,total,status,created_at").maybeSingle());
-    if (row) return bookingFromRow(row as BookingRow);
-    const existing = checked(await client.from(MEMBER_TABLES.bookings).select("id,program_id,title,event_date,event_time,venue,seats,total,status,created_at").eq("user_id", user.id).eq("id", booking.id).single());
-    return bookingFromRow(existing as BookingRow);
+// Reservations are created exclusively by holdSeats/confirmReservation RPCs.
+export async function createMemberBooking(_booking: AccountBooking, _expectedUserId: string): Promise<AccountBooking> {
+    throw new Error("회차와 좌석을 선택한 뒤 예약해 주세요.");
 }
-
 export async function cancelMemberBooking(id: string, expectedUserId: string) {
-    const { client, user } = await authenticatedMember();
+    const { user } = await authenticatedMember();
     if (user.id !== expectedUserId) throw new Error("로그인한 계정이 변경되었습니다.");
-    const row = checked(await client.from(MEMBER_TABLES.bookings).update({ status: "cancelled" }).eq("user_id", user.id).eq("id", id).select("id").maybeSingle());
-    if (!row) throw new Error("변경할 예매 기록을 찾지 못했습니다. 목록을 새로 불러와 주세요.");
+    const result = await cancelReservation(id);
+    if (result.kind === "error") throw new Error(reservationError(result.code));
+    return result.reservation;
 }

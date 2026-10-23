@@ -62,7 +62,11 @@
 
 .home-v4-wrap .season-copy h2 {
     margin-bottom: var(--space-8);
-    font-size: max(var(--text-min), clamp(2.5rem, 3.7vw, 3.5rem));
+    font-size: max(var(--text-min), var(--text-hero-with-companion));
+}
+
+.home-v4-wrap .season-slide[data-layout="standalone"] .season-copy h2 {
+    font-size: max(var(--text-min), var(--text-hero-standalone));
 }
 
 .home-v4-wrap .season-meta {
@@ -402,7 +406,7 @@
 
     .home-v4-wrap .season-copy h2 {
         margin-bottom: var(--space-6);
-        font-size: max(var(--text-min), clamp(1.875rem, 7vw, 2.5rem));
+        font-size: max(var(--text-min), var(--text-hero-with-companion));
     }
 
     .season-description {

@@ -4,20 +4,21 @@ import { renderFlows } from "../src/features/flows.ts";
 import { PROGRAMS } from "../src/data/catalog.ts";
 
 // [빠른 예매에서 접수까지 / Keep the quick-booking selection]
-test("quick booking preserves a valid date, time and requested party", () => {
-    const program = PROGRAMS.find(item => item.category === "공연" && item.times.length > 1);
-    const time = program.times.at(-1);
-    const html = renderFlows(`/booking/${program.id}`, new URLSearchParams({ date: program.end, time, participants: "3", source: "home" }));
+test("quick booking keeps the date and party without inventing an unverified session", () => {
+    const program = PROGRAMS.find(item => item.category === "공연");
+    assert.deepEqual(program.times, [], "the snapshot has no verified performance sessions");
+    const html = renderFlows(`/booking/${program.id}`, new URLSearchParams({ date: program.end, time: "19:30", participants: "3", source: "home" }));
     assert.ok(html.includes(`value="${program.end}"`));
-    assert.ok(html.includes(`value="${time}" checked`));
+    assert.ok(!html.includes('value="19:30" checked'));
     assert.ok(html.includes("선택하신 관람인원 3명"));
 });
 
-test("education application carries the chosen session into form fields", () => {
+test("education application keeps the date and party while rejecting an unverified session", () => {
     const program = PROGRAMS.find(item => item.category === "교육");
-    const html = renderFlows("/apply/education", new URLSearchParams({ program: program.id, date: program.start, time: program.times[0], participants: "2", source: "home" }));
+    assert.deepEqual(program.times, [], "the snapshot has no verified education sessions");
+    const html = renderFlows("/apply/education", new URLSearchParams({ program: program.id, date: program.start, time: "19:30", participants: "2", source: "home" }));
     assert.ok(html.includes(`value="${program.start}"`));
-    assert.ok(html.includes(`value="${program.times[0]}" selected`));
+    assert.ok(!html.includes('value="19:30" selected'));
     assert.match(html, /name="participants"[^>]*value="2"/);
 });
 

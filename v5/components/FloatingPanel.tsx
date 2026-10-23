@@ -116,7 +116,7 @@ function PanelSurface({
     return createPortal(
         <>
             <LiquidGlass
-                ref={panelRef}
+                ref={panelRef} data-component-id="floating-panel" data-component-part="glass-surface" data-component-owner="floating-panel"
                 id={id}
                 className={`floating-panel ${className}`.trim()}
                 variant={variant === "drawer" ? "drawer" : "surface"}

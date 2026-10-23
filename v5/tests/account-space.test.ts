@@ -21,10 +21,12 @@ test("notes retain real text and reject malformed dates, future dates and empty 
 });
 test("the next ticket and counts ignore cancellations and sort by actual performance time", () => {
     const bookings = [
-        {id:"later",date:"2026-11-20",time:"19:30"},
+        {id:"later",date:"2026-11-20",time:"19:30",status:"reserved_unpaid"},
         {id:"cancelled",date:"2026-10-22",time:"14:00",status:"cancelled"},
-        {id:"earlier",date:"2026-10-23",time:"14:00"},
-        {id:"past",date:"2026-10-20",time:"19:00"},
+        {id:"earlier",date:"2026-10-23",time:"14:00",status:"held"},
+        {id:"past",date:"2026-10-20",time:"19:00",status:"reserved_unpaid"},
+        {id:"expired",date:"2026-11-20",time:"19:30",status:"expired"},
+        {id:"released",date:"2026-11-20",time:"19:30",status:"released"},
     ];
     const result = accountBookingSummary(bookings, "2026-10-21");
     assert.equal(result.next?.id, "earlier");

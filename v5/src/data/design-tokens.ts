@@ -182,6 +182,31 @@ export const TEXT_VARIANTS = {
 } as const;
 export type TextVariant = keyof typeof TEXT_VARIANTS;
 
+// [역할과 독립적인 글자 크기 축 / Text sizes independent from semantic roles]
+export const COMPONENT_TEXT_SIZES = {
+    "hero-with-companion": {
+        token: "--text-hero-with-companion",
+        base: "clamp(2.5rem, 3.7vw, 3.5rem)",
+        responsive: [{ maxWidth: 600, value: "clamp(1.875rem, 7vw, 2.5rem)" }],
+    },
+    "hero-standalone": {
+        token: "--text-hero-standalone",
+        base: "clamp(2.625rem, 4.3vw, 4.125rem)",
+        responsive: [
+            { maxWidth: 800, value: "2.875rem" },
+            { maxWidth: 600, value: "clamp(2.125rem, 8.5vw, 2.75rem)" },
+        ],
+    },
+    "quick-action": { token: "--text-quick-action", base: "1rem", responsive: [] },
+} as const;
+
+export const TEXT_SIZES = {
+    ...Object.fromEntries(Object.entries(TEXT_VARIANTS).map(([name, definition]) => [name, `var(--${definition.token})`])) as Record<TextVariant, string>,
+    control: "1rem",
+    ...Object.fromEntries(Object.entries(COMPONENT_TEXT_SIZES).map(([name, definition]) => [name, `var(${definition.token})`])) as Record<keyof typeof COMPONENT_TEXT_SIZES, string>,
+} as const;
+export type TextSize = keyof typeof TEXT_SIZES;
+
 export const SPACE_SCALE = [4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96] as const;
 
 // [유리 재질의 공통 정의 / Shared glass material definitions]
@@ -1004,6 +1029,7 @@ const FLUID_TYPE_VIEWPORTS: Partial<Record<(typeof TYPE_SCALE)[number]["token"],
 };
 const TYPOGRAPHY_TOKENS = {
     "--text-min": rem(16),
+    ...Object.fromEntries(Object.values(COMPONENT_TEXT_SIZES).map(definition => [definition.token, definition.base])),
     ...Object.fromEntries(TYPE_SCALE.map((type) => [
         `--${type.token}`, FLUID_TYPE_VIEWPORTS[type.token]
             ? `clamp(${rem(type.mobile)}, ${FLUID_TYPE_VIEWPORTS[type.token]}, ${rem(type.size)})`
@@ -1119,6 +1145,12 @@ export const DESIGN_TOKEN_VALUES: TokenValues = Object.freeze({
 
 // [원본 로컬 폰트 선언을 보존하는 결정적 CSS 생성 / Deterministic CSS preserving the local font face]
 export function renderDesignTokensCss(extraColors: TokenValues = {}): string {
+    const componentSizes: readonly { token: string; responsive: readonly { maxWidth: number; value: string }[] }[] = Object.values(COMPONENT_TEXT_SIZES);
+    const breakpoints = [...new Set(componentSizes.flatMap(definition => definition.responsive.map(rule => rule.maxWidth)))].sort((first, second) => second - first);
+    const responsive = breakpoints.map(maxWidth => {
+        const declarations = componentSizes.flatMap(definition => definition.responsive.filter(rule => rule.maxWidth === maxWidth).map(rule => `        ${definition.token}: ${rule.value};`));
+        return `@media (max-width: ${maxWidth}px) {\n    :root {\n${declarations.join("\n")}\n    }\n}`;
+    }).join("\n\n");
     const declarations = Object.entries({ ...DESIGN_TOKEN_VALUES, ...extraColors })
         .map(([token, value]) => `    ${token}: ${value};`).join("\n");
     return `/* [v5 디자인 토큰 / v5 design tokens]
@@ -1138,20 +1170,18 @@ export function renderDesignTokensCss(extraColors: TokenValues = {}): string {
 :root {
 ${declarations}
 }
+
+${responsive}
 `;
 }
 
 // [공유 컴포넌트의 역할별 CSS 생성 / Generate role styles for the shared text component]
 export function renderTypographyCss(): string {
-    const variants = Object.entries(TEXT_VARIANTS).map(([variant, definition]) => `.system-text[data-text="${variant}"] {\n    font-size: max(var(--text-min), var(--${definition.token}));\n    font-weight: ${definition.weight};\n    line-height: ${definition.leading};\n    letter-spacing: ${definition.tracking};\n}`).join("\n\n");
-    const sizes = Object.entries(TEXT_VARIANTS).map(([variant, definition]) => `.system-text[data-text-size="${variant}"] {\n    font-size: max(var(--text-min), var(--${definition.token}));\n}`).join("\n\n");
+    const variants = Object.entries(TEXT_VARIANTS).map(([variant, definition]) => `[data-text="${variant}"] {\n    font-size: max(var(--text-min), var(--${definition.token}));\n    font-weight: ${definition.weight};\n    line-height: ${definition.leading};\n    letter-spacing: ${definition.tracking};\n}`).join("\n\n");
+    const sizes = Object.entries(TEXT_SIZES).map(([size, value]) => `[data-text][data-text-size="${size}"] {\n    font-size: max(var(--text-min), ${value});\n}`).join("\n\n");
     return `/* [공유 텍스트 역할과 최소 가독성 / Shared text roles and minimum readability]
    src/data/design-tokens.ts에서 생성됩니다. / Generated from src/data/design-tokens.ts.
    data-text는 기존 요소의 위계를 보존합니다. / Native data-text annotations preserve existing hierarchy. */
-:where([data-text]) {
-    --text-contract-minimum: var(--text-min);
-}
-
 :where(h5, h6, small, sub, sup) {
     font-size: max(var(--text-min), 1em);
 }

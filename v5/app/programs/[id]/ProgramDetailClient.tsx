@@ -1,18 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { useCatalog } from "../../../src/catalog/CatalogProvider";
 import Link from "next/link";
 import type { Program } from "../../../types/sejong.ts";
 import { mediaPath } from "../../../src/lib/media";
-import { SystemBadge, SystemLink } from "../../../components/SystemPrimitives";
+import { SystemBadge, SystemLink, SystemNotice } from "../../../components/SystemPrimitives";
 
 interface ProgramDetailClientProps {
     program: Program;
 }
 
 // [원본 포스터와 읽기 영역의 관계 / Natural poster proportions beside readable details]
-export default function ProgramDetailClient({ program }: ProgramDetailClientProps) {
+export default function ProgramDetailClient({ program: initialProgram }: ProgramDetailClientProps) {
+    const { catalog, loading, error } = useCatalog();
+    const program = catalog.programs.find(item => item.id === initialProgram.id) || initialProgram;
     const imagePath = mediaPath(program.image);
+    const [imageFailed, setImageFailed] = useState(false);
+    if (!loading && !error && !catalog.programs.some(item => item.id === initialProgram.id)) return <div className="container page-layout"><SystemNotice title="공개가 종료된 프로그램입니다"><SystemLink href="/programs/">프로그램 목록</SystemLink></SystemNotice></div>;
 
     return (
         <div className="container page-layout program-detail-page">
@@ -27,17 +32,11 @@ export default function ProgramDetailClient({ program }: ProgramDetailClientProp
             <article className="program-detail-page-grid">
                 <div className="program-detail-page-poster">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    {program.image && !imageFailed ? <img
                         src={imagePath}
                         alt={program.imageAlt || program.title}
-                        onError={(event) => {
-                            const target = event.currentTarget;
-                            if (!target.dataset.fallback) {
-                                target.dataset.fallback = "true";
-                                target.src = mediaPath();
-                            }
-                        }}
-                    />
+                        onError={() => setImageFailed(true)}
+                    /> : <p data-text="body">공식 이미지 준비 중</p>}
                 </div>
 
                 <div className="program-detail-page-summary">
@@ -58,10 +57,10 @@ export default function ProgramDetailClient({ program }: ProgramDetailClientProp
                         <dd data-text="body">
                             {typeof program.price === "number"
                                 ? `${program.price.toLocaleString("ko-KR")}원`
-                                : (program.price || "VIP석 100,000원 / R석 80,000원 / S석 50,000원")}
+                                : (program.price || "확인 중")}
                         </dd>
                         <dt data-text="label">시간</dt>
-                        <dd data-text="body">{program.time || "평일 19:30 / 주말 15:00, 19:00"}</dd>
+                        <dd data-text="body">{program.time || "확인 중"}</dd>
                     </dl>
 
                     <section className="page-layout-prose program-detail-page-description" aria-labelledby="program-description-heading">
@@ -72,7 +71,7 @@ export default function ProgramDetailClient({ program }: ProgramDetailClientProp
                     {/* [공통 예매 이동 조작 / Shared booking navigation actions] */}
                     <div className="page-layout-actions program-detail-page-actions">
                         <SystemLink data-text="action" context="flow" href={`/booking/${program.id}`}>
-                            예매하기
+                            예약 회차 확인
                         </SystemLink>
                         <SystemLink data-text="action" context="flow" variant="secondary" href="/programs">
                             목록으로

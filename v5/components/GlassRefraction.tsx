@@ -72,7 +72,7 @@ export default function GlassRefraction({
     }, [id, surfaceRef, blur, refraction, thickness]);
     return (
         <svg
-            className="glass-lens-definitions"
+            className="glass-lens-definitions" data-component-part="glass-refraction" data-component-owner="glass"
             width="0"
             height="0"
             aria-hidden="true"

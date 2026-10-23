@@ -19,6 +19,7 @@ const environment = fs.readFileSync(".env.local", "utf8");
 const backend = environment.match(/^NEXT_PUBLIC_SUPABASE_URL=["']?([^\r\n"']+)/m)?.[1];
 if (!backend) throw new Error("The public Supabase URL is required to mock email authentication.");
 const otpRequests: Record<string, unknown>[] = [];
+const catalogFixture = JSON.parse(fs.readFileSync("src/generated/catalog-snapshot.json", "utf8"));
 let otpGate = Promise.resolve();
 const holdOtp = () => {
     let release!: () => void;
@@ -28,6 +29,7 @@ const holdOtp = () => {
 await context.route(url => url.origin === new URL(backend).origin, async route => {
     const url = new URL(route.request().url());
     if (url.pathname === "/auth/v1/settings") return route.fulfill({ json: { external: { google: false } } });
+    if (url.pathname === "/rest/v1/rpc/sejong_catalog_snapshot" && route.request().method() === "POST") return route.fulfill({ json: catalogFixture });
     if (url.pathname === "/auth/v1/otp") {
         otpRequests.push(route.request().postDataJSON());
         await otpGate;
@@ -207,18 +209,12 @@ try {
         await expect(page.locator('[role="status"].flow-info-box')).toContainText("이메일로 로그인 링크를 보냈습니다.");
         assert.equal((await metrics("#flow-email")).minHeight, "54px");
     });
-    await check("booking fields retain date/time control and the seat map uses documented spatial controls", async () => {
+    await check("booking does not invent sessions or seats before verified inventory is published", async () => {
         await go("booking/winter/");
-        await page.locator("#booking-date").fill("2026-11-20");
-        const options = await page.locator("#booking-time option").evaluateAll(elements => elements.map(element => (element as HTMLOptionElement).value).filter(Boolean));
-        assert.ok(options.length > 0);
-        await page.locator("#booking-time").selectOption(options[0]);
-        const next = page.getByRole("button", { name: /좌석.*선택/ });
-        await next.click();
-        const seat = page.locator('button[data-system-part="seat"]:not(:disabled)').first();
-        await seat.waitFor();
-        await seat.click();
-        assert.equal(await seat.getAttribute("aria-pressed"), "true");
+        assert.equal(catalogFixture.sessions.filter((session: { programId: string }) => session.programId === "winter").length, 0);
+        await page.getByText("예약 가능한 회차를 준비하고 있습니다", { exact: true }).waitFor();
+        assert.equal(await page.locator("#booking-session").count(), 0);
+        assert.equal(await page.locator("#booking-date, #booking-time, button[data-system-part='seat']").count(), 0);
     });
     await check("no hydration or runtime errors occurred", async () => assert.deepEqual(errors, []));
 } finally {

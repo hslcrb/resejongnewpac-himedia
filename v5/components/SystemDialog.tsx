@@ -107,7 +107,7 @@ export const SystemDialog = forwardRef<HTMLDialogElement, SystemDialogProps>(fun
         else if (!open && dialog.open) dialog.close();
     }, [open]);
 
-    return <dialog data-text="body" {...props} ref={dialogRef} className={`ds-dialog ${className}`.trim()} data-component="dialog" data-stroke="inner" onClick={(event) => {
+    return <dialog data-text="body" {...props} ref={dialogRef} className={`ds-dialog ${className}`.trim()} data-component="dialog" data-component-id="dialog" data-stroke="inner" onClick={(event) => {
         onClick?.(event);
         if (event.defaultPrevented || !closeOnBackdrop || event.target !== event.currentTarget) return;
         const rect = event.currentTarget.getBoundingClientRect();

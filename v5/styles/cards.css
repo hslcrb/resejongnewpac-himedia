@@ -220,7 +220,7 @@
 
 .is-active .season-copy { opacity: 1; }
 .season-label { margin: 0 0 24px; font-size: max(var(--text-min), var(--text-meta)); font-weight: 550; }
-.season-copy h2 { margin: 0 0 30px; font-size: max(var(--text-min), clamp(42px, 4.3vw, 66px)); font-weight: 650; line-height: 1.22; letter-spacing: -0.055em; }
+.season-copy h2 { margin: 0 0 30px; font-size: max(var(--text-min), var(--text-hero-standalone)); font-weight: 650; line-height: 1.22; letter-spacing: -0.055em; }
 .season-name { margin: 0 0 8px; font-size: max(var(--text-min), var(--text-item-title)); font-weight: 600; line-height: 1.5; }
 .season-meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 0 0 28px; font-size: max(var(--text-min), var(--text-meta)); }
 
@@ -254,7 +254,7 @@
 @media (max-width: 800px) {
     .card--hero { min-height: 510px; }
     .season-copy { padding: 36px; }
-    .season-copy h2 { font-size: max(var(--text-min), 46px); }
+    .season-copy h2 { font-size: max(var(--text-min), var(--text-hero-standalone)); }
     .card-banner-link { padding: 36px; gap: 24px; }
     .invitation-art { min-width: 160px; }
     .invitation-art > span { font-size: max(var(--text-min), 58px); }
@@ -268,7 +268,7 @@
     .card--hero::after { background: linear-gradient(0deg, var(--color-detail-d9gs3q), var(--color-detail-vgt87r) 90%); }
     .season-copy { justify-content: flex-end; padding: 28px 24px; }
     .season-label { margin-bottom: 14px; }
-    .season-copy h2 { font-size: max(var(--text-min), clamp(34px, 8.5vw, 44px)); margin-bottom: 20px; }
+    .season-copy h2 { font-size: max(var(--text-min), var(--text-hero-standalone)); margin-bottom: 20px; }
     .season-meta { gap: 4px 12px; margin-bottom: 22px; }
     .season-copy .button { padding: 12px 18px; font-size: max(var(--text-min), var(--text-sm)); }
     .card-banner-link { padding: 30px 26px; }

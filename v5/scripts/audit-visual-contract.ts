@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
-import { DESIGN_TOKEN_VALUES, TEXT_VARIANTS } from "../src/data/design-tokens.ts";
+import { DESIGN_TOKEN_VALUES, TEXT_VARIANTS, TEXT_SIZES } from "../src/data/design-tokens.ts";
 import { authoredFiles, colorLiterals, floorFontShorthand, migrateTsx } from "./visual-contract.ts";
 import type { VisualIssue } from "./visual-contract.ts";
 
@@ -24,16 +24,19 @@ export function auditTextBindings(source: string, fileName: string): VisualIssue
         return true;
     };
     const visit = (node: ts.Node) => {
-        if (ts.isJsxElement(node)) {
-            const opening = node.openingElement;
+        if (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node)) {
+            const opening = ts.isJsxElement(node) ? node.openingElement : node;
             const tag = opening.tagName.getText(file);
             const attributes = opening.attributes;
             const literalVariant = attributes.properties.find((property) => ts.isJsxAttribute(property) && property.name.getText(file) === "data-text");
             if (literalVariant && ts.isJsxAttribute(literalVariant) && literalVariant.initializer && ts.isStringLiteral(literalVariant.initializer)
                 && !(literalVariant.initializer.text in TEXT_VARIANTS)) add(literalVariant, "text-variant", `Unknown data-text variant: ${literalVariant.initializer.text}`);
+            const literalSize = attributes.properties.find((property) => ts.isJsxAttribute(property) && property.name.getText(file) === "data-text-size");
+            if (literalSize && ts.isJsxAttribute(literalSize) && literalSize.initializer && ts.isStringLiteral(literalSize.initializer)
+                && !(literalSize.initializer.text in TEXT_SIZES)) add(literalSize, "text-size", `Unknown data-text-size: ${literalSize.initializer.text}`);
             const hidden = attributes.properties.some((property) => ts.isJsxAttribute(property)
                 && property.name.getText(file) === "aria-hidden" && property.initializer?.getText(file) === '"true"');
-            const hasText = node.children.some((child) => ts.isJsxText(child) ? Boolean(child.text.trim())
+            const hasText = ts.isJsxElement(node) && node.children.some((child) => ts.isJsxText(child) ? Boolean(child.text.trim())
                 : ts.isJsxExpression(child) && child.expression ? literalText(child.expression) : false);
             const helper = attributes.properties.some((property) => ts.isJsxSpreadAttribute(property)
                 && ts.isCallExpression(property.expression) && /(?:^|\.)textAttributes$/.test(property.expression.expression.getText(file)));
