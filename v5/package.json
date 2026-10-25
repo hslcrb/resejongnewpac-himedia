@@ -16,7 +16,8 @@
     "test:orb:motion": "node --test tests/quick-menu-fluid.test.ts",
     "test:home:anchors": "node tests/home-anchors.cjs",
     "check:system": "node scripts/prepare-design-system.ts --check",
-    "test:system:browser": "node tests/component-system-browser.ts"
+    "test:system:browser": "node tests/component-system-browser.ts",
+    "test:auth:browser": "node scripts/run-auth-browser.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
