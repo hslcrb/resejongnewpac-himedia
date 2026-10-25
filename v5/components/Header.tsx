@@ -98,7 +98,7 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                     {/* [실제 세션의 회원 진입 / Account access for the authenticated session] */}
                     {isLoggedIn ? <Link data-text="utility" href="/account" className="account-link">마이페이지</Link> : <>
                         <Link data-text="utility" href="/account/login" className="account-link">로그인</Link>
-                        <Link data-text="utility" href="/account/signup" className="account-link signup-link">프로필 만들기</Link>
+                        <Link data-text="utility" href="/account/login" className="account-link signup-link">회원가입</Link>
                     </>}
                     <Link data-text="utility" href="/english" className="english-link" lang="en">
                         EN

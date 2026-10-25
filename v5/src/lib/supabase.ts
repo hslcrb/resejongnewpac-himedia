@@ -129,6 +129,13 @@ export async function signInWithGoogle(redirectTo?: string) {
 }
 
 // [이메일 소유 확인을 거친 실제 로그인 / Real sign-in after verifying email ownership]
+export class EmailSignupRequiredError extends Error {
+    constructor() {
+        super("입력한 이메일로 회원가입을 이어가 주세요.");
+        this.name = "EmailSignupRequiredError";
+    }
+}
+
 export async function requestEmailSignIn(email: string, options: { createUser?: boolean; name?: string; phone?: string } = {}) {
     if (!supabase) throw new Error("로그인 서비스에 연결하지 못했습니다.");
     const { error } = await supabase.auth.signInWithOtp({ email: email.trim(), options: {
@@ -136,7 +143,13 @@ export async function requestEmailSignIn(email: string, options: { createUser?: 
         emailRedirectTo: getAccountCallbackUrl(window.location.origin),
         ...(options.createUser ? { data: { name: options.name?.trim(), full_name: options.name?.trim(), phone: options.phone?.trim() } } : {}),
     } });
-    if (error) throw new Error("로그인 링크를 보내지 못했습니다. 이메일 주소를 확인하고 잠시 후 다시 시도해 주세요.");
+    if (error) {
+        // 다른 전송 오류를 미등록 계정으로 해석하지 않음 / Do not treat other delivery errors as missing accounts.
+        if (options.createUser !== true && error.code === "otp_disabled" && error.message === "Signups not allowed for otp") {
+            throw new EmailSignupRequiredError();
+        }
+        throw new Error("로그인 링크를 보내지 못했습니다. 이메일 주소를 확인하고 잠시 후 다시 시도해 주세요.");
+    }
 }
 
 /**

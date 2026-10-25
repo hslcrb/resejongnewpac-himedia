@@ -2,7 +2,7 @@
 
 import Icon from "../../../components/Icon";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
 import { SystemButton, SystemCheckbox, SystemField, SystemNotice } from "../../../components/SystemPrimitives";
@@ -17,6 +17,18 @@ export default function SignupPage() {
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const [pending, setPending] = useState(false);
+    const [continuedFromLogin, setContinuedFromLogin] = useState(false);
+    const nameField = useRef<HTMLInputElement>(null);
+
+    // [로그인에서 이어받은 이메일 / Continue with the email entered at login]
+    useEffect(() => {
+        const loginEmail = new URLSearchParams(window.location.search).get("email")?.trim();
+        if (loginEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail)) {
+            setEmail(loginEmail);
+            setContinuedFromLogin(true);
+            nameField.current?.focus();
+        }
+    }, []);
 
     // [이메일 인증으로 만드는 계정 / Create an account through email verification]
     const handleSubmit = async (e: FormEvent) => {
@@ -96,6 +108,8 @@ export default function SignupPage() {
                         </p>
                         <p data-text="body" className="flow-fineprint">이미 가입했다면 <Link data-text="action" href="/account/login">로그인</Link>을 이용하세요.</p>
 
+                        {continuedFromLogin && <SystemNotice data-text="body" variant="flow">입력한 이메일로 회원가입을 이어갑니다. 이름을 입력하고 필수 동의를 확인해 주세요.</SystemNotice>}
+
                         {errorMessage && (
                             <SystemNotice data-text="body" variant="flow" error className="flow-error" id="flow-error" tabIndex={-1}>
                                 {errorMessage}
@@ -103,6 +117,7 @@ export default function SignupPage() {
                         )}
 
                         <SystemField data-text="body"
+                            ref={nameField}
                             variant="flow"
                             outerClassName="form-field"
                             label={<>이름 <span data-text="body" className="flow-required" aria-hidden="true">*</span>
