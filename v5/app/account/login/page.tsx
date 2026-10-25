@@ -5,11 +5,13 @@ import Icon from "../../../components/Icon";
 import { useState, useEffect } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { SystemButton, SystemField, SystemNotice } from "../../../components/SystemPrimitives";
 import { SystemSurface } from "../../../components/SystemSurface";
-import { getGoogleOAuthAvailability, isSupabaseConfigured, requestEmailSignIn, signInWithGoogle } from "../../../src/lib/supabase.ts";
+import { EmailSignupRequiredError, getGoogleOAuthAvailability, isSupabaseConfigured, requestEmailSignIn, signInWithGoogle } from "../../../src/lib/supabase.ts";
 
 export default function LoginPage() {
+    const router = useRouter();
     const [email, setEmail] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
@@ -55,8 +57,12 @@ export default function LoginPage() {
         try {
             await requestEmailSignIn(email.trim(), { createUser: false });
             setSuccessMessage("이메일로 로그인 링크를 보냈습니다.");
-        } catch {
-            setErrorMessage("로그인 링크를 보내지 못했습니다. 이메일을 확인하고 잠시 후 다시 시도해 주세요.");
+        } catch (error) {
+            if (error instanceof EmailSignupRequiredError) {
+                router.push(`/account/signup?email=${encodeURIComponent(email.trim())}`);
+            } else {
+                setErrorMessage("로그인 링크를 보내지 못했습니다. 이메일을 확인하고 잠시 후 다시 시도해 주세요.");
+            }
         } finally {
             setEmailPending(false);
         }
@@ -120,7 +126,7 @@ export default function LoginPage() {
                         </p>
 
                         <h3 data-text="subheading">이메일로 로그인</h3>
-                        <p data-text="body" className="flow-fineprint">가입한 이메일로 받은 링크를 열면 로그인됩니다.</p>
+                        <p data-text="body" className="flow-fineprint">이메일을 입력해 주세요. 가입한 계정은 로그인 링크를 보내고, 처음이라면 회원가입으로 이어집니다.</p>
 
                         {errorMessage && (
                             <SystemNotice data-text="body" variant="flow" error className="flow-error" id="flow-error" tabIndex={-1}>
