@@ -8,6 +8,7 @@
  * This verifies rendered frontend behavior, not deployed backend permissions or third-party integrations.
  */
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -30,6 +31,7 @@ const catalog = JSON.parse(readFileSync(resolve(v5Root, "src/generated/catalog-s
 type Issue = { kind: string; message: string; details?: unknown };
 type Result = { route: string; width: number; height: number; durationMs: number; status: string; issues: Issue[]; metrics?: unknown; screenshot?: string };
 const results: Result[] = [];
+const localResponses = new Map<string, Promise<{ status: number; headers: Record<string, string>; body: Buffer }>>();
 const interactions: Record<string, unknown>[] = [];
 const fixture = { catalogReads: 0, anonymousReads: 0, blockedWrites: [] as string[], blockedExternal: new Set<string>() };
 mkdirSync(directory, { recursive: true });
@@ -179,6 +181,14 @@ async function deterministicNetwork(context: BrowserContext) {
             fixture.blockedWrites.push(`${request.method()} ${url.origin}${url.pathname}`);
             return route.fulfill({ status: 403, json: { message: "Responsive fixture permits local read requests only" } });
         }
+        if (url.origin === baseURL.origin && /\.(?:js|css|woff2?|svg|png|jpe?g|webp|avif|gif|ico)$/i.test(url.pathname)) {
+            // Cache only immutable build assets; HTML and API responses always stay fresh.
+            if (!localResponses.has(url.href)) localResponses.set(url.href, route.fetch().then(async response => {
+                const headers = { ...response.headers() }; delete headers["content-length"]; delete headers["content-encoding"];
+                return { status: response.status(), headers, body: await response.body() };
+            }).catch(error => { localResponses.delete(url.href); throw error; }));
+            return route.fulfill(await localResponses.get(url.href)!);
+        }
         return route.continue();
     });
 }
@@ -223,17 +233,35 @@ try {
         const filter = process.env.RESPONSIVE_ROUTE_FILTER ? new RegExp(process.env.RESPONSIVE_ROUTE_FILTER) : null;
         const routes = allRoutes.filter(route => !filter || filter.test(route));
         assert.ok(routes.length, "RESPONSIVE_ROUTE_FILTER matched no exported routes");
-        const tasks = routes.flatMap(route => widths.map(width => ({ route, width, height: width < 768 ? 844 : 1000 })));
+        const exportFingerprint = createHash("sha256").update(readFileSync(resolve(out, "index.html"))).digest("hex");
+        const auditFingerprint = createHash("sha256").update(readFileSync(fileURLToPath(import.meta.url))).digest("hex");
+        let resumedCount = 0;
+        if (process.env.RESPONSIVE_RESUME_REPORT) {
+            const previous = JSON.parse(readFileSync(resolve(process.env.RESPONSIVE_RESUME_REPORT), "utf8"));
+            assert.equal(previous.exportFingerprint, exportFingerprint, "Resume requires the exact same exported build");
+            assert.equal(previous.base, base, "Resume requires the same server base URL");
+            assert.equal(previous.auditFingerprint, auditFingerprint, "Resume requires the same audit rules and harness");
+            const selected = new Set(routes);
+            for (const result of previous.results || []) if (result.status === "passed" && !result.issues?.length && selected.has(result.route) && widths.includes(result.width)) {
+                if (!results.some(item => item.route === result.route && item.width === result.width)) results.push(result);
+            }
+            resumedCount = results.length;
+            console.log(`Resuming ${resumedCount} passed route/width audits from this exact build`);
+        }
+        const allTasks = routes.flatMap(route => widths.map(width => ({ route, width, height: width < 768 ? 844 : 1000 })));
+        const tasks = allTasks.filter(task => !results.some(result => result.route === task.route && result.width === task.width));
         let cursor = 0;
-        const save = () => writeFileSync(resolve(directory, "report.json"), JSON.stringify({ base, inventory: { out, totalExportedRoutes: allRoutes.length, selectedRoutes: routes.length, widths, workers, routeFiles: allRoutes }, network: { mode: "mocked public catalog; anonymous read fixtures; external requests and all writes blocked", catalogReads: fixture.catalogReads, anonymousReads: fixture.anonymousReads, blockedWrites: fixture.blockedWrites, blockedExternal: [...fixture.blockedExternal] }, results, interactions }, null, 2) + "\n");
+        const save = () => writeFileSync(resolve(directory, "report.json"), JSON.stringify({ base, exportFingerprint, auditFingerprint, resumedCount, inventory: { out, totalExportedRoutes: allRoutes.length, selectedRoutes: routes.length, widths, workers, routeFiles: allRoutes }, network: { mode: "mocked public catalog; anonymous read fixtures; external requests and all writes blocked", catalogReads: fixture.catalogReads, anonymousReads: fixture.anonymousReads, blockedWrites: fixture.blockedWrites, blockedExternal: [...fixture.blockedExternal] }, results, interactions }, null, 2) + "\n");
         async function worker() {
             const context = await browser.newContext({ reducedMotion: "reduce", serviceWorkers: "block" });
             await deterministicNetwork(context);
+            const page = await context.newPage();
+            page.setDefaultTimeout(8_000);
             try {
                 while (cursor < tasks.length) {
                     const task = tasks[cursor++], started = Date.now();
-                    const page = await context.newPage();
-                    page.setDefaultTimeout(8_000);
+                    // A full document navigation still resets application state; reuse the renderer process.
+                    page.removeAllListeners("pageerror"); page.removeAllListeners("response"); page.removeAllListeners("requestfailed");
                     await page.setViewportSize({ width: task.width, height: task.height });
                     const issues: Issue[] = [];
                     page.on("pageerror", error => issues.push({ kind: "runtime", message: error.message }));
@@ -266,8 +294,7 @@ try {
                     } finally {
                         result.durationMs = Date.now() - started; result.status = issues.length ? "failed" : "passed";
                         results.push(result);
-                        await page.close();
-                        if (results.length % 20 === 0) { console.log(`${results.length}/${tasks.length} route/width audits; ${results.filter(item => item.status === "failed").length} failed`); save(); }
+                        if (results.length % 20 === 0) { console.log(`${results.length}/${allTasks.length} route/width audits; ${results.filter(item => item.status === "failed").length} failed`); save(); }
                     }
                 }
             } finally { await context.close(); }
@@ -319,6 +346,7 @@ try {
             } finally { interactions.push(interaction); await context.close(); save(); }
         }
         save();
+        assert.equal(results.length, allTasks.length, "Every selected route/viewport must have exactly one result");
         const failed = results.filter(item => item.status === "failed").length;
         const interactionFailures = interactions.filter(item => item.status === "failed").length;
         console.log(`${results.length} route/width audits (${routes.length}/${allRoutes.length} exported HTML routes); ${failed} failed; ${interactionFailures} interaction failures. Evidence: ${directory}`);

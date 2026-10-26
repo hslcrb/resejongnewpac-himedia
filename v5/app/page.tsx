@@ -2,7 +2,8 @@
 
 import SystemSurface from "../components/SystemSurface";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useSyncExternalStore } from "react";
+import { getHomeLiveDate, getHomeServerDate, subscribeHomeDate } from "../src/lib/home-date";
 import Link from "next/link";
 import { useCatalog } from "../src/catalog/CatalogProvider";
 import { sessionLocalParts } from "../src/lib/reservations";
@@ -18,7 +19,6 @@ import { BookingCalendar, BookingProgramChoice } from "../components/HomeBooking
 import { SystemButton, SystemLink, SystemField, SystemFilterButton, SystemBadge } from "../components/SystemPrimitives";
 import { OFFICIAL_MEDIA } from "../src/data/official-media";
 import {
-    seoulToday,
     monthDates,
     programsForDate,
     canSelectProgram,
@@ -86,7 +86,7 @@ const newsCategoryIds: Record<string, string> = {
 
 export default function HomePage() {
     // 1. 서울 기준 오늘 날짜
-    const today = seoulToday();
+    const today = useSyncExternalStore(subscribeHomeDate, getHomeLiveDate, getHomeServerDate);
 
     // [등록된 히어로 조합의 앵커 연결 / Connect anchors to the registered hero composition]
     const heroRef = useRef<HeroCarouselHandle>(null);
@@ -95,6 +95,12 @@ export default function HomePage() {
     // 3. 캘린더 빠른 예매 위젯 상태
     const [bookingDate, setBookingDate] = useState(today);
     const [bookingMonth, setBookingMonth] = useState(today.slice(0, 7));
+    const selectedDateByUser = useRef(false);
+    const selectedMonthByUser = useRef(false);
+    useEffect(() => {
+        if (!selectedDateByUser.current) setBookingDate(today);
+        if (!selectedMonthByUser.current) setBookingMonth(today.slice(0, 7));
+    }, [today]);
     const [selectedProgramId, setSelectedProgramId] = useState<string>("");
     const [selectedTime, setSelectedTime] = useState<string>("");
     const [participants, setParticipants] = useState<number>(1);
@@ -108,6 +114,7 @@ export default function HomePage() {
 
     // 날짜 변경 시 프로그램 자동 선택 또는 정리
     const handleDateSelect = (date: string) => {
+        selectedDateByUser.current = true;
         setBookingDate(date);
         const progs = programsForDate(PROGRAMS, date);
         if (progs.length > 0) {
@@ -294,7 +301,7 @@ export default function HomePage() {
 
                 <SystemSurface as="div" variant="inset" padding="lg" radius="dialog" className="quick-booking-layout">
                     {/* 달력 영역 */}
-                    <BookingCalendar month={bookingMonth} selectedDate={bookingDate} today={today} programs={PROGRAMS} dateLabel={dateLabel} onMonthChange={setBookingMonth} onDateChange={handleDateSelect} />
+                    <BookingCalendar month={bookingMonth} selectedDate={bookingDate} today={today} programs={PROGRAMS} dateLabel={dateLabel} onMonthChange={month => { selectedMonthByUser.current = true; setBookingMonth(month); }} onDateChange={handleDateSelect} />
 
                     {/* 선택 프로그램 및 회차 선택 영역 */}
                     <div data-text="body" className="quick-booking-choices" id="home-booking-programs" data-home-anchor>
