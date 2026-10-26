@@ -16,6 +16,8 @@ import { SystemText } from "./SystemText";
 import ProgramCard from "./ProgramCard";
 import ServiceRequestForm from "./ServiceRequestForm";
 import ServiceGoods from "./ServiceGoods";
+import DeepSearchDisclosure from "./DeepSearchDisclosure";
+import { contextSearchReply } from "./DeepSearch";
 import "../styles/completed-pages.css";
 
 type PublishedCompletion = PageContent & { completion?: CompletionPage };
@@ -105,6 +107,14 @@ function CardsSection({ section, resolve }: { section: Extract<CompletionSection
             </div>}
             <p data-text="meta" role="status" aria-live="polite">{items.length}개 항목{(query || category) && <SystemButton variant="quiet" onClick={() => { setQuery(""); setCategory(""); }}>검색 초기화</SystemButton>}</p>
         </div>}
+        {section.searchable && <DeepSearchDisclosure
+            title={section.title + " 대화형 검색"}
+            onSearch={term => contextSearchReply(term, section.items.map(item => ({
+                title: item.title,
+                description: [item.description, item.meta, item.category, item.status].filter(Boolean).join(" · "),
+                href: (() => { const value = resolve(item.href); return value?.startsWith("/") ? (value.startsWith("/v5/") ? value : "/v5" + value) : value; })(),
+            })), section.title)}
+        />}
         {items.length ? <ul className={`completed-card-list${hasImages ? " completed-card-list-media" : ""}`}>
             {items.map(item => <CompletionListItem key={item.id} item={item} resolve={resolve} />)}
         </ul> : <p data-text="body" className="completed-empty" role="status">{query || category ? "검색 조건에 맞는 항목이 없습니다. 검색어나 분류를 바꿔 주세요." : section.emptyMessage || "현재 공개된 항목이 없습니다."}</p>}
@@ -216,7 +226,7 @@ function SiteMap({ catalog, resolve }: { catalog: CatalogSnapshot; resolve: Link
     const [query, setQuery] = useState("");
     const tree = useMemo(() => siteTree(catalog), [catalog]);
     const results = filterSiteTree(tree, query.trim().toLocaleLowerCase());
-    return <section className="completed-section" id="completed-sitemap" aria-labelledby="completed-sitemap-title"><h2 data-text="heading" id="completed-sitemap-title">전체 메뉴</h2><SystemField type="search" label="메뉴 찾기" value={query} onChange={event => setQuery(event.currentTarget.value)} placeholder="메뉴 이름으로 검색" />{results.length ? <nav aria-label="전체 사이트 메뉴"><ul className="completed-sitemap-tree">{results.map(node => <SiteBranch key={node.path} node={node} resolve={resolve} />)}</ul></nav> : <p data-text="body" className="completed-empty" role="status">검색어와 일치하는 메뉴가 없습니다.</p>}</section>;
+    return <section className="completed-section" id="completed-sitemap" aria-labelledby="completed-sitemap-title"><h2 data-text="heading" id="completed-sitemap-title">전체 메뉴</h2><SystemField type="search" label="메뉴 찾기" value={query} onChange={event => setQuery(event.currentTarget.value)} placeholder="메뉴 이름으로 검색" /><DeepSearchDisclosure title="대화로 메뉴 찾기" onSearch={term => contextSearchReply(term, catalog.pages.map(page => ({ title: page.title, description: page.description, href: "/v5" + page.path + (page.path.endsWith("/") ? "" : "/") })), "사이트 메뉴")} />{results.length ? <nav aria-label="전체 사이트 메뉴"><ul className="completed-sitemap-tree">{results.map(node => <SiteBranch key={node.path} node={node} resolve={resolve} />)}</ul></nav> : <p data-text="body" className="completed-empty" role="status">검색어와 일치하는 메뉴가 없습니다.</p>}</section>;
 }
 
 // [실제 프로그램과 연결된 목록 / Related programs from the published catalog]
