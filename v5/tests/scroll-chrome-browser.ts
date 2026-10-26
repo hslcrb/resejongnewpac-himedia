@@ -22,10 +22,11 @@ try {
             assert.ok(Math.abs(initial) <= 1, `header starts at viewport top: ${initial}`);
 
             const metrics = await page.evaluate(async () => {
+                document.documentElement.style.scrollBehavior = "auto";
                 window.scrollTo(0, 600);
                 await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
                 const header = document.getElementById("header");
-                assert.ok(header);
+                if (!header) throw new Error("Site header is missing");
                 const probe = document.createElement("div");
                 probe.style.cssText = "width: 120px; height: 40px; overflow: auto";
                 const content = document.createElement("div");
