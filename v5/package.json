@@ -21,7 +21,10 @@
     "test:system:browser": "node tests/component-system-browser.ts",
     "test:auth:browser": "node scripts/run-auth-browser.ts",
     "test:entry-intro": "node --test tests/home-entry-intro.test.ts",
-    "test:entry-intro:browser": "node tests/home-entry-intro-browser.ts"
+    "test:entry-intro:browser": "node tests/home-entry-intro-browser.ts",
+    "test:responsive": "node tests/responsive-site-browser.ts",
+    "test:responsive:self": "node tests/responsive-site-browser.ts --self-test",
+    "test:home:date:browser": "node tests/home-date-browser.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

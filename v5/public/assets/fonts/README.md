@@ -1,5 +1,12 @@
 # Pretendard Variable
 
+## 영월체 · Yeongwol
+
+- `Yeongwol-Regular.woff2`: 영월군 영월체 Regular(400), 로컬 인트로 손글씨용.
+- 2026-10-26 사용자 제공 CDN URL에서 `curl -fL`로 다운로드, 842,676 bytes.
+- 출처·공식 사용 안내와 SHA-256은 `Yeongwol-LICENSE.md`에 기록.
+- CSS `--font-handwriting`, `font-display: swap`, 합성 굵기 비활성화.
+
 - 글꼴: Pretendard Variable
 - 제작: 길형진 (Kil Hyung-jin)
 - 형식: WOFF2, variable weight

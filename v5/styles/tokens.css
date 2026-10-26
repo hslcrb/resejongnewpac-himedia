@@ -20,6 +20,14 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: "Yeongwol";
+    src: url("/v5/assets/fonts/Yeongwol-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     --color-black: #211F1C;
     --color-sky: #54C8E8;
@@ -873,6 +881,7 @@
     --semantic-info: var(--color-sky);
     --semantic-info-subtle: var(--surface-subtle);
     --semantic-info-border: var(--border-default);
+    --font-handwriting: "Yeongwol", "Wanted Sans Variable", cursive;
     --font-mono: "D2Coding", ui-monospace, SFMono-Regular, Consolas, monospace;
     --code-comment: var(--text-secondary);
     --code-keyword: color-mix(in srgb, var(--color-ochre) 64%, var(--color-black));
