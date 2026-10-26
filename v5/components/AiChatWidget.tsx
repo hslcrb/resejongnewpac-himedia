@@ -1,11 +1,11 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import Script from "next/script";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../src/lib/supabase";
 import { loadGuestChat, saveGuestChat, type LocalChatLine } from "../src/lib/guest-chat-storage";
 
-const DeepChat = dynamic(() => import("deep-chat-react").then(m => m.DeepChat), { ssr: false });
+type DeepElement = HTMLElement & { connect?: unknown; loadHistory?: unknown; requestBodyLimits?: unknown; introMessage?: unknown };
 const ENDPOINT = "/v5/api/ai-chat";
 type Signal = { onResponse: (reply: { text?: string; error?: string }) => void };
 function toChatLine(item: { role?: string; text?: string }): LocalChatLine | null {
@@ -15,6 +15,8 @@ function toChatLine(item: { role?: string; text?: string }): LocalChatLine | nul
 export default function AiChatWidget() {
   const [open, setOpen] = useState(false);
   const [ready, setReady] = useState(false);
+  const [scriptReady, setScriptReady] = useState(false);
+  const element = useRef<DeepElement | null>(null);
   const history = useRef<LocalChatLine[]>([]);
   const token = useRef<string | null>(null);
   const [initialHistory, setInitialHistory] = useState<LocalChatLine[]>([]);
@@ -58,18 +60,34 @@ export default function AiChatWidget() {
     }
   };
 
+  useEffect(() => {
+    const chat = element.current;
+    if (!scriptReady || !ready || !chat) return;
+    chat.connect = { handler };
+    chat.loadHistory = () => initialHistory.map(item => ({ role: item.role === "assistant" ? "ai" : "user", text: item.content }));
+    chat.requestBodyLimits = { maxMessages: 1 };
+    chat.introMessage = { text: "안녕하세요! 공연, 전시, 방문에 대해 무엇이 궁금하세요? 정확한 일정과 가격은 공식 안내에서 다시 확인해 주세요." };
+  }, [ready, scriptReady, initialHistory]);
+
   return (
-    <aside className="sejong-ai-widget" aria-label="AI 안내 상담">
+    <aside className="sejong-ai-widget" aria-label="AI 안내 상담">\n      <Script src="https://unpkg.com/deep-chat@2.5.1/dist/deepChat.bundle.js" strategy="afterInteractive" onLoad={() => setScriptReady(true)} />
       {open && (
         <section className="sejong-ai-panel" aria-label="AI 상담 창">
           <div className="sejong-ai-panel-head"><strong>세종 AI 안내</strong><button type="button" onClick={() => setOpen(false)} aria-label="상담 닫기">×</button></div>
-          {ready ? <DeepChat
-            connect={{ handler }}
-            loadHistory={() => initialHistory.map(item => ({ role: item.role === "assistant" ? "ai" : "user", text: item.content }))}
-            requestBodyLimits={{ maxMessages: 1 }}
-            introMessage={{ text: "안녕하세요! 공연, 전시, 방문에 대해 무엇이 궁금하세요? 정확한 일정과 가격은 공식 안내에서 다시 확인해 주세요." }}
-            style={{ width: "100%", height: "min(480px, 58vh)", border: "none", borderRadius: "0" }}
-          /> : <p className="sejong-ai-loading">대화 기록을 불러오는 중...</p>}
+          {ready && scriptReady
+            ? <div ref={node => { element.current = node?.querySelector("deep-chat") as DeepElement | null; }}><div className="sejong-ai-deep-mount" ref={node => {
+                if (!node || node.querySelector("deep-chat")) return;
+                const chat = document.createElement("deep-chat") as DeepElement;
+                chat.style.width = "100%";
+                chat.style.height = "min(480px, 58vh)";
+                chat.style.border = "none";
+                chat.connect = { handler };
+                chat.loadHistory = () => initialHistory.map(item => ({ role: item.role === "assistant" ? "ai" : "user", text: item.content }));
+                chat.requestBodyLimits = { maxMessages: 1 };
+                node.appendChild(chat);
+                element.current = chat;
+              }} /></div>
+            : <p className="sejong-ai-loading">상담 기능을 불러오는 중...</p>}
         </section>
       )}
       <button className="sejong-ai-trigger" type="button" aria-expanded={open} aria-label={open ? "AI 상담 닫기" : "AI 상담 열기"} onClick={() => setOpen(value => !value)}>
