@@ -15,8 +15,11 @@
     "test:orb:smoke": "node tests/violet-quick-menu-smoke.cjs",
     "test:orb:motion": "node --test tests/quick-menu-fluid.test.ts",
     "test:home:anchors": "node tests/home-anchors.cjs",
+    "test:scroll": "node --test tests/header-sticky.test.ts tests/scrollbar-style.test.ts",
+    "test:scroll:browser": "node tests/scroll-chrome-browser.ts",
     "check:system": "node scripts/prepare-design-system.ts --check",
-    "test:system:browser": "node tests/component-system-browser.ts"
+    "test:system:browser": "node tests/component-system-browser.ts",
+    "test:auth:browser": "node scripts/run-auth-browser.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",

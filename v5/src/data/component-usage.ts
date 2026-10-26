@@ -365,6 +365,15 @@ export const COMPONENT_USAGE = {
             "components/LiquidGlass.tsx#LiquidGlass"
         ]
     },
+    "global-scrollbar": {
+        "status": "product",
+        "productUses": [
+            "app/layout.tsx#RootLayout"
+        ],
+        "guideUses": [
+            "app/layout.tsx#RootLayout"
+        ]
+    },
     "header": {
         "status": "product",
         "productUses": [
@@ -666,8 +675,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 50,
-    "product": 50,
+    "total": 51,
+    "product": 51,
     "documentationOnly": 0,
     "unused": 0
 } as const;

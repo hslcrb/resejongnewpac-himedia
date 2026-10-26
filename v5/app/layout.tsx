@@ -2,6 +2,7 @@ import React from "react";
 import { CatalogProvider } from "../src/catalog/CatalogProvider";
 import { DESIGN_COLORS } from "../src/data/design-tokens";
 import SiteShell from "../components/SiteShell";
+import GlobalScrollbar from "../components/GlobalScrollbar";
 
 import "../styles/compat/shared.css";
 import "../styles/compat/programs.css";
@@ -41,6 +42,8 @@ import "../styles/page-layout.css";
 import "../styles/system-surface.css";
 import "../styles/typography.css";
 import "../styles/icons.css";
+import "../styles/ai-chat.css";
+import "../styles/deep-search.css";
 
 export const metadata = {
     title: "세종문화회관 | 공연·전시·교육",
@@ -57,6 +60,7 @@ export default function RootLayout({
     return (
         <html lang="ko">
             <head>
+                <GlobalScrollbar />
                 <link rel="icon" type="image/svg+xml" href="/v5/assets/favicon.svg" />
                 <link rel="preload" href="/v5/assets/fonts/woff2/WantedSansVariable.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
             </head>
