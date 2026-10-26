@@ -46,8 +46,8 @@
     opacity: 0;
     pointer-events: none;
     /* SVG의 배경 사각형과 제품 배경 사이에 하드 엣지가 남지 않게 한다. */
-    -webkit-mask-image: radial-gradient(ellipse 80% 78% at 50% 50%, black 56%, transparent 96%);
-    mask-image: radial-gradient(ellipse 80% 78% at 50% 50%, black 56%, transparent 96%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 78% at 50% 50%, var(--color-black) 56%, var(--color-detail-j5afio) 96%);
+    mask-image: radial-gradient(ellipse 80% 78% at 50% 50%, var(--color-black) 56%, var(--color-detail-j5afio) 96%);
     animation: v5EntryArtApproach 2600ms cubic-bezier(.22, .61, .36, 1) both;
 }
 .artwork img {
@@ -98,7 +98,7 @@
     margin: 0;
     color: var(--text-inverse);
     font-family: var(--display-font);
-    font-size: clamp(30px, 5vw, 64px);
+    font-size: max(var(--text-min), clamp(30px, 5vw, 64px));
     font-weight: var(--weight-heading);
     line-height: 1.35;
     letter-spacing: -.045em;
@@ -156,7 +156,7 @@
     .artwork { width: 116vw; max-width: none; }
     .copy { gap: 16px; }
     .eyebrow { letter-spacing: .055em; }
-    .message { font-size: clamp(30px, 7.5vw, 42px); }
+    .message { font-size: max(var(--text-min), clamp(30px, 7.5vw, 42px)); }
 }
 @media (prefers-reduced-motion: reduce) {
     .overlay { display: none; animation: none; transition: none; }

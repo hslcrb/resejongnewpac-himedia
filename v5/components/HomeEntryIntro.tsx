@@ -135,7 +135,7 @@ export default function HomeEntryIntro() {
             aria-label="세종문화회관 시작 화면"
             aria-describedby={descriptionId}
         >
-            <p id={descriptionId} className={styles.srOnly}>
+            <p data-text="body" id={descriptionId} className={styles.srOnly}>
                 세종문화회관 시작 애니메이션입니다. 건너뛰기 버튼 또는 Escape 키로 바로 이동할 수 있습니다.
             </p>
             <div className={styles.stage}>

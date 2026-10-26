@@ -95,7 +95,7 @@ export default function DeepSearch({ initialQuery = "", compact = false, onSearc
     }, [loaded, compact]);
 
     return (
-        <div data-component-id="deep-search" className={"sejong-deep-search" + (compact ? " sejong-deep-search--compact" : "")}>
+        <div data-text="body" data-component-id="deep-search" className={"sejong-deep-search" + (compact ? " sejong-deep-search--compact" : "")}>
             <Script
                 src={DEEP_CHAT_CDN}
                 strategy="afterInteractive"
@@ -105,12 +105,12 @@ export default function DeepSearch({ initialQuery = "", compact = false, onSearc
             <div ref={mount} className="sejong-deep-search-mount" aria-label="Deep Chat 대화형 검색" />
             {!loaded && (
                 <form className="sejong-deep-search-fallback" action="/v5/search/" method="get" role="search">
-                    <label htmlFor={compact ? "deep-search-header" : "deep-search-page"}>검색어</label>
+                    <label data-text="label" htmlFor={compact ? "deep-search-header" : "deep-search-page"}>검색어</label>
                     <div className="sejong-deep-search-fallback-row">
-                        <SystemField outerClassName="sejong-deep-search-field" id={compact ? "deep-search-header" : "deep-search-page"} type="search" name="q" maxLength={MAX_QUERY_LENGTH} defaultValue={firstQuery.current} placeholder="공연, 전시, 공간 및 방문 정보" required />
+                        <SystemField outerClassName="sejong-deep-search-field" id={compact ? "deep-search-header" : "deep-search-page"} type="search" name="q" maxLength={MAX_QUERY_LENGTH} defaultValue={firstQuery.current} placeholder="공연, 전시, 공간 및 방문 정보" autoFocus={compact} required />
                         <SystemButton variant="primary" type="submit">검색</SystemButton>
                     </div>
-                    {failed && <p role="status">대화형 검색을 불러오지 못해 기본 검색으로 전환했어요.</p>}
+                    {failed && <p data-text="body" role="status">대화형 검색을 불러오지 못해 기본 검색으로 전환했어요.</p>}
                 </form>
             )}
         </div>
