@@ -43,6 +43,7 @@ import "../styles/system-surface.css";
 import "../styles/typography.css";
 import "../styles/icons.css";
 import "../styles/ai-chat.css";
+import "../styles/deep-search.css";
 
 export const metadata = {
     title: "세종문화회관 | 공연·전시·교육",

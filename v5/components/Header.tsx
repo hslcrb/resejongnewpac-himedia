@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { NAV } from "../src/data/catalog";
 import FloatingMenu from "./FloatingMenu";
-import { SystemField, SystemIconButton } from "./SystemPrimitives";
+import { SystemIconButton } from "./SystemPrimitives";
+import DeepSearch from "./DeepSearch";
 import SystemDialog from "./SystemDialog";
 import Icon from "./Icon";
 import type { PanelPoint } from "../src/lib/floating-panel";
@@ -17,15 +18,12 @@ export type HeaderVariant = (typeof HEADER_VARIANTS)[number];
 
 export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
     const pathname = usePathname();
-    const router = useRouter();
     const headerVariant = variant || (pathname === "/about/introduction" || pathname === "/about/introduction/" ? "inverse" : "default");
     const { isLoggedIn } = useAccountIdentity();
     const [searchOpen, setSearchOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
     const menuTrigger = useRef<HTMLButtonElement>(null);
     const searchTrigger = useRef<HTMLButtonElement>(null);
-    const searchField = useRef<HTMLInputElement>(null);
     const menuPosition = useRef<PanelPoint | null>(null);
     const closeMenu = useCallback(() => setMenuOpen(false), []);
 
@@ -47,13 +45,6 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
         setMenuOpen(false);
     }, [pathname]);
 
-    const handleSearchSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (searchQuery.trim()) {
-            router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-            setSearchOpen(false);
-        }
-    };
 
     return (
         <header id="header" className="renewal-header" data-component-id="header" data-header-variant={headerVariant}>
@@ -148,7 +139,6 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                 open={searchOpen}
                 onClose={() => setSearchOpen(false)}
                 triggerRef={searchTrigger}
-                initialFocusRef={searchField}
                 id="search-dialog"
                 aria-labelledby="search-heading"
             >
@@ -162,25 +152,7 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                     </SystemIconButton>
                 </div>
                 <h2 data-text="heading" id="search-heading">어떤 예술을 찾고 계세요?</h2>
-                <form className="site-search" onSubmit={handleSearchSubmit}>
-                    <SystemField data-text="body"
-                        ref={searchField}
-                        label="검색어"
-                        labelHidden
-                        outerClassName="site-search-field"
-                        id="global-query"
-                        name="q"
-                        type="search"
-                        placeholder="공연, 전시, 공간을 검색해 보세요"
-                        required
-                        autoComplete="off"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                    <SystemIconButton data-text="action" type="submit" aria-label="검색">
-                        <Icon name="search" size={22} />
-                    </SystemIconButton>
-                </form>
+                <DeepSearch compact />
                 <div data-text="body" className="search-terms">
                     <span data-text="body">추천 검색어</span>
                     {["일무", "클래식", "주차", "대관"].map((term) => (
