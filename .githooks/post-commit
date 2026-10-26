@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
-# Runs only after local opt-in; Git never installs versioned hooks on clone.
+# Runs after local opt-in only; local hooks are not transferred by Git.
 set -u
 if [ "$(git config --local --get firstclass.mirror.enabled 2>/dev/null || true)" != "true" ]; then
   exit 0
 fi
-if [ "\${FIRSTCLASS_MIRROR_IN_PROGRESS:-}" = "1" ]; then
+if [ "${FIRSTCLASS_MIRROR_IN_PROGRESS:-}" = "1" ]; then
   exit 0
 fi
 source_root="$(git rev-parse --show-toplevel 2>/dev/null || true)"
@@ -17,5 +17,4 @@ if FIRSTCLASS_MIRROR_IN_PROGRESS=1 bash "$source_root/scripts/sync-firstclass.sh
 else
   printf >&2 'firstclass mirror FAILED: source commit exists; retry with bash scripts/sync-firstclass.sh --push.\n'
 fi
-# Git post-commit fires after the source commit; mirror failures must be explicit.
 exit 0
