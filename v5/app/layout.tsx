@@ -3,6 +3,7 @@ import { CatalogProvider } from "../src/catalog/CatalogProvider";
 import { DESIGN_COLORS } from "../src/data/design-tokens";
 import SiteShell from "../components/SiteShell";
 import GlobalScrollbar from "../components/GlobalScrollbar";
+import HomeEntryIntro from "../components/HomeEntryIntro";
 
 import "../styles/compat/shared.css";
 import "../styles/compat/programs.css";
@@ -52,20 +53,36 @@ export const metadata = {
 
 export const viewport = { themeColor: DESIGN_COLORS.find(color => color.token === "color-white")!.hex };
 
+// 공개된 데이터 원본에만 조기 연결한다. 브라우저가 TCP/TLS 완료를 보장하는 것은 아니다.
+function catalogPreconnectOrigin(): string | null {
+    const configuredUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!configuredUrl) return null;
+    try {
+        const url = new URL(configuredUrl);
+        return url.protocol === "https:" && url.hostname !== "your-project-id.supabase.co"
+            ? url.origin : null;
+    } catch {
+        return null;
+    }
+}
+
 export default function RootLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const dataOrigin = catalogPreconnectOrigin();
     return (
         <html lang="ko">
             <head>
                 <GlobalScrollbar />
+                {dataOrigin && <link rel="preconnect" href={dataOrigin} crossOrigin="anonymous" />}
+                {dataOrigin && <link rel="dns-prefetch" href={dataOrigin} />}
                 <link rel="icon" type="image/svg+xml" href="/v5/assets/favicon.svg" />
                 <link rel="preload" href="/v5/assets/fonts/woff2/WantedSansVariable.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
             </head>
             <body>
-                <CatalogProvider><SiteShell>{children}</SiteShell></CatalogProvider>
+                <CatalogProvider><HomeEntryIntro /><SiteShell>{children}</SiteShell></CatalogProvider>
             </body>
         </html>
     );
