@@ -15,3 +15,16 @@
 - [라이선스 원본](https://github.com/orioncactus/pretendard/blob/v1.3.9/LICENSE)
 
 다운로드한 글꼴은 수정하지 않았습니다. 서버에서 직접 제공하며 외부 CDN 요청 없이 동작합니다. 프로젝트의 새 CSS는 `font-display: swap`과 한글 시스템 글꼴 대체값을 사용합니다.
+
+## D2Coding
+
+- 제작: NAVER Corporation, D2Coding 1.3 / Regular (400), WOFF
+- 용도: 코드블록·파일 경로·인라인 토큰, 공통 `--font-mono`
+- 파일: `D2Coding.woff` (2,163,524 bytes), 2026-10-26 다운로드
+- [다운로드 URL](https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_three@1.0/D2Coding.woff)
+- [공식 프로젝트](https://github.com/naver/d2codingfont)
+- 라이선스: SIL Open Font License 1.1, `D2Coding-LICENSE.txt` 동봉
+- [라이선스 원본](https://github.com/naver/d2codingfont/blob/master/OFL.txt)
+
+`curl -fL`로 받은 원본을 변경 없이 저장합니다. `/v5/assets/fonts/D2Coding.woff`에서
+직접 제공하며 `font-display: swap`을 사용하므로 실행 중 CDN 연결이 필요하지 않습니다.

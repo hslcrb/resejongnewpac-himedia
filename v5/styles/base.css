@@ -30,6 +30,13 @@ button, input, select, textarea {
     letter-spacing: inherit;
 }
 
+/* [한글·영문 코드의 로컬 고정폭 서체 / Local monospace for Korean and Latin code] */
+pre, code, kbd, samp {
+    font-family: var(--font-mono);
+    font-variant-ligatures: none;
+    letter-spacing: 0;
+}
+
 button, a, input, select, textarea {
     -webkit-tap-highlight-color: var(--color-detail-j5afio);
 }

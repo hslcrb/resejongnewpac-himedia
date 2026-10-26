@@ -1069,6 +1069,11 @@ const FLUID_TYPE_VIEWPORTS: Partial<Record<(typeof TYPE_SCALE)[number]["token"],
     "text-heading": "2.5vw",
 };
 const TYPOGRAPHY_TOKENS = {
+    "--font-mono": '"D2Coding", ui-monospace, SFMono-Regular, Consolas, monospace',
+    "--code-comment": reference("text-secondary"),
+    "--code-keyword": "color-mix(in srgb, var(--color-ochre) 64%, var(--color-black))",
+    "--code-string": "color-mix(in srgb, var(--color-sky) 36%, var(--color-black))",
+    "--code-property": "color-mix(in srgb, var(--color-ochre) 44%, var(--color-black))",
     "--text-min": rem(16),
     ...Object.fromEntries(Object.values(COMPONENT_TEXT_SIZES).map(definition => [definition.token, definition.base])),
     ...Object.fromEntries(TYPE_SCALE.map((type) => [
@@ -1205,6 +1210,14 @@ export function renderDesignTokensCss(extraColors: TokenValues = {}): string {
          url("/v5/assets/fonts/woff2/WantedSansVariable.woff2") format("woff2"),
          url("/assets/fonts/woff2/WantedSansVariable.woff2") format("woff2");
     font-weight: 400 1000;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "D2Coding";
+    src: url("/v5/assets/fonts/D2Coding.woff") format("woff");
+    font-weight: 400;
     font-style: normal;
     font-display: swap;
 }

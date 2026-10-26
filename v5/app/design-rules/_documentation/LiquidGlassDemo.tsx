@@ -5,6 +5,7 @@ import LiquidGlass from "../../../components/LiquidGlass";
 import { SystemButton } from "../../../components/SystemPrimitives";
 import { GLASS_DEFAULTS, GLASS_VARIANTS } from "../../../src/lib/liquid-glass";
 import type { GlassVariant } from "../../../src/lib/liquid-glass";
+import CodeBlock from "./CodeBlock";
 
 // [같은 컴포넌트의 재질 비교 / Compare material settings on the actual component]
 export default function LiquidGlassDemo({
@@ -93,17 +94,12 @@ export default function LiquidGlassDemo({
                 >
                     기본값으로
                 </SystemButton>
-                <SystemButton variant="secondary" onClick={() => onCopy(code)}>
-                    {copied ? "복사됨" : "제품 코드 복사"}
-                </SystemButton>
             </div>
-            <pre className="ds-code-block">
-                <code data-text="body">{code}</code>
-            </pre>
+            <CodeBlock title="LiquidGlass.tsx" code={code} onCopy={() => onCopy(code)} copied={copied} />
             <p data-text="caption">제품에서는 variant로 재질을 선택합니다. 아래 조절값 코드는 가이드 안의 재질 실험 전용입니다.</p>
             <details>
                 <summary data-text="label">문서 전용 실험 코드</summary>
-                <pre className="ds-code-block"><code data-text="body">{documentationOnlyCode}</code></pre>
+                <CodeBlock title="재질 실험" code={documentationOnlyCode} />
                 <SystemButton variant="secondary" onClick={() => onCopy(documentationOnlyCode)}>문서 전용 코드 복사</SystemButton>
             </details>
         </div>
