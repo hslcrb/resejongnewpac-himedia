@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useCatalog } from "../../src/catalog/CatalogProvider";
 import ProgramCard from "../../components/ProgramCard";
+import DeepSearchDisclosure from "../../components/DeepSearchDisclosure";
+import { contextSearchReply } from "../../components/DeepSearch";
 import { SystemField, SystemFilterButton } from "../../components/SystemPrimitives";
 import type { Program } from "../../types/sejong.ts";
 
@@ -65,6 +67,18 @@ export default function ProgramsPage() {
                     />
                 </div>
             </div>
+
+            <DeepSearchDisclosure
+                title="대화로 공연·전시·교육 검색"
+                onSearch={term => contextSearchReply(term,
+                    PROGRAMS.map(program => ({
+                        title: program.title,
+                        description: [program.genre, program.venue, program.description].filter(Boolean).join(" · "),
+                        href: "/v5/programs/" + encodeURIComponent(program.id) + "/",
+                    })),
+                    "프로그램",
+                )}
+            />
 
             {/* [남는 폭에 맞춰 늘어나는 카드 목록 / Cards that follow the available width] */}
             {filtered.length > 0 ? (
