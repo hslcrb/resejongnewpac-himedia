@@ -13,7 +13,7 @@ export default function DeepSearchDisclosure({
 }) {
     const [open, setOpen] = useState(false);
     return (
-        <details className="sejong-deep-search-disclosure" onToggle={event => setOpen(event.currentTarget.open)}>
+        <details data-component-id="deep-search-disclosure" className="sejong-deep-search-disclosure" onToggle={event => setOpen(event.currentTarget.open)}>
             <summary data-text="action">
                 {title}
                 <span data-text="meta">Deep Chat</span>
