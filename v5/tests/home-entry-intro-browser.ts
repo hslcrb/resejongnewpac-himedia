@@ -10,7 +10,7 @@ import assert from "node:assert/strict";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
+import { chromium, request as apiRequest } from "playwright";
 import type { Page } from "playwright";
 
 const v5Root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -25,6 +25,8 @@ const catalog = JSON.parse(readFileSync(resolve(v5Root, "src/generated/catalog-s
 const checks: Record<string, unknown>[] = [];
 const network = { catalogReads: 0, blockedExternal: new Set<string>(), blockedWrites: [] as string[] };
 mkdirSync(directory, { recursive: true });
+const assetClient = await apiRequest.newContext();
+const localAssets = new Map<string, Promise<{ status: number; headers: Record<string, string>; body: Buffer }>>();
 const browser = await chromium.launch({ headless: true, executablePath });
 const loadedFontResponses = new WeakMap<Page, string[]>();
 type IntroTrace = { phases: string[]; phaseTimes: number[]; effectStartedAt: number | null; removedAt: number | null };
@@ -60,6 +62,15 @@ async function check(name: string, run: (page: Page) => Promise<unknown>, option
         }
         if (url.origin !== target.origin && /^https?:$/.test(url.protocol)) { network.blockedExternal.add(`${request.resourceType()} ${url.origin}${url.pathname}`); return route.abort("blockedbyclient"); }
         if (!["GET", "HEAD", "OPTIONS"].includes(request.method())) { network.blockedWrites.push(`${request.method()} ${url.origin}${url.pathname}`); return route.fulfill({ status: 403, json: { message: "Intro fixture permits local reads only" } }); }
+        if (url.origin === target.origin && /\.(?:js|css|woff2?|svg|png|jpe?g|webp|avif|gif|ico)$/i.test(url.pathname)) {
+            // Fetch genuine immutable asset bytes once; HTML and API requests remain fresh per case.
+            // A separate HTTP client survives page closure and avoids a burst of cancelled parser-blocking loads.
+            if (!localAssets.has(url.href)) localAssets.set(url.href, assetClient.get(url.href, { timeout: 10_000 }).then(async response => {
+                const headers = { ...response.headers() }; delete headers["content-length"]; delete headers["content-encoding"];
+                return { status: response.status(), headers, body: await response.body() };
+            }).catch(error => { localAssets.delete(url.href); throw error; }));
+            return route.fulfill(await localAssets.get(url.href)!);
+        }
         return route.continue();
     });
     const page = await context.newPage(); page.setDefaultTimeout(10_000);
@@ -78,6 +89,7 @@ async function check(name: string, run: (page: Page) => Promise<unknown>, option
         result.status = "passed"; console.log(`PASS ${name}`);
     } catch (error) {
         result.status = "failed"; result.error = error instanceof Error ? error.stack : String(error); result.runtimeErrors = errors; result.assetErrors = assets;
+        result.entryState = await page.evaluate(() => ({ trace: (window as Window & { __entryIntroTrace?: IntroTrace }).__entryIntroTrace, readyState: document.readyState, introPresent: !!document.querySelector("[data-v5-entry-intro]"), navigation: performance.getEntriesByType("navigation").map(entry => entry.toJSON()) })).catch(() => null);
         const screenshot = `${name.replace(/[^a-zA-Z0-9_-]/g, "-")}-failure.png`;
         await page.screenshot({ path: resolve(directory, screenshot) }).then(() => { result.screenshot = screenshot; }).catch(() => {});
         console.error(`FAIL ${name}: ${error instanceof Error ? error.message : error}`);
@@ -87,8 +99,20 @@ async function check(name: string, run: (page: Page) => Promise<unknown>, option
     }
 }
 
-async function enter(page: Page) {
-    const response = await page.goto(base, { waitUntil: "load" }); assert.equal(response?.status(), 200);
+async function enter(page: Page, holdLifecycle = false) {
+    if (holdLifecycle) {
+        // Event cleanup has no playback-time assertion. Keep the finite intro alive until the event is sent.
+        // The real-time natural deadline and no-JS fail-open cases below retain unmodified clocks/CSS.
+        const start = new Date("2026-10-26T12:00:00Z");
+        await page.clock.install({ time: start });
+        await page.clock.pauseAt(new Date(start.valueOf() + 60_000));
+        await page.addInitScript(() => {
+            const hold = () => { const intro = document.querySelector<HTMLElement>("[data-v5-entry-intro]"); if (intro) intro.style.animationPlayState = "paused"; };
+            new MutationObserver(hold).observe(document, { childList: true, subtree: true });
+        });
+    }
+    // Intro timers can finish before unrelated lazy images emit window.load; enter at DOM readiness.
+    const response = await page.goto(base, { waitUntil: "domcontentloaded" }); assert.equal(response?.status(), 200);
     const intro = page.locator(introSelector); await intro.waitFor({ state: "visible", timeout: 8_000 });
     await page.waitForFunction(selector => document.querySelector(selector)?.contains(document.activeElement), introSelector);
     assert.equal(await intro.getAttribute("role"), "dialog"); assert.equal(await intro.getAttribute("aria-modal"), "true");
@@ -212,15 +236,17 @@ try {
     });
 
     await check("keyboard trap and Escape cleanup", async page => {
-        await enter(page); const skip = page.getByRole("button", { name: "인트로 건너뛰기", exact: true }); assert.equal(await skip.evaluate(element => element === document.activeElement), true);
+        await enter(page, true); const skip = page.getByRole("button", { name: "인트로 건너뛰기", exact: true }); assert.equal(await skip.evaluate(element => element === document.activeElement), true);
         for (const key of ["Tab", "Tab", "Shift+Tab"]) { await page.keyboard.press(key); assert.equal(await skip.evaluate(element => element === document.activeElement), true, `${key} must stay inside intro`); }
         await page.keyboard.press("Escape"); const clean = await assertClean(page);
         assert.equal(await page.locator("#main").evaluate(element => element === document.activeElement), true, "Escape must restore focus to the main region");
+        await page.clock.resume();
         await page.getByRole("button", { name: "통합검색 열기", exact: true }).click(); await page.locator("#search-dialog").waitFor({ state: "visible" }); return clean;
     });
     await check("skip cleanup and internal navigation", async page => {
-        await enter(page); await page.getByRole("button", { name: "인트로 건너뛰기", exact: true }).click(); const clean = await assertClean(page);
+        await enter(page, true); await page.getByRole("button", { name: "인트로 건너뛰기", exact: true }).click(); const clean = await assertClean(page);
         assert.equal(await page.locator("#main").evaluate(element => element === document.activeElement), true, "Skip must restore focus to the main region");
+        await page.clock.resume();
         await page.locator(".desktop-nav a").first().click(); await page.waitForURL(url => url.pathname !== target.pathname);
         assert.equal(await page.locator(introSelector).count(), 0, "Internal navigation must not replay intro");
         await page.goto(new URL("programs/", base).href, { waitUntil: "domcontentloaded" }); assert.equal(await page.locator(introSelector).count(), 0); return clean;
@@ -242,11 +268,11 @@ try {
     await check("initial reduced motion", async page => {
         await page.goto(base, { waitUntil: "load" }); await waitHydrated(page); await page.locator(introSelector).waitFor({ state: "detached", timeout: 4_000 }); return assertClean(page);
     }, { reducedMotion: "reduce" });
-    await check("runtime reduced motion change", async page => { await enter(page); await page.emulateMedia({ reducedMotion: "reduce" }); return assertClean(page); });
-    await check("runtime hash navigation", async page => { await enter(page); await page.evaluate(() => { location.hash = "main"; }); const clean = await assertClean(page); assert.equal(new URL(page.url()).hash, "#main"); return clean; });
-    await check("pagehide cleanup", async page => { await enter(page); await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pagehide", { persisted: true }))); return assertClean(page); });
+    await check("runtime reduced motion change", async page => { await enter(page, true); await page.emulateMedia({ reducedMotion: "reduce" }); return assertClean(page); });
+    await check("runtime hash navigation", async page => { await enter(page, true); await page.evaluate(() => { location.hash = "main"; }); const clean = await assertClean(page); assert.equal(new URL(page.url()).hash, "#main"); return clean; });
+    await check("pagehide cleanup", async page => { await enter(page, true); await page.evaluate(() => window.dispatchEvent(new PageTransitionEvent("pagehide", { persisted: true }))); return assertClean(page); });
     await check("hidden document cleanup", async page => {
-        await enter(page);
+        await enter(page, true);
         // Explicit lifecycle event: headless tabs do not reliably become backgrounded.
         await page.evaluate(() => { Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "hidden" }); document.dispatchEvent(new Event("visibilitychange")); }); return assertClean(page);
     });
@@ -280,4 +306,4 @@ try {
 
     assert.deepEqual(network.blockedWrites, [], "Acceptance must never attempt a remote write or email");
     const failures = checks.filter(check => check.status === "failed"); console.log(`${checks.length} entry intro checks; ${failures.length} failed. Evidence: ${directory}`); if (failures.length) process.exitCode = 1;
-} finally { await browser.close(); }
+} finally { await browser.close(); await assetClient.dispose(); }
