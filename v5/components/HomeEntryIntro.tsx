@@ -114,8 +114,8 @@ export default function HomeEntryIntro() {
                 document.body.style.removeProperty("overflow");
             }
             // 이미 다른 곳으로 포커스를 옮겼다면 기존 포커스를 빼앗지 않는다.
-            if (document.activeElement && dialog.contains(document.activeElement)) {
-                const destination = previousFocus?.isConnected && !previousFocus.closest("[inert]")
+            if (document.activeElement === document.body || document.activeElement && dialog.contains(document.activeElement)) {
+                const destination = previousFocus?.isConnected && previousFocus !== document.body && previousFocus !== document.documentElement && !previousFocus.closest("[inert]")
                     ? previousFocus
                     : document.getElementById("main");
                 if (destination instanceof HTMLElement) destination.focus({ preventScroll: true });

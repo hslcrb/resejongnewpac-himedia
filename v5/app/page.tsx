@@ -135,6 +135,7 @@ export default function HomePage() {
     // 프로그램 수동 선택
     const handleProgramSelect = (prog: any) => {
         if (!canSelectProgram(prog) || bookingDate < today) return;
+        selectedDateByUser.current = true;
         setSelectedProgramId(prog.id);
         setSelectedTime(prog.times?.[0] || "");
     };

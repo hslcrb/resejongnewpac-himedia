@@ -178,13 +178,17 @@ try {
     for (const viewport of viewports) await check(`visual-${viewport.width}x${viewport.height}`, async page => {
         // Freeze JS timers before navigation, then advance to the final copy. Native CSS ink animation still runs.
         const clockStart = new Date("2026-10-26T12:00:00Z");
-        await page.clock.install({ time: clockStart }); await page.clock.pauseAt(new Date(clockStart.valueOf() + 10));
+        await page.clock.install({ time: clockStart }); await page.clock.pauseAt(new Date(clockStart.valueOf() + 60_000));
         const intro = await enter(page); assert.equal(await intro.getAttribute("data-phase"), "artwork"); assert.equal(await intro.locator(`img[src="${scenePath}"]`).count(), 1);
         assert.equal(await page.locator("#main").evaluate(element => !!element.closest("[inert]")), true, "Background must be inert during intro");
         await page.clock.fastForward(4_800);
         // Node-side polling leaves the paused JS clock alone while the browser finishes real CSS animation.
-        const inkDeadline = Date.now() + 3_000;
-        while (!await page.locator("[data-intro-handwriting]").evaluate(element => [...element.querySelectorAll<HTMLElement>("[data-intro-glyph]")].every(glyph => glyph.dataset.written === "true" && Number(getComputedStyle(glyph).opacity) >= .99 && !glyph.getAnimations().some(animation => animation.playState === "running")))) {
+        const inkDeadline = Date.now() + 4_000;
+        while (!await page.locator("[data-intro-handwriting]").evaluate((element, count) => {
+            const glyphs = [...element.querySelectorAll<HTMLElement>("[data-intro-glyph]")];
+            const support = element.parentElement?.querySelector('p[data-text="body"]');
+            return glyphs.length === count && glyphs.every(glyph => glyph.dataset.written === "true" && Number(getComputedStyle(glyph).opacity) >= .99 && !glyph.getAnimations().some(animation => animation.playState === "running")) && !!support && Number(getComputedStyle(support).opacity) >= .99;
+        }, [...copy].length)) {
             assert.ok(Date.now() < inkDeadline, "Native glyph animation must complete while the copy clock is held"); await page.waitForTimeout(50);
         }
         const handwriting = await renderedHandwriting(page);
@@ -198,8 +202,9 @@ try {
 
     await check("real-time natural deadline", async page => {
         await enter(page); const cleanup = await assertClean(page);
+        assert.equal(await page.locator("#main").evaluate(element => element === document.activeElement), true, "Natural completion must restore focus to main");
         const trace = await page.evaluate(() => (window as Window & { __entryIntroTrace?: IntroTrace }).__entryIntroTrace);
-        assert.deepEqual(trace.phases, ["artwork", "copy", "exit"]);
+        assert.deepEqual(trace.phases, ["artwork", "copy", "exit"], `Natural phase trace: ${JSON.stringify(trace)}`);
         assert.ok(trace.effectStartedAt !== null && trace.removedAt !== null);
         const elapsed = trace.removedAt! - trace.effectStartedAt!;
         assert.ok(elapsed >= 6_500 && elapsed <= 9_000, `Natural playback must finish in about seven seconds from its effect, received ${elapsed}ms`);
@@ -210,16 +215,29 @@ try {
         await enter(page); const skip = page.getByRole("button", { name: "인트로 건너뛰기", exact: true }); assert.equal(await skip.evaluate(element => element === document.activeElement), true);
         for (const key of ["Tab", "Tab", "Shift+Tab"]) { await page.keyboard.press(key); assert.equal(await skip.evaluate(element => element === document.activeElement), true, `${key} must stay inside intro`); }
         await page.keyboard.press("Escape"); const clean = await assertClean(page);
+        assert.equal(await page.locator("#main").evaluate(element => element === document.activeElement), true, "Escape must restore focus to the main region");
         await page.getByRole("button", { name: "통합검색 열기", exact: true }).click(); await page.locator("#search-dialog").waitFor({ state: "visible" }); return clean;
     });
     await check("skip cleanup and internal navigation", async page => {
         await enter(page); await page.getByRole("button", { name: "인트로 건너뛰기", exact: true }).click(); const clean = await assertClean(page);
+        assert.equal(await page.locator("#main").evaluate(element => element === document.activeElement), true, "Skip must restore focus to the main region");
         await page.locator(".desktop-nav a").first().click(); await page.waitForURL(url => url.pathname !== target.pathname);
         assert.equal(await page.locator(introSelector).count(), 0, "Internal navigation must not replay intro");
         await page.goto(new URL("programs/", base).href, { waitUntil: "domcontentloaded" }); assert.equal(await page.locator(introSelector).count(), 0); return clean;
     }, { viewport: { width: 1440, height: 900 } });
     for (const suffix of ["#main", "?mode=cms-scm"]) await check(`bypass ${suffix}`, async page => {
-        await page.goto(base + suffix, { waitUntil: "load" }); await waitHydrated(page); await page.locator(introSelector).waitFor({ state: "detached", timeout: 4_000 }); return assertClean(page);
+        await page.goto(base + suffix, { waitUntil: "load" });
+        const cleanup = await assertClean(page);
+        const state = await page.evaluate(() => ({
+            trace: (window as Window & { __entryIntroTrace?: IntroTrace }).__entryIntroTrace,
+            hash: location.hash, mode: new URLSearchParams(location.search).get("mode"),
+            reducedMotion: matchMedia("(prefers-reduced-motion: reduce)").matches, visibility: document.visibilityState,
+        }));
+        assert.equal(state.trace.effectStartedAt, null, "Bypass must never focus or start the intro");
+        assert.deepEqual(state.trace.phases, ["artwork"], "Bypass must not complete a natural copy/exit playback");
+        assert.notEqual(state.trace.removedAt, null); assert.equal(state.reducedMotion, false); assert.equal(state.visibility, "visible");
+        assert.equal(suffix.startsWith("#") ? state.hash : state.mode, suffix.startsWith("#") ? suffix : "cms-scm");
+        return { cleanup, ...state };
     });
     await check("initial reduced motion", async page => {
         await page.goto(base, { waitUntil: "load" }); await waitHydrated(page); await page.locator(introSelector).waitFor({ state: "detached", timeout: 4_000 }); return assertClean(page);

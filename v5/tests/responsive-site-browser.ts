@@ -12,7 +12,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium } from "playwright";
+import { chromium, request as apiRequest } from "playwright";
 import type { BrowserContext, Page } from "playwright";
 
 const v5Root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -183,7 +183,7 @@ async function deterministicNetwork(context: BrowserContext) {
         }
         if (url.origin === baseURL.origin && /\.(?:js|css|woff2?|svg|png|jpe?g|webp|avif|gif|ico)$/i.test(url.pathname)) {
             // Cache only immutable build assets; HTML and API responses always stay fresh.
-            if (!localResponses.has(url.href)) localResponses.set(url.href, route.fetch().then(async response => {
+            if (!localResponses.has(url.href)) localResponses.set(url.href, assetClient.get(url.href, { timeout: 10_000 }).then(async response => {
                 const headers = { ...response.headers() }; delete headers["content-length"]; delete headers["content-encoding"];
                 return { status: response.status(), headers, body: await response.body() };
             }).catch(error => { localResponses.delete(url.href); throw error; }));
@@ -205,6 +205,7 @@ async function settle(page: Page) {
     await page.waitForTimeout(180);
 }
 
+const assetClient = await apiRequest.newContext();
 const browser = await chromium.launch({ headless: true, executablePath });
 const assetChecks = new Map<string, Promise<{ status: number; contentType: string }>>();
 try {
@@ -277,7 +278,7 @@ try {
                         issues.push(...issuesFor(metrics));
                         result.metrics = { ...metrics, assets: metrics.assets.length };
                         for (const asset of metrics.assets) {
-                            if (!assetChecks.has(asset)) assetChecks.set(asset, context.request.get(asset, { timeout: 10_000 }).then(response => ({ status: response.status(), contentType: response.headers()["content-type"] || "" })).catch(() => ({ status: 0, contentType: "" })));
+                            if (!assetChecks.has(asset)) assetChecks.set(asset, assetClient.get(asset, { timeout: 10_000 }).then(response => ({ status: response.status(), contentType: response.headers()["content-type"] || "" })).catch(() => ({ status: 0, contentType: "" })));
                             const checked = await assetChecks.get(asset)!;
                             if (checked.status < 200 || checked.status >= 400 || /text\/html/.test(checked.contentType) && /\.(?:js|css|woff2?|svg|png|jpe?g|webp|gif|avif)(?:\?|$)/i.test(asset)) issues.push({ kind: "missing-local-asset", message: `${checked.status} ${checked.contentType} ${asset}` });
                         }
@@ -352,4 +353,4 @@ try {
         console.log(`${results.length} route/width audits (${routes.length}/${allRoutes.length} exported HTML routes); ${failed} failed; ${interactionFailures} interaction failures. Evidence: ${directory}`);
         if (failed || interactionFailures || fixture.blockedWrites.length) process.exitCode = 1;
     }
-} finally { await browser.close(); }
+} finally { await browser.close(); await assetClient.dispose(); }
