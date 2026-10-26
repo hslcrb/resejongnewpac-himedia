@@ -37,7 +37,7 @@ function loadDeepChat(): Promise<void> {
             script.async = true;
             script.crossOrigin = "anonymous";
             script.onload = () => {
-                customElements.whenDefined("deep-chat").then(resolve, reject);
+                customElements.whenDefined("deep-chat").then(() => resolve(), reject);
             };
             script.onerror = () => reject(new Error("채팅 UI를 불러오지 못했습니다."));
             document.head.append(script);

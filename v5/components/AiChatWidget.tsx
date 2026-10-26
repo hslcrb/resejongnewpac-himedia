@@ -56,7 +56,7 @@ export default function AiChatWidget() {
       });
       const data = await response.json();
       if (!response.ok || typeof data.text !== "string") throw new Error(typeof data.error === "string" ? data.error : "연결 실패");
-      history.current = [...messages, { role: "assistant", content: data.text }].slice(-40);
+      history.current = [...messages, { role: "assistant" as const, content: data.text }].slice(-40);
       if (!access) await saveGuestChat(history.current).catch(() => undefined);
       signals.onResponse({ text: data.text });
     } catch (error) {
