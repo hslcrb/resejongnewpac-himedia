@@ -37,18 +37,21 @@ export type ContextSearchItem = { title: string; description?: string; href?: st
 export function contextSearchReply(input: string, entries: ContextSearchItem[], category = "항목"): string {
     const query = String(input || "").trim().normalize("NFKC").toLocaleLowerCase("ko-KR").slice(0, MAX_QUERY_LENGTH);
     if (!query) return "찾을 " + category + "의 검색어를 입력해 주세요.";
-    const terms = query.split(/\\s+/).filter(Boolean);
+    const terms = query.split(/\s+/).filter(Boolean);
     const matches = entries.filter(item =>
         terms.every(term => (item.title + " " + (item.description || "")).normalize("NFKC").toLocaleLowerCase("ko-KR").includes(term)),
     ).slice(0, 8);
     if (!matches.length) return "‘" + sanitizeLabel(input) + "’에 해당하는 " + category + "을(를) 찾지 못했어요. 기존 필터에서도 확인해 보세요.";
     const lines = matches.map(item => {
         const label = sanitizeLabel(item.title);
-        const link = item.href && (/^\\/v5\\/[a-z0-9/._-]+\\/?$/i.test(item.href) || /^#[a-z0-9/_-]+$/i.test(item.href))
-            ? "[" + label + "](" + item.href + ")" : label;
+        const safeHref = item.href && (
+            new RegExp("^/v5/[a-z0-9/_-]+/?$", "i").test(item.href) ||
+            new RegExp("^#[a-z0-9/_-]+$", "i").test(item.href)
+        );
+        const link = safeHref ? "[" + label + "](" + item.href + ")" : label;
         return "- " + link + (item.description ? " - " + sanitizeLabel(item.description).slice(0, 85) : "");
     });
-    return "**" + category + " 검색 결과 (" + matches.length + "개 우선 표시)**\\n\\n" + lines.join("\\n") + "\\n\\n세부 조건은 원래 검색 필터에서 조정할 수 있어요.";
+    return "**" + category + " 검색 결과 (" + matches.length + "개 우선 표시)**\n\n" + lines.join("\n") + "\n\n세부 조건은 원래 검색 필터에서 조정할 수 있어요.";
 }
 
 /**
