@@ -9,6 +9,8 @@ import FloatingMenu from "../../components/FloatingMenu";
 import LiquidGlassDemo from "./_documentation/LiquidGlassDemo";
 import ComponentCatalog from "./_documentation/ComponentCatalog";
 import SystemDialog from "../../components/SystemDialog";
+import DeepSearchDisclosure from "../../components/DeepSearchDisclosure";
+import { contextSearchReply } from "../../components/DeepSearch";
 import { SystemText, textAttributes } from "../../components/SystemText";
 import { SystemSurface } from "../../components/SystemSurface";
 import { SystemControlGroup } from "../../components/SystemControlGroup";
@@ -1859,6 +1861,13 @@ export default function DesignRulesPage() {
                     value={query}
                     onChange={(event) => setQuery(event.target.value)}
                     autoFocus
+                />
+                <DeepSearchDisclosure title="대화로 디자인 기준 검색"
+                    onSearch={term => contextSearchReply(term, searchEntries.map(entry => ({
+                        title: entry.title,
+                        description: entry.description,
+                        href: "#" + entry.chapter + (entry.anchor ? "/" + entry.anchor : ""),
+                    })), "디자인 기준")}
                 />
                 <div data-text="body" className="ds-search-results">
                     {results.length ? (
