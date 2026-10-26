@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import { SystemButton, SystemField } from "./SystemPrimitives";
 import { useEffect, useRef, useState } from "react";
 import { searchContent } from "../src/lib/discovery";
 
@@ -94,7 +95,7 @@ export default function DeepSearch({ initialQuery = "", compact = false, onSearc
     }, [loaded, compact]);
 
     return (
-        <div className={"sejong-deep-search" + (compact ? " sejong-deep-search--compact" : "")}>
+        <div data-component-id="deep-search" className={"sejong-deep-search" + (compact ? " sejong-deep-search--compact" : "")}>
             <Script
                 src={DEEP_CHAT_CDN}
                 strategy="afterInteractive"
@@ -106,8 +107,8 @@ export default function DeepSearch({ initialQuery = "", compact = false, onSearc
                 <form className="sejong-deep-search-fallback" action="/v5/search/" method="get" role="search">
                     <label htmlFor={compact ? "deep-search-header" : "deep-search-page"}>검색어</label>
                     <div className="sejong-deep-search-fallback-row">
-                        <input id={compact ? "deep-search-header" : "deep-search-page"} type="search" name="q" maxLength={MAX_QUERY_LENGTH} defaultValue={firstQuery.current} placeholder="공연, 전시, 공간 및 방문 정보" required />
-                        <button type="submit">검색</button>
+                        <SystemField outerClassName="sejong-deep-search-field" id={compact ? "deep-search-header" : "deep-search-page"} type="search" name="q" maxLength={MAX_QUERY_LENGTH} defaultValue={firstQuery.current} placeholder="공연, 전시, 공간 및 방문 정보" required />
+                        <SystemButton variant="primary" type="submit">검색</SystemButton>
                     </div>
                     {failed && <p role="status">대화형 검색을 불러오지 못해 기본 검색으로 전환했어요.</p>}
                 </form>

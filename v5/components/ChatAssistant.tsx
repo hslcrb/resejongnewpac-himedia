@@ -74,7 +74,8 @@ async function apiRequest(method: "GET" | "POST" | "DELETE", isLoggedIn: boolean
  * on touch/keyboard. Static Next.js export delegates all model calls to an Edge Function.
  * Deep Chat's plaintext browserStorage and client directConnection are deliberately off.
  */
-export default function ChatAssistant() {
+/* 과거 구현을 보존하되 현재 사용되지 않는 컴포넌트는 공개 export에서 제외한다. */
+function ChatAssistant() {
     const { isLoggedIn, identityId, ready } = useAccountIdentity();
     const [open, setOpen] = useState(false);
     const [hasOpened, setHasOpened] = useState(false);

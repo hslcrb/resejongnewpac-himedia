@@ -1,6 +1,7 @@
 "use client";
 
 import Script from "next/script";
+import { SystemButton } from "./SystemPrimitives";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../src/lib/supabase";
 import { loadGuestChat, saveGuestChat, type LocalChatLine } from "../src/lib/guest-chat-storage";
@@ -73,11 +74,11 @@ export default function AiChatWidget() {
   }, [ready, scriptReady, initialHistory]);
 
   return (
-    <aside className="sejong-ai-widget" aria-label="AI 안내 상담">
+    <aside className="sejong-ai-widget" aria-label="AI 안내 상담" data-component-id="ai-chat-widget">
       {enabled && <Script src="https://unpkg.com/deep-chat@2.5.1/dist/deepChat.bundle.js" strategy="afterInteractive" onLoad={() => setScriptReady(true)} />}
       {open && (
         <section className="sejong-ai-panel" aria-label="AI 상담 창">
-          <div className="sejong-ai-panel-head"><strong>세종 AI 안내</strong><button type="button" onClick={() => setOpen(false)} aria-label="상담 닫기">×</button></div>
+          <div className="sejong-ai-panel-head"><strong>세종 AI 안내</strong><SystemButton variant="quiet" type="button" onClick={() => setOpen(false)} aria-label="상담 닫기">×</SystemButton></div>
           {!enabled ? <p className="sejong-ai-loading">AI 상담 서비스 준비 중입니다.</p> : ready && scriptReady
             ? <div ref={node => { element.current = node?.querySelector("deep-chat") as DeepElement | null; }}><div className="sejong-ai-deep-mount" ref={node => {
                 if (!node || node.querySelector("deep-chat")) return;
@@ -94,9 +95,9 @@ export default function AiChatWidget() {
             : <p className="sejong-ai-loading">상담 기능을 불러오는 중...</p>}
         </section>
       )}
-      <button className="sejong-ai-trigger" type="button" aria-expanded={open} aria-label={open ? "AI 상담 닫기" : "AI 상담 열기"} onClick={() => setOpen(value => !value)}>
+      <SystemButton variant="quiet" className="sejong-ai-trigger" type="button" aria-expanded={open} aria-label={open ? "AI 상담 닫기" : "AI 상담 열기"} onClick={() => setOpen(value => !value)}>
         <span aria-hidden="true">✦</span><span className="sejong-ai-trigger-tip">무엇을 도와드릴까요?</span>
-      </button>
+      </SystemButton>
     </aside>
   );
 }
