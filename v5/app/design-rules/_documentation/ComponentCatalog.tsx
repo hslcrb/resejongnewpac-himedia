@@ -23,6 +23,8 @@ import type { AccountNote, AccountTheme } from "../../../src/lib/account-space.t
 import { showSmallNotification } from "../../../components/SmallNotificationModal";
 
 import { SystemText } from "../../../components/SystemText";
+import DeepSearchDisclosure from "../../../components/DeepSearchDisclosure";
+import { contextSearchReply } from "../../../components/DeepSearch";
 import { SystemSurface } from "../../../components/SystemSurface";
 import { SystemTabs, SystemDisclosure } from "../../../components/SystemNavigation";
 import type { SystemControlStyle } from "../../../components/SystemPrimitives";
@@ -106,7 +108,14 @@ export default function ComponentCatalog() {
                 <div><dt data-text="label">가이드 전용</dt><dd data-text="body" data-count="guide-only">{COMPONENT_COUNTS.documentationOnly}</dd></div>
                 <div><dt data-text="label">미사용</dt><dd data-text="body" data-count="unused">{COMPONENT_COUNTS.unused}</dd></div>
             </dl>
-            <SystemField data-text="body" type="search" label="컴포넌트 검색" value={query} onChange={event => setQuery(event.target.value)} placeholder="이름, 용도, 소스 파일" />
+
+            <DeepSearchDisclosure title="대화로 컴포넌트 찾기"
+                onSearch={term => contextSearchReply(term, COMPONENT_REGISTRY.map(entry => ({
+                    title: entry.name,
+                    description: entry.purpose + " · " + entry.source,
+                    href: "#" + entry.guide,
+                })), "컴포넌트")}
+            />            <SystemField data-text="body" type="search" label="컴포넌트 검색" value={query} onChange={event => setQuery(event.target.value)} placeholder="이름, 용도, 소스 파일" />
             <div className="component-table-scroll" role="region" aria-label="전체 컴포넌트 등록부" tabIndex={0}>
                 <table className="component-table">
                     <thead><tr><th data-text="label" scope="col">컴포넌트</th><th data-text="label" scope="col">구분·사용</th><th data-text="label" scope="col">규격과 역할</th></tr></thead>
