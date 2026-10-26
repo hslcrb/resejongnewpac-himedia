@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright/test";
 
 /**
@@ -10,6 +11,8 @@ import { chromium } from "playwright/test";
  */
 const base = process.argv.find(argument => /^https?:\/\//.test(argument)) || "http://127.0.0.1:4173/v5/";
 const browser = await chromium.launch({ headless: true });
+const evidence: Record<string, unknown>[] = [];
+mkdirSync("test-results/scroll-chrome", { recursive: true });
 
 try {
     for (const width of [390, 1440]) {
@@ -53,11 +56,14 @@ try {
             assert.equal(metrics.globalStyleCount, 1, "global scrollbar style exists once");
             assert.equal(metrics.rootWidth, "thin");
             assert.equal(metrics.nestedWidth, "thin");
+            await page.screenshot({ path: `test-results/scroll-chrome/${width}-scrolled.png` });
+            evidence.push({ width, ...metrics });
             console.log(`PASS ${width}px`, metrics);
         } finally {
             await page.close();
         }
     }
 } finally {
+    writeFileSync("test-results/scroll-chrome/results.json", JSON.stringify(evidence, null, 2) + "\n");
     await browser.close();
 }
