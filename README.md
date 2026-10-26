@@ -4,6 +4,8 @@
 
 A website for discovering performances, planning a visit, and keeping a personal cultural record. **v5** is the active application; earlier versions remain in their own folders.
 
+**협업·코딩 헌법:** [코딩헌법규정 2판](CODING_CONSTITUTION.md) · [PR 없는 NO FF 통합 및 브랜치 검증 기록](docs/no-pr-no-ff-governance-20261026.md). 신규 통합은 PR을 만들지 않고 반드시 별도 작업 브랜치와 `--no-ff` 머지 커밋을 사용합니다.
+
 **[웹사이트 / Website](https://renewsejongpac.rhee.life/v5/)** · [디자인 시스템 / Design system](https://renewsejongpac.rhee.life/v5/design-rules/) · [기여 안내 / Contributing](CONTRIBUTING.md)
 
 | v5 | Supabase | Vercel |
