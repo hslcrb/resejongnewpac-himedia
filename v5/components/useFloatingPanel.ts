@@ -15,6 +15,7 @@ export default function useFloatingPanel(
     const [moveMode, setMoveMode] = useState(false);
     const [announcement, setAnnouncement] = useState("");
     const moving = useRef(false);
+    const drawerPosition = useRef<PanelPoint | null>(null);
     moving.current = moveMode;
 
     useLayoutEffect(() => {
@@ -38,10 +39,11 @@ export default function useFloatingPanel(
             panel.style.transform = `translate3d(${point.x}px, ${point.y}px, 0)`;
         };
         const move = (target: PanelPoint) => {
-            point = constrainPanel(target, frame);
+            point = constrainPanel(target, frame, docked);
             // 화면 크기 보정은 사용자가 옮긴 원래 위치를 덮어쓰지 않습니다.
             // Only an intentional move replaces the saved desktop position.
             if (!docked) savedPosition.current = point;
+            else drawerPosition.current = point;
             if (!pending) pending = requestAnimationFrame(paint);
         };
         const measure = () => {
@@ -53,7 +55,7 @@ export default function useFloatingPanel(
                 panelHeight: panel.offsetHeight,
                 inset: 12,
             };
-            point = docked ? { x: 0, y: 0 } : constrainPanel(savedPosition.current || initialPanelPosition(frame), frame);
+            point = constrainPanel(docked ? drawerPosition.current || { x: 0, y: 0 } : savedPosition.current || initialPanelPosition(frame), frame, docked);
             paint();
             panel.dataset.ready = "true";
         };
@@ -77,7 +79,7 @@ export default function useFloatingPanel(
             }
         };
         const down = (event: PointerEvent) => {
-            if (docked || panel.dataset.phase !== "open") return;
+            if (panel.dataset.phase !== "open") return;
             const target = event.target as Element;
             if (
                 !event.isPrimary ||
@@ -137,7 +139,6 @@ export default function useFloatingPanel(
                 return;
             }
             const target = event.target as Element;
-            if (docked) return;
             if (!target.closest("[data-panel-move]")) return;
             const step = event.shiftKey ? 4 : 16;
             const directions: Record<string, PanelPoint> = {
@@ -148,7 +149,7 @@ export default function useFloatingPanel(
             };
             if (event.key === "Home") {
                 event.preventDefault();
-                move(initialPanelPosition(frame));
+                move(docked ? { x: 0, y: 0 } : initialPanelPosition(frame));
             } else if (directions[event.key]) {
                 event.preventDefault();
                 const delta = directions[event.key];
