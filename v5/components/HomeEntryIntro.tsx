@@ -9,7 +9,7 @@ import styles from "./HomeEntryIntro.module.css";
 /**
  * 첫 /v5/ 진입에 한 번만 표시한다. 내부 페이지 이동에서는 재생하지 않는다.
  * 화면 뒤의 SiteShell/CatalogProvider는 계속 마운트되어 초기 데이터 요청을 병렬 수행한다.
- * SVG는 사용자 제공 원본 파일을 이미지로 격리해 삽입한다 (innerHTML 금지).
+ * SVG는 배경을 제거한 로고 모션을 이미지로 격리해 삽입한다 (innerHTML 금지).
  */
 export default function HomeEntryIntro() {
     const pathname = usePathname();
@@ -35,6 +35,8 @@ export default function HomeEntryIntro() {
             setVisible(false);
             return;
         }
+        // 로컬 손글씨를 미리 준비하되 폰트 실패로 진입을 막지 않는다.
+        void document.fonts?.load('400 48px "Yeongwol"', HOME_ENTRY_COPY).catch(() => {});
 
         const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         const previousOverflow = document.body.style.getPropertyValue("overflow");
@@ -135,12 +137,13 @@ export default function HomeEntryIntro() {
             aria-label="세종문화회관 시작 화면"
             aria-describedby={descriptionId}
         >
+            <link rel="preload" href="/v5/assets/fonts/Yeongwol-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
             <p data-text="body" id={descriptionId} className={styles.srOnly}>
-                세종문화회관 시작 애니메이션입니다. 건너뛰기 버튼 또는 Escape 키로 바로 이동할 수 있습니다.
+                세종문화회관이 당신을 응원합니다. 2026 화이팅! 건너뛰기 버튼 또는 Escape 키로 바로 이동할 수 있습니다.
             </p>
             <div className={styles.stage}>
                 <div className={styles.artwork} aria-hidden="true">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- SMIL을 포함한 제공 SVG를 그대로 재생 */}
+                    {/* eslint-disable-next-line @next/next/no-img-element -- 투명 배경의 SVG 로고 모션 */}
                     <img
                         src="/v5/assets/intro/scenartmv.svg"
                         width={1560}
@@ -154,12 +157,16 @@ export default function HomeEntryIntro() {
                 </div>
                 <div className={styles.copy} aria-hidden="true">
                     <span data-text="label" className={styles.eyebrow}>SEJONG PERFORMING ARTS CENTER</span>
-                    <p data-text="heading" className={styles.message}>
-                        {HOME_ENTRY_COPY.slice(0, characterCount)}
-                        {phase === "copy" && characterCount < HOME_ENTRY_COPY.length && (
-                            <span className={styles.caret} aria-hidden="true" />
-                        )}
+                    <p data-text="heading" className={styles.message} data-intro-handwriting aria-label={HOME_ENTRY_COPY}>
+                        {Array.from(HOME_ENTRY_COPY).map((letter, index) => (
+                            <span data-text="heading" data-intro-glyph data-written={index < characterCount || undefined}
+                                className={styles.glyph} key={index}>{letter === " " ? "\u00a0" : letter}</span>
+                        ))}
                     </p>
+                    <svg className={styles.flourish} viewBox="0 0 400 32" aria-hidden="true" fill="none">
+                        <path d="M12 20C98 5 247 9 379 17M328 26L388 13" pathLength="1" />
+                    </svg>
+                    <p data-text="body" className={styles.support}>당신의 빛나는 순간을 응원합니다.</p>
                 </div>
             </div>
             <SystemButton

@@ -1106,6 +1106,7 @@ const FLUID_TYPE_VIEWPORTS: Partial<Record<(typeof TYPE_SCALE)[number]["token"],
     "text-heading": "2.5vw",
 };
 const TYPOGRAPHY_TOKENS = {
+    "--font-handwriting": '"Yeongwol", "Wanted Sans Variable", cursive',
     "--font-mono": '"D2Coding", ui-monospace, SFMono-Regular, Consolas, monospace',
     "--code-comment": reference("text-secondary"),
     "--code-keyword": "color-mix(in srgb, var(--color-ochre) 64%, var(--color-black))",
@@ -1254,6 +1255,14 @@ export function renderDesignTokensCss(extraColors: TokenValues = {}): string {
 @font-face {
     font-family: "D2Coding";
     src: url("/v5/assets/fonts/D2Coding.woff") format("woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Yeongwol";
+    src: url("/v5/assets/fonts/Yeongwol-Regular.woff2") format("woff2");
     font-weight: 400;
     font-style: normal;
     font-display: swap;
