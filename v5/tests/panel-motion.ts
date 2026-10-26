@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+import { expect } from "playwright/test";
 
 // [실제 GPU 프레임과 창의 수명 주기 / Actual GPU frames and the panel lifecycle]
 const base = (process.argv[2] || "http://127.0.0.1:3000/v5/").replace(/\/?$/, "/");
@@ -147,7 +148,13 @@ try {
             await open();
             const bounds = (await panel().boundingBox())!;
             assert.equal(bounds.x, 0); assert.equal(bounds.y, 0);
-            assert.ok(bounds.width <= width - 23 && bounds.height === 844);
+            assert.ok(bounds.width <= width - 23 && bounds.height === 748);
+            const move = page.getByRole("button", { name: "메뉴 위치 이동" });
+            await move.focus();
+            await page.keyboard.press("ArrowDown");
+            await expect.poll(async () => (await panel().boundingBox())!.y).toBe(16);
+            await page.keyboard.press("Home");
+            await expect.poll(async () => (await panel().boundingBox())!.y).toBe(0);
             const origin = await page.locator(".floating-panel-webgl").evaluate(canvas => JSON.parse((canvas as HTMLElement).dataset.origin!));
             assert.equal(origin.x, -bounds.width); assert.equal(origin.y, 0);
             await page.screenshot({ path: path.join(directory, `mobile-${width}.png`) });

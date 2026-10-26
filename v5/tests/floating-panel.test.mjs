@@ -7,6 +7,13 @@ import {
 } from "../src/lib/floating-panel.ts";
 
 // [화면 밖으로 사라지지 않는 메뉴 / A floating menu that stays reachable]
+test("drawer moves vertically while remaining attached to the left edge", () => {
+    const frame = { width: 390, height: 844, panelWidth: 366, panelHeight: 748, inset: 12 };
+    assert.deepEqual(constrainPanel({ x: 80, y: 48 }, frame, true), { x: 0, y: 48 });
+    assert.deepEqual(constrainPanel({ x: -80, y: -50 }, frame, true), { x: 0, y: 0 });
+    assert.deepEqual(constrainPanel({ x: 80, y: 900 }, frame, true), { x: 0, y: 96 });
+});
+
 test("floating panel accepts every in-bounds position and clamps all four edges", () => {
     const frame = { width: 1440, height: 900, panelWidth: 1000, panelHeight: 640, inset: 12 };
     assert.deepEqual(constrainPanel({ x: 120, y: 170 }, frame), { x: 120, y: 170 });

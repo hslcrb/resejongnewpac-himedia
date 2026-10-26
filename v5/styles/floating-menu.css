@@ -7,12 +7,13 @@
     display: grid;
     grid-template-rows: auto auto auto minmax(0, 1fr);
     width: min(1180px, calc(100vw - 24px));
-    max-height: calc(100dvh - 24px);
+    max-height: calc(100dvh - 120px);
     margin: 0;
     padding: 0;
     visibility: hidden;
     cursor: grab;
     touch-action: pan-y;
+    transition-property: none;
     user-select: none;
     -webkit-user-select: none;
     opacity: 0;
@@ -38,8 +39,8 @@
 /* [왼쪽 벽에 붙는 세로 메뉴 / Vertical navigation attached to the left edge] */
 .floating-panel[data-presentation="drawer"] {
     width: min(24rem, calc(100vw - 24px));
-    height: 100dvh;
-    max-height: 100dvh;
+    height: calc(100dvh - 96px);
+    max-height: calc(100dvh - 96px);
     grid-template-rows: auto minmax(0, 1fr);
     border-left: 0;
     border-radius: 0 var(--radius-dialog) var(--radius-dialog) 0;
