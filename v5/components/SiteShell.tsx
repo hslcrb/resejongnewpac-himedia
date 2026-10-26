@@ -6,7 +6,7 @@ import Header from "./Header";
 import Footer from "./Footer";
 import { SmallNotificationModalHost } from "./SmallNotificationModal";
 import ReturnTop from "./ReturnTop";
-import ContextMenu from "./ContextMenu";
+import ContextMenu from "./ContextMenu";\nimport AiChatWidget from "./AiChatWidget";
 
 // [사이트와 문서의 탐색 영역 / Product and documentation navigation]
 // 디자인 가이드는 자체 문서 탐색을 사용하고, 나머지 화면은 기존 사이트 셸을 유지합니다.
@@ -35,7 +35,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
                 {children}
             </main>
             <Footer />
-            <ReturnTop />
+            <ReturnTop />\n            <AiChatWidget />
             <ContextMenu />
             <SmallNotificationModalHost />
         </>
