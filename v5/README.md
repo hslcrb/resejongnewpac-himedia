@@ -11,6 +11,7 @@ This is the active application. It uses Next.js 14.2.35, React 18, TypeScript an
 - [에이전트의 v5 작업 규칙 / Agent instructions](CONTRIBUTING.md)
 - [디자인 시스템 / Design system](https://renewsejongpac.rhee.life/v5/design-rules/)
 - [실제 컴포넌트 연결표 / Component connections](docs/component-connections.md)
+- [v5 첫 진입 SVG 인트로·네트워크 선연결·검증 안내 / Entry intro](docs/home-entry-intro.md)
 
 ## 실행 / Run
 
