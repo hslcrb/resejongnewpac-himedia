@@ -6,6 +6,8 @@
 .sejong-deep-search-fallback{display:grid;gap:10px;width:100%;padding:12px 0}
 .sejong-deep-search-fallback label{font-size:16px;font-weight:600}
 .sejong-deep-search-fallback-row{display:flex;gap:8px;min-width:0}
+.sejong-deep-search-fallback-row>.sejong-deep-search-field{flex:1;min-width:0}
+.sejong-deep-search-field>input{width:100%;box-sizing:border-box}
 .sejong-deep-search-fallback input{flex:1;min-width:0;padding:12px 14px;font:inherit;font-size:16px;border:1px solid #bcb2c5;border-radius:12px;background:white;color:#251c2c}
 .sejong-deep-search-fallback button{padding:12px 20px;font:inherit;font-size:16px;border:0;border-radius:12px;background:#5f398d;color:white;cursor:pointer}
 .sejong-deep-search-fallback :is(input,button):focus-visible{outline:3px solid #9870b8;outline-offset:2px}
