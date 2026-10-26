@@ -32,13 +32,37 @@ export function localSearchReply(input: string): string {
         "안내 내용은 등록된 콘텐츠를 기준으로 합니다. 실제 일정·예매 가능 여부는 공식 페이지에서 확인해 주세요.";
 }
 
+export type ContextSearchItem = { title: string; description?: string; href?: string };
+
+export function contextSearchReply(input: string, entries: ContextSearchItem[], category = "항목"): string {
+    const query = String(input || "").trim().normalize("NFKC").toLocaleLowerCase("ko-KR").slice(0, MAX_QUERY_LENGTH);
+    if (!query) return "찾을 " + category + "의 검색어를 입력해 주세요.";
+    const terms = query.split(/\s+/).filter(Boolean);
+    const matches = entries.filter(item =>
+        terms.every(term => (item.title + " " + (item.description || "")).normalize("NFKC").toLocaleLowerCase("ko-KR").includes(term)),
+    ).slice(0, 8);
+    if (!matches.length) return "‘" + sanitizeLabel(input) + "’에 해당하는 " + category + "을(를) 찾지 못했어요. 기존 필터에서도 확인해 보세요.";
+    const lines = matches.map(item => {
+        const label = sanitizeLabel(item.title);
+        const safeHref = item.href && (
+            new RegExp("^/v5/[a-z0-9/_-]+/?$", "i").test(item.href) ||
+            new RegExp("^#[a-z0-9/_-]+$", "i").test(item.href)
+        );
+        const link = safeHref ? "[" + label + "](" + item.href + ")" : label;
+        return "- " + link + (item.description ? " - " + sanitizeLabel(item.description).slice(0, 85) : "");
+    });
+    return "**" + category + " 검색 결과 (" + matches.length + "개 우선 표시)**\n\n" + lines.join("\n") + "\n\n세부 조건은 원래 검색 필터에서 조정할 수 있어요.";
+}
+
 /**
  * Search powered by the Deep Chat presentation layer and the local discovery index.
  * It never sends a search query to an external LLM/API and needs no provider key.
  * Native GET search stays available if the third-party script fails to load.
  */
-export default function DeepSearch({ initialQuery = "", compact = false }: { initialQuery?: string; compact?: boolean }) {
+export default function DeepSearch({ initialQuery = "", compact = false, onSearch }: { initialQuery?: string; compact?: boolean; onSearch?: (query: string) => string }) {
     const mount = useRef<HTMLDivElement>(null);
+    const responder = useRef<(query: string) => string>(localSearchReply);
+    responder.current = onSearch || localSearchReply;
     const [loaded, setLoaded] = useState(false);
     const [failed, setFailed] = useState(false);
     const firstQuery = useRef(initialQuery.trim().slice(0, MAX_QUERY_LENGTH));
@@ -57,13 +81,13 @@ export default function DeepSearch({ initialQuery = "", compact = false }: { ini
             handler: (body, signals) => {
                 const messages = Array.isArray(body.messages) ? body.messages : [];
                 const input = [...messages].reverse().find(item => item.role === "user" && typeof item.text === "string")?.text || "";
-                void signals.onResponse({ text: localSearchReply(input) });
+                void signals.onResponse({ text: responder.current(input) });
             },
         };
         chat.requestBodyLimits = { maxMessages: 1 };
         chat.loadHistory = () => firstQuery.current ? [
             { role: "user", text: firstQuery.current },
-            { role: "ai", text: localSearchReply(firstQuery.current) },
+            { role: "ai", text: responder.current(firstQuery.current) },
         ] : [];
         node.appendChild(chat);
         return () => { chat.remove(); };

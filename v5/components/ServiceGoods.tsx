@@ -6,6 +6,8 @@ import type { ServiceCartLine, ServiceGood, ServiceRequest } from "../src/page-c
 import { cancelServiceRequest, loadServiceCart, loadServiceGoods, loadServiceRequests, setServiceCartQuantity } from "../src/page-completion/request-db";
 import useAccountIdentity from "./useAccountIdentity";
 import ServiceRequestForm from "./ServiceRequestForm";
+import DeepSearchDisclosure from "./DeepSearchDisclosure";
+import { contextSearchReply } from "./DeepSearch";
 import SystemSurface from "./SystemSurface";
 import { SystemButton, SystemField, SystemLink, SystemNotice } from "./SystemPrimitives";
 import { SystemDisclosure } from "./SystemNavigation";
@@ -78,6 +80,7 @@ export default function ServiceGoods({ mode, page }: { mode: "goods" | "cart" | 
         <div className="service-goods-toolbar"><h2 data-text="subheading">{heading}</h2><div className="service-request-actions"><SystemLink href="/news/goods" variant="quiet" shape="pill">상품 목록</SystemLink><SystemLink href="/news/goods/cart" variant="secondary" shape="pill">장바구니</SystemLink><SystemLink href="/news/goods/orders" variant="secondary" shape="pill">구매 요청 내역</SystemLink></div></div>
         {failure && <SystemNotice error>{failure}<SystemButton variant="quiet" onClick={() => setRefresh(value => value + 1)}>다시 불러오기</SystemButton></SystemNotice>}
         {mode === "goods" && <SystemField type="search" label="상품 검색" value={query} onChange={event => setQuery(event.currentTarget.value)} />}
+        {mode === "goods" && <DeepSearchDisclosure title="대화로 굿즈 검색" onSearch={term => contextSearchReply(term, goods.map(good => ({ title: good.title, description: good.description })), "굿즈")} />}
         {receipt && <SystemNotice title="구매 요청을 저장했습니다"><p data-text="body">접수번호 {receipt.reference}</p><p data-text="body">결제·배송 전 상태입니다. 구매 요청 내역에서 상품과 수량을 확인하고 취소할 수 있습니다.</p><SystemLink href="/news/goods/orders" variant="secondary" shape="pill">구매 요청 내역 확인</SystemLink></SystemNotice>}
         {loading ? <p data-text="body" role="status">목록을 불러오고 있습니다.</p> : mode !== "goods" && !owner ? <SystemNotice title="로그인 후 확인할 수 있습니다"><SystemLink href="/account/login" target="_blank" variant="secondary" shape="pill">로그인하기 · 새 창</SystemLink></SystemNotice>
             : mode === "goods" ? <>{!filtered.length && <SystemNotice>조건에 맞는 상품이 없습니다.</SystemNotice>}<div className="service-goods-grid">{filtered.map(good => <SystemSurface key={good.id} padding="lg" className="service-goods-card">
