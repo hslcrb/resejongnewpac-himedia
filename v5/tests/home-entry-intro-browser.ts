@@ -2,6 +2,7 @@
  * Real static-build intro acceptance: loaded font pixels, complete handwriting, lifecycle and accessibility.
  * cd v5 && BASE_URL=http://127.0.0.1:3000/v5/ node tests/home-entry-intro-browser.ts
  * CHROMIUM_EXECUTABLE_PATH overrides /usr/bin/chromium; INTRO_REPORT_DIR selects screenshots and JSON.
+ * INTRO_CHECK_FILTER selects check names for a focused rerun; the report records that reduced scope.
  * Public catalog reads use the checked-in snapshot. External requests and other writes are blocked.
  * Does not build, send email, mutate accounts or write generated product files.
  */
@@ -25,9 +26,28 @@ const checks: Record<string, unknown>[] = [];
 const network = { catalogReads: 0, blockedExternal: new Set<string>(), blockedWrites: [] as string[] };
 mkdirSync(directory, { recursive: true });
 const browser = await chromium.launch({ headless: true, executablePath });
+const loadedFontResponses = new WeakMap<Page, string[]>();
+type IntroTrace = { phases: string[]; phaseTimes: number[]; effectStartedAt: number | null; removedAt: number | null };
+
+/** Install before parsing/hydration: protocol round trips must not miss the artwork phase. */
+function observeIntro() {
+    const trace: IntroTrace = { phases: [], phaseTimes: [], effectStartedAt: null, removedAt: null };
+    Object.assign(window, { __entryIntroTrace: trace });
+    const record = () => {
+        const intro = document.querySelector("[data-v5-entry-intro]");
+        const phase = intro?.getAttribute("data-phase");
+        if (phase && trace.phases.at(-1) !== phase) { trace.phases.push(phase); trace.phaseTimes.push(performance.now()); }
+        if (intro?.contains(document.activeElement) && trace.effectStartedAt === null) trace.effectStartedAt = performance.now();
+        if (!intro && trace.phases.length && trace.removedAt === null) trace.removedAt = performance.now();
+    };
+    new MutationObserver(record).observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-phase"] });
+    document.addEventListener("focusin", record, true);
+}
 
 async function check(name: string, run: (page: Page) => Promise<unknown>, options: Parameters<typeof browser.newContext>[0] = {}) {
+    if (process.env.INTRO_CHECK_FILTER && !new RegExp(process.env.INTRO_CHECK_FILTER).test(name)) return;
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "no-preference", serviceWorkers: "block", ...options });
+    await context.addInitScript(observeIntro);
     await context.route("**/*", async route => {
         const request = route.request(), url = new URL(request.url());
         if (/(?:^|\.)supabase\.(co|in)$/.test(url.hostname) || /^\/(rest|auth)\/v1\//.test(url.pathname)) {
@@ -43,9 +63,14 @@ async function check(name: string, run: (page: Page) => Promise<unknown>, option
         return route.continue();
     });
     const page = await context.newPage(); page.setDefaultTimeout(10_000);
+    loadedFontResponses.set(page, []);
     const errors: string[] = [], assets: string[] = [];
     page.on("pageerror", error => errors.push(error.message));
-    page.on("response", response => { if (new URL(response.url()).origin === target.origin && response.status() >= 400 && !response.request().isNavigationRequest()) assets.push(`${response.status()} ${response.url()}`); });
+    page.on("response", response => {
+        const url = new URL(response.url());
+        if (url.origin === target.origin && response.status() >= 400 && !response.request().isNavigationRequest()) assets.push(`${response.status()} ${response.url()}`);
+        if (url.origin === target.origin && url.pathname === fontPath && response.ok()) loadedFontResponses.get(page)!.push(url.pathname);
+    });
     const result: Record<string, unknown> = { name, status: "running", viewport: options.viewport, startedAt: new Date().toISOString() };
     try {
         result.detail = await run(page);
@@ -58,16 +83,24 @@ async function check(name: string, run: (page: Page) => Promise<unknown>, option
         console.error(`FAIL ${name}: ${error instanceof Error ? error.message : error}`);
     } finally {
         checks.push(result); await context.close();
-        writeFileSync(resolve(directory, "report.json"), JSON.stringify({ base, expectedCopy: copy, network: { mode: "mocked public catalog; external requests and all writes blocked", ...network, blockedExternal: [...network.blockedExternal] }, checks }, null, 2) + "\n");
+        writeFileSync(resolve(directory, "report.json"), JSON.stringify({ base, expectedCopy: copy, checkFilter: process.env.INTRO_CHECK_FILTER || null, network: { mode: "mocked public catalog; external requests and all writes blocked", ...network, blockedExternal: [...network.blockedExternal] }, checks }, null, 2) + "\n");
     }
 }
 
 async function enter(page: Page) {
-    const response = await page.goto(base, { waitUntil: "domcontentloaded" }); assert.equal(response?.status(), 200);
+    const response = await page.goto(base, { waitUntil: "load" }); assert.equal(response?.status(), 200);
     const intro = page.locator(introSelector); await intro.waitFor({ state: "visible", timeout: 8_000 });
     await page.waitForFunction(selector => document.querySelector(selector)?.contains(document.activeElement), introSelector);
     assert.equal(await intro.getAttribute("role"), "dialog"); assert.equal(await intro.getAttribute("aria-modal"), "true");
     return intro;
+}
+
+async function waitHydrated(page: Page) {
+    // React binds this real header control before passive effects run; navigation/resource latency is not intro time.
+    await page.waitForFunction(() => {
+        const button = document.querySelector("#header button");
+        return button && Object.keys(button).some(key => key.startsWith("__reactProps$"));
+    });
 }
 
 async function assertClean(page: Page) {
@@ -105,8 +138,11 @@ async function renderedHandwriting(page: Page) {
             for (let index = 3; index < pixels.length; index += 4) { hash = Math.imul(hash ^ pixels[index], 16777619); if (pixels[index]) ink++; }
             return { width: pen.measureText(copy).width, hash: hash >>> 0, ink };
         };
-        return { text: element.textContent?.replaceAll("\u00a0", " "), fontFamily: style.fontFamily, fontWeight: style.fontWeight, fontSize: Number.parseFloat(style.fontSize), fontCheck: document.fonts.check(`${style.fontWeight} 64px ${style.fontFamily}`, copy), families, fontRequested: performance.getEntriesByType("resource").some(entry => new URL(entry.name).pathname === fontPath), custom: draw(style.fontFamily), fallback: draw("monospace"), glyphs, viewport: { width: innerWidth, height: innerHeight }, phase: element.closest("[data-v5-entry-intro]")?.getAttribute("data-phase") };
+        const skip = element.closest("[data-v5-entry-intro]")?.querySelector("button"), skipBox = skip?.getBoundingClientRect();
+        return { text: element.textContent?.replaceAll("\u00a0", " "), fontFamily: style.fontFamily, fontWeight: style.fontWeight, fontSize: Number.parseFloat(style.fontSize), fontCheck: document.fonts.check(`${style.fontWeight} 64px ${style.fontFamily}`, copy), families, fontRequested: performance.getEntriesByType("resource").some(entry => new URL(entry.name).pathname === fontPath), custom: draw(style.fontFamily), fallback: draw("monospace"), glyphs, viewport: { width: innerWidth, height: innerHeight }, phase: element.closest("[data-v5-entry-intro]")?.getAttribute("data-phase"), skipRect: skipBox ? { left: skipBox.left, right: skipBox.right, top: skipBox.top, bottom: skipBox.bottom } : null };
     }, { copy, fontPath });
+    // Playwright's fake clock replaces Performance resource APIs; protocol responses still prove a real font fetch.
+    info.fontRequested = loadedFontResponses.get(page)?.includes(fontPath) || false;
     assert.equal(info.text, copy, "The final phrase must be exactly 2026 화이팅!"); assert.equal(info.phase, "copy");
     assert.match(info.fontFamily, /Yeongwol/i, "The handwriting must actually use the local Yeongwol family"); assert.equal(info.fontWeight, "400"); assert.ok(info.fontSize >= 16);
     assert.equal(info.fontCheck, true); assert.ok(info.families.some(face => face.status === "loaded"), "The font face must finish loading");
@@ -118,6 +154,9 @@ async function renderedHandwriting(page: Page) {
         assert.ok(glyph.rect.width > 0 && glyph.rect.height > 0); assert.deepEqual(glyph.clippedBy, [], `Glyph ${glyph.text} must not be clipped by a stage ancestor`);
         for (const rect of [glyph.rect, ...glyph.textRects]) assert.ok(rect.left >= -1 && rect.right <= info.viewport.width + 1 && rect.top >= -1 && rect.bottom <= info.viewport.height + 1, `Glyph ${glyph.text} must fit ${info.viewport.width}x${info.viewport.height}: ${JSON.stringify(rect)}`);
     }
+    assert.ok(info.skipRect && info.skipRect.left >= 0 && info.skipRect.top >= 0 && info.skipRect.right <= info.viewport.width + 1 && info.skipRect.bottom <= info.viewport.height + 1, `Skip must fit ${info.viewport.width}x${info.viewport.height}: ${JSON.stringify(info.skipRect)}`);
+    // The relevant font was explicitly checked above. Unrelated page fonts must not delay a transient screenshot.
+    process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY = "1";
     return info;
 }
 
@@ -136,27 +175,36 @@ try {
     });
 
     const viewports = [{ width: 320, height: 844 }, { width: 390, height: 844 }, { width: 768, height: 1024 }, { width: 1024, height: 768 }, { width: 1440, height: 900 }, { width: 844, height: 320 }];
-    for (let index = 0; index < viewports.length; index += 3) await Promise.all(viewports.slice(index, index + 3).map(viewport => check(`natural-${viewport.width}x${viewport.height}`, async page => {
+    for (const viewport of viewports) await check(`visual-${viewport.width}x${viewport.height}`, async page => {
+        // Freeze JS timers before navigation, then advance to the final copy. Native CSS ink animation still runs.
+        const clockStart = new Date("2026-10-26T12:00:00Z");
+        await page.clock.install({ time: clockStart }); await page.clock.pauseAt(new Date(clockStart.valueOf() + 10));
         const intro = await enter(page); assert.equal(await intro.getAttribute("data-phase"), "artwork"); assert.equal(await intro.locator(`img[src="${scenePath}"]`).count(), 1);
         assert.equal(await page.locator("#main").evaluate(element => !!element.closest("[inert]")), true, "Background must be inert during intro");
-        await page.evaluate(selector => {
-            const element = document.querySelector(selector)!, phases = [element.getAttribute("data-phase")];
-            new MutationObserver(() => { const phase = element.getAttribute("data-phase"); if (phases.at(-1) !== phase) phases.push(phase); }).observe(element, { attributes: true, attributeFilter: ["data-phase"] });
-            Object.assign(window, { __entryIntroPhases: phases });
-        }, introSelector);
-        await page.waitForFunction(() => {
-            const glyphs = [...document.querySelectorAll<HTMLElement>("[data-intro-glyph]")];
-            return glyphs.length === 9 && glyphs.every(glyph => glyph.getAttribute("data-written") === "true" && Number(getComputedStyle(glyph).opacity) >= .99 && !glyph.getAnimations().some(animation => animation.playState === "running"));
-        }, undefined, { timeout: 7_000 });
-        const handwriting = await renderedHandwriting(page), skipBox = await page.getByRole("button", { name: "인트로 건너뛰기", exact: true }).boundingBox();
-        assert.ok(skipBox && skipBox.x >= 0 && skipBox.y >= 0 && skipBox.x + skipBox.width <= viewport.width + 1 && skipBox.y + skipBox.height <= viewport.height + 1, "Skip must fit short landscape");
+        await page.clock.fastForward(4_800);
+        // Node-side polling leaves the paused JS clock alone while the browser finishes real CSS animation.
+        const inkDeadline = Date.now() + 3_000;
+        while (!await page.locator("[data-intro-handwriting]").evaluate(element => [...element.querySelectorAll<HTMLElement>("[data-intro-glyph]")].every(glyph => glyph.dataset.written === "true" && Number(getComputedStyle(glyph).opacity) >= .99 && !glyph.getAnimations().some(animation => animation.playState === "running")))) {
+            assert.ok(Date.now() < inkDeadline, "Native glyph animation must complete while the copy clock is held"); await page.waitForTimeout(50);
+        }
+        const handwriting = await renderedHandwriting(page);
         await page.screenshot({ path: resolve(directory, `copy-${viewport.width}x${viewport.height}.png`) });
-        await intro.waitFor({ state: "detached", timeout: 6_000 });
-        const phases = await page.evaluate(() => (window as Window & { __entryIntroPhases?: string[] }).__entryIntroPhases);
-        assert.deepEqual(phases, ["artwork", "copy", "exit"]);
-        const elapsed = await page.evaluate(() => performance.now()); assert.ok(elapsed >= 6_000 && elapsed <= 11_000, `Expected roughly seven seconds, received ${elapsed}ms from navigation`);
-        return { handwriting, phases, elapsedMs: elapsed, cleanup: await assertClean(page), screenshot: `copy-${viewport.width}x${viewport.height}.png` };
-    }, { viewport })));
+        await page.clock.fastForward(1_600); assert.equal(await intro.getAttribute("data-phase"), "exit");
+        await page.clock.fastForward(850);
+        const trace = await page.evaluate(() => (window as Window & { __entryIntroTrace?: IntroTrace }).__entryIntroTrace);
+        assert.deepEqual(trace.phases, ["artwork", "copy", "exit"]);
+        return { clockMode: "Paused JS timers; real CSS glyph animation", handwriting, trace, cleanup: await assertClean(page), screenshot: `copy-${viewport.width}x${viewport.height}.png` };
+    }, { viewport });
+
+    await check("real-time natural deadline", async page => {
+        await enter(page); const cleanup = await assertClean(page);
+        const trace = await page.evaluate(() => (window as Window & { __entryIntroTrace?: IntroTrace }).__entryIntroTrace);
+        assert.deepEqual(trace.phases, ["artwork", "copy", "exit"]);
+        assert.ok(trace.effectStartedAt !== null && trace.removedAt !== null);
+        const elapsed = trace.removedAt! - trace.effectStartedAt!;
+        assert.ok(elapsed >= 6_500 && elapsed <= 9_000, `Natural playback must finish in about seven seconds from its effect, received ${elapsed}ms`);
+        return { clockMode: "Real wall clock; no timer mocks", elapsedMs: elapsed, trace, cleanup };
+    });
 
     await check("keyboard trap and Escape cleanup", async page => {
         await enter(page); const skip = page.getByRole("button", { name: "인트로 건너뛰기", exact: true }); assert.equal(await skip.evaluate(element => element === document.activeElement), true);
@@ -171,10 +219,10 @@ try {
         await page.goto(new URL("programs/", base).href, { waitUntil: "domcontentloaded" }); assert.equal(await page.locator(introSelector).count(), 0); return clean;
     }, { viewport: { width: 1440, height: 900 } });
     for (const suffix of ["#main", "?mode=cms-scm"]) await check(`bypass ${suffix}`, async page => {
-        await page.goto(base + suffix, { waitUntil: "domcontentloaded" }); await page.locator(introSelector).waitFor({ state: "detached", timeout: 4_000 }); return assertClean(page);
+        await page.goto(base + suffix, { waitUntil: "load" }); await waitHydrated(page); await page.locator(introSelector).waitFor({ state: "detached", timeout: 4_000 }); return assertClean(page);
     });
     await check("initial reduced motion", async page => {
-        await page.goto(base, { waitUntil: "domcontentloaded" }); await page.locator(introSelector).waitFor({ state: "detached", timeout: 4_000 }); return assertClean(page);
+        await page.goto(base, { waitUntil: "load" }); await waitHydrated(page); await page.locator(introSelector).waitFor({ state: "detached", timeout: 4_000 }); return assertClean(page);
     }, { reducedMotion: "reduce" });
     await check("runtime reduced motion change", async page => { await enter(page); await page.emulateMedia({ reducedMotion: "reduce" }); return assertClean(page); });
     await check("runtime hash navigation", async page => { await enter(page); await page.evaluate(() => { location.hash = "main"; }); const clean = await assertClean(page); assert.equal(new URL(page.url()).hash, "#main"); return clean; });
@@ -192,14 +240,24 @@ try {
     });
     await check("no JavaScript fail open", async page => {
         await page.goto(base, { waitUntil: "load" });
-        await page.waitForFunction(() => { const intro = document.querySelector<HTMLElement>("[data-v5-entry-intro]"); return !intro || getComputedStyle(intro).display === "none" || getComputedStyle(intro).visibility === "hidden"; }, undefined, { timeout: 12_000 });
+        // Locator evaluations force style calculation even with scripting disabled; injected RAF polling does not.
+        const failOpen = page.locator(introSelector);
+        const readFailOpen = () => failOpen.evaluate(element => {
+            const animation = element.getAnimations().find(animation => animation instanceof CSSAnimation && /v5EntryFailOpen/.test(animation.animationName));
+            return { hidden: getComputedStyle(element).display === "none" || getComputedStyle(element).visibility === "hidden", currentTime: Number(animation?.currentTime || 0), endTime: Number(animation?.effect?.getComputedTiming().endTime || 0), animation: getComputedStyle(element).animationName };
+        });
+        let progress = await readFailOpen(); const initialProgress = progress;
+        assert.ok(progress.hidden || progress.endTime > 0 && progress.endTime <= 10_000, "No-JS fail-open CSS must have a deadline of at most ten seconds");
+        const deadline = Date.now() + Math.max(0, progress.endTime - progress.currentTime) + 2_000;
+        while (!progress.hidden) { assert.ok(Date.now() < deadline, `No-JS overlay did not fail open: ${JSON.stringify(progress)}`); await page.waitForTimeout(100); progress = await readFailOpen(); }
         const state = await page.evaluate(() => {
             const main = document.querySelector<HTMLElement>("main")!;
             return { mainText: main.innerText.trim().length, inert: !!main.closest("[inert]"), hidden: !!main.closest('[aria-hidden="true"]'), scrollable: getComputedStyle(document.body).overflow !== "hidden" };
         });
         assert.ok(state.mainText > 20); assert.equal(state.inert, false); assert.equal(state.hidden, false); assert.equal(state.scrollable, true);
-        const link = page.locator("main a[href]").first(); await link.scrollIntoViewIfNeeded(); await link.click({ noWaitAfter: true }); await page.waitForURL(url => url.href !== base, { timeout: 8_000 });
-        await page.screenshot({ path: resolve(directory, "no-javascript-fail-open.png") }); return state;
+        const link = page.locator('main a[href]:not([tabindex="-1"]):not([aria-hidden="true"] a):visible').first();
+        await link.scrollIntoViewIfNeeded(); await link.click({ noWaitAfter: true }); await page.waitForURL(url => url.href !== base, { timeout: 8_000 });
+        await page.screenshot({ path: resolve(directory, "no-javascript-fail-open.png") }); return { ...state, initialProgress, finalProgress: progress };
     }, { javaScriptEnabled: false });
 
     assert.deepEqual(network.blockedWrites, [], "Acceptance must never attempt a remote write or email");
