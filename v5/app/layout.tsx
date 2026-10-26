@@ -3,7 +3,6 @@ import { CatalogProvider } from "../src/catalog/CatalogProvider";
 import { DESIGN_COLORS } from "../src/data/design-tokens";
 import SiteShell from "../components/SiteShell";
 import GlobalScrollbar from "../components/GlobalScrollbar";
-import ChatAssistant from "../components/ChatAssistant";
 
 import "../styles/compat/shared.css";
 import "../styles/compat/programs.css";
@@ -42,7 +41,8 @@ import "../styles/account-space.css";
 import "../styles/page-layout.css";
 import "../styles/system-surface.css";
 import "../styles/typography.css";
-import "../styles/icons.css";\nimport "../styles/ai-chat.css";
+import "../styles/icons.css";
+import "../styles/ai-chat.css";
 
 export const metadata = {
     title: "세종문화회관 | 공연·전시·교육",
@@ -64,7 +64,7 @@ export default function RootLayout({
                 <link rel="preload" href="/v5/assets/fonts/woff2/WantedSansVariable.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
             </head>
             <body>
-                <CatalogProvider><SiteShell>{children}</SiteShell><ChatAssistant /></CatalogProvider>
+                <CatalogProvider><SiteShell>{children}</SiteShell></CatalogProvider>
             </body>
         </html>
     );
