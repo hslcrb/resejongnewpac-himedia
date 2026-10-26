@@ -12,6 +12,14 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: "D2Coding";
+    src: url("/v5/assets/fonts/D2Coding.woff") format("woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     --color-black: #211F1C;
     --color-sky: #54C8E8;
@@ -67,6 +75,7 @@
     --color-detail-13k7abg: rgb(239 216 255 / 35%);
     --color-detail-14lw51r: rgb(255 254 250 / 60%);
     --color-detail-14wtfau: rgb(255 254 250 / 23%);
+    --color-detail-150rguf: rgb(56 39 110 / 30%);
     --color-detail-15oygyo: rgb(255 254 250 / 25%);
     --color-detail-161616: #161616;
     --color-detail-161a21: #161A21;
@@ -118,6 +127,7 @@
     --color-detail-1vsgs5b: rgb(47 0 89 / 20%);
     --color-detail-1wg1peq: rgb(178 151 239 / 24%);
     --color-detail-20201c: #20201C;
+    --color-detail-202027: #202027;
     --color-detail-202220: #202220;
     --color-detail-202419: #202419;
     --color-detail-202919: #202919;
@@ -125,6 +135,7 @@
     --color-detail-21211c: #21211C;
     --color-detail-21211d: #21211D;
     --color-detail-222222: #222222;
+    --color-detail-22222b: #22222B;
     --color-detail-22231f: #22231F;
     --color-detail-22241c: #22241C;
     --color-detail-22251a: #22251A;
@@ -137,11 +148,14 @@
     --color-detail-23231d: #23231D;
     --color-detail-23231e: #23231E;
     --color-detail-23849a: #23849A;
+    --color-detail-241a31: #241A31;
+    --color-detail-241a3130: #241A3130;
     --color-detail-24241d: #24241D;
     --color-detail-242420: #242420;
     --color-detail-242424: #242424;
     --color-detail-24251e: #24251E;
     --color-detail-24291a: #24291A;
+    --color-detail-251c2c: #251C2C;
     --color-detail-25251f: #25251F;
     --color-detail-252a25: #252A25;
     --color-detail-252b1c: #252B1C;
@@ -165,6 +179,7 @@
     --color-detail-2d3d1d: #2D3D1D;
     --color-detail-2d97ae: #2D97AE;
     --color-detail-2f372f: #2F372F;
+    --color-detail-30204335: #30204335;
     --color-detail-30343a: #30343A;
     --color-detail-303925: #303925;
     --color-detail-303a31: #303A31;
@@ -192,10 +207,12 @@
     --color-detail-4a4323: #4A4323;
     --color-detail-4a5963: #4A5963;
     --color-detail-4c6894: #4C6894;
+    --color-detail-4d3389: #4D3389;
     --color-detail-4d5c65: #4D5C65;
     --color-detail-4dcefa: #4DCEFA;
     --color-detail-4f4435: #4F4435;
     --color-detail-50635b: #50635B;
+    --color-detail-523a65: #523A65;
     --color-detail-525c50: #525C50;
     --color-detail-52613a: #52613A;
     --color-detail-527c7d: #527C7D;
@@ -219,6 +236,7 @@
     --color-detail-5e3931: #5E3931;
     --color-detail-5e4935: #5E4935;
     --color-detail-5e5e52: #5E5E52;
+    --color-detail-5f398d: #5F398D;
     --color-detail-5f39f9: #5F39F9;
     --color-detail-5f5316: #5F5316;
     --color-detail-5f602f: #5F602F;
@@ -249,6 +267,8 @@
     --color-detail-667d53: #667D53;
     --color-detail-676552: #676552;
     --color-detail-67675e: #67675E;
+    --color-detail-6843ba: #6843BA;
+    --color-detail-686473: #686473;
     --color-detail-686962: #686962;
     --color-detail-686b5e: #686B5E;
     --color-detail-696b60: #696B60;
@@ -264,11 +284,13 @@
     --color-detail-6e0758: #6E0758;
     --color-detail-6e6e64: #6E6E64;
     --color-detail-6e765c: #6E765C;
+    --color-detail-6f6b79: #6F6B79;
     --color-detail-6f7868: #6F7868;
     --color-detail-704329: #704329;
     --color-detail-707569: #707569;
     --color-detail-714e38: #714E38;
     --color-detail-715640: #715640;
+    --color-detail-715983: #715983;
     --color-detail-717165: #717165;
     --color-detail-717466: #717466;
     --color-detail-718b65: #718B65;
@@ -292,12 +314,15 @@
     --color-detail-74786d: #74786D;
     --color-detail-755336: #755336;
     --color-detail-756044: #756044;
+    --color-detail-756d83: #756D83;
     --color-detail-757569: #757569;
     --color-detail-75756b: #75756B;
     --color-detail-757570: #757570;
+    --color-detail-7653ca: #7653CA;
     --color-detail-766401: #766401;
     --color-detail-767670: #767670;
     --color-detail-776a2f: #776A2F;
+    --color-detail-77717d: #77717D;
     --color-detail-77776a: #77776A;
     --color-detail-77776b: #77776B;
     --color-detail-77776d: #77776D;
@@ -366,6 +391,7 @@
     --color-detail-93ac91: #93AC91;
     --color-detail-947450: #947450;
     --color-detail-97978a: #97978A;
+    --color-detail-9870b8: #9870B8;
     --color-detail-99480b: #99480B;
     --color-detail-999999: #999999;
     --color-detail-99g6h2: rgb(39 1 78 / 32%);
@@ -379,11 +405,13 @@
     --color-detail-9e8767: #9E8767;
     --color-detail-9f3326: #9F3326;
     --color-detail-9mf0a5: rgb(129 64 188 / 25%);
+    --color-detail-a02735: #A02735;
     --color-detail-a08200: #A08200;
     --color-detail-a09377: #A09377;
     --color-detail-a0b188: #A0B188;
     --color-detail-a29476: #A29476;
     --color-detail-a38055: #A38055;
+    --color-detail-a388f5: #A388F5;
     --color-detail-a39983: #A39983;
     --color-detail-a42bfa: #A42BFA;
     --color-detail-a47245: #A47245;
@@ -392,6 +420,7 @@
     --color-detail-a6a08c: #A6A08C;
     --color-detail-a71910: #A71910;
     --color-detail-a77f53: #A77F53;
+    --color-detail-a783dd: #A783DD;
     --color-detail-a8adb4: #A8ADB4;
     --color-detail-a97748: #A97748;
     --color-detail-a9b3a6: #A9B3A6;
@@ -399,6 +428,7 @@
     --color-detail-ae3327: #AE3327;
     --color-detail-ae9465: #AE9465;
     --color-detail-aea00c: #AEA00C;
+    --color-detail-ak3yra: rgb(56 39 110 / 24%);
     --color-detail-b09165: #B09165;
     --color-detail-b0b5a4: #B0B5A4;
     --color-detail-b0b7a0: #B0B7A0;
@@ -435,6 +465,7 @@
     --color-detail-ba976a: #BA976A;
     --color-detail-ba9860: #BA9860;
     --color-detail-bac7ce: #BAC7CE;
+    --color-detail-bcb2c5: #BCB2C5;
     --color-detail-bcc4b6: #BCC4B6;
     --color-detail-bcc5a8: #BCC5A8;
     --color-detail-bcd3ed: #BCD3ED;
@@ -501,6 +532,7 @@
     --color-detail-d4cdba: #D4CDBA;
     --color-detail-d4d9de: #D4D9DE;
     --color-detail-d4dfe3: #D4DFE3;
+    --color-detail-d50g6g: rgb(35 28 60 / 18%);
     --color-detail-d5ab5d: #D5AB5D;
     --color-detail-d5b786: #D5B786;
     --color-detail-d5b88d: #D5B88D;
@@ -535,6 +567,7 @@
     --color-detail-dadcc8: #DADCC8;
     --color-detail-dbcfb5: #DBCFB5;
     --color-detail-dbdbd3: #DBDBD3;
+    --color-detail-dcd2e5: #DCD2E5;
     --color-detail-dcdcd3: #DCDCD3;
     --color-detail-dcdcd4: #DCDCD4;
     --color-detail-dcdcd5: #DCDCD5;
@@ -544,6 +577,7 @@
     --color-detail-dce0d5: #DCE0D5;
     --color-detail-dce3e6: #DCE3E6;
     --color-detail-ddc398: #DDC398;
+    --color-detail-ddd5e7: #DDD5E7;
     --color-detail-dddddd: #DDDDDD;
     --color-detail-ddded3: #DDDED3;
     --color-detail-ddded6: #DDDED6;
@@ -590,6 +624,7 @@
     --color-detail-e5bf92: #E5BF92;
     --color-detail-e5ce37: #E5CE37;
     --color-detail-e5d4a8: #E5D4A8;
+    --color-detail-e5e1ef: #E5E1EF;
     --color-detail-e5e4db: #E5E4DB;
     --color-detail-e5e5de: #E5E5DE;
     --color-detail-e5e8ec: #E5E8EC;
@@ -601,10 +636,12 @@
     --color-detail-e7bf26: #E7BF26;
     --color-detail-e7cda1: #E7CDA1;
     --color-detail-e7d7b0: #E7D7B0;
+    --color-detail-e7e5eb: #E7E5EB;
     --color-detail-e7f7fc: #E7F7FC;
     --color-detail-e8c982: #E8C982;
     --color-detail-e8d9ac: #E8D9AC;
     --color-detail-e8dd9c: #E8DD9C;
+    --color-detail-e8dfed: #E8DFED;
     --color-detail-e8e3d1: #E8E3D1;
     --color-detail-e8e8e1: #E8E8E1;
     --color-detail-e9e2d3: #E9E2D3;
@@ -625,6 +662,7 @@
     --color-detail-edefe1: #EDEFE1;
     --color-detail-edf0f2: #EDF0F2;
     --color-detail-eeede7: #EEEDE7;
+    --color-detail-eeedf1: #EEEDF1;
     --color-detail-eeeeda: #EEEEDA;
     --color-detail-eeeee7: #EEEEE7;
     --color-detail-eeefe7: #EEEFE7;
@@ -638,12 +676,14 @@
     --color-detail-f0bc74: #F0BC74;
     --color-detail-f0d5aa: #F0D5AA;
     --color-detail-f0db00: #F0DB00;
+    --color-detail-f0eaff: #F0EAFF;
     --color-detail-f0f0e7: #F0F0E7;
     --color-detail-f0f0eb: #F0F0EB;
     --color-detail-f0f0ec: #F0F0EC;
     --color-detail-f0f1ef: #F0F1EF;
     --color-detail-f1e1d0: #F1E1D0;
     --color-detail-f1e8cf: #F1E8CF;
+    --color-detail-f1edf7: #F1EDF7;
     --color-detail-f1f1e9: #F1F1E9;
     --color-detail-f1f4f5: #F1F4F5;
     --color-detail-f1f5e6: #F1F5E6;
@@ -651,6 +691,7 @@
     --color-detail-f2d8ff: #F2D8FF;
     --color-detail-f2dc45: #F2DC45;
     --color-detail-f2f1e9: #F2F1E9;
+    --color-detail-f2f1f3: #F2F1F3;
     --color-detail-f2f4f6: #F2F4F6;
     --color-detail-f3de4e: #F3DE4E;
     --color-detail-f3e577: #F3E577;
@@ -684,6 +725,7 @@
     --color-detail-f6e45d: #F6E45D;
     --color-detail-f6e7ca: #F6E7CA;
     --color-detail-f6edcb: #F6EDCB;
+    --color-detail-f6f2ff: #F6F2FF;
     --color-detail-f6f6e7: #F6F6E7;
     --color-detail-f6f6f0: #F6F6F0;
     --color-detail-f6f6f1: #F6F6F1;
@@ -707,6 +749,7 @@
     --color-detail-f8f2e4: #F8F2E4;
     --color-detail-f8f3ca: #F8F3CA;
     --color-detail-f8f4dd: #F8F4DD;
+    --color-detail-f8f7fa: #F8F7FA;
     --color-detail-f9ed93: #F9ED93;
     --color-detail-f9f5e8: #F9F5E8;
     --color-detail-f9f7e9: #F9F7E9;
@@ -718,6 +761,7 @@
     --color-detail-faf8ea: #FAF8EA;
     --color-detail-fafaf7: #FAFAF7;
     --color-detail-fce7ae: #FCE7AE;
+    --color-detail-fcfbfe: #FCFBFE;
     --color-detail-fdf8e8: #FDF8E8;
     --color-detail-ff477a: #FF477A;
     --color-detail-ffdf36: #FFDF36;
@@ -740,6 +784,7 @@
     --color-detail-fff8e9: #FFF8E9;
     --color-detail-fff9da: #FFF9DA;
     --color-detail-fff9ec: #FFF9EC;
+    --color-detail-fffafc: #FFFAFC;
     --color-detail-fffbea: #FFFBEA;
     --color-detail-fffced: #FFFCED;
     --color-detail-fffdf2: #FFFDF2;
@@ -828,6 +873,11 @@
     --semantic-info: var(--color-sky);
     --semantic-info-subtle: var(--surface-subtle);
     --semantic-info-border: var(--border-default);
+    --font-mono: "D2Coding", ui-monospace, SFMono-Regular, Consolas, monospace;
+    --code-comment: var(--text-secondary);
+    --code-keyword: color-mix(in srgb, var(--color-ochre) 64%, var(--color-black));
+    --code-string: color-mix(in srgb, var(--color-sky) 36%, var(--color-black));
+    --code-property: color-mix(in srgb, var(--color-ochre) 44%, var(--color-black));
     --text-min: 1rem;
     --text-hero-with-companion: clamp(2.5rem, 3.7vw, 3.5rem);
     --text-hero-standalone: clamp(2.625rem, 4.3vw, 4.125rem);

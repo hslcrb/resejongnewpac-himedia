@@ -37,7 +37,7 @@ function loadDeepChat(): Promise<void> {
             script.async = true;
             script.crossOrigin = "anonymous";
             script.onload = () => {
-                customElements.whenDefined("deep-chat").then(resolve, reject);
+                customElements.whenDefined("deep-chat").then(() => resolve(), reject);
             };
             script.onerror = () => reject(new Error("채팅 UI를 불러오지 못했습니다."));
             document.head.append(script);
@@ -219,27 +219,27 @@ function ChatAssistant() {
                 inert={!open}
             >
                 <header className={styles.panelHeader}>
-                    <span className={styles.heading}><span aria-hidden="true" className={styles.sparkle}>✳</span> 세종 AI 도우미</span>
+                    <span data-text="label" className={styles.heading}><span aria-hidden="true" className={styles.sparkle}>✳</span> 세종 AI 도우미</span>
                     <div className={styles.actions}>
-                        <button type="button" className={styles.minorButton} onClick={() => void clear()} aria-label="대화 기록 삭제">기록 삭제</button>
-                        <button type="button" className={styles.closeButton} onClick={dismiss} aria-label="채팅 닫기">×</button>
+                        <button data-text="action" type="button" className={styles.minorButton} onClick={() => void clear()} aria-label="대화 기록 삭제">기록 삭제</button>
+                        <button data-text="action" type="button" className={styles.closeButton} onClick={dismiss} aria-label="채팅 닫기">×</button>
                     </div>
                 </header>
                 <div className={styles.toolbar}>
-                    <label htmlFor="sejong-chat-provider">AI 모델</label>
+                    <label data-text="label" htmlFor="sejong-chat-provider">AI 모델</label>
                     <select id="sejong-chat-provider" value={provider} onChange={event => setProvider(event.target.value as Provider)}>
-                        <option value="auto">자동 선택</option>
-                        <option value="groq">Groq</option>
-                        <option value="mistral">Mistral</option>
+                        <option data-text="label" value="auto">자동 선택</option>
+                        <option data-text="label" value="groq">Groq</option>
+                        <option data-text="label" value="mistral">Mistral</option>
                     </select>
-                    <span className={styles.storage}>{isLoggedIn ? "계정 암호화 기록" : "이 기기 암호화 기록"}</span>
+                    <span data-text="caption" className={styles.storage}>{isLoggedIn ? "계정 암호화 기록" : "이 기기 암호화 기록"}</span>
                 </div>
                 <div ref={contentRef} className={styles.chat} aria-busy={hasOpened && !loaded && !error}>
-                    {!loaded && !error && <p className={styles.notice}>대화 기록을 불러오는 중…</p>}
-                    {error && <p className={styles.error} role="alert">{error}</p>}
+                    {!loaded && !error && <p data-text="body" className={styles.notice}>대화 기록을 불러오는 중…</p>}
+                    {error && <p data-text="body" className={styles.error} role="alert">{error}</p>}
                 </div>
-                {lastModel && <p className={styles.model} aria-live="polite">응답 모델: {lastModel}</p>}
-                <p className={styles.disclaimer}>AI가 작성한 답변입니다. 실제 공연·예매 정보는 반드시 확인해 주세요.</p>
+                {lastModel && <p data-text="caption" className={styles.model} aria-live="polite">응답 모델: {lastModel}</p>}
+                <p data-text="caption" className={styles.disclaimer}>AI가 작성한 답변입니다. 실제 공연·예매 정보는 반드시 확인해 주세요.</p>
             </section>
             <button
                 ref={buttonRef}
@@ -255,7 +255,7 @@ function ChatAssistant() {
                     <path d="m18 26 3-9 3 9m-5-3h4m7-6v9" strokeLinecap="round" />
                     <path d="M32 11v3m-1.5-1.5h3" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
-                <span className={styles.logoLabel}>AI</span>
+                <span data-text="label" className={styles.logoLabel}>AI</span>
             </button>
         </div>
     );

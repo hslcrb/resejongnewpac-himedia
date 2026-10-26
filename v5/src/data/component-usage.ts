@@ -52,6 +52,15 @@ export const COMPONENT_USAGE = {
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample"
         ]
     },
+    "ai-chat-widget": {
+        "status": "product",
+        "productUses": [
+            "components/SiteShell.tsx#SiteShell"
+        ],
+        "guideUses": [
+            "components/SiteShell.tsx#SiteShell"
+        ]
+    },
     "badge": {
         "status": "product",
         "productUses": [
@@ -117,14 +126,17 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountDiary",
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
+            "components/AiChatWidget.tsx#AiChatWidget",
             "components/CompletedPage.tsx#CardsSection",
             "components/CompletedPage.tsx#CompletedPage",
             "components/CompletedPage.tsx#VenueComparison",
             "components/ContextMenu.tsx#ContextMenu",
+            "components/DeepSearch.tsx#DeepSearch",
             "components/FloatingPanel.tsx#PanelSurface",
             "components/HeroCarousel.tsx#HeroCarousel",
             "components/HeroSlide.tsx#HeroSlide",
             "components/HomeBookingControls.tsx#BookingCalendar",
+            "components/HomeEntryIntro.tsx#HomeEntryIntro",
             "components/IntroductionExperience.tsx#IntroductionExperience",
             "components/ServiceGoods.tsx#ServiceGoods",
             "components/ServiceRequestForm.tsx#ServiceRequestForm",
@@ -132,6 +144,7 @@ export const COMPONENT_USAGE = {
             "components/SystemPrimitives.tsx#SystemIconButton"
         ],
         "guideUses": [
+            "app/design-rules/_documentation/CodeBlock.tsx#CodeBlock",
             "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/_documentation/LiquidGlassDemo.tsx#LiquidGlassDemo",
@@ -141,10 +154,13 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountDiary",
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
+            "components/AiChatWidget.tsx#AiChatWidget",
             "components/ContextMenu.tsx#ContextMenu",
+            "components/DeepSearch.tsx#DeepSearch",
             "components/FloatingPanel.tsx#PanelSurface",
             "components/HeroSlide.tsx#HeroSlide",
             "components/HomeBookingControls.tsx#BookingCalendar",
+            "components/HomeEntryIntro.tsx#HomeEntryIntro",
             "components/SystemPrimitives.tsx#SystemFilterButton",
             "components/SystemPrimitives.tsx#SystemIconButton"
         ]
@@ -238,6 +254,31 @@ export const COMPONENT_USAGE = {
             "app/design-rules/page.tsx#renderChapter"
         ]
     },
+    "deep-search": {
+        "status": "product",
+        "productUses": [
+            "components/CatalogPage.tsx#CatalogPage",
+            "components/DeepSearchDisclosure.tsx#DeepSearchDisclosure",
+            "components/Header.tsx#Header"
+        ],
+        "guideUses": [
+            "components/DeepSearchDisclosure.tsx#DeepSearchDisclosure",
+            "components/Header.tsx#Header"
+        ]
+    },
+    "deep-search-disclosure": {
+        "status": "product",
+        "productUses": [
+            "app/programs/page.tsx#ProgramsPage",
+            "components/CompletedPage.tsx#CardsSection",
+            "components/CompletedPage.tsx#SiteMap",
+            "components/ServiceGoods.tsx#ServiceGoods"
+        ],
+        "guideUses": [
+            "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
+            "app/design-rules/page.tsx#DesignRulesPage"
+        ]
+    },
     "dialog": {
         "status": "product",
         "productUses": [
@@ -280,8 +321,8 @@ export const COMPONENT_USAGE = {
             "components/CompletedPage.tsx#CardsSection",
             "components/CompletedPage.tsx#RentalCalendar",
             "components/CompletedPage.tsx#SiteMap",
+            "components/DeepSearch.tsx#DeepSearch",
             "components/Footer.tsx#Footer",
-            "components/Header.tsx#Header",
             "components/HomeBookingControls.tsx#BookingCalendar",
             "components/ServiceGoods.tsx#ServiceGoods",
             "components/ServiceRequestForm.tsx#ServiceRequestForm"
@@ -292,8 +333,8 @@ export const COMPONENT_USAGE = {
             "app/design-rules/page.tsx#DesignRulesPage",
             "app/design-rules/page.tsx#renderChapter",
             "components/AccountPanels.tsx#AccountDiary",
+            "components/DeepSearch.tsx#DeepSearch",
             "components/Footer.tsx#Footer",
-            "components/Header.tsx#Header",
             "components/HomeBookingControls.tsx#BookingCalendar"
         ]
     },
@@ -416,6 +457,15 @@ export const COMPONENT_USAGE = {
         ],
         "guideUses": []
     },
+    "home-entry-intro": {
+        "status": "product",
+        "productUses": [
+            "app/layout.tsx#RootLayout"
+        ],
+        "guideUses": [
+            "app/layout.tsx#RootLayout"
+        ]
+    },
     "icon": {
         "status": "product",
         "productUses": [
@@ -448,6 +498,7 @@ export const COMPONENT_USAGE = {
             "components/VioletQuickMenu.tsx#renderLink"
         ],
         "guideUses": [
+            "app/design-rules/_documentation/CodeBlock.tsx#CodeBlock",
             "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#DesignRulesPage",
@@ -645,6 +696,7 @@ export const COMPONENT_USAGE = {
             "components/ServiceRequestForm.tsx#ServiceRequestForm"
         ],
         "guideUses": [
+            "app/design-rules/_documentation/CodeBlock.tsx#CodeBlock",
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#renderChapter",
             "components/BookingDatePreview.tsx#BookingDatePreview"
@@ -675,8 +727,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 51,
-    "product": 51,
+    "total": 55,
+    "product": 55,
     "documentationOnly": 0,
     "unused": 0
 } as const;

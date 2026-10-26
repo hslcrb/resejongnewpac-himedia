@@ -8,6 +8,7 @@ import ProgramCard from "../../components/ProgramCard";
 import FloatingMenu from "../../components/FloatingMenu";
 import LiquidGlassDemo from "./_documentation/LiquidGlassDemo";
 import ComponentCatalog from "./_documentation/ComponentCatalog";
+import CodeBlock from "./_documentation/CodeBlock";
 import SystemDialog from "../../components/SystemDialog";
 import DeepSearchDisclosure from "../../components/DeepSearchDisclosure";
 import { contextSearchReply } from "../../components/DeepSearch";
@@ -720,6 +721,10 @@ export default function DesignRulesPage() {
                                     행간 1.7입니다. 메뉴·날짜·고지·도움말도 16px 아래로 줄이지
                                     않습니다.
                                 </SystemText>
+                                <p data-text="body">
+                                    파일 경로·코드·토큰은 로컬 D2Coding을 사용합니다. 한글과 영문을
+                                    고정폭으로 맞추고, 코드의 들여쓰기와 16px 최소 크기를 유지합니다.
+                                </p>
                                 {/* 공유 텍스트 속성의 실제 사용 / Live use of shared text properties */}
                                 <p {...textAttributes("caption")} className="ds-caption">
                                     새 텍스트는 SystemText의 variant로 역할을 고릅니다. 기존
@@ -727,9 +732,9 @@ export default function DesignRulesPage() {
                                     연결하며, HTML의 의미와 조작은 유지합니다. size를 지정할 때도
                                     역할 또는 control·hero-with-companion·hero-standalone·quick-action 크기를 사용합니다.
                                 </p>
-                                <pre data-text="body"><code data-text="meta">{`<SystemText as="h2" variant="heading">관람 예약</SystemText>
+                                <CodeBlock title="SystemText.tsx" code={`<SystemText as="h2" variant="heading">관람 예약</SystemText>
 <p {...textAttributes("caption")}>날짜와 관람 안내</p>
-<SystemText variant="body" size="lead">예매한 일정을 확인하세요.</SystemText>`}</code></pre>
+<SystemText variant="body" size="lead">예매한 일정을 확인하세요.</SystemText>`} />
                                 <div className="ds-type-intro">
                                     <strong data-text="item-title">
                                         가나다, 세종.
@@ -948,9 +953,9 @@ export default function DesignRulesPage() {
                                         <p data-text="caption">안쪽의 관련 정보는 inset 표면으로 구분합니다. 여백과 모서리는 속성으로 선택합니다.</p>
                                     </SystemSurface>
                                 </SystemSurface>
-                                <pre data-text="body"><code data-text="meta">{`<SystemSurface as="section" variant="subtle" padding="lg" radius="panel">
+                                <CodeBlock title="SystemSurface.tsx" code={`<SystemSurface as="section" variant="subtle" padding="lg" radius="panel">
     <SystemText as="h3" variant="item-title">공통 안내 패널</SystemText>
-</SystemSurface>`}</code></pre>
+</SystemSurface>`} />
                             </>,
                         )}
                     </>
@@ -1298,9 +1303,7 @@ export default function DesignRulesPage() {
                                         ["className / id", "표면 크기와 식별자"],
                                     ]}
                                 />
-                                <pre data-text="body" className="ds-code-block">
-                                    <code data-text="meta">{`import FloatingPanel from "@/components/FloatingPanel";\n\n<FloatingPanel\n    open={open}\n    onClose={() => setOpen(false)}\n    anchorRef={buttonRef}\n    title="목록"\n>\n    <nav className="glass-menu-content" aria-label="목록">\n        <a href="/v5/programs/">프로그램</a>\n    </nav>\n</FloatingPanel>`}</code>
-                                </pre>
+                                <CodeBlock title="FloatingPanel.tsx" code={`import FloatingPanel from "@/components/FloatingPanel";\n\n<FloatingPanel\n    open={open}\n    onClose={() => setOpen(false)}\n    anchorRef={buttonRef}\n    title="목록"\n>\n    <nav className="glass-menu-content" aria-label="목록">\n        <a href="/v5/programs/">프로그램</a>\n    </nav>\n</FloatingPanel>`} />
                                 <p data-text="caption" className="ds-caption">
                                     이동 중에는 WebGL이 시각적 전환을 담당하고, 정착하면 실제 HTML
                                     링크와 버튼을 사용합니다. 모션 감소 설정에서는 짧은 페이드만
@@ -1400,7 +1403,7 @@ export default function DesignRulesPage() {
                                         ["duration", "호스트의 표시 시간 · 기본 3500ms"],
                                     ]}
                                 />
-                                <pre data-text="body" className="ds-code-block"><code data-text="meta">{`import SmallNotificationModal, {\n    showSmallNotification\n} from "@/components/SmallNotificationModal";\n\nshowSmallNotification("관심 프로그램에 저장했어요.");\n\n// 직접 상태를 제어하는 경우\n<SmallNotificationModal open={visible} message="저장했어요." />`}</code></pre>
+                                <CodeBlock title="SmallNotificationModal.tsx" code={`import SmallNotificationModal, {\n    showSmallNotification\n} from "@/components/SmallNotificationModal";\n\nshowSmallNotification("관심 프로그램에 저장했어요.");\n\n// 직접 상태를 제어하는 경우\n<SmallNotificationModal open={visible} message="저장했어요." />`} />
                                 <p data-text="caption" className="ds-caption">
                                     양끝은 완전한 캡슐이며, 글자는 최소 16px로 유지합니다.
                                     모션 감소 설정에서는 위치 이동 없이 페이드만 사용합니다.
@@ -1642,9 +1645,7 @@ export default function DesignRulesPage() {
                                         {copied === "디자인 토큰" ? "복사됨" : "전체 코드 복사"}
                                     </SystemButton>
                                 </div>
-                                <pre data-text="body" className="ds-code-block">
-                                    <code data-text="meta">{designTokensCss()}</code>
-                                </pre>
+                                <CodeBlock title="tokens.css" language="css" onCopy={() => copyValue(designTokensCss(), "디자인 토큰")} copied={copied === "디자인 토큰"} code={designTokensCss()} />
                             </>,
                         )}
                         {section(

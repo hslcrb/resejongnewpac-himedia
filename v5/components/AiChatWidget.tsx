@@ -56,7 +56,7 @@ export default function AiChatWidget() {
       });
       const data = await response.json();
       if (!response.ok || typeof data.text !== "string") throw new Error(typeof data.error === "string" ? data.error : "연결 실패");
-      history.current = [...messages, { role: "assistant", content: data.text }].slice(-40);
+      history.current = [...messages, { role: "assistant" as const, content: data.text }].slice(-40);
       if (!access) await saveGuestChat(history.current).catch(() => undefined);
       signals.onResponse({ text: data.text });
     } catch (error) {
@@ -74,12 +74,12 @@ export default function AiChatWidget() {
   }, [ready, scriptReady, initialHistory]);
 
   return (
-    <aside className="sejong-ai-widget" aria-label="AI 안내 상담" data-component-id="ai-chat-widget">
+    <aside data-text="body" className="sejong-ai-widget" aria-label="AI 안내 상담" data-component-id="ai-chat-widget">
       {enabled && <Script src="https://unpkg.com/deep-chat@2.5.1/dist/deepChat.bundle.js" strategy="afterInteractive" onLoad={() => setScriptReady(true)} />}
       {open && (
         <section className="sejong-ai-panel" aria-label="AI 상담 창">
-          <div className="sejong-ai-panel-head"><strong>세종 AI 안내</strong><SystemButton variant="quiet" type="button" onClick={() => setOpen(false)} aria-label="상담 닫기">×</SystemButton></div>
-          {!enabled ? <p className="sejong-ai-loading">AI 상담 서비스 준비 중입니다.</p> : ready && scriptReady
+          <div className="sejong-ai-panel-head"><strong data-text="label">세종 AI 안내</strong><SystemButton variant="quiet" type="button" onClick={() => setOpen(false)} aria-label="상담 닫기">×</SystemButton></div>
+          {!enabled ? <p data-text="body" className="sejong-ai-loading">AI 상담 서비스 준비 중입니다.</p> : ready && scriptReady
             ? <div ref={node => { element.current = node?.querySelector("deep-chat") as DeepElement | null; }}><div className="sejong-ai-deep-mount" ref={node => {
                 if (!node || node.querySelector("deep-chat")) return;
                 const chat = document.createElement("deep-chat") as DeepElement;
@@ -92,11 +92,11 @@ export default function AiChatWidget() {
                 node.appendChild(chat);
                 element.current = chat;
               }} /></div>
-            : <p className="sejong-ai-loading">상담 기능을 불러오는 중...</p>}
+            : <p data-text="body" className="sejong-ai-loading">상담 기능을 불러오는 중...</p>}
         </section>
       )}
       <SystemButton variant="quiet" className="sejong-ai-trigger" type="button" aria-expanded={open} aria-label={open ? "AI 상담 닫기" : "AI 상담 열기"} onClick={() => setOpen(value => !value)}>
-        <span aria-hidden="true">✦</span><span className="sejong-ai-trigger-tip">무엇을 도와드릴까요?</span>
+        <span aria-hidden="true">✦</span><span data-text="caption" className="sejong-ai-trigger-tip">무엇을 도와드릴까요?</span>
       </SystemButton>
     </aside>
   );
