@@ -71,6 +71,7 @@ const definitions: readonly ComponentDefinition[] = [
     { id: "quick-menu", name: "VioletQuickMenu", source: "components/VioletQuickMenu.tsx", exportName: "default", kind: "ui", guide: "motion/quick-menu", purpose: "노랑·초록의 유동 표면을 돌려 탐색하는 원형 퀵메뉴" },
     { id: "context-menu", name: "ContextMenu", source: "components/ContextMenu.tsx", exportName: "default", kind: "ui", guide: "components/registry", purpose: "현재 영역의 주소와 이동을 돕는 문맥 메뉴", previewRoute: "/v5/" },
     { id: "return-top", name: "ReturnTop", source: "components/ReturnTop.tsx", exportName: "default", kind: "ui", guide: "components/registry", purpose: "스크롤 위치에 따라 나타나는 위로 가기", previewRoute: "/v5/#discover-programs" },
+    { id: "global-scrollbar", name: "GlobalScrollbar", source: "components/GlobalScrollbar.tsx", exportName: "default", kind: "structure", guide: "components/registry", purpose: "본문·모달·가이드의 기본 스크롤 동작을 유지하며 투명 트랙과 얇은 스크롤 엄지의 공통 스타일을 적용" },
     { id: "header", name: "Header", source: "components/Header.tsx", exportName: "default", kind: "ui", guide: "components/registry", purpose: "주 메뉴·회원 경로·검색과 전체 메뉴", previewRoute: "/v5/#header" },
     { id: "footer", name: "Footer", source: "components/Footer.tsx", exportName: "default", kind: "ui", guide: "components/registry", purpose: "기관·정책·관련 서비스 탐색", previewRoute: "/v5/#footer" },
     { id: "introduction", name: "IntroductionExperience", source: "components/IntroductionExperience.tsx", exportName: "default", kind: "ui", guide: "components/registry", purpose: "기관 소개의 독립적인 전체 페이지 경험", previewRoute: "/v5/about/introduction/" },

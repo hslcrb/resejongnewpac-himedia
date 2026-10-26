@@ -2,6 +2,7 @@ import React from "react";
 import { CatalogProvider } from "../src/catalog/CatalogProvider";
 import { DESIGN_COLORS } from "../src/data/design-tokens";
 import SiteShell from "../components/SiteShell";
+import GlobalScrollbar from "../components/GlobalScrollbar";
 
 import "../styles/compat/shared.css";
 import "../styles/compat/programs.css";
@@ -57,6 +58,7 @@ export default function RootLayout({
     return (
         <html lang="ko">
             <head>
+                <GlobalScrollbar />
                 <link rel="icon" type="image/svg+xml" href="/v5/assets/favicon.svg" />
                 <link rel="preload" href="/v5/assets/fonts/woff2/WantedSansVariable.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
             </head>
