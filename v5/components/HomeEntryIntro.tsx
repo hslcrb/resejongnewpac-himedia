@@ -127,6 +127,7 @@ export default function HomeEntryIntro() {
         <div
             ref={dialogRef}
             data-v5-entry-intro
+            data-component-id="home-entry-intro"
             data-phase={phase}
             className={styles.overlay}
             role="dialog"
