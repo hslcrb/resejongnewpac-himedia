@@ -2,6 +2,9 @@
 
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { useRef } from "react";
+import { useGSAP } from "../src/lib/gsap";
+import { createEditorialMotion } from "../src/lib/editorial-motion";
 import Header from "./Header";
 import Footer from "./Footer";
 import { SmallNotificationModalHost } from "./SmallNotificationModal";
@@ -14,6 +17,9 @@ import AiChatWidget from "./AiChatWidget";
 // The design guide owns its documentation navigation; other pages retain the product shell.
 export default function SiteShell({ children }: { children: ReactNode }) {
     const pathname = usePathname();
+    const main = useRef<HTMLElement>(null);
+    useGSAP(() => main.current ? createEditorialMotion(main.current, pathname) : undefined,
+        { scope: main, dependencies: [pathname], revertOnUpdate: true });
     const documentation = pathname.replace(/\/$/, "").endsWith("/design-rules");
     if (documentation) {
         return (
@@ -32,7 +38,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
                 본문 바로가기
             </a>
             <Header />
-            <main data-component-id="site-shell" data-text="body" id="main" tabIndex={-1}>
+            <main ref={main} data-component-id="site-shell" data-text="body" id="main" tabIndex={-1}>
                 {children}
             </main>
             <Footer />
