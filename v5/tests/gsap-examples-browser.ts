@@ -230,10 +230,10 @@ try {
     for (const viewport of [{ width: 844, height: 390 }, { width: 640, height: 450 }]) await check(`editorial short viewport ${viewport.width}x${viewport.height}`, async page => { await enter(page, "about/"); await ready(page); await page.locator("main h2").last().scrollIntoViewIfNeeded(); return assertReadable(page); }, { viewport, reducedMotion: "reduce" });
 
     await check("editorial image pointer keyboard and reduced restoration", async page => {
-        await enter(page, "about/companies/"); await ready(page);
-        const image = page.locator(".completed-list-image > img").first(), link = image.locator("xpath=ancestor::a[1]");
-        assert.equal(await link.count(), 1); await link.scrollIntoViewIfNeeded(); await page.waitForTimeout(1000);
-        await link.hover(); await page.waitForTimeout(420); const hovered = await motion(image);
+        await enter(page, "programs/history/"); await ready(page);
+        const image = page.locator(".completed-list-image > img").first(), owner = image.locator("xpath=ancestor::li[1]"), link = owner.locator("a").first();
+        assert.equal(await image.count(), 1); assert.equal(await owner.count(), 1); assert.equal(await link.count(), 1); await owner.scrollIntoViewIfNeeded(); await page.waitForTimeout(1000);
+        await owner.hover(); await page.waitForTimeout(420); const hovered = await motion(image);
         assert.ok(hovered.scaleX > 1.015 && hovered.scaleX <= 1.03 && Math.abs(hovered.scaleX - hovered.scaleY) < .002, "Pointer feedback must scale both actual image axes together");
         await page.mouse.move(0, 0); await page.waitForTimeout(420); const resting = await motion(image); assert.ok(Math.abs(resting.scaleX - 1) < .002 && Math.abs(resting.scaleY - 1) < .002);
         await link.focus(); await page.waitForTimeout(420); const focused = await motion(image); assert.ok(focused.scaleX > 1.015 && Math.abs(focused.scaleX - focused.scaleY) < .002);
