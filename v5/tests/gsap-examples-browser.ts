@@ -366,6 +366,17 @@ try {
         return { before, paused, still, final: await labSnapshot(page) };
     });
 
+    await check("lab native scroller then play continues from its actual position", async page => {
+        await lab(page, "scroll"); const scroller = page.locator("[data-lab-scroller]");
+        const manual = await scroller.evaluate(element => { element.scrollTop = (element.scrollHeight - element.clientHeight) * .8; return { top: element.scrollTop, maximum: element.scrollHeight - element.clientHeight }; });
+        assert.ok(manual.maximum > 0 && manual.top > 0);
+        await page.waitForFunction(() => Math.abs(Number((document.querySelector('[aria-label="예제 진행률"]') as HTMLInputElement)?.value) - 80) <= 1);
+        await page.getByRole("button", { name: "재생", exact: true }).click(); await page.waitForTimeout(100);
+        const playing = await scroller.evaluate(element => element.scrollTop); assert.ok(playing >= manual.top - 2, `Playback must continue near the manual 80% position rather than jumping backward (${manual.top}→${playing})`);
+        await page.getByRole("button", { name: "일시정지", exact: true }).click(); const paused = await scroller.evaluate(element => element.scrollTop); await page.waitForTimeout(150);
+        assert.ok(Math.abs(await scroller.evaluate(element => element.scrollTop) - paused) <= 1); return { manual, playing, paused };
+    });
+
     await check("lab Draggable pointer bounds and keyboard equivalent", async page => {
         await lab(page, "drag"); const handle = page.getByRole("slider", { name: "드래그 위치", exact: true });
         await handle.focus(); await page.keyboard.press("End"); const high = Number(await handle.getAttribute("aria-valuenow"));
