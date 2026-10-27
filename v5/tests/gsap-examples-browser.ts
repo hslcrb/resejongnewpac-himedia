@@ -64,7 +64,7 @@ async function check(name: string, run: (page: Page) => Promise<unknown>, option
     const page = await context.newPage(); page.setDefaultTimeout(10_000);
     const runtimeErrors: string[] = [], assetErrors: string[] = [], gsapWarnings: string[] = [];
     page.on("pageerror", error => runtimeErrors.push(error.message));
-    page.on("console", message => { if (["warning", "error"].includes(message.type()) && /(?:GSAP|gsap|resetTo|not eligible|Invalid property|Missing plugin|target .*not found|scope.*not.*valid)/i.test(message.text())) gsapWarnings.push(message.text()); });
+    page.on("console", message => { if (["warning", "error"].includes(message.type()) && /(?:GSAP|gsap|resetTo|not eligible|Invalid property|Invalid scope|Missing plugin|target .*not found|scope.*not.*valid)/i.test(message.text())) gsapWarnings.push(message.text()); });
     page.on("response", response => { if (new URL(response.url()).origin === target.origin && response.status() >= 400 && !response.request().isNavigationRequest()) assetErrors.push(`${response.status()} ${response.url()}`); });
     const result: Record<string, unknown> = { name, status: "running", viewport: options.viewport || { width: 1440, height: 1000 }, startedAt: new Date().toISOString() };
     try {
