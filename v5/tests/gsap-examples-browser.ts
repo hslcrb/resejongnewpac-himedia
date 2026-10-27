@@ -255,10 +255,10 @@ try {
 
     await check("editorial visibility suspension and resume", async page => {
         await enter(page, "about/"); await ready(page); await offscreenHeading(page);
-        await page.evaluate(() => { Object.defineProperty(document, "visibilityState", { configurable: true, value: "hidden" }); document.dispatchEvent(new Event("visibilitychange")); });
+        await page.evaluate(() => { Object.defineProperty(document, "visibilityState", { configurable: true, value: "hidden" }); Object.defineProperty(document, "hidden", { configurable: true, value: true }); document.dispatchEvent(new Event("visibilitychange")); });
         await page.waitForFunction(() => document.querySelector("main")?.getAttribute("data-gsap-editorial") === "suspended");
         const hidden = await motion(page.locator('[data-gsap-test-target="heading"]')); assert.ok(hidden.opacity > .99 && Math.abs(hidden.y) < .5, "Suspension must restore content to the resting style");
-        await page.evaluate(() => { Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" }); document.dispatchEvent(new Event("visibilitychange")); }); await ready(page);
+        await page.evaluate(() => { Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" }); Object.defineProperty(document, "hidden", { configurable: true, value: false }); document.dispatchEvent(new Event("visibilitychange")); }); await ready(page);
         return { syntheticLifecycleEvent: true, hidden, resumed: await page.locator("main").getAttribute("data-gsap-editorial") };
     });
 
