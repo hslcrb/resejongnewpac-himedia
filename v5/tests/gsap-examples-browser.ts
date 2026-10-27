@@ -147,13 +147,14 @@ async function assertReadable(page: Page) {
     assert.ok(state.text >= 20); assert.ok(state.fontSize >= 16); assert.ok(state.documentWidth <= state.width + 1, JSON.stringify(state)); assert.equal(state.hidden, false); return state;
 }
 
-async function seek(page: Page, value: number) {
+async function seek(page: Page, value: number, verifyRange = true) {
     const input = page.getByRole("slider", { name: "예제 진행률", exact: true });
     await input.evaluate((element, value) => {
         Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(element, String(value));
         element.dispatchEvent(new Event("input", { bubbles: true })); element.dispatchEvent(new Event("change", { bubbles: true }));
     }, value);
-    await page.waitForTimeout(80); assert.ok(Math.abs(Number(await input.inputValue()) - value) <= 1, "The real stage and range must agree within native scroll rounding");
+    await page.waitForTimeout(80);
+    if (verifyRange) assert.ok(Math.abs(Number(await input.inputValue()) - value) <= 1, "The real stage and range must agree within native scroll rounding");
 }
 
 async function labSnapshot(page: Page) {
@@ -375,6 +376,30 @@ try {
         const playing = await scroller.evaluate(element => element.scrollTop); assert.ok(playing >= manual.top - 2, `Playback must continue near the manual 80% position rather than jumping backward (${manual.top}→${playing})`);
         await page.getByRole("button", { name: "일시정지", exact: true }).click(); const paused = await scroller.evaluate(element => element.scrollTop); await page.waitForTimeout(150);
         assert.ok(Math.abs(await scroller.evaluate(element => element.scrollTop) - paused) <= 1); return { manual, playing, paused };
+    });
+
+    await check("lab first native scroll then 55 percent seek has no lazy start jump", async page => {
+        await lab(page, "scroll"); const scroller = page.locator("[data-lab-scroller]");
+        const manual = await scroller.evaluate(element => { element.scrollTop = (element.scrollHeight - element.clientHeight) * .5; return { top: element.scrollTop, maximum: element.scrollHeight - element.clientHeight }; });
+        await page.waitForFunction(() => Math.abs(Number((document.querySelector('[aria-label="예제 진행률"]') as HTMLInputElement)?.value) - 50) <= 1);
+        // This is intentionally the first range interaction: a prior seek(0) would mask lazy start capture.
+        await seek(page, 55, false);
+        const after = await scroller.evaluate(element => ({ top: element.scrollTop, maximum: element.scrollHeight - element.clientHeight, ratio: element.scrollTop / (element.scrollHeight - element.clientHeight) }));
+        assert.ok(Math.abs(after.ratio - .55) <= .015, `The first 55% seek must mean 55%, not a tween starting from the manual 50% position: ${JSON.stringify({ manual, after })}`);
+        assert.ok(Math.abs(Number(await page.getByRole("slider", { name: "예제 진행률", exact: true }).inputValue()) - 55) <= 1);
+        return { priorRangeInteractions: 0, manual, after };
+    });
+
+    await check("lab first pointer drag release keeps its actual position", async page => {
+        await lab(page, "drag"); const handle = page.getByRole("slider", { name: "드래그 위치", exact: true });
+        const start = await handle.boundingBox(), stage = await page.locator("[data-gsap-stage]").boundingBox(); assert.ok(start && stage);
+        const distance = Math.min(110, (stage.width - start.width) * .4), pointer = { x: start.x + start.width / 2, y: start.y + start.height / 2 };
+        // No Home/End/seek comes before this gesture: those would initialize the old .to() start state.
+        await page.mouse.move(pointer.x, pointer.y); await page.mouse.down(); await page.mouse.move(pointer.x + distance, pointer.y, { steps: 10 });
+        const beforeRelease = await handle.boundingBox(); assert.ok(beforeRelease && beforeRelease.x - start.x > distance * .75, "The first real pointer gesture must move the handle");
+        await page.mouse.up(); await page.waitForTimeout(180); const afterRelease = await handle.boundingBox(); assert.ok(afterRelease);
+        assert.ok(Math.abs(afterRelease.x - beforeRelease.x) <= 2, `Release must retain the pointer position rather than applying a newly captured tween start (${beforeRelease.x}→${afterRelease.x})`);
+        return { priorRangeAndKeyboardInteractions: 0, start, beforeRelease, afterRelease };
     });
 
     await check("lab Draggable pointer bounds and keyboard equivalent", async page => {
