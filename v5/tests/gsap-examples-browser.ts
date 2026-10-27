@@ -268,7 +268,7 @@ try {
         const start = await motion(survivor), frames = sample(page, '[data-flip-id="program-autumn"]', 1100);
         await page.getByRole("button", { name: "공연", exact: true }).click(); const values = await frames;
         assert.ok(values.some(value => Math.abs(value.x) > .5 || Math.abs(value.y) > .5), "A surviving card must undergo a real Flip position tween");
-        await page.locator('.programs-page-grid[data-gsap-flip="ready"]').waitFor();
+        await page.locator('.programs-page[data-gsap-flip="ready"]').waitFor();
         const final = await motion(survivor); assert.ok(Math.abs(final.x) < .5 && Math.abs(final.y) < .5);
         assert.notEqual(start.left + start.top, final.left + final.top, "The selected category must change the card's actual layout position");
         assert.equal(await page.locator(".programs-page-grid [data-program-flip]").count(), catalog.programs.filter((program: { category: string }) => program.category === "공연").length);
@@ -280,16 +280,16 @@ try {
         await query.fill("일"); await query.fill("일무"); await query.fill("없는 프로그램_형태_8291");
         assert.equal(await page.locator(".programs-page-grid [data-program-flip]").count(), 0); await page.getByRole("status").filter({ hasText: "검색 결과가 없습니다" }).waitFor();
         assert.equal(await query.evaluate(element => element === document.activeElement), true);
-        await query.fill(""); await page.locator('.programs-page-grid[data-gsap-flip="ready"]').waitFor();
+        await query.fill(""); await page.locator('.programs-page[data-gsap-flip="ready"]').waitFor();
         assert.equal(await page.locator(".programs-page-grid [data-program-flip]").count(), catalog.programs.length);
-        const remaining = await page.locator(".programs-page-grid [data-program-flip]").evaluateAll(elements => elements.map(element => ({ style: element.getAttribute("style"), transform: getComputedStyle(element).transform, opacity: Number(getComputedStyle(element).opacity) })));
-        assert.ok(remaining.every(value => value.transform === "none" && value.opacity > .99), "Rapid changes must leave no stale Flip transform or opacity");
+        const remaining = await page.locator(".programs-page-grid [data-program-flip]").evaluateAll(elements => elements.map(element => { const style = getComputedStyle(element), matrix = new DOMMatrixReadOnly(style.transform === "none" ? undefined : style.transform); return { x: matrix.m41, y: matrix.m42, scaleX: matrix.a, scaleY: matrix.d, opacity: Number(style.opacity) }; }));
+        assert.ok(remaining.every(value => Math.abs(value.x) < .5 && Math.abs(value.y) < .5 && Math.abs(value.scaleX - 1) < .002 && Math.abs(value.scaleY - 1) < .002 && value.opacity > .99), "Rapid changes must leave no stale Flip displacement, scale or opacity");
         assert.equal(await query.evaluate(element => element === document.activeElement), true); return { restored: remaining.length, queryFocused: true };
     });
 
     await check("Flip runtime reduced motion resolves active work", async page => {
         await enter(page, "programs/"); await page.getByRole("button", { name: "공연", exact: true }).click(); await page.emulateMedia({ reducedMotion: "reduce" });
-        await page.locator('.programs-page-grid[data-gsap-flip="ready"]').waitFor();
+        await page.locator('.programs-page[data-gsap-flip="ready"]').waitFor();
         const reduced = await motion(page.locator('[data-flip-id="program-autumn"]')); assert.ok(Math.abs(reduced.x) < .5 && Math.abs(reduced.y) < .5);
         await page.getByRole("button", { name: "전체", exact: true }).click();
         const frames = sample(page, '[data-flip-id="program-autumn"]', 400);
