@@ -30,8 +30,8 @@
 @media (prefers-reduced-motion: reduce) { .section-experience__track { visibility: hidden; } }
 
 @media (max-height: 480px) {
-    .section-experience__navigator { position: relative; top: auto; }
-    .section-experience :is(h2, .completed-section, .completed-service, .intro-panel, .catalog-content-block) { scroll-margin-top: max(0px, calc(var(--section-header-offset, 90px) + 20px - var(--section-root-padding, 100px))); }
+    .section-experience__navigator { padding-block: 8px; gap: 8px 16px; }
+    .section-experience__position > :first-child { display: none; }
 }
 
 @media (min-width: 1000px) {
