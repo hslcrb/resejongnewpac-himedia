@@ -66,12 +66,25 @@ export function createGsapLab(stage: HTMLElement, kind: GsapExampleId, reduced: 
             const content = query<HTMLElement>("[data-lab-scroll-content]");
             const movement = gsap.to(target, { x: Math.max(24, scroller.clientWidth - 88), rotation: 180, duration: 1, paused: true, ease: "none" });
             trigger = ScrollTrigger.create({ scroller, trigger: content, start: "top top", end: "bottom bottom", animation: movement, scrub: true });
-            animation = timeline().to(scroller, { scrollTop: scroller.scrollHeight - scroller.clientHeight, duration: 2, ease: "none", onUpdate: () => ScrollTrigger.update() });
+            const maximum = scroller.scrollHeight - scroller.clientHeight;
+            // Explicit starts avoid lazy .to() capturing a person's first manual scroll as the new origin.
+            animation = timeline().fromTo(scroller, { scrollTop: 0 }, { scrollTop: maximum, duration: 2, ease: "none", onUpdate: () => ScrollTrigger.update() });
             const onScroll = () => {
-                if (!animation.isActive()) report(scroller.scrollTop / Math.max(1, scroller.scrollHeight - scroller.clientHeight));
+                if (!animation.isActive()) {
+                    const value = scroller.scrollTop / Math.max(1, maximum);
+                    if (Math.abs(value - animation.progress()) > .001) {
+                        playing = false; animation.pause().progress(value, true); stopped();
+                    }
+                    report(value);
+                }
             };
+            const interrupt = () => { playing = false; animation.pause(); stopped(); };
             scroller.addEventListener("scroll", onScroll, { passive: true });
-            contextCleanup.push(() => scroller.removeEventListener("scroll", onScroll));
+            for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) scroller.addEventListener(event, interrupt, { passive: true });
+            contextCleanup.push(() => {
+                scroller.removeEventListener("scroll", onScroll);
+                for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) scroller.removeEventListener(event, interrupt);
+            });
             trigger.refresh();
         } else if (kind === "flip") {
             const state = Flip.getState(initialTiles);
@@ -95,7 +108,8 @@ export function createGsapLab(stage: HTMLElement, kind: GsapExampleId, reduced: 
                 } });
             } else animation = timeline().to(text!, { opacity: 1, duration: 2 });
         } else if (kind === "drag") {
-            animation = timeline().to(target, { x: travel, duration: 2, ease: "none" });
+            // Draggable may move before the first seek/play; its canonical track still starts at x=0.
+            animation = timeline().fromTo(target, { x: 0 }, { x: travel, duration: 2, ease: "none" });
             [draggable] = Draggable.create(target, { type: "x", bounds: { minX: 0, maxX: travel }, minimumMovement: 4,
                 allowNativeTouchScrolling: true, onPress() { playing = false; animation.pause(); stopped(); },
                 onDrag() { report(gsap.utils.clamp(0, 1, this.x / travel)); },
