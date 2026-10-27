@@ -28,6 +28,64 @@ const browser = await chromium.launch({ headless: true, executablePath: process.
 mkdirSync(directory, { recursive: true });
 const evidence = { harness: createHash("sha256").update(readFileSync(fileURLToPath(import.meta.url))).digest("hex"), release: "" };
 type Motion = { opacity: number; x: number; y: number; scaleX: number; scaleY: number; transform: string; clip: string; dash: string; dashOffset: string; path: string; text: string; top: number; left: number; time: number };
+type TextState = { tag: string; text: string; opacity: number; effectiveOpacity: number; x: number; y: number; scaleX: number; scaleY: number; documentTop: number; clip: string };
+const staticTextSelector = 'main h1, main h2, main .completed-timeline > li, main .catalog-timeline > li, main [data-component-id="introduction"] [data-text="label"], main [data-component-id="introduction"] p';
+
+/** Observe from document start, before GSAP layout effects can hide or offset text. */
+async function traceStaticText(page: Page) {
+    await page.addInitScript(selector => {
+        const trace = { frames: 0, samples: 0, mediaSamples: 0, running: true, violations: [] as TextState[], mediaViolations: [] as Record<string, unknown>[] };
+        Object.assign(window, { __gsapStaticText: trace });
+        const deadline = performance.now() + 15_000;
+        const tick = () => {
+            for (const element of document.querySelectorAll<HTMLElement>(selector)) {
+                if (element.closest('[hidden],[aria-hidden="true"],form,table,dialog,.sr-only,.visually-hidden,.completed-sr-only') || !element.getClientRects().length) continue;
+                const style = getComputedStyle(element); if (style.display === "none" || style.visibility === "hidden") continue;
+                let effectiveOpacity = Number(style.opacity);
+                for (let parent = element.parentElement; parent; parent = parent.parentElement) { effectiveOpacity *= Number(getComputedStyle(parent).opacity); if (parent.tagName === "MAIN") break; }
+                const matrix = new DOMMatrixReadOnly(style.transform === "none" ? undefined : style.transform);
+                trace.samples++;
+                if (effectiveOpacity < .999 || Math.abs(matrix.m41) > .01 || Math.abs(matrix.m42) > .01 || Math.abs(matrix.a - 1) > .0005 || Math.abs(matrix.d - 1) > .0005) {
+                    if (trace.violations.length < 100) trace.violations.push({ tag: element.tagName, text: element.textContent?.trim().slice(0, 100) || "", opacity: Number(style.opacity), effectiveOpacity, x: matrix.m41, y: matrix.m42, scaleX: matrix.a, scaleY: matrix.d, documentTop: element.getBoundingClientRect().top + scrollY, clip: style.clipPath });
+                }
+            }
+            for (const image of document.querySelectorAll<HTMLImageElement>('main .completed-hero-image img,main .completed-image img,main .completed-list-image > img,main .intro-cover > img,main .intro-editorial img')) {
+                const style = getComputedStyle(image);
+                if (!image.getClientRects().length || style.display === "none" || style.objectFit !== "cover") continue;
+                const expectedOpacity = image.closest(".intro-cover") ? .42 : 1;
+                const matrix = new DOMMatrixReadOnly(style.transform === "none" ? undefined : style.transform);
+                trace.mediaSamples++;
+                if (Math.abs(Number(style.opacity) - expectedOpacity) > .002 || Math.abs(matrix.m41) > .01 || Math.abs(matrix.m42) > .01 || style.clipPath !== "none") {
+                    if (trace.mediaViolations.length < 100) trace.mediaViolations.push({ source: image.getAttribute("src"), opacity: Number(style.opacity), expectedOpacity, x: matrix.m41, y: matrix.m42, clip: style.clipPath });
+                }
+            }
+            trace.frames++;
+            if (trace.running && performance.now() < deadline) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+    }, staticTextSelector);
+}
+
+async function textState(page: Page): Promise<TextState[]> {
+    return page.evaluate(selector => [...document.querySelectorAll<HTMLElement>(selector)].filter(element => !element.closest('[hidden],[aria-hidden="true"],form,table,dialog,.sr-only,.visually-hidden,.completed-sr-only') && element.getClientRects().length).map(element => {
+        const style = getComputedStyle(element), matrix = new DOMMatrixReadOnly(style.transform === "none" ? undefined : style.transform);
+        let effectiveOpacity = Number(style.opacity);
+        for (let parent = element.parentElement; parent; parent = parent.parentElement) { effectiveOpacity *= Number(getComputedStyle(parent).opacity); if (parent.tagName === "MAIN") break; }
+        return { tag: element.tagName, text: element.textContent?.trim().slice(0, 100) || "", opacity: Number(style.opacity), effectiveOpacity, x: matrix.m41, y: matrix.m42, scaleX: matrix.a, scaleY: matrix.d, documentTop: element.getBoundingClientRect().top + scrollY, clip: style.clipPath };
+    }), staticTextSelector);
+}
+
+function assertStaticText(values: TextState[]) {
+    assert.ok(values.length > 0, "Real headings and reading copy must exist");
+    assert.ok(values.every(value => value.effectiveOpacity >= .999 && Math.abs(value.x) < .01 && Math.abs(value.y) < .01 && Math.abs(value.scaleX - 1) < .0005 && Math.abs(value.scaleY - 1) < .0005), `Reading text must remain fully visible at its resting transform: ${JSON.stringify(values.filter(value => value.effectiveOpacity < .999 || Math.abs(value.x) >= .01 || Math.abs(value.y) >= .01 || Math.abs(value.scaleX - 1) >= .0005 || Math.abs(value.scaleY - 1) >= .0005))}`);
+}
+
+async function stopTextTrace(page: Page) {
+    const trace = await page.evaluate(() => { const trace = (window as Window & { __gsapStaticText?: { frames: number; samples: number; mediaSamples: number; running: boolean; violations: TextState[]; mediaViolations: Record<string, unknown>[] } }).__gsapStaticText!; trace.running = false; return trace; });
+    assert.ok(trace.frames > 1 && trace.samples > 0, "The initial rendering trace must have sampled real text");
+    assert.deepEqual(trace.violations, [], "Text must never fade or rise into view, including the first rendered frames");
+    assert.deepEqual(trace.mediaViolations, [], "Photos must not fade, rise or reveal through a clip in initial frames"); return trace;
+}
 
 async function fixture(context: BrowserContext) {
     await context.route("**/*", async route => {
@@ -77,6 +135,7 @@ async function check(name: string, run: (page: Page) => Promise<unknown>, option
         result.status = "failed"; result.error = error instanceof Error ? error.stack : String(error);
         result.runtimeErrors = runtimeErrors; result.assetErrors = assetErrors; result.gsapWarnings = gsapWarnings;
         result.location = page.url();
+        result.staticTextTrace = await page.evaluate(() => (window as Window & { __gsapStaticText?: unknown }).__gsapStaticText || null).catch(() => null);
         const screenshot = `${name.replace(/[^a-zA-Z0-9_-]/g, "-")}-failure.png`;
         await page.screenshot({ path: resolve(directory, screenshot) }).then(() => { result.screenshot = screenshot; }).catch(() => {});
         console.error(`FAIL ${name}: ${error instanceof Error ? error.message : error}`);
@@ -190,30 +249,31 @@ try {
         }, { viewport: { width, height: width < 768 ? 844 : 1000 }, reducedMotion: "reduce" });
     }
 
-    await check("editorial reveal runs once and settles", async page => {
-        await enter(page, "about/"); await ready(page); const initial = await offscreenHeading(page);
-        assert.ok(initial.initialOpacity < .99, "An offscreen candidate must actually have a prepared reveal");
-        const frames = sample(page, '[data-gsap-test-target="heading"]', 1200);
-        await page.locator('[data-gsap-test-target="heading"]').scrollIntoViewIfNeeded(); const values = await frames;
-        assert.ok(values.some(value => value.opacity < .95 || value.y > 1), "Must measure an actual GSAP starting state");
-        const final = await motion(page.locator('[data-gsap-test-target="heading"]')); assert.ok(final.opacity > .99); assert.ok(Math.abs(final.y) < .5);
-        await page.evaluate(() => scrollTo({ top: 0, behavior: "instant" })); await page.waitForTimeout(100);
-        const revisitFrames = sample(page, '[data-gsap-test-target="heading"]', 550); await page.locator('[data-gsap-test-target="heading"]').scrollIntoViewIfNeeded(); const revisit = await revisitFrames;
-        assert.ok(revisit.every(value => value.opacity > .99 && Math.abs(value.y) < .5), "A completed reveal must not replay on revisit");
-        return { initial, first: { minimumOpacity: Math.min(...values.map(value => value.opacity)), maximumY: Math.max(...values.map(value => value.y)) }, final, revisitMinimumOpacity: Math.min(...revisit.map(value => value.opacity)) };
+    await check("editorial text is static from first frame through native scroll", async page => {
+        await traceStaticText(page); await enter(page, "about/"); await ready(page); const initial = await offscreenHeading(page);
+        assert.ok(initial.initialOpacity >= .999, "An offscreen heading must be fully readable before reaching the viewport");
+        const before = await textState(page); assertStaticText(before);
+        await page.locator('[data-gsap-test-target="heading"]').scrollIntoViewIfNeeded(); await page.waitForTimeout(200);
+        const after = await textState(page); assertStaticText(after);
+        assert.deepEqual(after.map(value => value.text), before.map(value => value.text));
+        assert.ok(after.every((value, index) => Math.abs(value.documentTop - before[index].documentTop) < 1), "Native scrolling must not lift or reposition reading copy");
+        const frames = await sample(page, '[data-gsap-test-target="heading"]', 400);
+        assert.ok(frames.every(value => value.opacity >= .999 && Math.abs(value.x) < .01 && Math.abs(value.y) < .01));
+        return { initial, before, after, trace: await stopTextTrace(page) };
     });
 
-    await check("editorial focus and runtime motion reduction", async page => {
+    await check("editorial focus and reduced motion keep text unchanged", async page => {
         await enter(page, "about/"); await ready(page); await offscreenHeading(page);
         const heading = page.locator('[data-gsap-test-target="heading"]');
+        const before = await motion(heading); assert.ok(before.opacity >= .999 && Math.abs(before.x) < .01 && Math.abs(before.y) < .01);
         await heading.evaluate(element => { (element as HTMLElement).tabIndex = -1; (element as HTMLElement).focus({ preventScroll: true }); });
-        const focused = await motion(heading); assert.ok(focused.opacity > .99 && Math.abs(focused.y) < .5, "Keyboard focus immediately settles its reveal");
+        const focused = await motion(heading); assert.ok(focused.opacity > .99 && Math.abs(focused.y) < .5, "Keyboard focus must not move or fade an already visible heading");
         assert.equal(await heading.evaluate(element => element === document.activeElement), true);
         await page.emulateMedia({ reducedMotion: "reduce" });
         await page.waitForFunction(() => document.querySelector("main")?.getAttribute("data-gsap-editorial-motion") === "reduced");
         const reduced = await motion(heading); assert.ok(reduced.opacity > .99 && Math.abs(reduced.y) < .5);
         await page.emulateMedia({ reducedMotion: "no-preference" }); await page.waitForFunction(() => document.querySelector("main")?.getAttribute("data-gsap-editorial-motion") === "full");
-        return { focused, reduced };
+        return { before, focused, reduced };
     });
 
     await check("editorial descendant and excluded route cleanup", async page => {
@@ -247,7 +307,7 @@ try {
             const section = document.createElement("section"); section.id = "gsap-test-dynamic-section";
             const heading = document.createElement("h2"); heading.dataset.text = "heading"; heading.textContent = "동적 카탈로그 제목"; heading.tabIndex = -1; section.append(heading); document.querySelector("main")!.append(section);
         });
-        const heading = page.locator("#gsap-test-dynamic-section h2"); await page.waitForFunction(() => Number(getComputedStyle(document.querySelector("#gsap-test-dynamic-section h2")!).opacity) < .99);
+        const heading = page.locator("#gsap-test-dynamic-section h2"); const frames = await sample(page, "#gsap-test-dynamic-section h2", 450); assert.ok(frames.length && frames.every(value => value.opacity >= .999 && Math.abs(value.x) < .01 && Math.abs(value.y) < .01), "New reading copy must be visible immediately without a reveal");
         const before = await motion(heading); await heading.focus(); const focused = await motion(heading); assert.ok(focused.opacity > .99 && Math.abs(focused.y) < .5);
         await page.evaluate(() => { const section = document.getElementById("gsap-test-dynamic-section")!; Object.assign(window, { __detachedGsapHeading: section.querySelector("h2") }); section.remove(); }); await page.waitForTimeout(150);
         const detached = await page.evaluate(() => { const element = (window as Window & { __detachedGsapHeading?: HTMLElement }).__detachedGsapHeading!; return { connected: element.isConnected, transform: element.style.transform, opacity: element.style.opacity }; });
@@ -298,25 +358,50 @@ try {
         assert.ok(values.every(value => Math.abs(value.x) < .5 && Math.abs(value.y) < .5), "Reduced motion must update the real collection without a new Flip tween"); return { reduced, samples: values.length };
     });
 
-    await check("introduction DrawSVG and MotionPath are actual finite animation", async page => {
-        await page.addInitScript(() => {
-            const frames: { time: number; dash: string; offset: string; transform: string }[] = [];
-            Object.assign(window, { __gsapIntroFrames: frames });
-            const deadline = performance.now() + 7000;
-            const tick = () => {
-                const stroke = document.querySelector("[data-intro-stroke]"), traveller = document.querySelector("[data-intro-traveller]");
-                if (stroke && traveller) frames.push({ time: performance.now(), dash: getComputedStyle(stroke).strokeDasharray, offset: getComputedStyle(stroke).strokeDashoffset, transform: getComputedStyle(traveller).transform });
-                if (performance.now() < deadline) requestAnimationFrame(tick);
-            }; requestAnimationFrame(tick);
-        });
-        await enter(page, "about/introduction/"); await page.locator("[data-intro-journey]").waitFor(); await page.waitForTimeout(1800);
-        const frames = await page.evaluate(() => (window as Window & { __gsapIntroFrames?: { time: number; dash: string; offset: string; transform: string }[] }).__gsapIntroFrames || []);
-        assert.ok(new Set(frames.map(value => `${value.dash}:${value.offset}`)).size > 2, "The real SVG stroke range must change over time");
-        assert.ok(new Set(frames.map(value => value.transform)).size > 2, "The real traveller transform must follow a path");
-        const final = await motion(page.locator("[data-intro-traveller]").first()); await page.waitForTimeout(250); const still = await motion(page.locator("[data-intro-traveller]").first());
-        assert.ok(Math.abs(final.x - still.x) < .1 && Math.abs(final.y - still.y) < .1, "The introductory path is finite rather than an endless loop");
-        return { frames: frames.length, strokeStates: new Set(frames.map(value => `${value.dash}:${value.offset}`)).size, travellerStates: new Set(frames.map(value => value.transform)).size, final, still };
-    });
+    for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }]) await check(`introduction fixed text and native scroll photo ${viewport.width}x${viewport.height}`, async page => {
+        await traceStaticText(page); await enter(page, "about/introduction/"); await ready(page);
+        const textBefore = await textState(page); assertStaticText(textBefore);
+        assert.equal(await page.locator("[data-intro-journey],[data-intro-stroke],[data-intro-traveller]").count(), 0, "The decorative wave and moving dot must be removed");
+        assert.equal(await page.locator("img[data-intro-media]").count(), 3, "Only the three existing photos own the native scroll motion");
+        const frameState = async () => page.locator(".intro-editorial .intro-media-frame").evaluateAll(frames => frames.map(frame => {
+            const style = getComputedStyle(frame), box = frame.getBoundingClientRect(), caption = frame.closest("figure")?.querySelector("figcaption");
+            const captionStyle = caption && getComputedStyle(caption), captionBox = caption?.getBoundingClientRect(), matrix = new DOMMatrixReadOnly(!captionStyle || captionStyle.transform === "none" ? undefined : captionStyle.transform);
+            return { radius: parseFloat(style.borderTopLeftRadius), overflowX: style.overflowX, overflowY: style.overflowY, width: box.width, height: box.height, documentTop: box.top + scrollY, captionOutside: !!caption && !frame.contains(caption), captionDocumentTop: captionBox ? captionBox.top + scrollY : null, captionGap: captionBox ? captionBox.top - box.bottom : null, captionX: matrix.m41, captionY: matrix.m42, captionScaleX: matrix.a, captionScaleY: matrix.d };
+        }));
+        const framesBefore = await frameState(); assert.equal(framesBefore.length, 2);
+        assert.ok(framesBefore.every(frame => frame.radius >= 19 && frame.overflowX === "hidden" && frame.overflowY === "hidden" && frame.captionOutside && frame.captionGap !== null && frame.captionGap >= -1 && Math.abs(frame.captionX) < .01 && Math.abs(frame.captionY) < .01 && Math.abs(frame.captionScaleX - 1) < .0005 && Math.abs(frame.captionScaleY - 1) < .0005), `Scaled photos require the real rounded clipping frame and an unmoved caption outside it: ${JSON.stringify(framesBefore)}`);
+        const image = page.locator(".intro-cover > img[data-intro-media]");
+        await image.waitFor(); await page.waitForFunction(() => { const image = document.querySelector<HTMLImageElement>(".intro-cover > img[data-intro-media]"); return image?.complete && image.naturalWidth > 0; });
+        const geometry = await page.locator("#intro-opening").evaluate(element => ({ top: element.getBoundingClientRect().top + scrollY, height: element.getBoundingClientRect().height, viewport: innerHeight, maximum: document.documentElement.scrollHeight - innerHeight }));
+        const expectedScale = (scroll: number) => 1.035 - .035 * Math.max(0, Math.min(1, (scroll - (geometry.top - geometry.viewport)) / (geometry.height + geometry.viewport)));
+        const scrollTo = async (top: number) => { await page.evaluate(top => window.scrollTo({ top, behavior: "instant" }), top); await page.waitForTimeout(120); return page.evaluate(() => scrollY); };
+        const assertPhoto = (value: Motion, scroll: number, reduced = false) => {
+            assert.ok(Math.abs(value.opacity - .42) < .002 && Math.abs(value.x) < .01 && Math.abs(value.y) < .01 && value.clip === "none", `A photo may scale but must not fade, rise or clip: ${JSON.stringify(value)}`);
+            assert.ok(value.scaleX >= .999 && value.scaleX <= 1.036 && Math.abs(value.scaleX - value.scaleY) < .0005);
+            assert.ok(Math.abs(value.scaleX - (reduced ? 1 : expectedScale(scroll))) < .002, `Photo scale must match native scroll progress, not elapsed time: ${JSON.stringify({ value, scroll, expected: reduced ? 1 : expectedScale(scroll) })}`);
+        };
+        const initialY = await scrollTo(0), initial = await motion(image); assertPhoto(initial, initialY);
+        const middleY = await scrollTo(Math.min(geometry.maximum, geometry.top + geometry.height * .25)), middle = await motion(image); assertPhoto(middle, middleY);
+        assert.ok(initial.scaleX - middle.scaleX > .003, "Changing native scroll position must change the actual photo scale");
+        const stopped = await sample(page, ".intro-cover > img[data-intro-media]", 350); assert.ok(stopped.every(value => Math.abs(value.scaleX - middle.scaleX) < .0005), "When scrolling stops, the photo must stop immediately");
+        await page.locator("#intro-title-opening").evaluate(element => (element as HTMLElement).focus({ preventScroll: true })); await page.waitForTimeout(100);
+        const focused = await motion(image); assert.ok(Math.abs(focused.scaleX - middle.scaleX) < .0005, "Focusing a title must not force a photo animation to its end");
+        const endY = await scrollTo(Math.min(geometry.maximum, geometry.top + geometry.height + 20)), end = await motion(image); assertPhoto(end, endY);
+        await scrollTo(middleY); const reversed = await motion(image); assertPhoto(reversed, middleY);
+        const framesAfter = await frameState();
+        assert.ok(framesAfter.every((frame, index) => Math.abs(frame.width - framesBefore[index].width) < 1 && Math.abs(frame.height - framesBefore[index].height) < 1 && Math.abs(frame.documentTop - framesBefore[index].documentTop) < 1 && frame.captionDocumentTop !== null && framesBefore[index].captionDocumentTop !== null && Math.abs(frame.captionDocumentTop - framesBefore[index].captionDocumentTop!) < 1), "Photo scale must not shift the clipping frame or caption layout");
+        const textAfter = await textState(page); assertStaticText(textAfter); assert.deepEqual(textAfter.map(value => value.text), textBefore.map(value => value.text));
+        assert.ok(textAfter.every((value, index) => Math.abs(value.documentTop - textBefore[index].documentTop) < 1), "All scene text must stay at its original document position while photos respond to scroll");
+        await page.emulateMedia({ reducedMotion: "reduce" }); await page.waitForTimeout(150); const reduced = await motion(image); assertPhoto(reduced, middleY, true); assertStaticText(await textState(page));
+        await page.emulateMedia({ reducedMotion: "no-preference" }); await page.waitForTimeout(150); const resumed = await motion(image); assertPhoto(resumed, middleY);
+        await page.evaluate(() => { Object.defineProperty(document, "hidden", { configurable: true, value: true }); Object.defineProperty(document, "visibilityState", { configurable: true, value: "hidden" }); document.dispatchEvent(new Event("visibilitychange")); });
+        await page.waitForTimeout(150); const hidden = await motion(image); assertPhoto(hidden, middleY, true);
+        await page.evaluate(() => { Object.defineProperty(document, "hidden", { configurable: true, value: false }); Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" }); document.dispatchEvent(new Event("visibilitychange")); });
+        await ready(page); await page.waitForTimeout(150); const restored = await motion(image); assertPhoto(restored, middleY);
+        const trace = await stopTextTrace(page); assert.ok(trace.mediaSamples > 0);
+        await scrollTo(0); const screenshot = `intro-stable-${viewport.width}.png`; await page.screenshot({ path: resolve(directory, screenshot) });
+        return { geometry, framesBefore, framesAfter, initial, middle, focused, end, reversed, reduced, resumed, hidden, restored, trace, screenshot };
+    }, { viewport });
 
     for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }, { width: 1440, height: 1400 }, { width: 844, height: 390 }, { width: 640, height: 450 }]) await check(`introduction scene keyboard ${viewport.width}x${viewport.height}`, async page => {
         await enter(page, "about/introduction/"); const button = page.locator(".intro-scenes").getByRole("button", { name: "서울시예술단", exact: true });
@@ -334,14 +419,6 @@ try {
         await page.locator(".intro-scenes").getByRole("button", { name: "세종문화회관", exact: true }).click(); await page.waitForFunction(() => document.activeElement?.id === "intro-title-opening");
         return { title: state, moreScenes, focusAfterReturn: await page.evaluate(() => document.activeElement?.id), noOverflow: await assertReadable(page) };
     }, { viewport, reducedMotion: "reduce" });
-
-    await check("introduction runtime reduced motion settles all scenes", async page => {
-        await enter(page, "about/introduction/"); await page.emulateMedia({ reducedMotion: "reduce" }); await page.waitForTimeout(150);
-        const first = await motion(page.locator("[data-intro-traveller]").first()); await page.waitForTimeout(250); const second = await motion(page.locator("[data-intro-traveller]").first());
-        assert.equal(first.transform, second.transform, "Motion reduction must stop the decorative path");
-        const state = await page.locator(".intro-panel h1,.intro-panel h2").evaluateAll(elements => elements.map(element => ({ text: element.textContent, opacity: Number(getComputedStyle(element).opacity), hidden: !!element.closest('[hidden],[aria-hidden="true"]') })));
-        assert.equal(state.length, 4); assert.ok(state.every(value => value.opacity > .99 && !value.hidden)); return { first, second, scenes: state };
-    });
 
     await check("introduction no JavaScript has all four readable scenes", async page => { await enter(page, "about/introduction/", { hydrate: false, quiet: false }); await page.waitForTimeout(300); assert.equal(await page.locator(".intro-panel h1,.intro-panel h2").count(), 4); return assertReadable(page); }, { javaScriptEnabled: false });
 
