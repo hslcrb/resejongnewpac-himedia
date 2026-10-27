@@ -138,6 +138,7 @@ export const COMPONENT_USAGE = {
             "components/HomeBookingControls.tsx#BookingCalendar",
             "components/HomeEntryIntro.tsx#HomeEntryIntro",
             "components/IntroductionExperience.tsx#IntroductionExperience",
+            "components/SectionExperience.tsx#SectionExperience",
             "components/ServiceGoods.tsx#ServiceGoods",
             "components/ServiceRequestForm.tsx#ServiceRequestForm",
             "components/SystemPrimitives.tsx#SystemFilterButton",
@@ -161,6 +162,7 @@ export const COMPONENT_USAGE = {
             "components/HeroSlide.tsx#HeroSlide",
             "components/HomeBookingControls.tsx#BookingCalendar",
             "components/HomeEntryIntro.tsx#HomeEntryIntro",
+            "components/SectionExperience.tsx#SectionExperience",
             "components/SystemPrimitives.tsx#SystemFilterButton",
             "components/SystemPrimitives.tsx#SystemIconButton"
         ]
@@ -643,6 +645,15 @@ export const COMPONENT_USAGE = {
             "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog"
         ]
     },
+    "section-experience": {
+        "status": "product",
+        "productUses": [
+            "components/SiteShell.tsx#SiteShell"
+        ],
+        "guideUses": [
+            "components/SiteShell.tsx#SiteShell"
+        ]
+    },
     "service-goods": {
         "status": "product",
         "productUses": [
@@ -727,8 +738,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 55,
-    "product": 55,
+    "total": 56,
+    "product": 56,
     "documentationOnly": 0,
     "unused": 0
 } as const;
