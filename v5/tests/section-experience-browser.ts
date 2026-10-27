@@ -77,7 +77,7 @@ async function check(name: string, run: (page: Page) => Promise<unknown>, option
         result.status = "passed"; console.log(`PASS ${name}`);
     } catch (error) {
         result.status = "failed"; result.error = error instanceof Error ? error.stack : String(error); result.runtimeErrors = runtimeErrors; result.missingAssets = missingAssets; result.gsapWarnings = gsapWarnings;
-        result.pageState = await page.evaluate(({ rootSelector, toolbarSelector }) => ({ url: location.pathname + location.hash, scrollY, viewport: { width: innerWidth, height: innerHeight }, toolbar: document.querySelector(toolbarSelector)?.textContent, toolbarBounds: document.querySelector(toolbarSelector)?.getBoundingClientRect().toJSON(), testTrace: (window as Window & { __sectionTestTrace?: unknown }).__sectionTestTrace, imageState: [...document.querySelectorAll(`${rootSelector} .completed-list-image > img`)].map(image => ({ transform: getComputedStyle(image).transform, ownerHovered: image.closest("a")?.matches(":hover"), fine: matchMedia("(hover: hover) and (pointer: fine)").matches, motion: matchMedia("(prefers-reduced-motion: no-preference)").matches })), focus: { tag: document.activeElement?.tagName, id: document.activeElement?.id, text: document.activeElement?.textContent?.slice(0, 160) }, headings: [...document.querySelectorAll(`${rootSelector} h2`)].map(heading => ({ id: heading.id, text: heading.textContent, top: heading.getBoundingClientRect().top })) }), { rootSelector, toolbarSelector }).catch(() => null);
+        result.pageState = await page.evaluate(({ rootSelector, toolbarSelector }) => ({ url: location.pathname + location.hash, scrollY, viewport: { width: innerWidth, height: innerHeight }, toolbar: document.querySelector(toolbarSelector)?.textContent, toolbarBounds: document.querySelector(toolbarSelector)?.getBoundingClientRect().toJSON(), testTrace: (window as Window & { __sectionTestTrace?: unknown }).__sectionTestTrace, rootIdentityTrace: (window as Window & { __sectionTestRootTrace?: unknown }).__sectionTestRootTrace, sameRoot: (window as Window & { __sectionTestOriginalRoot?: Element }).__sectionTestOriginalRoot === document.querySelector(rootSelector), imageState: [...document.querySelectorAll(`${rootSelector} .completed-list-image > img`)].map(image => ({ transform: getComputedStyle(image).transform, ownerHovered: image.closest("a")?.matches(":hover"), fine: matchMedia("(hover: hover) and (pointer: fine)").matches, motion: matchMedia("(prefers-reduced-motion: no-preference)").matches })), focus: { tag: document.activeElement?.tagName, id: document.activeElement?.id, text: document.activeElement?.textContent?.slice(0, 160) }, headings: [...document.querySelectorAll(`${rootSelector} h2`)].map(heading => ({ id: heading.id, text: heading.textContent, top: heading.getBoundingClientRect().top })) }), { rootSelector, toolbarSelector }).catch(() => null);
         const screenshot = name.replace(/[^a-zA-Z0-9_-]/g, "-") + "-failure.png";
         await page.screenshot({ path: resolve(directory, screenshot) }).then(() => { result.screenshot = screenshot; }).catch(() => {});
         console.error(`FAIL ${name}: ${error instanceof Error ? error.message : error}`);
@@ -130,6 +130,30 @@ async function progress(page: Page) {
     return page.locator("[data-section-progress]").evaluate(element => { const transform = getComputedStyle(element).transform; return transform === "none" ? 1 : new DOMMatrixReadOnly(transform).a; });
 }
 
+async function readingLayoutReady(page: Page) {
+    await page.evaluate(async rootSelector => {
+            await Promise.race([document.fonts.ready, new Promise(done => setTimeout(done, 3_000))]);
+            await new Promise<void>((done, reject) => {
+                const root = document.querySelector(rootSelector)!, started = performance.now(); let changed = started;
+                const observer = new MutationObserver(() => { changed = performance.now(); }); observer.observe(root, { childList: true, subtree: true, characterData: true });
+                const timer = setInterval(() => {
+                    if (performance.now() - changed >= 500) { clearInterval(timer); observer.disconnect(); done(); }
+                    else if (performance.now() - started > 3_000) { clearInterval(timer); observer.disconnect(); reject(new Error("Goods content must become quiet before navigation probe")); }
+                }, 40);
+            });
+        }, rootSelector);
+}
+
+async function recordRootIdentity(page: Page, stage: string) {
+    return page.evaluate(({ rootSelector, stage }) => {
+        const state = window as Window & { __sectionTestOriginalRoot?: Element; __sectionTestRootTrace?: object[] };
+        const root = document.querySelector(rootSelector)!;
+        if (!state.__sectionTestOriginalRoot) state.__sectionTestOriginalRoot = root;
+        const detail = { stage, sameRoot: state.__sectionTestOriginalRoot === root, savedRootConnected: state.__sectionTestOriginalRoot.isConnected, pathname: location.pathname, hash: location.hash };
+        (state.__sectionTestRootTrace ||= []).push(detail); return detail;
+    }, { rootSelector, stage });
+}
+
 async function settledScroll(page: Page) {
     return page.evaluate(() => new Promise<{ scrollY: number; elapsedMs: number; stableMs: number }>((done, reject) => {
         const started = performance.now(); let lastChange = started, previous = scrollY;
@@ -164,9 +188,13 @@ try {
     }, { viewport: { width, height: width < 768 ? 844 : 1000 } });
 
     for (const viewport of [{ name: "landscape", width: 844, height: 390 }, { name: "zoom-200-reflow", width: 640, height: 450 }]) await check(`short-height-${viewport.name}`, async page => {
-        await visit(page, "/about"); const metrics = await assertPage(page), nav = page.locator(toolbarSelector);
+        await visit(page, "/about"); await readingLayoutReady(page);
+        const metrics = await assertPage(page), nav = page.locator(toolbarSelector);
         const labels = await page.locator(`${rootSelector} ${chapterHeadingSelector}`).allTextContents();
-        await nav.getByRole("button", { name: "다음 섹션", exact: true }).click(); const focused = await focusedHeading(page); assert.equal(focused.text.trim(), labels[1].trim());
+        const rootIdentity = [await recordRootIdentity(page, "beforeNext")];
+        await nav.getByRole("button", { name: "다음 섹션", exact: true }).click();
+        await settledScroll(page); rootIdentity.push(await recordRootIdentity(page, "afterNextSettled"));
+        const focused = await focusedHeading(page); assert.equal(focused.text.trim(), labels[1].trim());
         await page.waitForFunction(toolbarSelector => {
             const target = document.activeElement, toolbar = document.querySelector(toolbarSelector), header = document.getElementById("header");
             if (!target || !toolbar || target.tagName !== "H2") return false;
@@ -176,9 +204,11 @@ try {
         const screenshot = `${viewport.name}-section-next.png`; await page.screenshot({ path: resolve(directory, screenshot) });
         // Use an ordinary reachable click. Playwright's native scroll-to-control exposes short-screen navigation races.
         await nav.getByRole("button", { name: "이전 섹션", exact: true }).click({ timeout: 5_000 });
+        await settledScroll(page); rootIdentity.push(await recordRootIdentity(page, "afterPreviousSettled"));
         const previous = await focusedHeading(page); assert.equal(previous.text.trim(), labels[0].trim());
+        assert.ok(rootIdentity.every(state => state.sameRoot && state.savedRootConnected), "Native hash navigation preserves the existing section root");
         assert.ok((await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)), "Short-screen navigation preserves horizontal reflow");
-        return { metrics, focused, previous, screenshot, zoom: viewport.name === "zoom-200-reflow" ? "Equivalent 200% desktop zoom CSS viewport" : undefined };
+        return { metrics, focused, previous, rootIdentity, screenshot, zoom: viewport.name === "zoom-200-reflow" ? "Equivalent 200% desktop zoom CSS viewport" : undefined };
     }, { viewport: { width: viewport.width, height: viewport.height } });
 
     await check("section-navigation-and-progress", async page => {
@@ -322,17 +352,7 @@ try {
         await visit(page, "/news/goods"); await assertPage(page);
         const service = page.locator(`${rootSelector} #completed-goods-service .service-goods-toolbar h2`);
         await service.waitFor();
-        await page.evaluate(async rootSelector => {
-            await Promise.race([document.fonts.ready, new Promise(done => setTimeout(done, 3_000))]);
-            await new Promise<void>((done, reject) => {
-                const root = document.querySelector(rootSelector)!, started = performance.now(); let changed = started;
-                const observer = new MutationObserver(() => { changed = performance.now(); }); observer.observe(root, { childList: true, subtree: true, characterData: true });
-                const timer = setInterval(() => {
-                    if (performance.now() - changed >= 500) { clearInterval(timer); observer.disconnect(); done(); }
-                    else if (performance.now() - started > 3_000) { clearInterval(timer); observer.disconnect(); reject(new Error("Goods content must become quiet before navigation probe")); }
-                }, 40);
-            });
-        }, rootSelector);
+        await readingLayoutReady(page);
         const initial = await service.evaluate(heading => { const style = getComputedStyle(heading); return { text: heading.textContent?.trim(), top: heading.getBoundingClientRect().top, opacity: Number(style.opacity), y: style.transform === "none" ? 0 : new DOMMatrixReadOnly(style.transform).m42, scrollMarginTop: style.scrollMarginTop, rootScrollPaddingTop: getComputedStyle(document.scrollingElement!).scrollPaddingTop }; });
         const chapters = await page.locator(`${rootSelector} ${chapterHeadingSelector}`).allTextContents();
         const index = chapters.findIndex(title => title.trim() === initial.text); assert.ok(index > 0, "Goods service follows ordinary editorial sections");
