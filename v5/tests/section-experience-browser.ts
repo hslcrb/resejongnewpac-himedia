@@ -130,6 +130,20 @@ async function progress(page: Page) {
     return page.locator("[data-section-progress]").evaluate(element => { const transform = getComputedStyle(element).transform; return transform === "none" ? 1 : new DOMMatrixReadOnly(transform).a; });
 }
 
+async function settledScroll(page: Page) {
+    return page.evaluate(() => new Promise<{ scrollY: number; elapsedMs: number; stableMs: number }>((done, reject) => {
+        const started = performance.now(); let lastChange = started, previous = scrollY;
+        const sample = () => {
+            const now = performance.now();
+            if (Math.abs(scrollY - previous) > .5) { previous = scrollY; lastChange = now; }
+            if (now - started >= 250 && now - lastChange >= 200) return done({ scrollY, elapsedMs: now - started, stableMs: now - lastChange });
+            if (now - started > 3_000) return reject(new Error("Native scroll must settle within three seconds"));
+            requestAnimationFrame(sample);
+        };
+        requestAnimationFrame(sample);
+    }));
+}
+
 try {
     const inventoryContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", serviceWorkers: "block" });
     await networkFixture(inventoryContext); const inventoryPage = await inventoryContext.newPage();
@@ -140,6 +154,24 @@ try {
         await visit(page, group.path); const metrics = await assertPage(page);
         const screenshot = `${group.id}-${width}.png`; await page.screenshot({ path: resolve(directory, screenshot) }); return { ...metrics, screenshot };
     }, { viewport: { width, height: width < 768 ? 844 : 1000 } });
+
+    for (const viewport of [{ name: "landscape", width: 844, height: 390 }, { name: "zoom-200-reflow", width: 640, height: 450 }]) await check(`short-height-${viewport.name}`, async page => {
+        await visit(page, "/about"); const metrics = await assertPage(page), nav = page.locator(toolbarSelector);
+        const labels = await page.locator(`${rootSelector} ${chapterHeadingSelector}`).allTextContents();
+        await nav.getByRole("button", { name: "다음 섹션", exact: true }).click(); const focused = await focusedHeading(page); assert.equal(focused.text.trim(), labels[1].trim());
+        await page.waitForFunction(toolbarSelector => {
+            const target = document.activeElement, toolbar = document.querySelector(toolbarSelector), header = document.getElementById("header");
+            if (!target || !toolbar || target.tagName !== "H2") return false;
+            const top = target.getBoundingClientRect().top;
+            return top >= Math.max(0, toolbar.getBoundingClientRect().bottom, header?.getBoundingClientRect().bottom || 0) - 1 && top < innerHeight;
+        }, toolbarSelector);
+        const screenshot = `${viewport.name}-section-next.png`; await page.screenshot({ path: resolve(directory, screenshot) });
+        // Use an ordinary reachable click. Playwright's native scroll-to-control exposes short-screen navigation races.
+        await nav.getByRole("button", { name: "이전 섹션", exact: true }).click({ timeout: 5_000 });
+        const previous = await focusedHeading(page); assert.equal(previous.text.trim(), labels[0].trim());
+        assert.ok((await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)), "Short-screen navigation preserves horizontal reflow");
+        return { metrics, focused, previous, screenshot, zoom: viewport.name === "zoom-200-reflow" ? "Equivalent 200% desktop zoom CSS viewport" : undefined };
+    }, { viewport: { width: viewport.width, height: viewport.height } });
 
     await check("section-navigation-and-progress", async page => {
         await visit(page, "/about"); await assertPage(page);
@@ -214,9 +246,9 @@ try {
         const image = owner.locator(".completed-list-image > img");
         await owner.evaluate(owner => { const trace = { enters: 0, leaves: 0, transforms: [] as string[] }; (window as Window & { __sectionTestTrace?: unknown }).__sectionTestTrace = trace; owner.addEventListener("pointerenter", () => trace.enters++); owner.addEventListener("pointerleave", () => trace.leaves++); });
         await image.scrollIntoViewIfNeeded(); await owner.hover();
-        await page.waitForFunction(selector => { const image = document.querySelector(selector)!; return new DOMMatrixReadOnly(getComputedStyle(image).transform).a > 1.005; }, `${rootSelector} a.completed-list-entry .completed-list-image > img`);
-        const pointerScale = await image.evaluate(element => new DOMMatrixReadOnly(getComputedStyle(element).transform).a);
-        assert.ok(pointerScale <= 1.03, "Image feedback remains subtle and bounded");
+        await page.waitForFunction(selector => { const matrix = new DOMMatrixReadOnly(getComputedStyle(document.querySelector(selector)!).transform); return matrix.a > 1.005 && matrix.d > 1.005; }, `${rootSelector} a.completed-list-entry .completed-list-image > img`);
+        const pointerScale = await image.evaluate(element => { const matrix = new DOMMatrixReadOnly(getComputedStyle(element).transform); return { x: matrix.a, y: matrix.d }; });
+        assert.ok(pointerScale.x <= 1.03 && pointerScale.y <= 1.03 && Math.abs(pointerScale.x - pointerScale.y) < .001, "Image feedback is bounded and preserves its aspect ratio");
         await page.mouse.move(1, 1);
         await page.waitForFunction(selector => { const transform = getComputedStyle(document.querySelector(selector)!).transform; return transform === "none" || Math.abs(new DOMMatrixReadOnly(transform).a - 1) < .002; }, `${rootSelector} a.completed-list-entry .completed-list-image > img`);
         await owner.focus();
@@ -275,6 +307,35 @@ try {
         await page.locator(toolbarSelector).getByRole("button", { name: "다음 섹션", exact: true }).click();
         const focused = await focusedHeading(page); assert.equal(focused.text.trim(), expected.trim(), "Navigation advances exactly one section after repeated SPA visits"); return focused;
     });
+
+    await check("goods-service-heading-keeps-current-label", async page => {
+        await visit(page, "/news/goods"); await assertPage(page);
+        const service = page.locator(`${rootSelector} #completed-goods-service .service-goods-toolbar h2`);
+        await service.waitFor();
+        await page.evaluate(async rootSelector => {
+            await Promise.race([document.fonts.ready, new Promise(done => setTimeout(done, 3_000))]);
+            await new Promise<void>((done, reject) => {
+                const root = document.querySelector(rootSelector)!, started = performance.now(); let changed = started;
+                const observer = new MutationObserver(() => { changed = performance.now(); }); observer.observe(root, { childList: true, subtree: true, characterData: true });
+                const timer = setInterval(() => {
+                    if (performance.now() - changed >= 500) { clearInterval(timer); observer.disconnect(); done(); }
+                    else if (performance.now() - started > 3_000) { clearInterval(timer); observer.disconnect(); reject(new Error("Goods content must become quiet before navigation probe")); }
+                }, 40);
+            });
+        }, rootSelector);
+        const initial = await service.evaluate(heading => { const style = getComputedStyle(heading); return { text: heading.textContent?.trim(), top: heading.getBoundingClientRect().top, opacity: Number(style.opacity), y: style.transform === "none" ? 0 : new DOMMatrixReadOnly(style.transform).m42, scrollMarginTop: style.scrollMarginTop, rootScrollPaddingTop: getComputedStyle(document.scrollingElement!).scrollPaddingTop }; });
+        const chapters = await page.locator(`${rootSelector} ${chapterHeadingSelector}`).allTextContents();
+        const index = chapters.findIndex(title => title.trim() === initial.text); assert.ok(index > 0, "Goods service follows ordinary editorial sections");
+        const nav = page.locator(toolbarSelector);
+        for (let step = 1; step <= index; step++) {
+            await nav.getByRole("button", { name: "다음 섹션", exact: true }).click();
+            const focused = await focusedHeading(page); assert.equal(focused.text.trim(), chapters[step].trim());
+            await settledScroll(page);
+            await page.waitForFunction(({ toolbarSelector, title }) => document.querySelector(toolbarSelector)?.textContent?.includes(title), { toolbarSelector, title: focused.text });
+        }
+        assert.equal(await service.evaluate(heading => heading === document.activeElement), true);
+        return { initial, focused: await focusedHeading(page), current: await nav.innerText(), final: await service.evaluate(heading => ({ top: heading.getBoundingClientRect().top, scrollY, opacity: Number(getComputedStyle(heading).opacity), transform: getComputedStyle(heading).transform })) };
+    }, { reducedMotion: "no-preference" });
 
     await check("no-javascript-content-remains-readable", async page => {
         const response = await page.goto(new URL("about/", base).href, { waitUntil: "domcontentloaded" }); assert.equal(response?.status(), 200);
