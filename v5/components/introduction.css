@@ -10,10 +10,14 @@
     padding-block: 16px;
 }
 .intro-scenes [aria-current="step"] { background: var(--surface-subtle); }
-.intro-panel { scroll-margin-top: 100px; }
+.intro-panel,
+.intro-panel :is(h1, h2) {
+    scroll-margin-top: max(0px, calc(var(--intro-header-offset, 114px) - var(--intro-root-padding, 100px)));
+}
 .intro-cover {
     position: relative;
     isolation: isolate;
+    overflow: hidden;
     min-height: 580px;
     display: flex;
     align-items: center;
@@ -32,6 +36,19 @@
 .intro-cover-copy { padding-block: 80px; }
 .intro-cover-copy h1 { margin-block: 24px; max-width: 18ch; }
 .intro-cover-copy p { max-width: 38ch; margin-block: 24px; }
+.intro-journey {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 20px;
+    width: min(640px, calc(100% - 40px));
+    height: 56px;
+    margin-inline: auto;
+    overflow: visible;
+    pointer-events: none;
+}
+.intro-journey path { stroke: var(--accent-highlight); stroke-width: 2; stroke-linecap: round; opacity: .8; }
+.intro-journey path + path { stroke: var(--accent-information); opacity: .55; }
+.intro-journey circle { fill: var(--accent-highlight); }
 .intro-editorial {
     display: grid;
     grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
