@@ -76,6 +76,7 @@ async function check(name: string, run: (page: Page) => Promise<unknown>, option
         result.status = "passed"; console.log(`PASS ${name}`);
     } catch (error) {
         result.status = "failed"; result.error = error instanceof Error ? error.stack : String(error); result.runtimeErrors = runtimeErrors; result.missingAssets = missingAssets;
+        result.pageState = await page.evaluate(({ rootSelector, toolbarSelector }) => ({ url: location.pathname + location.hash, scrollY, viewport: { width: innerWidth, height: innerHeight }, toolbar: document.querySelector(toolbarSelector)?.textContent, focus: { tag: document.activeElement?.tagName, id: document.activeElement?.id, text: document.activeElement?.textContent?.slice(0, 160) }, headings: [...document.querySelectorAll(`${rootSelector} h2`)].map(heading => ({ id: heading.id, text: heading.textContent, top: heading.getBoundingClientRect().top })) }), { rootSelector, toolbarSelector }).catch(() => null);
         const screenshot = name.replace(/[^a-zA-Z0-9_-]/g, "-") + "-failure.png";
         await page.screenshot({ path: resolve(directory, screenshot) }).then(() => { result.screenshot = screenshot; }).catch(() => {});
         console.error(`FAIL ${name}: ${error instanceof Error ? error.message : error}`);
@@ -156,6 +157,40 @@ try {
         await page.keyboard.press("Tab"); assert.ok(await page.locator(rootSelector).evaluate(root => root.contains(document.activeElement)), "Keyboard can continue into readable page content"); return focused;
     }, { viewport: { width: 390, height: 844 } });
 
+    await check("dynamic-headings-keep-unique-targets-and-current-text", async page => {
+        await visit(page, "/about/introduction"); await assertPage(page);
+        const previous = await page.locator(`${rootSelector} ${chapterHeadingSelector}`).evaluateAll(headings => headings.map(heading => ({ id: heading.id, text: heading.textContent?.trim() })));
+        await page.locator(`${rootSelector} ${chapterHeadingSelector}`).first().evaluate(first => {
+            const heading = document.createElement("h2"); heading.textContent = "추가된 안내"; heading.dataset.testInserted = "true"; first.before(heading);
+        });
+        await page.waitForFunction(toolbarSelector => document.querySelector(toolbarSelector)?.textContent?.includes("추가된 안내"), toolbarSelector);
+        const ids = await page.locator(`${rootSelector} ${chapterHeadingSelector}`).evaluateAll(headings => headings.map(heading => heading.id));
+        assert.ok(ids.every(Boolean)); assert.equal(new Set(ids).size, ids.length, "Prepending a heading must not reuse an existing generated target ID");
+        for (const item of previous) assert.ok(ids.includes(item.id), "Existing heading targets stay stable across DOM additions");
+        await page.locator(toolbarSelector).getByRole("button", { name: "다음 섹션", exact: true }).click();
+        const focused = await focusedHeading(page); assert.equal(focused.text.trim(), previous[0].text, "Next selects the unique existing first heading after insertion");
+        const currentId = await page.evaluate(() => document.activeElement!.id);
+        await page.evaluate(() => { const heading = document.activeElement!; if (heading.firstChild?.nodeType !== Node.TEXT_NODE) throw new Error("Expected a real heading text node"); heading.firstChild.nodeValue = "변경된 현재 안내"; });
+        await page.waitForFunction(toolbarSelector => document.querySelector(toolbarSelector)?.textContent?.includes("변경된 현재 안내"), toolbarSelector);
+        assert.equal(await page.evaluate(() => document.activeElement!.id), currentId, "Updating a text node must preserve the focused heading and target ID");
+        return { previous, ids, focused, currentId, characterDataUpdateObserved: true };
+    });
+
+    await check("native-outline-anchor-clears-header-and-navigator", async page => {
+        await visit(page, "/about"); await assertPage(page);
+        const anchor = page.locator(`${rootSelector} .completed-outline a[href^="#"]`).nth(1);
+        const href = await anchor.getAttribute("href"); assert.ok(href?.startsWith("#"));
+        await anchor.click();
+        await page.waitForFunction(({ id, toolbarSelector }) => {
+            const target = document.getElementById(id), toolbar = document.querySelector(toolbarSelector), header = document.getElementById("header");
+            if (!target || !toolbar) return false;
+            const top = target.getBoundingClientRect().top;
+            const safeTop = Math.max(0, toolbar.getBoundingClientRect().bottom, header?.getBoundingClientRect().bottom || 0);
+            return top >= safeTop - 1 && top < innerHeight;
+        }, { id: decodeURIComponent(href!.slice(1)), toolbarSelector });
+        return page.evaluate(({ id, toolbarSelector }) => ({ targetTop: document.getElementById(id)!.getBoundingClientRect().top, toolbarBottom: document.querySelector(toolbarSelector)!.getBoundingClientRect().bottom, hash: location.hash }), { id: decodeURIComponent(href!.slice(1)), toolbarSelector });
+    }, { viewport: { width: 390, height: 844 } });
+
     await check("dynamic-program-filter-preserves-input", async page => {
         await visit(page, "/programs"); const search = page.locator("#program-query"); await search.fill("일무");
         await page.waitForFunction(() => document.querySelectorAll(".program-card").length === 1);
@@ -166,7 +201,12 @@ try {
     });
 
     await check("editorial-image-pointer-and-keyboard-feedback", async page => {
-        await visit(page, "/about/companies"); await assertPage(page);
+        await visit(page, "/programs/history"); await assertPage(page);
+        // Filter away and remount the actual archive media card before exercising its GSAP handlers.
+        const search = page.locator(`${rootSelector} .completed-list-tools input[type="search"]`);
+        await search.fill("2024"); await page.waitForFunction(rootSelector => !document.querySelector(`${rootSelector} .completed-list-image`), rootSelector);
+        await search.fill(""); await page.locator(`${rootSelector} .completed-list-image`).waitFor();
+        await page.evaluate(async () => { await new Promise(requestAnimationFrame); await new Promise(requestAnimationFrame); });
         const owner = page.locator(`${rootSelector} a.completed-list-entry:has(.completed-list-image)`).first();
         const image = owner.locator(".completed-list-image > img");
         await image.scrollIntoViewIfNeeded(); await owner.hover();
@@ -185,12 +225,39 @@ try {
 
     await check("runtime-reduced-motion-settles", async page => {
         await visit(page, "/about/introduction"); await page.locator(toolbarSelector).waitFor({ state: "visible" });
-        await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight * .55)); await page.emulateMedia({ reducedMotion: "reduce" });
+        // Keep a later heading offscreen: normal one-shot playback cannot make this test pass.
+        await page.waitForFunction(rootSelector => {
+            const heading = document.querySelector(`${rootSelector} #intro-space h2`);
+            return !!heading && heading.getBoundingClientRect().top > innerHeight && Number(getComputedStyle(heading).opacity) < .99;
+        }, rootSelector);
+        await page.emulateMedia({ reducedMotion: "reduce" });
         await page.waitForFunction(rootSelector => [...document.querySelectorAll<HTMLElement>(`${rootSelector} h1,${rootSelector} h2`)].every(element => {
             const style = getComputedStyle(element); return Number(style.opacity) >= .99 && (style.transform === "none" || Math.abs(new DOMMatrixReadOnly(style.transform).m42) < .1);
         }), rootSelector);
-        const nav = page.locator(toolbarSelector); await nav.getByRole("button", { name: "이전 섹션", exact: true }).click(); const focused = await focusedHeading(page);
+        const nav = page.locator(toolbarSelector); await nav.getByRole("button", { name: "다음 섹션", exact: true }).click(); const focused = await focusedHeading(page);
         assert.ok(focused.top >= -1 && focused.top < 900); return { focused, metrics: await assertPage(page) };
+    }, { reducedMotion: "no-preference", viewport: { width: 1440, height: 900 } });
+
+    await check("offscreen-reveal-is-bounded-and-runs-once", async page => {
+        await visit(page, "/about/introduction"); await page.locator(toolbarSelector).waitFor({ state: "visible" });
+        const selector = `${rootSelector} #intro-space h2`;
+        await page.waitForFunction(selector => { const heading = document.querySelector(selector)!; return heading.getBoundingClientRect().top > innerHeight && Number(getComputedStyle(heading).opacity) < .99; }, selector);
+        const initial = await page.locator(selector).evaluate(heading => { const style = getComputedStyle(heading); return { opacity: Number(style.opacity), y: new DOMMatrixReadOnly(style.transform).m42 }; });
+        assert.ok(initial.opacity >= .45 && initial.opacity < 1, "Reveal starts readable"); assert.ok(initial.y >= 0 && initial.y <= 20, "Reveal displacement remains bounded");
+        await page.locator(selector).evaluate(heading => heading.scrollIntoView({ behavior: "instant", block: "center" }));
+        await page.waitForFunction(selector => { const style = getComputedStyle(document.querySelector(selector)!); return Number(style.opacity) >= .99 && (style.transform === "none" || Math.abs(new DOMMatrixReadOnly(style.transform).m42) < .1); }, selector);
+        await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+        await page.evaluate(async () => { await new Promise(requestAnimationFrame); await new Promise(requestAnimationFrame); });
+        const revisit = await page.locator(selector).evaluate(async heading => {
+            heading.scrollIntoView({ behavior: "instant", block: "center" });
+            let minimumOpacity = 1, maximumY = 0; const end = performance.now() + 700;
+            await new Promise<void>(done => {
+                const sample = () => { const style = getComputedStyle(heading); minimumOpacity = Math.min(minimumOpacity, Number(style.opacity)); maximumY = Math.max(maximumY, style.transform === "none" ? 0 : Math.abs(new DOMMatrixReadOnly(style.transform).m42)); if (performance.now() < end) requestAnimationFrame(sample); else done(); };
+                sample();
+            });
+            return { minimumOpacity, maximumY };
+        });
+        assert.ok(revisit.minimumOpacity >= .99 && revisit.maximumY < .1, "Revisiting completed content must not replay its entrance"); return { initial, revisit };
     }, { reducedMotion: "no-preference", viewport: { width: 1440, height: 900 } });
 
     await check("spa-return-has-one-navigator-and-one-step", async page => {
@@ -202,7 +269,7 @@ try {
         await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(150);
         const expected = (await page.locator(`${rootSelector} ${chapterHeadingSelector}`).allTextContents())[1];
         await page.locator(toolbarSelector).getByRole("button", { name: "다음 섹션", exact: true }).click();
-        const focused = await focusedHeading(page); assert.equal(focused.text.trim(), expected.trim(), "One activation must not execute stale route listeners twice"); return focused;
+        const focused = await focusedHeading(page); assert.equal(focused.text.trim(), expected.trim(), "Navigation advances exactly one section after repeated SPA visits"); return focused;
     });
 
     await check("no-javascript-content-remains-readable", async page => {
