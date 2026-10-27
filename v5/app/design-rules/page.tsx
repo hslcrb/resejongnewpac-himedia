@@ -7,6 +7,7 @@ import Icon from "../../components/Icon";
 import ProgramCard from "../../components/ProgramCard";
 import FloatingMenu from "../../components/FloatingMenu";
 import LiquidGlassDemo from "./_documentation/LiquidGlassDemo";
+import GsapPlayground from "./_documentation/GsapPlayground";
 import ComponentCatalog from "./_documentation/ComponentCatalog";
 import CodeBlock from "./_documentation/CodeBlock";
 import SystemDialog from "../../components/SystemDialog";
@@ -1481,6 +1482,7 @@ export default function DesignRulesPage() {
                                 />
                             </>,
                         )}
+                        {section("gsap", "GSAP API 실습", <GsapPlayground />)}
                         {section(
                             "scroll",
                             "글자별 스크롤 등장 · Deprecated",
