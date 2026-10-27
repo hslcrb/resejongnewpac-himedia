@@ -225,7 +225,7 @@ try {
         const excluded = await assertReadable(page); await page.goBack({ waitUntil: "domcontentloaded" }); await ready(page); return { history, excluded };
     });
 
-    await check("editorial no JavaScript remains readable", async page => { await enter(page, "about/", { hydrate: false }); assert.equal(await page.locator("main[data-gsap-editorial]").count(), 0); const state = await assertReadable(page); assert.ok(state.opacity > .99); return state; }, { javaScriptEnabled: false });
+    await check("editorial no JavaScript remains readable", async page => { await enter(page, "about/", { hydrate: false, quiet: false }); await page.waitForTimeout(300); assert.equal(await page.locator("main[data-gsap-editorial]").count(), 0); const state = await assertReadable(page); assert.ok(state.opacity > .99); return state; }, { javaScriptEnabled: false });
 
     for (const viewport of [{ width: 844, height: 390 }, { width: 640, height: 450 }]) await check(`editorial short viewport ${viewport.width}x${viewport.height}`, async page => { await enter(page, "about/"); await ready(page); await page.locator("main h2").last().scrollIntoViewIfNeeded(); return assertReadable(page); }, { viewport, reducedMotion: "reduce" });
 
@@ -343,7 +343,7 @@ try {
         assert.equal(state.length, 4); assert.ok(state.every(value => value.opacity > .99 && !value.hidden)); return { first, second, scenes: state };
     });
 
-    await check("introduction no JavaScript has all four readable scenes", async page => { await enter(page, "about/introduction/", { hydrate: false }); assert.equal(await page.locator(".intro-panel h1,.intro-panel h2").count(), 4); return assertReadable(page); }, { javaScriptEnabled: false });
+    await check("introduction no JavaScript has all four readable scenes", async page => { await enter(page, "about/introduction/", { hydrate: false, quiet: false }); await page.waitForTimeout(300); assert.equal(await page.locator(".intro-panel h1,.intro-panel h2").count(), 4); return assertReadable(page); }, { javaScriptEnabled: false });
 
     for (const id of ["timeline", "easing", "scroll", "flip", "draw", "motion-path", "morph", "split", "scramble", "physics"]) await check(`lab actual API ${id}`, async page => {
         await lab(page, id); await seek(page, 0); const before = await labSnapshot(page);
