@@ -37,7 +37,7 @@ export default function ProgramCard({ program }: ProgramCardProps) {
     const formatDate = (val?: string) => String(val || "").replaceAll("-", ".");
 
     return (
-        <article data-component-id="poster" className="card card--poster program-card" data-card="poster">
+        <article data-component-id="poster" className="card card--poster program-card" data-card="poster" data-program-flip data-flip-id={`program-${program.id}`}>
             <Link data-text="action"
                 href={`/programs/${program.id}`}
                 className="card-poster-link"
