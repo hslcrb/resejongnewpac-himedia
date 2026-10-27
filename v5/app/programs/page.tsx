@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useCatalog } from "../../src/catalog/CatalogProvider";
 import ProgramCard from "../../components/ProgramCard";
+import useProgramFlip from "../../components/useProgramFlip";
 import DeepSearchDisclosure from "../../components/DeepSearchDisclosure";
 import { contextSearchReply } from "../../components/DeepSearch";
 import { SystemField, SystemFilterButton } from "../../components/SystemPrimitives";
@@ -23,9 +24,10 @@ export default function ProgramsPage() {
         const matchSearch = !search.trim() || [p.title, p.genre || "", p.venue || "", p.description || ""].join(" ").toLowerCase().includes(search.toLowerCase());
         return matchCat && matchSearch;
     });
+    const { containerRef, capture } = useProgramFlip(filtered.map(program => program.id), catalog.generatedAt);
 
     return (
-        <div data-text="body" className="container page-layout programs-page">
+        <div ref={containerRef} data-text="body" className="container page-layout programs-page">
             <nav className="page-layout-breadcrumbs" aria-label="현재 위치">
                 <Link data-text="action" href="/">홈</Link>
                 <span data-text="body" aria-hidden="true">/</span>
@@ -48,7 +50,7 @@ export default function ProgramsPage() {
                         <SystemFilterButton data-text="action"
                             key={cat}
                             selected={category === cat}
-                            onClick={() => setCategory(cat)}
+                            onClick={() => { if (cat !== category) { capture(); setCategory(cat); } }}
                         >
                             {cat}
                         </SystemFilterButton>
@@ -63,7 +65,7 @@ export default function ProgramsPage() {
                         type="search"
                         placeholder="공연명, 장르, 공연장 검색..."
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) => { capture(); setSearch(e.target.value); }}
                     />
                 </div>
             </div>
