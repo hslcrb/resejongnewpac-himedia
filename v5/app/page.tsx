@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useCatalog } from "../src/catalog/CatalogProvider";
 import { sessionLocalParts } from "../src/lib/reservations";
 import ProgramCard from "../components/ProgramCard";
+import useProgramFlip from "../components/useProgramFlip";
 import Icon from "../components/Icon";
 import VioletQuickMenu from "../components/VioletQuickMenu";
 import HomeAnchorNavigation from "../components/HomeAnchorNavigation";
@@ -180,6 +181,7 @@ export default function HomePage() {
     const filteredPrograms = (anchoredProgram
         ? [anchoredProgram, ...programChoices.filter(program => program.id !== anchoredProgram.id)]
         : programChoices).slice(0, 4) as Program[];
+    const { containerRef: programListRef, capture: capturePrograms } = useProgramFlip(filteredPrograms.map(program => program.id), catalog.generatedAt);
 
     // 5. 방문 안내 미리보기 상태
     const [activeVisitId, setActiveVisitId] = useState<string>("directions");
@@ -200,6 +202,7 @@ export default function HomePage() {
 
         const programCategory = categories.find(category => id === `home-program-category-${programCategoryIds[category]}`);
         if (programCategory) {
+            capturePrograms();
             setAnchorProgramId("");
             setSelectedCategory(programCategory);
             return true;
@@ -207,6 +210,7 @@ export default function HomePage() {
         const program = PROGRAMS.find(item => id === `home-program-${item.id}`);
         if (program) {
             if (!filteredPrograms.some(item => item.id === program.id)) {
+                capturePrograms();
                 setSelectedCategory("전체");
                 setAnchorProgramId(program.id);
             }
@@ -409,7 +413,7 @@ export default function HomePage() {
                                 id={`home-program-category-${programCategoryIds[cat]}`}
                                 data-home-anchor
                                 type="button"
-                                onClick={() => { setAnchorProgramId(""); setSelectedCategory(cat); }}
+                                onClick={() => { if (cat !== selectedCategory || anchorProgramId) { capturePrograms(); setAnchorProgramId(""); setSelectedCategory(cat); } }}
                                 className={selectedCategory === cat ? "is-selected" : ""}
                                 aria-pressed={selectedCategory === cat}
                             >
@@ -422,7 +426,7 @@ export default function HomePage() {
                     </Link>
                 </div>
 
-                <div data-text="body" className="home-program-grid" id="home-program-results" data-home-anchor>
+                <div ref={programListRef} data-text="body" className="home-program-grid" id="home-program-results" data-home-anchor>
                     {filteredPrograms.length > 0 ? (
                         filteredPrograms.map((program) => (
                             <div key={program.id} id={`home-program-${program.id}`} className="home-program-anchor" data-home-anchor>

@@ -147,6 +147,7 @@ export const COMPONENT_USAGE = {
             "app/design-rules/_documentation/CodeBlock.tsx#CodeBlock",
             "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
+            "app/design-rules/_documentation/GsapPlayground.tsx#GsapPlayground",
             "app/design-rules/_documentation/LiquidGlassDemo.tsx#LiquidGlassDemo",
             "app/design-rules/page.tsx#DesignRulesPage",
             "app/design-rules/page.tsx#renderChapter",
@@ -193,6 +194,7 @@ export const COMPONENT_USAGE = {
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
+            "app/design-rules/_documentation/GsapPlayground.tsx#GsapPlayground",
             "app/design-rules/page.tsx#renderChapter",
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
@@ -330,6 +332,7 @@ export const COMPONENT_USAGE = {
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
+            "app/design-rules/_documentation/GsapPlayground.tsx#GsapPlayground",
             "app/design-rules/page.tsx#DesignRulesPage",
             "app/design-rules/page.tsx#renderChapter",
             "components/AccountPanels.tsx#AccountDiary",
@@ -698,6 +701,7 @@ export const COMPONENT_USAGE = {
         "guideUses": [
             "app/design-rules/_documentation/CodeBlock.tsx#CodeBlock",
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
+            "app/design-rules/_documentation/GsapPlayground.tsx#GsapPlayground",
             "app/design-rules/page.tsx#renderChapter",
             "components/BookingDatePreview.tsx#BookingDatePreview"
         ]
