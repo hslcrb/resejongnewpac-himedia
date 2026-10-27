@@ -8,6 +8,8 @@ import { SmallNotificationModalHost } from "./SmallNotificationModal";
 import ReturnTop from "./ReturnTop";
 import ContextMenu from "./ContextMenu";
 import AiChatWidget from "./AiChatWidget";
+import SectionExperience from "./SectionExperience";
+import { getSectionGroup } from "../src/lib/section-scope";
 
 // [사이트와 문서의 탐색 영역 / Product and documentation navigation]
 // 디자인 가이드는 자체 문서 탐색을 사용하고, 나머지 화면은 기존 사이트 셸을 유지합니다.
@@ -33,7 +35,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
             </a>
             <Header />
             <main data-component-id="site-shell" data-text="body" id="main" tabIndex={-1}>
-                {children}
+                {getSectionGroup(pathname) ? <SectionExperience key={pathname} pathname={pathname}>{children}</SectionExperience> : children}
             </main>
             <Footer />
             <ReturnTop />

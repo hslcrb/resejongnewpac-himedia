@@ -1,0 +1,42 @@
+.section-experience { min-width: 0; }
+.section-experience__navigator {
+    position: sticky;
+    top: var(--section-header-offset, 90px);
+    z-index: 30;
+    background: var(--surface-default);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 24px;
+    padding-block: 20px;
+    box-shadow: inset 0 -1px 0 var(--surface-border-subtle);
+}
+.section-experience__navigator[hidden] { display: none; }
+.section-experience__position { display: grid; gap: 4px; min-width: 0; flex: 1 1 240px; }
+.section-experience__position > :first-child { color: var(--text-secondary); }
+.section-experience__current { display: block; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.section-experience__controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.section-experience__track { position: absolute; inset-inline: 0; bottom: 0; height: 3px; overflow: hidden; background: var(--surface-subtle); }
+.section-experience__track > div { height: 100%; background: var(--accent-heritage); transform: scaleX(0); transform-origin: left center; }
+.section-experience :is(h2, .completed-section, .completed-service, .intro-panel, .catalog-content-block) { scroll-margin-top: max(0px, calc(var(--section-header-offset, 90px) + var(--section-navigation-height, 0px) + 24px - var(--section-root-padding, 100px))); }
+.section-experience .completed-outline a[aria-current="location"] { color: var(--text-primary); background: var(--surface-subtle); box-shadow: inset 3px 0 0 var(--accent-heritage); }
+.section-experience .intro-editorial figure { overflow: hidden; }
+@media (max-width: 600px) {
+    .section-experience__position { flex-basis: 100%; }
+    .section-experience__controls { width: 100%; }
+    .section-experience__controls > button { flex: 1 1 0; }
+}
+@media (prefers-reduced-motion: reduce) { .section-experience__track { visibility: hidden; } }
+
+@media (max-height: 480px) {
+    .section-experience__navigator { position: relative; top: auto; }
+    .section-experience :is(h2, .completed-section, .completed-service, .intro-panel, .catalog-content-block) { scroll-margin-top: max(0px, calc(var(--section-header-offset, 90px) + 20px - var(--section-root-padding, 100px))); }
+}
+
+@media (min-width: 1000px) {
+    .section-experience .completed-outline {
+        top: calc(var(--section-header-offset, 90px) + var(--section-navigation-height, 0px) + 24px);
+        max-height: calc(100dvh - var(--section-header-offset, 90px) - var(--section-navigation-height, 0px) - 48px);
+    }
+}
