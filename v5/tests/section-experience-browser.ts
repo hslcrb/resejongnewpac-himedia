@@ -65,23 +65,24 @@ async function check(name: string, run: (page: Page) => Promise<unknown>, option
     const context = reuse ? null : await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: "reduce", serviceWorkers: "block", ...options });
     if (context) await networkFixture(context);
     const page = reuse || await context!.newPage(); page.setDefaultTimeout(15_000); page.setDefaultNavigationTimeout(30_000);
-    const runtimeErrors: string[] = [], missingAssets: string[] = [];
+    const runtimeErrors: string[] = [], missingAssets: string[] = [], gsapWarnings: string[] = [];
     const onError = (error: Error) => runtimeErrors.push(error.message);
+    const onConsole = (message: import("playwright").ConsoleMessage) => { if (["warning", "error"].includes(message.type()) && /GSAP|not eligible|resetTo|Invalid property|Invalid scope|target.*not found/i.test(message.text())) gsapWarnings.push(message.text()); };
     const onResponse = (response: import("playwright").Response) => { if (new URL(response.url()).origin === base.origin && response.status() >= 400 && !response.request().isNavigationRequest()) missingAssets.push(`${response.status()} ${response.url()}`); };
-    page.on("pageerror", onError); page.on("response", onResponse);
+    page.on("pageerror", onError); page.on("response", onResponse); page.on("console", onConsole);
     const result: Record<string, unknown> = { name, status: "running", startedAt: new Date().toISOString(), viewport: options.viewport };
     try {
         result.detail = await run(page);
-        assert.deepEqual(runtimeErrors, [], "No browser runtime errors"); assert.deepEqual(missingAssets, [], "No missing local assets");
+        assert.deepEqual(runtimeErrors, [], "No browser runtime errors"); assert.deepEqual(missingAssets, [], "No missing local assets"); assert.deepEqual(gsapWarnings, [], "No GSAP target/property/resetTo API warnings");
         result.status = "passed"; console.log(`PASS ${name}`);
     } catch (error) {
-        result.status = "failed"; result.error = error instanceof Error ? error.stack : String(error); result.runtimeErrors = runtimeErrors; result.missingAssets = missingAssets;
+        result.status = "failed"; result.error = error instanceof Error ? error.stack : String(error); result.runtimeErrors = runtimeErrors; result.missingAssets = missingAssets; result.gsapWarnings = gsapWarnings;
         result.pageState = await page.evaluate(({ rootSelector, toolbarSelector }) => ({ url: location.pathname + location.hash, scrollY, viewport: { width: innerWidth, height: innerHeight }, toolbar: document.querySelector(toolbarSelector)?.textContent, toolbarBounds: document.querySelector(toolbarSelector)?.getBoundingClientRect().toJSON(), testTrace: (window as Window & { __sectionTestTrace?: unknown }).__sectionTestTrace, imageState: [...document.querySelectorAll(`${rootSelector} .completed-list-image > img`)].map(image => ({ transform: getComputedStyle(image).transform, ownerHovered: image.closest("a")?.matches(":hover"), fine: matchMedia("(hover: hover) and (pointer: fine)").matches, motion: matchMedia("(prefers-reduced-motion: no-preference)").matches })), focus: { tag: document.activeElement?.tagName, id: document.activeElement?.id, text: document.activeElement?.textContent?.slice(0, 160) }, headings: [...document.querySelectorAll(`${rootSelector} h2`)].map(heading => ({ id: heading.id, text: heading.textContent, top: heading.getBoundingClientRect().top })) }), { rootSelector, toolbarSelector }).catch(() => null);
         const screenshot = name.replace(/[^a-zA-Z0-9_-]/g, "-") + "-failure.png";
         await page.screenshot({ path: resolve(directory, screenshot) }).then(() => { result.screenshot = screenshot; }).catch(() => {});
         console.error(`FAIL ${name}: ${error instanceof Error ? error.message : error}`);
     } finally {
-        page.off("pageerror", onError); page.off("response", onResponse); checks.push(result); save();
+        page.off("pageerror", onError); page.off("response", onResponse); page.off("console", onConsole); checks.push(result); save();
         if (context) await context.close();
     }
 }
