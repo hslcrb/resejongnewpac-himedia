@@ -36,19 +36,6 @@
 .intro-cover-copy { padding-block: 80px; }
 .intro-cover-copy h1 { margin-block: 24px; max-width: 18ch; }
 .intro-cover-copy p { max-width: 38ch; margin-block: 24px; }
-.intro-journey {
-    position: absolute;
-    inset-inline: 0;
-    bottom: 20px;
-    width: min(640px, calc(100% - 40px));
-    height: 56px;
-    margin-inline: auto;
-    overflow: visible;
-    pointer-events: none;
-}
-.intro-journey path { stroke: var(--accent-highlight); stroke-width: 2; stroke-linecap: round; opacity: .8; }
-.intro-journey path + path { stroke: var(--accent-information); opacity: .55; }
-.intro-journey circle { fill: var(--accent-highlight); }
 .intro-editorial {
     display: grid;
     grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
@@ -60,13 +47,13 @@
 .intro-editorial h2 { margin-block: 16px 24px; }
 .intro-editorial p { max-width: 36ch; margin-bottom: 32px; }
 .intro-editorial figure { min-width: 0; margin: 0; }
+.intro-media-frame { overflow: hidden; border-radius: var(--surface-radius-panel); }
 .intro-editorial img {
     display: block;
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 10;
     object-fit: cover;
-    border-radius: var(--radius-panel);
 }
 .intro-editorial figcaption { color: var(--text-secondary); margin-top: 12px; }
 .intro-visit {
