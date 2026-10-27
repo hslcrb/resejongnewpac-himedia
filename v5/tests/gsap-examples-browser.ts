@@ -318,7 +318,7 @@ try {
         return { frames: frames.length, strokeStates: new Set(frames.map(value => `${value.dash}:${value.offset}`)).size, travellerStates: new Set(frames.map(value => value.transform)).size, final, still };
     });
 
-    for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }, { width: 844, height: 390 }, { width: 640, height: 450 }]) await check(`introduction scene keyboard ${viewport.width}x${viewport.height}`, async page => {
+    for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 1000 }, { width: 1440, height: 1400 }, { width: 844, height: 390 }, { width: 640, height: 450 }]) await check(`introduction scene keyboard ${viewport.width}x${viewport.height}`, async page => {
         await enter(page, "about/introduction/"); const button = page.locator(".intro-scenes").getByRole("button", { name: "서울시예술단", exact: true });
         await button.focus(); await page.keyboard.press("Enter");
         const title = page.locator("#intro-title-pulse"); await page.waitForFunction(() => document.activeElement?.id === "intro-title-pulse");
