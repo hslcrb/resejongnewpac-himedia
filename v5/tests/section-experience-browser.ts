@@ -76,7 +76,7 @@ async function check(name: string, run: (page: Page) => Promise<unknown>, option
         result.status = "passed"; console.log(`PASS ${name}`);
     } catch (error) {
         result.status = "failed"; result.error = error instanceof Error ? error.stack : String(error); result.runtimeErrors = runtimeErrors; result.missingAssets = missingAssets;
-        result.pageState = await page.evaluate(({ rootSelector, toolbarSelector }) => ({ url: location.pathname + location.hash, scrollY, viewport: { width: innerWidth, height: innerHeight }, toolbar: document.querySelector(toolbarSelector)?.textContent, focus: { tag: document.activeElement?.tagName, id: document.activeElement?.id, text: document.activeElement?.textContent?.slice(0, 160) }, headings: [...document.querySelectorAll(`${rootSelector} h2`)].map(heading => ({ id: heading.id, text: heading.textContent, top: heading.getBoundingClientRect().top })) }), { rootSelector, toolbarSelector }).catch(() => null);
+        result.pageState = await page.evaluate(({ rootSelector, toolbarSelector }) => ({ url: location.pathname + location.hash, scrollY, viewport: { width: innerWidth, height: innerHeight }, toolbar: document.querySelector(toolbarSelector)?.textContent, toolbarBounds: document.querySelector(toolbarSelector)?.getBoundingClientRect().toJSON(), testTrace: (window as Window & { __sectionTestTrace?: unknown }).__sectionTestTrace, imageState: [...document.querySelectorAll(`${rootSelector} .completed-list-image > img`)].map(image => ({ transform: getComputedStyle(image).transform, ownerHovered: image.closest("a")?.matches(":hover"), fine: matchMedia("(hover: hover) and (pointer: fine)").matches, motion: matchMedia("(prefers-reduced-motion: no-preference)").matches })), focus: { tag: document.activeElement?.tagName, id: document.activeElement?.id, text: document.activeElement?.textContent?.slice(0, 160) }, headings: [...document.querySelectorAll(`${rootSelector} h2`)].map(heading => ({ id: heading.id, text: heading.textContent, top: heading.getBoundingClientRect().top })) }), { rootSelector, toolbarSelector }).catch(() => null);
         const screenshot = name.replace(/[^a-zA-Z0-9_-]/g, "-") + "-failure.png";
         await page.screenshot({ path: resolve(directory, screenshot) }).then(() => { result.screenshot = screenshot; }).catch(() => {});
         console.error(`FAIL ${name}: ${error instanceof Error ? error.message : error}`);
@@ -143,8 +143,10 @@ try {
     await check("section-navigation-and-progress", async page => {
         await visit(page, "/about"); await assertPage(page);
         const nav = page.locator(toolbarSelector), labels = await page.locator(`${rootSelector} ${chapterHeadingSelector}`).allTextContents();
+        await nav.evaluate(nav => { (window as Window & { __sectionTestTrace?: unknown }).__sectionTestTrace = { before: { toolbar: nav.textContent, bounds: nav.getBoundingClientRect().toJSON(), offset: getComputedStyle(document.querySelector("#completed-section-title-1")!).scrollMarginTop } }; });
         const before = await progress(page); await nav.getByRole("button", { name: "다음 섹션", exact: true }).click();
         const focused = await focusedHeading(page); assert.equal(focused.text.trim(), labels[1].trim(), "Next targets exactly the second content heading");
+        await nav.evaluate(nav => { Object.assign((window as Window & { __sectionTestTrace?: object }).__sectionTestTrace!, { afterFocus: { toolbar: nav.textContent, bounds: nav.getBoundingClientRect().toJSON(), offset: getComputedStyle(document.activeElement!).scrollMarginTop } }); });
         await page.waitForFunction(({ rootSelector, toolbarSelector, title }) => document.querySelector(rootSelector)?.querySelector(toolbarSelector)?.textContent?.includes(title), { rootSelector, toolbarSelector, title: focused.text });
         await page.waitForFunction(before => { const element = document.querySelector("[data-section-progress]"); return !!element && new DOMMatrixReadOnly(getComputedStyle(element).transform).a > before + .001; }, before);
         await nav.getByRole("button", { name: "이전 섹션", exact: true }).click(); const previous = await focusedHeading(page); assert.equal(previous.text.trim(), labels[0].trim());
@@ -209,6 +211,7 @@ try {
         await page.evaluate(async () => { await new Promise(requestAnimationFrame); await new Promise(requestAnimationFrame); });
         const owner = page.locator(`${rootSelector} a.completed-list-entry:has(.completed-list-image)`).first();
         const image = owner.locator(".completed-list-image > img");
+        await owner.evaluate(owner => { const trace = { enters: 0, leaves: 0, transforms: [] as string[] }; (window as Window & { __sectionTestTrace?: unknown }).__sectionTestTrace = trace; owner.addEventListener("pointerenter", () => trace.enters++); owner.addEventListener("pointerleave", () => trace.leaves++); });
         await image.scrollIntoViewIfNeeded(); await owner.hover();
         await page.waitForFunction(selector => { const image = document.querySelector(selector)!; return new DOMMatrixReadOnly(getComputedStyle(image).transform).a > 1.005; }, `${rootSelector} a.completed-list-entry .completed-list-image > img`);
         const pointerScale = await image.evaluate(element => new DOMMatrixReadOnly(getComputedStyle(element).transform).a);
