@@ -38,7 +38,6 @@ export default function IntroductionExperience() {
             const cursor = self.scroll() + headerOffset + Math.min(innerHeight * .15, 80);
             let index = 0;
             boundaries.forEach((boundary, position) => { if (cursor >= boundary) index = position; });
-            if (self.progress >= .999 && self.scroll() > boundaries[0]) index = panels.length - 1;
             setActive(panels[index]?.dataset.introScene || "opening");
         };
         const refresh = () => {
@@ -49,8 +48,10 @@ export default function IntroductionExperience() {
             });
         };
         measure();
+        // 끝 장면이 화면 위쪽에 도달할 때까지 현재 위치를 추적한다.
+        // Keep tracking beyond "bottom bottom" so a focused third scene is not mistaken for the last.
         ScrollTrigger.create({
-            trigger: element, start: "top top", end: "bottom bottom",
+            trigger: element, start: "top top", end: "bottom top",
             onRefresh: self => { measure(); syncScene(self); }, onUpdate: syncScene,
         });
         const media = gsap.matchMedia(element);
