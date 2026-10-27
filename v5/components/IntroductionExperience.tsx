@@ -35,9 +35,23 @@ export default function IntroductionExperience() {
         };
         const syncScene = (self: ScrollTrigger) => {
             if (disposed) return;
-            const cursor = self.scroll() + headerOffset + Math.min(innerHeight * .15, 80);
+            const scroll = self.scroll();
+            const cursor = scroll + headerOffset + Math.min(innerHeight * .15, 80);
             let index = 0;
             boundaries.forEach((boundary, position) => { if (cursor >= boundary) index = position; });
+            // 큰 화면에서는 마지막 제목이 헤더까지 오기 전에 네이티브 스크롤이 끝날 수 있다.
+            // Use the real document boundary, not trigger progress, when that last scene is visible.
+            const last = panels.length - 1;
+            const maxScroll = ScrollTrigger.maxScroll(window);
+            if (maxScroll > 0 && scroll >= maxScroll - 2 && boundaries[last] < scroll + innerHeight) {
+                const focused = document.activeElement;
+                const panel = focused instanceof HTMLElement && focused.matches("h1, h2") ? focused.closest<HTMLElement>("[data-intro-scene]") : null;
+                const focusedIndex = panel ? panels.indexOf(panel) : -1;
+                const rect = panel && focused instanceof HTMLElement ? focused.getBoundingClientRect() : null;
+                const headerBottom = Math.max(0, header?.getBoundingClientRect().bottom || 0);
+                if (focusedIndex >= 0 && rect && rect.top >= headerBottom && rect.bottom <= innerHeight) index = focusedIndex;
+                else if (scroll > 0) index = last;
+            }
             setActive(panels[index]?.dataset.introScene || "opening");
         };
         const refresh = () => {
@@ -112,6 +126,7 @@ export default function IntroductionExperience() {
         const heading = root.current?.querySelector<HTMLElement>(`#intro-title-${id}`);
         if (!heading) return;
         heading.focus({ preventScroll: true });
+        setActive(id);
         heading.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
     }
     return <div ref={root} className="sejong-intro" data-component-id="introduction">
