@@ -147,7 +147,15 @@ async function settledScroll(page: Page) {
 try {
     const inventoryContext = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: "reduce", serviceWorkers: "block" });
     await networkFixture(inventoryContext); const inventoryPage = await inventoryContext.newPage();
-    try { for (const path of routes) await check(`route-${path}`, async page => { await visit(page, path); return assertPage(page); }, {}, inventoryPage); }
+    try { for (const path of routes) await check(`route-${path}`, async page => {
+        await visit(page, path); const metrics = await assertPage(page);
+        if (path === "/about/introduction") {
+            await page.waitForFunction(() => { const image = document.querySelector<HTMLImageElement>(".intro-cover img"); return !!image?.complete && image.naturalWidth > 0; });
+            await page.screenshot({ path: resolve(directory, "introduction-390.png") });
+            return { ...metrics, screenshot: "introduction-390.png", localHeroDecoded: true };
+        }
+        return metrics;
+    }, {}, inventoryPage); }
     finally { await inventoryContext.close(); }
 
     for (const width of [320, 390, 768, 1024, 1440]) for (const group of NAV) await check(`viewport-${group.id}-${width}`, async page => {
@@ -270,8 +278,10 @@ try {
         await page.waitForFunction(rootSelector => [...document.querySelectorAll<HTMLElement>(`${rootSelector} h1,${rootSelector} h2`)].every(element => {
             const style = getComputedStyle(element); return Number(style.opacity) >= .99 && (style.transform === "none" || Math.abs(new DOMMatrixReadOnly(style.transform).m42) < .1);
         }), rootSelector);
+        await page.waitForFunction(() => { const image = document.querySelector<HTMLImageElement>(".intro-cover img"); return !!image?.complete && image.naturalWidth > 0; });
+        await page.screenshot({ path: resolve(directory, "introduction-1440.png") });
         const nav = page.locator(toolbarSelector); await nav.getByRole("button", { name: "다음 섹션", exact: true }).click(); const focused = await focusedHeading(page);
-        assert.ok(focused.top >= -1 && focused.top < 900); return { focused, metrics: await assertPage(page) };
+        assert.ok(focused.top >= -1 && focused.top < 900); return { focused, metrics: await assertPage(page), screenshot: "introduction-1440.png", localHeroDecoded: true };
     }, { reducedMotion: "no-preference", viewport: { width: 1440, height: 900 } });
 
     await check("offscreen-reveal-is-bounded-and-runs-once", async page => {
