@@ -131,7 +131,7 @@ export default function ServiceRequestForm({ page, onSaved }: { page: Completion
                 <div className="service-request-actions"><SystemButton type="submit" disabled={pending} shape="pill">{pending ? "저장 중" : form.kind === "order" ? "구매 요청 저장" : "신청 내용 저장"}</SystemButton><p data-text="meta">저장 완료 후 접수번호가 표시됩니다.</p></div>
             </SystemSurface>}
         {owner && <div className="service-request-history"><h3 data-text="item-title">나의 신청 내역</h3>{loading ? <p data-text="body" role="status">내역을 불러오고 있습니다.</p> : !records.length ? <p data-text="body">저장한 신청 내역이 없습니다.</p> : records.map(request => <SystemDisclosure key={request.id} summary={<span data-text="label">{request.reference} · {request.status === "cancelled" ? "취소" : "접수"} · {new Date(request.created_at).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })}</span>}>
-            <dl className="service-request-privacy">{form.fields.map(field => <div key={field.name}><dt data-text="label">{field.label}</dt><dd data-text="body">{String(request.values[field.name] || "-")}</dd></div>)}</dl>
+            <dl className="service-request-privacy">{form.fields.map(field => <div key={field.name}><dt data-text="label">{field.label}</dt><dd data-text="body">{String(request.values[field.name] || "미입력")}</dd></div>)}</dl>
             {request.status === "submitted" && <SystemButton variant="secondary" shape="pill" disabled={Boolean(cancelling)} onClick={() => void cancel(request)}>{cancelling === request.id ? "취소 중" : "신청 취소"}</SystemButton>}
         </SystemDisclosure>)}</div>}
         {failure && (!form.enabled || !owner) && <SystemNotice error>{failure}</SystemNotice>}
