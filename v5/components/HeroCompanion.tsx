@@ -79,7 +79,7 @@ function HeroCompanion() {
                         </a>
                     ) : (
                         <a data-text="action" href={TICKET_OPENINGS_URL} target="_blank" rel="noreferrer">
-                            <strong data-text="item-title">{now === null ? "일정을 확인하고 있어요" : "새로운 오픈 일정을 기다려 주세요"}</strong>
+                            <strong data-text="item-title">{now === null ? "일정 확인 중" : "예정된 티켓오픈이 없습니다"}</strong>
                             <span><span data-text="body">전체 티켓오픈 안내</span><Icon name="diagonal" size={20} /></span>
                         </a>
                     )}

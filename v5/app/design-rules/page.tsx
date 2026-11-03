@@ -43,6 +43,7 @@ import {
     designTokensCss,
 } from "../../src/data/design-system";
 import type { ChapterId } from "../../src/data/design-system";
+import { trackScrollFragments } from "../../src/lib/scroll-fragments";
 import { HEADER_ACTION_ICONS } from "../../src/system/component-contracts";
 import { QUICK_MENU_MATERIAL, QUICK_MENU_TOKENS } from "../../src/data/design-tokens";
 
@@ -289,9 +290,14 @@ export default function DesignRulesPage() {
         document
             .querySelectorAll("[data-doc-section]")
             .forEach((section) => observer.observe(section));
+        const stopTracking = trackScrollFragments(() => (chapter.sections as readonly (readonly [string, string])[]).flatMap(([section]) => {
+            const element = document.getElementById(`${chapter.id}-${section}`);
+            return element ? [{ element, fragment: `${chapter.id}/${section}` }] : [];
+        }));
         return () => {
             if (frame) cancelAnimationFrame(frame);
             observer.disconnect();
+            stopTracking();
         };
     }, [chapter, navigation]);
 

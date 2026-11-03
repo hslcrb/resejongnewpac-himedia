@@ -21,6 +21,12 @@ export default function ReturnTop() {
     }, []);
 
     const scrollToTop = () => {
+        const path = window.location.pathname.replace(/^\/v5(?=\/|$)/, "").replace(/\/$/, "") || "/";
+        if (!/^\/account(?:\/|$)/.test(path) || /^\/account\/(?:login|signup|recovery)$/.test(path)) {
+            const url = new URL(window.location.href);
+            url.hash = path === "/" ? (document.getElementById("featured-season") ? "featured-season" : "home") : "main";
+            window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+        }
         window.scrollTo({
             top: 0,
             behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",

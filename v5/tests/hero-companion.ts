@@ -113,7 +113,7 @@ try {
         assert.match(await page.locator(".hero-next-release").innerText(), /14:00/);
         await page.clock.setSystemTime(new Date("2026-10-28T14:00:00+09:00"));
         await page.clock.runFor(1000);
-        assert.match(await page.locator(".hero-next-release").innerText(), /새로운 오픈 일정을 기다려/);
+        assert.match(await page.locator(".hero-next-release").innerText(), /예정된 티켓오픈이 없습니다/);
         assert.doesNotMatch(await page.locator(".hero-release-list").innerText(), /D-/);
     });
     await check("there are no browser runtime errors", async () => assert.deepEqual(errors, []));

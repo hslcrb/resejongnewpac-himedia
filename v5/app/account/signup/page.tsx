@@ -84,13 +84,8 @@ export default function SignupPage() {
 
             <div className="container page-content flow-content">
                 <div className="account-auth-layout">
-                    <section className="account-auth-intro" aria-labelledby="account-intro-title">
-                        <h2 data-text="heading" id="account-intro-title">
-                            나만의 공간에서
-                            <br />
-                            다음 관람을 준비해요.
-                        </h2>
-                        <p data-text="body">관심 가는 프로그램을 모으고, 다음 관람을 준비해 보세요.</p>
+                    <section className="account-auth-intro" id="account-intro" aria-labelledby="account-intro-title">
+                        <h2 data-text="heading" id="account-intro-title">회원 서비스</h2>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             className="account-auth-photo"
@@ -101,7 +96,7 @@ export default function SignupPage() {
                         />
                     </section>
 
-                    <SystemSurface as="form" variant="panel" padding="lg" className="flow-panel" data-account-auth="signup" onSubmit={handleSubmit} noValidate>
+                    <SystemSurface as="form" variant="panel" padding="lg" className="flow-panel" id="account-signup-form" data-scroll-fragment data-account-auth="signup" onSubmit={handleSubmit} noValidate>
                         <h2 data-text="heading">회원가입</h2>
                         <p data-text="body" className="flow-fineprint">
                             가입할 이메일로 보낸 링크를 열면 계정을 사용할 수 있습니다.

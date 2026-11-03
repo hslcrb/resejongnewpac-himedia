@@ -44,7 +44,7 @@ export default function ProgramsPage() {
             </header>
 
             {/* [공통 범주 필터와 검색 / Shared category filters and search] */}
-            <div className="programs-page-controls">
+            <div className="programs-page-controls" id="program-filters" data-scroll-fragment>
                 <div data-text="body" className="page-layout-actions" role="group" aria-label="프로그램 분류">
                     {categories.map((cat) => (
                         <SystemFilterButton data-text="action"
@@ -84,7 +84,7 @@ export default function ProgramsPage() {
 
             {/* [남는 폭에 맞춰 늘어나는 카드 목록 / Cards that follow the available width] */}
             {filtered.length > 0 ? (
-                <div data-text="body" className="programs-page-grid">
+                <div data-text="body" className="programs-page-grid" id="program-results" data-scroll-fragment>
                     {filtered.map((program) => (
                         <ProgramCard key={program.id} program={program} />
                     ))}
