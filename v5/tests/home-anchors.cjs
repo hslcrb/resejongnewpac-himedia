@@ -162,6 +162,8 @@ async function main() {
 
         await check('hashchange reveals the same carousel, card, notice, date and visit targets', async () => {
             await initial(page);
+            // Wait until the entry dialog has installed its hash listener before simulating navigation.
+            await expect(page.getByRole('button', { name: '인트로 건너뛰기' })).toBeFocused();
             const results = [];
             for (const item of targets) {
                 await hash(page, item.id);

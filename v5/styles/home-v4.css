@@ -54,6 +54,7 @@
 
 .home-booking .section-heading h2,
 #discover-programs .section-heading h2,
+#plan-your-visit .section-heading h2,
 #sejong-news .section-heading h2 {
     font-size: max(var(--text-min), clamp(36px, 4vw, 58px));
     line-height: 1.2;
@@ -498,10 +499,6 @@
     font-size: max(var(--text-min), 18px);
     line-height: 1.6;
     flex-shrink: 0;
-}
-
-.home-visit-planner {
-    margin-bottom: 28px;
 }
 
 .home-news-filters {

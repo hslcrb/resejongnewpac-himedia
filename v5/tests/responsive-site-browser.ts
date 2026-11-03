@@ -184,8 +184,10 @@ async function deterministicNetwork(context: BrowserContext) {
         if (url.origin === baseURL.origin && /\.(?:js|css|woff2?|svg|png|jpe?g|webp|avif|gif|ico)$/i.test(url.pathname)) {
             // Cache only immutable build assets; HTML and API responses always stay fresh.
             if (!localResponses.has(url.href)) localResponses.set(url.href, assetClient.get(url.href, { timeout: 10_000 }).then(async response => {
-                const headers = { ...response.headers() }; delete headers["content-length"]; delete headers["content-encoding"];
-                return { status: response.status(), headers, body: await response.body() };
+                try {
+                    const headers = { ...response.headers() }; delete headers["content-length"]; delete headers["content-encoding"];
+                    return { status: response.status(), headers, body: await response.body() };
+                } finally { await response.dispose(); }
             }).catch(error => { localResponses.delete(url.href); throw error; }));
             return route.fulfill(await localResponses.get(url.href)!);
         }
@@ -205,10 +207,64 @@ async function settle(page: Page) {
     await page.waitForTimeout(180);
 }
 
+// [자산 연결 오류 재시도 / Retry transient transport failures without hiding HTTP errors]
+type AssetCheck = { status: number; contentType: string; error?: string };
+function createAssetChecker(fetchAsset: (url: string) => Promise<AssetCheck>, wait: (ms: number) => Promise<void> = ms => new Promise(resolve => setTimeout(resolve, ms))) {
+    const checks = new Map<string, Promise<AssetCheck>>();
+    return (url: string) => {
+        const existing = checks.get(url);
+        if (existing) return existing;
+        const pending = (async (): Promise<AssetCheck> => {
+            for (let attempt = 1; attempt <= 3; attempt++) {
+                try { return await fetchAsset(url); }
+                catch (error) {
+                    const message = error instanceof Error ? error.message : String(error);
+                    const transient = /\b(?:ECONNRESET|ECONNREFUSED|ETIMEDOUT|EPIPE|EAI_AGAIN|ENETUNREACH|EHOSTUNREACH|ERR_CONNECTION_RESET|ERR_CONNECTION_CLOSED|ERR_CONNECTION_REFUSED|ERR_TIMED_OUT)\b|socket hang up|timeout \d+ms exceeded|timed out|fetch failed/i.test(message);
+                    if (!transient || attempt === 3) return { status: 0, contentType: "", error: `요청 ${attempt}회: ${message}` };
+                    await wait(attempt * 150);
+                }
+            }
+            throw new Error("Unreachable asset retry state");
+        })();
+        checks.set(url, pending);
+        void pending.then(result => { if (result.status === 0 && checks.get(url) === pending) checks.delete(url); });
+        return pending;
+    };
+}
+
 const assetClient = await apiRequest.newContext();
 const browser = await chromium.launch({ headless: true, executablePath });
-const assetChecks = new Map<string, Promise<{ status: number; contentType: string }>>();
+const checkAsset = createAssetChecker(async url => {
+    const response = await assetClient.get(url, { timeout: 10_000 });
+    try {
+        return { status: response.status(), contentType: response.headers()["content-type"] || "" };
+    } finally { await response.dispose(); }
+});
 try {
+    let attempts = 0;
+    const retryFixture = createAssetChecker(async () => {
+        if (++attempts === 1) throw new Error("ECONNRESET fixture");
+        return { status: 200, contentType: "text/plain" };
+    }, async () => {});
+    assert.equal((await retryFixture("retry")).status, 200);
+    assert.equal(attempts, 2, "Transient network failures must be retried");
+    let missingAttempts = 0;
+    const missingFixture = createAssetChecker(async () => { missingAttempts++; return { status: 404, contentType: "text/plain" }; }, async () => {});
+    assert.equal((await missingFixture("missing")).status, 404);
+    assert.equal(missingAttempts, 1, "HTTP errors must remain failures without a retry");
+    let unexpectedAttempts = 0;
+    const unexpectedFixture = createAssetChecker(async () => { unexpectedAttempts++; throw new Error("invalid request fixture"); }, async () => {});
+    const unexpected = await unexpectedFixture("invalid");
+    assert.match(unexpected.error || "", /invalid request fixture/);
+    assert.equal(unexpectedAttempts, 1, "Non-network errors must not be retried");
+    let failureAttempts = 0;
+    const failedFixture = createAssetChecker(async () => { failureAttempts++; throw new Error("ECONNRESET fixture"); }, async () => {});
+    const failed = await failedFixture("failed");
+    assert.equal(failed.status, 0);
+    assert.match(failed.error || "", /ECONNRESET fixture/);
+    assert.equal(failureAttempts, 3, "Retries must be bounded");
+    await failedFixture("failed");
+    assert.equal(failureAttempts, 6, "A failed request must not stay cached");
     const self = await browser.newPage({ viewport: { width: 320, height: 640 } });
     const samples = [
         { name: "valid", css: "", content: "<p>Readable content fits this small viewport.</p>", kinds: [] },
@@ -278,9 +334,8 @@ try {
                         issues.push(...issuesFor(metrics));
                         result.metrics = { ...metrics, assets: metrics.assets.length };
                         for (const asset of metrics.assets) {
-                            if (!assetChecks.has(asset)) assetChecks.set(asset, assetClient.get(asset, { timeout: 10_000 }).then(response => ({ status: response.status(), contentType: response.headers()["content-type"] || "" })).catch(() => ({ status: 0, contentType: "" })));
-                            const checked = await assetChecks.get(asset)!;
-                            if (checked.status < 200 || checked.status >= 400 || /text\/html/.test(checked.contentType) && /\.(?:js|css|woff2?|svg|png|jpe?g|webp|gif|avif)(?:\?|$)/i.test(asset)) issues.push({ kind: "missing-local-asset", message: `${checked.status} ${checked.contentType} ${asset}` });
+                            const checked = await checkAsset(asset);
+                            if (checked.status < 200 || checked.status >= 400 || /text\/html/.test(checked.contentType) && /\.(?:js|css|woff2?|svg|png|jpe?g|webp|gif|avif)(?:\?|$)/i.test(asset)) issues.push({ kind: "missing-local-asset", message: `${checked.status} ${checked.contentType} ${asset}${checked.error ? `: ${checked.error}` : ""}` });
                         }
                         const representative = task.route === "index.html" || task.width === 390 && ["programs/index.html", "visit/plan/index.html", "account/login/index.html", "design-rules/index.html"].includes(task.route);
                         if (issues.length || representative) {

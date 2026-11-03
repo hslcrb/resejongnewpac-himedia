@@ -445,66 +445,69 @@ export default function HomePage() {
 
             {/* 5. 방문 안내와 호버 미리보기 (Visit Guide with Photographic Previews) */}
             <section className="home-visit container" id="plan-your-visit" data-home-anchor aria-labelledby="visit-heading">
-                <figure className="visit-photograph" id="home-visit-preview" data-home-anchor aria-label="방문 안내 미리보기">
-                    {visitGuides.map((guide) => (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                            key={guide.id}
-                            src={`/v5/assets/images/${guide.image}`}
-                            alt={guide.alt}
-                            width={guide.width}
-                            height={guide.height}
-                            loading="lazy"
-                            data-visit-image={guide.id}
-                            data-visit-kind={guide.kind}
-                            aria-hidden={activeVisitId !== guide.id}
-                        />
-                    ))}
-                </figure>
-
-                <div className="visit-editorial">
+                <div className="section-heading">
                     <h2 data-text="heading" id="visit-heading">오시는 길</h2>
                     <Link data-text="action" className="text-link home-visit-planner" href="/visit/plan" id="home-visit-planner" data-home-anchor>
                         방문 계획 만들기 <Icon name="arrow" size={20} />
                     </Link>
+                </div>
+                <div className="home-visit-layout">
+                    <figure className="visit-photograph" id="home-visit-preview" data-home-anchor aria-label="방문 안내 미리보기">
+                        {visitGuides.map((guide) => (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                                key={guide.id}
+                                src={`/v5/assets/images/${guide.image}`}
+                                alt={guide.alt}
+                                width={guide.width}
+                                height={guide.height}
+                                loading="lazy"
+                                data-visit-image={guide.id}
+                                data-visit-kind={guide.kind}
+                                aria-hidden={activeVisitId !== guide.id}
+                            />
+                        ))}
+                    </figure>
 
-                    <div className="visit-links-layout">
-                        <div data-text="body" className="visit-link-list">
-                            {visitGuides.map((guide) => (
-                                <Link data-text="action"
-                                    key={guide.id}
-                                    id={`home-visit-${guide.id}`}
-                                    data-home-anchor
-                                    href={guide.path}
-                                    data-visit-preview={guide.id}
-                                    onPointerEnter={() => setActiveVisitId(guide.id)}
-                                    onFocus={() => setActiveVisitId(guide.id)}
-                                    className={activeVisitId === guide.id ? "is-previewed" : ""}
-                                >
-                                    <span>
-                                        <strong data-text="item-title">{guide.title}</strong>
-                                        <small data-text="caption">{guide.description}</small>
-                                    </span>
-                                    <Icon name="arrow" size={22} />
-                                </Link>
-                            ))}
-                        </div>
-                        <div className="visit-hover-rail" aria-hidden="true">
-                            <div data-text="body" className="visit-hover-preview">
+                    <div className="visit-editorial">
+                        <div className="visit-links-layout">
+                            <div data-text="body" className="visit-link-list">
                                 {visitGuides.map((guide) => (
-                                    /* eslint-disable-next-line @next/next/no-img-element */
-                                    <img
+                                    <Link data-text="action"
                                         key={guide.id}
-                                        src={`/v5/assets/images/${guide.image}`}
-                                        alt=""
-                                        width={guide.width}
-                                        height={guide.height}
-                                        loading="lazy"
-                                        data-visit-hover-image={guide.id}
-                                        data-visit-kind={guide.kind}
-                                        className={activeVisitId === guide.id ? "is-active" : ""}
-                                    />
+                                        id={`home-visit-${guide.id}`}
+                                        data-home-anchor
+                                        href={guide.path}
+                                        data-visit-preview={guide.id}
+                                        onPointerEnter={() => setActiveVisitId(guide.id)}
+                                        onFocus={() => setActiveVisitId(guide.id)}
+                                        className={activeVisitId === guide.id ? "is-previewed" : ""}
+                                    >
+                                        <span>
+                                            <strong data-text="item-title">{guide.title}</strong>
+                                            <small data-text="caption">{guide.description}</small>
+                                        </span>
+                                        <Icon name="arrow" size={22} />
+                                    </Link>
                                 ))}
+                            </div>
+                            <div className="visit-hover-rail" aria-hidden="true">
+                                <div data-text="body" className="visit-hover-preview">
+                                    {visitGuides.map((guide) => (
+                                        /* eslint-disable-next-line @next/next/no-img-element */
+                                        <img
+                                            key={guide.id}
+                                            src={`/v5/assets/images/${guide.image}`}
+                                            alt=""
+                                            width={guide.width}
+                                            height={guide.height}
+                                            loading="lazy"
+                                            data-visit-hover-image={guide.id}
+                                            data-visit-kind={guide.kind}
+                                            className={activeVisitId === guide.id ? "is-active" : ""}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>
