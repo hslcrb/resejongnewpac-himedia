@@ -20,9 +20,8 @@ export default function Footer() {
         <footer data-component-id="footer" id="footer" className="renewal-footer" data-home-anchor>
             <div className="footer-utility" id="footer-newsletter" data-home-anchor>
                 <div className="container">
-                    <p data-text="body">세종문화회관의 새 소식.</p>
                     <Link data-text="action" href="/news/newsletter">
-                        세종의 소식 받아보기 →
+                        뉴스레터 신청 →
                     </Link>
                 </div>
             </div>
@@ -45,11 +44,6 @@ export default function Footer() {
                             }}
                         />
                     </Link>
-                    <p data-text="body">
-                        공연·전시·교육
-                        <br />
-                        한 곳에서 이어지는 무대.
-                    </p>
                     <span className="identity-marks" aria-hidden="true">
                         <i></i><i></i><i></i>
                     </span>

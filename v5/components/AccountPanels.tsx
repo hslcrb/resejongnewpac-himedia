@@ -23,7 +23,7 @@ export function AccountMembershipCard({ name, message, mode, counts, onEdit, onL
         <section className="account-identity" data-component="AccountMembershipCard" data-component-id="account-membership" aria-label="나의 프로필">
             <div className="account-identity-top"><span data-text="body" className="account-avatar" aria-hidden="true">{Array.from(name)[0] || "나"}</span><SystemBadge data-text="meta" tone={mode === "oauth" ? "info" : "neutral"}>{mode === "oauth" ? "로그인됨" : mode === "demo" ? "내 프로필" : "방문자 공간"}</SystemBadge></div>
             <h2 data-text="heading">{name}<span data-text="body">님의 세종</span></h2>
-            <p data-text="body" className="account-status-message">{message || "나만의 한 줄을 남겨 보세요."}</p>
+            <p data-text="body" className="account-status-message">{message || "소개 문구를 입력하세요."}</p>
             <SystemButton data-text="action" variant="secondary" shape="pill" onClick={onEdit}>나의 공간 꾸미기 <Icon name="plus" size={20} /></SystemButton>
             <dl className="account-profile-counts">
                 <div><dt data-text="label">다가올 관람</dt><dd data-text="body">{counts.upcoming}<span data-text="body">건</span></dd></div>
@@ -88,10 +88,10 @@ export function AccountDiary({ programs, notes, today, onSave, onDelete }: {
     }
     return (
         <section className="account-diary" data-component="AccountDiary" data-component-id="account-diary" aria-labelledby="account-diary-heading">
-            <div className="account-section-heading"><div><p data-text="body" className="account-section-kicker">공연이 끝난 뒤에도</p><h2 data-text="heading" id="account-diary-heading">나의 관람노트</h2></div><span data-text="body">{notes.length}개의 기록</span></div>
+            <div className="account-section-heading"><div><h2 data-text="heading" id="account-diary-heading">나의 관람노트</h2></div><span data-text="body">{notes.length}개의 기록</span></div>
             <form className="account-note-form" onSubmit={submit}>
                 <div className="account-form-pair"><SystemField data-text="body" as="select" label="기록할 프로그램" id="account-note-program" value={programId} onChange={event => setProgramId(event.target.value)} required>{programs.map(program => <option data-text="label" key={program.id} value={program.id}>{program.title}</option>)}</SystemField><SystemField data-text="body" label="관람일" type="date" id="account-note-date" value={date} max={today} onChange={event => setDate(event.target.value)} required /></div>
-                <SystemField data-text="body" as="textarea" id="account-note-body" label="오래 남기고 싶은 장면" value={body} onChange={event => setBody(event.target.value)} rows={4} maxLength={500} required placeholder="오늘의 무대에서 마음에 남은 순간은 무엇인가요?" />
+                <SystemField data-text="body" as="textarea" id="account-note-body" label="관람 내용" value={body} onChange={event => setBody(event.target.value)} rows={4} maxLength={500} required placeholder="관람 후기를 입력하세요." />
                 {error && <SystemNotice data-text="body" error title="노트를 저장하지 못했어요">{error}</SystemNotice>}
                 <div className="account-note-form-footer"><p data-text="body">{body.length}/500</p><SystemButton data-text="action" type="submit" disabled={saving}>{saving ? "저장 중…" : "노트 남기기"} <Icon name="plus" size={20} /></SystemButton></div>
             </form>

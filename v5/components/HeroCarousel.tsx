@@ -94,7 +94,11 @@ const HeroCarousel = forwardRef<HeroCarouselHandle, { externalPaused?: boolean }
 
     useEffect(() => {
         const preference = matchMedia("(prefers-reduced-motion: reduce)");
-        const updatePreference = () => { setReducedMotion(preference.matches); setPaused(preference.matches); };
+        const updatePreference = () => {
+            setReducedMotion(preference.matches);
+            const anchoredFeature = HOME_FEATURES.some(feature => window.location.hash === `#home-feature-${feature.id}`);
+            setPaused(preference.matches || anchoredFeature);
+        };
         const updateVisibility = () => setDocumentHidden(document.hidden);
         const releaseUncapturedGesture = (event: globalThis.PointerEvent) => {
             if (gesture.current?.id !== event.pointerId || gesture.current.captured) return;

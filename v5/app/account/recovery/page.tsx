@@ -58,7 +58,7 @@ export default function RecoveryPage() {
             </section>
 
             <div className="container page-content flow-content">
-                <SystemSurface as="form" variant="panel" padding="lg" className="flow-panel account-narrow" data-account-auth="recovery" onSubmit={handleSubmit} noValidate>
+                <SystemSurface as="form" variant="panel" padding="lg" className="flow-panel account-narrow" id="account-recovery-form" data-scroll-fragment data-account-auth="recovery" onSubmit={handleSubmit} noValidate>
                     <div className="flow-panel-heading">
                         <h2 data-text="heading">이메일로 다시 로그인</h2>
                         <p data-text="body">가입한 이메일로 로그인 링크를 받으세요.</p>

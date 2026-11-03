@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useGSAP } from "../src/lib/gsap";
 import { createEditorialMotion } from "../src/lib/editorial-motion";
 import Header from "./Header";
@@ -11,6 +11,7 @@ import { SmallNotificationModalHost } from "./SmallNotificationModal";
 import ReturnTop from "./ReturnTop";
 import ContextMenu from "./ContextMenu";
 import AiChatWidget from "./AiChatWidget";
+import { trackScrollFragments } from "../src/lib/scroll-fragments";
 
 // [사이트와 문서의 탐색 영역 / Product and documentation navigation]
 // 디자인 가이드는 자체 문서 탐색을 사용하고, 나머지 화면은 기존 사이트 셸을 유지합니다.
@@ -21,6 +22,17 @@ export default function SiteShell({ children }: { children: ReactNode }) {
     useGSAP(() => main.current ? createEditorialMotion(main.current, pathname) : undefined,
         { scope: main, dependencies: [pathname], revertOnUpdate: true });
     const documentation = pathname.replace(/\/$/, "").endsWith("/design-rules");
+    useEffect(() => {
+        const path = pathname.replace(/^\/v5(?=\/|$)/, "").replace(/\/$/, "") || "/";
+        const accountState = /^\/account(?:\/|$)/.test(path) && !/^\/account\/(?:login|signup|recovery)$/.test(path);
+        if (path === "/" || path === "/design-rules" || accountState) return;
+        return trackScrollFragments(() => {
+            const content = document.getElementById("main");
+            const footer = document.getElementById("footer");
+            const elements = [content, ...Array.from(content?.querySelectorAll<HTMLElement>("section[id], [data-scroll-fragment][id]") || []), footer];
+            return elements.flatMap(element => element ? [{ element, fragment: element.id }] : []);
+        });
+    }, [pathname]);
     if (documentation) {
         return (
             <>

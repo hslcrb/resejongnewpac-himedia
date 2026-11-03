@@ -139,7 +139,7 @@ export default function HomeEntryIntro() {
         >
             <link rel="preload" href="/v5/assets/fonts/Yeongwol-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
             <p data-text="body" id={descriptionId} className={styles.srOnly}>
-                세종문화회관이 당신을 응원합니다. 2026 화이팅! 건너뛰기 버튼 또는 Escape 키로 바로 이동할 수 있습니다.
+                2026 화이팅! 건너뛰기 버튼 또는 Escape 키로 바로 이동할 수 있습니다.
             </p>
             <div className={styles.stage}>
                 <div className={styles.artwork} aria-hidden="true">
@@ -166,7 +166,6 @@ export default function HomeEntryIntro() {
                     <svg className={styles.flourish} viewBox="0 0 400 32" aria-hidden="true" fill="none">
                         <path d="M12 20C98 5 247 9 379 17M328 26L388 13" pathLength="1" />
                     </svg>
-                    <p data-text="body" className={styles.support}>당신의 빛나는 순간을 응원합니다.</p>
                 </div>
             </div>
             <SystemButton

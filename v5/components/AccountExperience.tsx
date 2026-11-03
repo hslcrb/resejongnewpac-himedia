@@ -247,7 +247,7 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
             </section>
 
             <section aria-labelledby="account-curation-heading">
-                <div data-text="body" className="account-section-heading"><div><h2 data-text="heading" id="account-curation-heading">{favoritePrograms.length ? "내 마음에 담은 공연" : "새로운 취향을 만나 보세요"}</h2><p data-text="body">{favoritePrograms.length ? "좋아하는 공연이 나의 공간을 채워요." : "세종의 공연 중 세 편을 먼저 골라 두었어요."}</p></div>{favoritePrograms.length ? <a data-text="action" href="#account-panel-favorites">전체 보기 <Icon name="arrow" size={20} /></a> : <Link data-text="action" href="/programs/">전체 보기 <Icon name="arrow" size={20} /></Link>}</div>
+                <div data-text="body" className="account-section-heading"><div><h2 data-text="heading" id="account-curation-heading">{favoritePrograms.length ? "관심 프로그램" : "추천 프로그램"}</h2></div>{favoritePrograms.length ? <a data-text="action" href="#account-panel-favorites">전체 보기 <Icon name="arrow" size={20} /></a> : <Link data-text="action" href="/programs/">전체 보기 <Icon name="arrow" size={20} /></Link>}</div>
                 <div data-text="body" className="account-program-grid">{displayedPrograms.map(program => <ProgramCard key={program.id} program={program} />)}</div>
             </section>
 
@@ -268,8 +268,8 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
 
     const favoritesPanel = (
         <section data-text="body" aria-labelledby="account-favorites-heading">
-            <div className="account-section-heading"><div><h2 data-text="heading" id="account-favorites-heading">내 마음에 담은 프로그램</h2><p data-text="body">관심 표시한 공연·전시·교육을 다시 만나 보세요.</p></div><span data-text="body">{favoritePrograms.length}편</span></div>
-            {favoritePrograms.length ? <div data-text="body" className="account-list account-program-grid">{favoritePrograms.map(program => <ProgramCard key={program.id} program={program} />)}</div> : <div className="account-empty"><h3 data-text="subheading">어떤 공연에 마음이 가나요?</h3><p data-text="body">프로그램의 하트를 누르면 나의 작은 공연장에도 포스터가 걸려요.</p><SystemLink data-text="action" href="/programs/" variant="secondary">프로그램 둘러보기 <Icon name="heart" size={20} /></SystemLink></div>}
+            <div className="account-section-heading"><div><h2 data-text="heading" id="account-favorites-heading">관심 프로그램</h2></div><span data-text="body">{favoritePrograms.length}편</span></div>
+            {favoritePrograms.length ? <div data-text="body" className="account-list account-program-grid">{favoritePrograms.map(program => <ProgramCard key={program.id} program={program} />)}</div> : <div className="account-empty"><h3 data-text="subheading">관심 프로그램이 없습니다.</h3><p data-text="body">프로그램의 하트를 눌러 관심 목록에 추가하세요.</p><SystemLink data-text="action" href="/programs/" variant="secondary">프로그램 둘러보기 <Icon name="heart" size={20} /></SystemLink></div>}
         </section>
     );
 
@@ -279,7 +279,7 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
             <div className="account-service-list">
                 <article><div><h3 data-text="subheading">회원 등급·포인트·쿠폰</h3><p data-text="body">나의 멤버십과 사용 가능한 혜택을 확인하세요.</p></div><SystemLink data-text="action" href={OFFICIAL_ACCOUNT} target="_blank" variant="secondary">세종문화회관 마이페이지 <Icon name="diagonal" size={20} /></SystemLink></article>
                 <article><div><h3 data-text="subheading">교육·행사 신청내역</h3><p data-text="body">신청 현황과 참여 안내를 확인하세요.</p></div><SystemLink data-text="action" href={OFFICIAL_ACCOUNT} target="_blank" variant="quiet">신청내역 확인 <Icon name="diagonal" size={20} /></SystemLink></article>
-                <article><div><h3 data-text="subheading">취향을 넓히는 예술 수업</h3><p data-text="body">새로운 배움과 만남을 위한 교육 프로그램을 살펴보세요.</p></div><SystemLink data-text="action" href="/programs/education/" variant="quiet">교육 프로그램 보기 <Icon name="arrow" size={20} /></SystemLink></article>
+                <article><div><h3 data-text="subheading">교육 프로그램</h3></div><SystemLink data-text="action" href="/programs/education/" variant="quiet">교육 프로그램 보기 <Icon name="arrow" size={20} /></SystemLink></article>
             </div>
         </section>
     );
@@ -304,7 +304,6 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
                 <div className="container">
                     <nav className="account-breadcrumbs" aria-label="현재 위치"><Link data-text="action" href="/">홈</Link><span data-text="body" aria-hidden="true">/</span><span data-text="body" aria-current="page">마이페이지</span></nav>
                     <h1 data-text="title">마이페이지</h1>
-                    <p data-text="body">내가 고른 공연과 한 줄의 기록, 나만의 세종을 채워가요.</p>
                 </div>
             </section>
 

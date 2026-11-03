@@ -2,7 +2,6 @@
 
 import type { HeroSlideLayout, HeroSlidePreview } from "../src/system/component-contracts";
 
-import { Fragment } from "react";
 import Icon from "./Icon";
 import { SystemButton, SystemLink } from "./SystemPrimitives";
 import { mediaPath } from "../src/lib/media";
@@ -49,12 +48,8 @@ export default function HeroSlide({ feature, active, entering = false, preview, 
                 />
                 <div className="season-copy" aria-hidden={!active}>
                     <p data-text="label" className="season-label">{feature.label}</p>
-                    <h2 data-text="heading" data-text-size={layout === "standalone" ? "hero-standalone" : "hero-with-companion"}>{feature.title.split("\n").map((line, index, lines) => (
-                        <Fragment key={index}>{line}{index < lines.length - 1 && <br />}</Fragment>
-                    ))}</h2>
-                    <p data-text="body" className="season-name">{feature.name}</p>
+                    <h2 data-text="heading" data-text-size={layout === "standalone" ? "hero-standalone" : "hero-with-companion"}>{feature.name}</h2>
                     <p data-text="caption" className="season-meta">{feature.date.replaceAll("-", "~")}<span data-text="body">{feature.venue}</span></p>
-                    <p data-text="body" className="season-description">{feature.description}</p>
                     <div className="season-actions">
                         <SystemLink data-text="action" variant="inverse" href={`/programs/${feature.id}`} tabIndex={active ? 0 : -1} draggable={false}>
                             상세보기 <Icon name="arrow" size={20} />

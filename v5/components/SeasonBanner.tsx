@@ -8,10 +8,9 @@ export default function SeasonBanner({ id = "home-season-programs" }: { id?: str
     return (
         <Link data-text="action" href="/programs/season" className="home-season-link" id={id} data-home-anchor data-component="SeasonBanner" data-component-id="season-banner">
             <span>
-                <strong data-text="item-title">한 편에서 시작하는, 나만의 시즌.</strong>
-                <span data-text="body">세종시즌부터 Sync Next까지, 취향을 넓히는 기획 프로그램</span>
+                <strong data-text="item-title">기획·시즌 프로그램</strong>
             </span>
-            <span data-text="body">기획·시즌 살펴보기 <Icon name="arrow" size={22} /></span>
+            <span data-text="body">전체 보기 <Icon name="arrow" size={22} /></span>
         </Link>
     );
 }

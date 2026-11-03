@@ -91,7 +91,7 @@ export default function LoginPage() {
 
             <div className="container page-content flow-content">
                 <div className="account-auth-layout">
-                    <section className="account-auth-intro" aria-labelledby="account-intro-title">
+                    <section className="account-auth-intro" id="account-intro" aria-labelledby="account-intro-title">
                         <h2 data-text="heading" id="account-intro-title">
                             예매 내역과 관심 프로그램,
                             <br />
@@ -107,7 +107,7 @@ export default function LoginPage() {
                         />
                     </section>
 
-                    <SystemSurface as="form" variant="panel" padding="lg" className="flow-panel" data-account-auth="login" onSubmit={handleSubmit} noValidate>
+                    <SystemSurface as="form" variant="panel" padding="lg" className="flow-panel" id="account-login-form" data-scroll-fragment data-account-auth="login" onSubmit={handleSubmit} noValidate>
                         <h2 data-text="heading">로그인</h2>
                         <p data-text="body" className="flow-fineprint">
                             Google 계정 또는 이메일 로그인 링크로 본인 확인 후 이용하세요.

@@ -116,13 +116,14 @@ export default function IntroductionExperience() {
         if (!heading) return;
         heading.focus({ preventScroll: true });
         setActive(id);
+        window.history.pushState(window.history.state, "", `#intro-${id}`);
         heading.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
     }
     return <div ref={root} className="sejong-intro" data-component-id="introduction">
         <nav className="intro-scenes container" aria-label="기관 소개 장면">{scenes.map(scene => <SystemButton key={scene.id} variant="quiet" aria-current={active === scene.id ? "step" : undefined} onClick={() => jump(scene.id)}>{scene.label}</SystemButton>)}</nav>
         <section id="intro-opening" data-intro-scene="opening" className="intro-panel intro-cover" aria-labelledby="intro-title-opening">
             <img data-intro-media src="/v5/assets/images/sejong-grand-facade.png" alt="광화문광장에 면한 세종문화회관 외관" width={1160} height={680} />
-            <div className="intro-cover-copy container"><p data-text="label">1978년 개관</p><h1 data-text="title" id="intro-title-opening" tabIndex={-1}>광화문에서 만나는<br />세종문화회관</h1><p data-text="body">공연과 전시를 보고, 예술을 배우는 서울의 문화공간입니다.</p><SystemButton variant="inverse" onClick={() => jump("pulse")}>세종문화회관 둘러보기</SystemButton></div>
+            <div className="intro-cover-copy container"><p data-text="label">1978년 개관</p><h1 data-text="title" id="intro-title-opening" tabIndex={-1}>광화문에서 만나는<br />세종문화회관</h1><SystemButton variant="inverse" onClick={() => jump("pulse")}>세종문화회관 둘러보기</SystemButton></div>
         </section>
         <section id="intro-pulse" data-intro-scene="pulse" className="intro-panel container intro-editorial" aria-labelledby="intro-title-pulse">
             <div><p data-text="label">서울시예술단</p><h2 data-text="heading" id="intro-title-pulse" tabIndex={-1}>무대를 만드는 사람들</h2><p data-text="body">국악, 무용, 합창, 뮤지컬, 연극과 오페라. 서울시예술단의 공연과 활동을 소개합니다.</p><SystemLink href="/about/companies" variant="secondary">서울시예술단 소개</SystemLink></div>

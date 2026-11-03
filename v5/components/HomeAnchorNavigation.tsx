@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { trackScrollFragments } from "../src/lib/scroll-fragments";
 
 interface HomeAnchorNavigationProps {
     /** Reveal a filtered item or slide before the corresponding anchor is focused. */
@@ -51,6 +52,10 @@ export default function HomeAnchorNavigation({ resolveAnchor }: HomeAnchorNaviga
         const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measureHeader);
         if (header) observer?.observe(header);
         window.addEventListener("resize", measureHeader);
+        const stopTracking = trackScrollFragments(() => ["featured-season", "home-pathways", "quick-booking", "discover-programs", "plan-your-visit", "sejong-news", "our-identity", "home-institution", "footer"].flatMap(id => {
+            const element = document.getElementById(id);
+            return element ? [{ element, fragment: id }] : [];
+        }));
 
         const navigate = () => {
             const token = ++navigation;
@@ -100,6 +105,7 @@ export default function HomeAnchorNavigation({ resolveAnchor }: HomeAnchorNaviga
             navigation++;
             cancelAnimationFrame(frame);
             observer?.disconnect();
+            stopTracking();
             window.removeEventListener("resize", measureHeader);
             window.removeEventListener("hashchange", navigate);
             window.removeEventListener("popstate", navigate);

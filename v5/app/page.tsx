@@ -297,7 +297,6 @@ export default function HomePage() {
                     <div>
                         {/* 정적 예약 제목 / Static booking heading */}
                         <SystemText as="h2" variant="heading" id="quick-booking-heading" className="booking-invitation">관람 예약</SystemText>
-                        <p data-text="body" className="section-description">관람할 날을 고르면, 그날의 예술이 보여요.</p>
                     </div>
                     <Link data-text="action" className="text-link" href="/programs?view=calendar" id="home-booking-full-calendar" data-home-anchor>
                         전체 일정 <Icon name="arrow" size={20} />
@@ -398,7 +397,6 @@ export default function HomePage() {
                 <div className="section-heading">
                     <div>
                         <h2 data-text="heading" id="discover-heading">관람 일정</h2>
-                        <p data-text="body" className="section-description">오늘 열리는 무대부터 다음 달 일정까지.</p>
                     </div>
                     <Link data-text="action" className="text-link" href="/programs" id="home-program-all" data-home-anchor>
                         모든 프로그램 <Icon name="arrow" size={20} />
@@ -466,11 +464,6 @@ export default function HomePage() {
 
                 <div className="visit-editorial">
                     <h2 data-text="heading" id="visit-heading">오시는 길</h2>
-                    <p data-text="body" className="visit-description">
-                        지하철과 주차장 이용부터
-                        <br />
-                        접근성 서비스와 관람 예절까지 정리했습니다.
-                    </p>
                     <Link data-text="action" className="text-link home-visit-planner" href="/visit/plan" id="home-visit-planner" data-home-anchor>
                         방문 계획 만들기 <Icon name="arrow" size={20} />
                     </Link>
@@ -522,9 +515,7 @@ export default function HomePage() {
             <section className="home-news container" id="sejong-news" data-home-anchor aria-labelledby="news-heading">
                 <div className="section-heading">
                     <div>
-                        <p data-text="label" className="home-section-label">새로운 소식</p>
                         <h2 data-text="heading" id="news-heading">소식과 참여</h2>
-                        <p data-text="body" className="section-description">공지와 티켓오픈, 대관공고 소식.</p>
                     </div>
                     <Link data-text="action" href="/news" className="text-link" id="home-news-all" data-home-anchor>
                         소식 전체 보기 <Icon name="arrow" size={20} />
@@ -562,16 +553,11 @@ export default function HomePage() {
                     </div>
 
                     <aside className="membership-feature" id="home-membership" data-home-anchor aria-labelledby="membership-heading">
-                        <p data-text="label" className="membership-label">세종 멤버십</p>
                         <h3 data-text="subheading" id="membership-heading">
-                            다시 찾는 관객을 위한
-                            <br />
-                            멤버십 혜택을 확인하세요
+                            멤버십 혜택
                         </h3>
                         <p data-text="body">
                             등급별 예매 할인과 초대 공연 혜택
-                            <br />
-                            지금 확인해 보세요.
                         </p>
                         <Link data-text="action" className="text-link" href="/news/membership" id="home-membership-details" data-home-anchor>
                             멤버십 알아보기 <Icon name="arrow" size={22} />
