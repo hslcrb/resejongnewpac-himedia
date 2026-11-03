@@ -54,9 +54,6 @@
     --color-focus: #4699AF;
     --color-state-hover: #F0F2F4;
     --color-state-pressed: #E1E5E9;
-    --color-quick-lemon: #F5EEA3;
-    --color-quick-green: #64BC7F;
-    --color-quick-mint: #B6DF96;
     --color-detail-00000044: #00000044;
     --color-detail-00000077: #00000077;
     --color-detail-00000088: #00000088;
@@ -1003,6 +1000,24 @@
     --glass-saturation: 1.4;
     --glass-edge: color-mix(in srgb, var(--color-white) 88%, var(--color-transparent));
     --glass-shadow: 0 24px 80px color-mix(in srgb, var(--color-black) 18%, var(--color-transparent)), 0 4px 16px color-mix(in srgb, var(--color-black) 9%, var(--color-transparent));
+    --quick-menu-surface: var(--surface-default);
+    --quick-menu-shade: var(--surface-subtle);
+    --quick-menu-highlight: var(--color-white);
+    --quick-menu-edge: var(--surface-border);
+    --quick-menu-ink: var(--text-primary);
+    --quick-menu-selected: var(--state-hover);
+    --quick-menu-action: var(--action-primary);
+    --quick-menu-action-ink: var(--text-inverse);
+    --quick-menu-shadow: var(--surface-shadow-elevated);
+    --quick-menu-size: 370px;
+    --quick-menu-size-compact: 332px;
+    --quick-menu-toggle-size: 72px;
+    --quick-menu-toggle-size-compact: 64px;
+    --quick-menu-close-size: 44px;
+    --quick-menu-center-size: 112px;
+    --quick-menu-center-size-compact: 94px;
+    --quick-menu-duration: 320ms;
+    --quick-menu-ease: var(--ease-out);
 }
 
 @media (max-width: 800px) {

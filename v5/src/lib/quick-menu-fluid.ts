@@ -30,23 +30,23 @@ export function stepFluid(state: FluidState, input: QuickMenuInteraction, elapse
 // [한 번 만든 색 면과 광택 / Cached color fields and soft highlights]
 export function createFluidPaint(context: CanvasRenderingContext2D, palette: FluidPalette) {
     const base = context.createLinearGradient(0, 0, FLUID_SIZE, FLUID_SIZE);
-    base.addColorStop(0, palette.mint);
-    base.addColorStop(0.6, palette.green);
-    base.addColorStop(1, palette.mint);
-    const yellow = context.createLinearGradient(0, 0, FLUID_SIZE * 0.8, FLUID_SIZE);
-    yellow.addColorStop(0, palette.lemon);
-    yellow.addColorStop(0.5, palette.yellow);
-    yellow.addColorStop(1, palette.lemon);
-    const mint = context.createLinearGradient(0, FLUID_SIZE, FLUID_SIZE, 0);
-    mint.addColorStop(0, palette.mint);
-    mint.addColorStop(1, palette.green);
+    base.addColorStop(0, palette.base);
+    base.addColorStop(0.6, palette.shade);
+    base.addColorStop(1, palette.base);
+    const highlight = context.createLinearGradient(0, 0, FLUID_SIZE * 0.8, FLUID_SIZE);
+    highlight.addColorStop(0, palette.highlight);
+    highlight.addColorStop(0.5, palette.base);
+    highlight.addColorStop(1, palette.highlight);
+    const undertone = context.createLinearGradient(0, FLUID_SIZE, FLUID_SIZE, 0);
+    undertone.addColorStop(0, palette.base);
+    undertone.addColorStop(1, palette.edge);
     const light = context.createRadialGradient(110, 70, 0, 125, 85, 280);
     light.addColorStop(0, palette.light);
     light.addColorStop(1, palette.clear);
     const shade = context.createRadialGradient(170, 145, 130, 200, 200, 210);
     shade.addColorStop(0, palette.clear);
     shade.addColorStop(1, palette.ink);
-    return { base, yellow, mint, light, shade };
+    return { base, highlight, undertone, light, shade };
 }
 export type FluidPaint = ReturnType<typeof createFluidPaint>;
 
@@ -75,7 +75,7 @@ export function drawFluid(context: CanvasRenderingContext2D, paint: FluidPaint, 
     context.bezierCurveTo(0.8 + x, 0.15 + swell, 0.73 - x, 0.9 + y, 0.31 + curl, 0.72 + swell);
     context.bezierCurveTo(0.06 - x, 0.61 + tide, 0.21 + x, 0.3 + y, -0.2, 0.45 + curl);
     context.closePath();
-    context.fillStyle = paint.yellow;
+    context.fillStyle = paint.highlight;
     context.fill();
 
     context.beginPath();
@@ -92,8 +92,8 @@ export function drawFluid(context: CanvasRenderingContext2D, paint: FluidPaint, 
     context.bezierCurveTo(-0.05 + x, 0.14 + y, 0.23 + swell, 0.4, 0.51 + tide, 0.35 + curl);
     context.bezierCurveTo(0.74 + x, 0.3 - swell, 0.71, -0.07, 1, -0.2);
     context.closePath();
-    context.fillStyle = paint.mint;
-    context.globalAlpha = 0.7;
+    context.fillStyle = paint.undertone;
+    context.globalAlpha = 0.18;
     context.fill();
     context.restore();
 
@@ -104,7 +104,7 @@ export function drawFluid(context: CanvasRenderingContext2D, paint: FluidPaint, 
     context.globalAlpha = 0.24;
     context.fillStyle = paint.light;
     context.fillRect(0, 0, FLUID_SIZE, FLUID_SIZE);
-    context.globalAlpha = 0.11;
+    context.globalAlpha = 0.025;
     context.fillStyle = paint.shade;
     context.fillRect(0, 0, FLUID_SIZE, FLUID_SIZE);
     context.restore();

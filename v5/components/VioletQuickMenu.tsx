@@ -359,7 +359,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
                 }
             }}
             onClick={event => onNavigate(event, item)}
-        ><span className={styles.menuLabel}><Icon name={item.icon} size={24} /><span data-text="body">{item.label}</span></span></Link>;
+        ><span className={styles.menuLabel}><Icon name={item.icon} size={24} /><span data-text="action" data-text-size="quick-action">{item.label}</span></span></Link>;
     };
 
     return <div data-component-id="quick-menu" ref={rootRef} className={styles.experience} data-violet-menu data-placement={placement} data-visible={visible} data-state={open ? "open" : "closed"} data-sleeping={sleeping || !visible} aria-hidden={!visible}>
@@ -377,7 +377,7 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
             onBlur={event => { if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) closeMenu(false, false); }}
         >
             <div className={styles.panel} aria-hidden={!open}>
-                <p data-text="body" className={styles.instruction} id={hintId}>원을 돌려 고르고, 눌러서 이동해요</p>
+                <p data-text="label" className={styles.instruction} id={hintId}>돌려서 선택하고 눌러서 이동</p>
                 <nav id={menuId} aria-label="원형 퀵메뉴" aria-describedby={hintId}>
                     <div
                         className={styles.wheel}
@@ -436,9 +436,8 @@ function VioletQuickMenu({ placement = "hero", heroId = "featured-season", items
                 <QuickMenuFluid awake={visible && !open && !sleeping} animated={!reducedMotion && !sleeping} interaction={interaction} />
                 {open ? <Icon name="close" size={21} /> : <span className={styles.toggleLabel} aria-hidden="true">
                     <Icon name="menu" size={24} />
-                    <span data-text="body">퀵메뉴</span>
+                    <span data-text="action" data-text-size="quick-action">퀵메뉴</span>
                 </span>}
-                <span data-text="body" className={styles.closedHint} aria-hidden="true">돌려서 둘러보기</span>
             </button>
         </div>
     </div>;

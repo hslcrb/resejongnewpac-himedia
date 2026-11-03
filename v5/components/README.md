@@ -2,7 +2,7 @@
 
 ## VioletQuickMenu
 
-히어로를 보고 있는 동안 화면 아래에 노랑·초록이 흐르는 작은 원이 나타납니다. 원을 열면 여섯 개의 바로가기를 돌려 고를 수 있습니다. 메인 페이지는 이 컴포넌트를 사용하며, 열려 있는 동안 히어로의 자동 재생을 일시 정지합니다. 기존 `VioletQuickMenu` 이름은 호출부 호환을 위해 유지하며 보라색·털 렌더러는 사용하지 않습니다.
+히어로를 보고 있는 동안 화면 아래에 오프화이트 퀵메뉴가 나타납니다. 원을 열면 여섯 개의 바로가기를 돌려 고를 수 있습니다. 메인 페이지는 이 컴포넌트를 사용하며, 열려 있는 동안 히어로의 자동 재생을 일시 정지합니다. 기존 `VioletQuickMenu` 이름은 호출부 호환을 위해 유지하며 제품과 가이드는 중앙의 QUICK_MENU_TOKENS에서 표면·선택·행동·규격을 공유합니다.
 
 - Public export: `VioletQuickMenu` from `v5/components/index.ts`
 - Implementation: `VioletQuickMenu.tsx`

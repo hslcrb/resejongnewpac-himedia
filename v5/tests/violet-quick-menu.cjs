@@ -69,6 +69,11 @@ async function home(page) {
     const response = await page.goto(base, { waitUntil: "domcontentloaded" });
     assert.ok(response && response.ok(), `Home page must load before checking the feature (HTTP ${response?.status()})`);
     await expect(page.locator("#featured-season")).toHaveCount(1);
+    // Complete the real entry flow before measuring or manipulating the underlying menu.
+    await page.waitForFunction(() => document.querySelector("[data-violet-menu]")?.getAttribute("data-visible") === "true");
+    const intro = page.locator('[data-v5-entry-intro]');
+    if (!await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches) && await intro.count()) await page.getByRole('button', { name: '인트로 건너뛰기', exact: true }).click();
+    await intro.waitFor({ state: 'detached' });
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await page.evaluate(() => document.fonts.ready);
     // The hero is server-rendered; the visibility observer starts after hydration.

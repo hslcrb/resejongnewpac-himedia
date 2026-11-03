@@ -12,6 +12,7 @@ const tasks = [
     ...(build ? [["catalog/snapshot.ts"]] : []),
     ["sync-design-tokens.ts", ...(check ? ["--check"] : [])],
     ["audit-component-system.ts", check ? "--check" : "--write"],
+    ["audit-component-colors.ts", check ? "--check" : "--write"],
     ["audit-visual-contract.ts"],
     ...(build ? [["clean-build.ts"]] : []),
 ];

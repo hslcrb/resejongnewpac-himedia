@@ -92,7 +92,7 @@ export const CHAPTERS = [
             ["timing", "시간과 이징"],
             ["gsap", "GSAP API 실습"],
             ["scroll", "글자별 스크롤 등장 · Deprecated"],
-            ["quick-menu", "보라빛 퀵메뉴"],
+            ["quick-menu", "원형 퀵메뉴"],
         ],
     },
     {

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import DeepSearch from "./DeepSearch";
+import { SystemDisclosure } from "./SystemNavigation";
 
 /** Progressive enhancement: native filter stays visible and usable at every width. */
 export default function DeepSearchDisclosure({
@@ -13,12 +14,13 @@ export default function DeepSearchDisclosure({
 }) {
     const [open, setOpen] = useState(false);
     return (
-        <details data-component-id="deep-search-disclosure" className="sejong-deep-search-disclosure" onToggle={event => setOpen(event.currentTarget.open)}>
-            <summary data-text="action">
-                {title}
+        <div data-component-id="deep-search-disclosure">
+            <SystemDisclosure className="sejong-deep-search-disclosure" onToggle={event => setOpen(event.currentTarget.open)} summary={<>
+                <span data-text="action" data-text-size="control">{title}</span>
                 <span data-text="meta">Deep Chat</span>
-            </summary>
-            {open && <DeepSearch compact onSearch={onSearch} />}
-        </details>
+            </>}>
+                {open && <DeepSearch compact onSearch={onSearch} />}
+            </SystemDisclosure>
+        </div>
     );
 }

@@ -249,19 +249,61 @@ export const GLASS_MATERIALS = Object.freeze({
 }) satisfies Readonly<Record<string, GlassMaterial>>;
 export type GlassMaterialVariant = keyof typeof GLASS_MATERIALS;
 
-// [퀵메뉴의 유동 재질 / Fluid material confined to the quick menu]
+// [퀵메뉴의 공통 표면·상태·규격 / Shared quick-menu surfaces, states and dimensions]
+// CSS, Canvas와 실물 가이드가 같은 의미 토큰을 소비합니다.
+export const QUICK_MENU_TOKENS = Object.freeze({
+    "--quick-menu-surface": "var(--surface-default)",
+    "--quick-menu-shade": "var(--surface-subtle)",
+    "--quick-menu-highlight": "var(--color-white)",
+    "--quick-menu-edge": "var(--surface-border)",
+    "--quick-menu-ink": "var(--text-primary)",
+    "--quick-menu-selected": "var(--state-hover)",
+    "--quick-menu-action": "var(--action-primary)",
+    "--quick-menu-action-ink": "var(--text-inverse)",
+    "--quick-menu-shadow": "var(--surface-shadow-elevated)",
+    "--quick-menu-size": "370px",
+    "--quick-menu-size-compact": "332px",
+    "--quick-menu-toggle-size": "72px",
+    "--quick-menu-toggle-size-compact": "64px",
+    "--quick-menu-close-size": "44px",
+    "--quick-menu-center-size": "112px",
+    "--quick-menu-center-size-compact": "94px",
+    "--quick-menu-duration": "320ms",
+    "--quick-menu-ease": "var(--ease-out)",
+});
+
+// [장식 재질도 같은 의미 색상을 사용 / Decorative material shares semantic colors]
 export const QUICK_MENU_MATERIAL = Object.freeze({
     colors: Object.freeze({
-        yellow: "--color-yellow",
-        lemon: "--color-quick-lemon",
-        green: "--color-quick-green",
-        mint: "--color-quick-mint",
+        base: "--quick-menu-surface",
+        highlight: "--quick-menu-highlight",
+        shade: "--quick-menu-shade",
+        edge: "--quick-menu-edge",
         ink: "--color-black",
         light: "--color-white",
         clear: "--color-transparent",
     }),
     motion: Object.freeze({ period: 14, desktopFps: 30, mobileFps: 24, response: 5, maxInput: 0.16 }),
 });
+
+// [외부 웹 컴포넌트도 같은 표면과 읽기 기준 / Shared presentation inside embedded web components]
+export const EMBEDDED_CHAT_STYLE = Object.freeze({
+    fontFamily: "var(--font)",
+    fontSize: "var(--text-min)",
+    color: "var(--text-primary)",
+    backgroundColor: "var(--surface-default)",
+    border: "none",
+    borderRadius: "var(--radius-flow)",
+});
+export const EMBEDDED_CHAT_AUXILIARY_CSS = `
+    #container, #container * {
+        font-family: var(--font) !important;
+        font-size: max(var(--text-min), 1em) !important;
+    }
+    #text-input-container { border-radius: var(--radius-control); }
+    #text-input { color: var(--text-primary); }
+    #text-input:focus-visible { outline: var(--focus-width) solid var(--border-focus); outline-offset: var(--focus-offset); }
+`;
 
 type TokenValues = Readonly<Record<`--${string}`, string>>;
 const rem = (pixels: number) => `${pixels / 16}rem`;
@@ -286,9 +328,6 @@ export const SEMANTIC_COLOR_VALUES = {
     "--color-focus": "#4699AF",
     "--color-state-hover": "#F0F2F4",
     "--color-state-pressed": "#E1E5E9",
-    "--color-quick-lemon": "#F5EEA3",
-    "--color-quick-green": "#64BC7F",
-    "--color-quick-mint": "#B6DF96",
 } satisfies TokenValues;
 
 // [보존된 삽화와 세부 색상의 중앙 팔레트 / Central palette for preserved illustration and detail colors]
@@ -1226,6 +1265,7 @@ export const DESIGN_TOKEN_VALUES: TokenValues = Object.freeze({
     ...GEOMETRY_TOKENS,
     ...MOTION_AND_STATE_TOKENS,
     ...GLASS_TOKENS,
+    ...QUICK_MENU_TOKENS,
 });
 
 // [원본 로컬 폰트 선언을 보존하는 결정적 CSS 생성 / Deterministic CSS preserving the local font face]
