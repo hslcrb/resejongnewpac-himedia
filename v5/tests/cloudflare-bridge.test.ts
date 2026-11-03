@@ -23,3 +23,16 @@ test("bridge leaves other origins and response bodies untouched", async () => {
     assert.equal(response.headers.get("location"), "https://example.org/");
     assert.equal(await response.text(), "missing");
 });
+
+test("double-slash paths cannot change the upstream host", async () => {
+    let target = "";
+    const upstream: typeof fetch = async input => { target = (input as Request).url; return new Response("ok"); };
+    await handleRequest(new Request("https://renewsejongpac.rhee.life//example.org/path"), upstream);
+    assert.equal(target, "https://renewsejongpac.pages.dev//example.org/path");
+});
+
+test("bridge keeps scheme-relative Pages redirects on the visitor's domain", async () => {
+    const upstream: typeof fetch = async () => new Response(null, { status: 302, headers: { location: "//renewsejongpac.pages.dev/v5/" } });
+    const response = await handleRequest(new Request("https://renewsejongpac.rhee.life/v5"), upstream);
+    assert.equal(response.headers.get("location"), "https://renewsejongpac.rhee.life/v5/");
+});
