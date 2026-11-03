@@ -180,7 +180,7 @@
 }
 
 @media (min-width: 801px) {
-    .home-visit {
+    .home-visit-layout {
         grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr);
         gap: clamp(2rem, 4vw, 4rem);
     }

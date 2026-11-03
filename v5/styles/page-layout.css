@@ -376,7 +376,7 @@
 
 .booking-page-seat-rows {
     display: grid;
-    justify-content: center;
+    justify-content: start;
     gap: var(--space-2);
 }
 

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { chromium } from "playwright";
+import { loadPublishedCatalog } from "../src/catalog/snapshot.ts";
 
 // [인접 작품과 넓은 지면의 실제 동작 / Real neighbour navigation and wide-layout behaviour]
 const base = (process.argv[2] || "http://127.0.0.1:3000/v5/").replace(/\/?$/, "/");
@@ -13,6 +14,7 @@ const results: { name: string; passed: boolean; error?: string }[] = [];
 const errors: string[] = [];
 page.on("pageerror", error => errors.push(error.message));
 page.setDefaultTimeout(10000);
+page.setDefaultNavigationTimeout(60000);
 const active = () => page.locator(".season-slide.is-active").getAttribute("data-feature");
 const go = (route = "") => page.goto(new URL(route, base).href, { waitUntil: "networkidle" });
 const settleViewport = async () => {
@@ -140,11 +142,27 @@ try {
         await page.emulateMedia({ reducedMotion: "reduce" });
     });
     await check("registered inverse-quiet example matches the actual photo-overlay controls", async () => {
+        await go();
+        const actual = await page.locator('[data-preview="next"] .season-peer-title').evaluate(element => {
+            const css = getComputedStyle(element);
+            return { color: css.color, radius: css.borderRadius, minHeight: css.minHeight };
+        });
         await go("design-rules/#components/buttons");
         const sample = page.locator(".ds-overlay-controls .ds-button-inverse-quiet");
         await sample.waitFor();
         const style = await sample.evaluate(element => { const css = getComputedStyle(element); return { color: css.color, radius: css.borderRadius, minHeight: css.minHeight }; });
-        assert.deepEqual(style, { color: await tokenColor("--color-white"), radius: "8px", minHeight: "48px" });
+        assert.deepEqual(style, actual);
+        const radius = await sample.evaluate(element => {
+            const probe = document.createElement("span");
+            probe.style.borderRadius = "var(--radius-control)";
+            element.append(probe);
+            const value = getComputedStyle(probe).borderRadius;
+            probe.remove();
+            return value;
+        });
+        assert.equal(style.radius, radius);
+        assert.equal(style.color, await tokenColor("--color-white"));
+        assert.equal(style.minHeight, "48px");
     });
     for (const route of ["", "programs/", "programs/dance/", "booking/dance/", "visit/directions/", "news/notices/", "account/", "account/login/", "design-rules/"]) {
         await check(`intrinsic layout, readable type and neutral copy across seven widths: ${route || "home"}`, async () => {
@@ -166,28 +184,61 @@ try {
         });
     }
     await check("mobile seats retain their spatial controls and guests must log in before saving", async () => {
+        const catalog = structuredClone(loadPublishedCatalog());
+        const program = catalog.programs.find(item => item.id === "winter");
+        assert.ok(program, "The fixture program must be published in the export.");
+        const sessionId = "test-winter-verified";
+        catalog.sessions.push({ id: sessionId, programId: program.id, venueId: "m-theater", startsAt: `${program.start}T19:30:00+09:00`, bookingEnabled: true, sourceState: "verified" });
+        const seats = Array.from({ length: 8 }, (_, index) => ({ id: `fixture-a${index + 1}`, label: `A${index + 1}`, row: "A", number: index + 1, price: 1000, available: true }));
         for (const width of [320, 390]) {
-            await page.setViewportSize({ width, height: 1000 });
-            await go("booking/dance/");
-            await page.getByRole("button", { name: /다음: 좌석 선택하기/ }).click();
-            const map = page.getByRole("region", { name: "좌석 배치도" });
-            assert.equal(await map.getAttribute("tabindex"), "0");
-            assert.ok(await map.evaluate(element => element.scrollWidth > element.clientWidth));
-            const first = page.getByRole("button", { name: "A8 좌석", exact: true });
-            await first.click();
-            const size = await first.boundingBox();
-            assert.ok(size && size.width >= 48 && size.height >= 48);
-            for (const seat of ["B1", "C8", "D1", "E1"]) await page.getByRole("button", { name: `${seat} 좌석`, exact: true }).click();
-            assert.equal(await page.locator('[data-system-part="seat"][aria-pressed="true"]').count(), 4);
-            assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1));
-            await page.getByRole("button", { name: "선택 내용 확인", exact: true }).click();
-            assert.match(await page.locator(".booking-page-review").innerText(), /A8, B1, C8, D1/);
-            await page.getByRole("button", { name: "예매 기록 저장", exact: true }).click();
-            await page.locator('.ds-notice[role="alert"]').waitFor();
-            assert.match(await page.locator('.ds-notice[role="alert"]').innerText(), /로그인한 뒤/);
-            assert.equal(await page.locator("#booking-complete-heading").count(), 0);
-            assert.equal(await page.evaluate(() => localStorage.getItem("sejong-v4:bookings")), null);
-            assert.match(await page.locator(".booking-page-review").innerText(), /A8, B1, C8, D1/);
+            const fixture = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: "reduce" });
+            let inventoryReads = 0;
+            let reservationWrites = 0;
+            try {
+                await fixture.route("**/rest/v1/rpc/**", async route => {
+                    const name = new URL(route.request().url()).pathname.split("/").pop();
+                    const headers = { "access-control-allow-origin": "*", "access-control-allow-headers": "*", "access-control-allow-methods": "POST, OPTIONS" };
+                    if (route.request().method() === "OPTIONS") return route.fulfill({ status: 204, headers });
+                    if (name === "sejong_catalog_snapshot") return route.fulfill({ json: catalog, headers });
+                    if (name === "get_session_seats") {
+                        inventoryReads++;
+                        return route.fulfill({ json: { kind: "inventory", sessionId, bookingEnabled: true, serverNow: new Date().toISOString(), seats }, headers });
+                    }
+                    reservationWrites++;
+                    return route.fulfill({ status: 403, json: { error: "unexpected fixture RPC" }, headers });
+                });
+                const booking = await fixture.newPage();
+                await booking.goto(new URL("booking/winter/", base).href, { waitUntil: "networkidle" });
+                await booking.locator("#booking-session").selectOption(sessionId);
+                await booking.locator("#booking-participants").selectOption("4");
+                const region = booking.getByRole("region", { name: "좌석 목록" });
+                const first = booking.getByRole("button", { name: "A1 · 1,000원", exact: true });
+                await first.waitFor();
+                assert.ok(inventoryReads > 0, "The fixture must be used for the server inventory.");
+                assert.equal(await region.getAttribute("tabindex"), "0");
+                const initial = await region.evaluate(element => {
+                    const frame = element.getBoundingClientRect();
+                    const seat = element.querySelector("button")!.getBoundingClientRect();
+                    return { left: frame.left, right: frame.right, seatLeft: seat.left, seatRight: seat.right, scrollLeft: element.scrollLeft, scrollWidth: element.scrollWidth, width: element.clientWidth };
+                });
+                assert.equal(initial.scrollLeft, 0);
+                assert.ok(initial.scrollWidth > initial.width, JSON.stringify(initial));
+                assert.ok(initial.seatLeft >= initial.left && initial.seatRight <= initial.right, `First seat must be reachable at the starting position: ${JSON.stringify(initial)}`);
+                const size = await first.boundingBox();
+                assert.ok(size && size.width >= 48 && size.height >= 48);
+                await first.click();
+                const last = booking.getByRole("button", { name: "A8 · 1,000원", exact: true });
+                await last.click();
+                assert.equal(await last.getAttribute("aria-pressed"), "true");
+                assert.ok(await region.evaluate(element => element.scrollLeft > 0), "The last seat must be reachable by scrolling.");
+                for (const seat of ["A2", "A3", "A4"]) await booking.getByRole("button", { name: `${seat} · 1,000원`, exact: true }).click();
+                assert.equal(await region.locator('button[aria-pressed="true"]').count(), 4);
+                assert.equal(await booking.getByRole("button", { name: "A4 · 1,000원", exact: true }).getAttribute("aria-pressed"), "false");
+                assert.ok(await booking.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1));
+                await booking.getByRole("button", { name: /4석 보류하기/ }).click();
+                assert.match(await booking.locator('.ds-notice[role="alert"]').innerText(), /로그인한 뒤 예약해 주세요/);
+                assert.equal(reservationWrites, 0, "Guests must not issue a reservation RPC.");
+            } finally { await fixture.close(); }
         }
     });
     await check("content reflows with 200 percent text without a page-wide horizontal scroll", async () => {
