@@ -49,7 +49,7 @@ test("every current v5 search surface exposes Deep Chat search", () => {
 });
 test("contextual Deep Chat stays opt-in and retains original filters", () => {
     const disclosure = read("../components/DeepSearchDisclosure.tsx");
-    assert.match(disclosure, /<details/);
+    assert.match(disclosure, /<SystemDisclosure/);
     assert.match(disclosure, /open && <DeepSearch compact/);
     assert.match(read("../components/CompletedPage.tsx"), /<SystemField type="search"/);
     assert.match(read("../components/ServiceGoods.tsx"), /<SystemField type="search"/);

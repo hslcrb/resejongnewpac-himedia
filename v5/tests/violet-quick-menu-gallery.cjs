@@ -72,6 +72,11 @@ async function home(page) {
     await page.mouse.move(0, 0);
     const response = await page.goto(base, { waitUntil: "domcontentloaded" });
     assert.ok(response && response.ok(), `The home page must load (HTTP ${response?.status()})`);
+    // Complete the real entry flow before measuring or manipulating the underlying menu.
+    await page.waitForFunction(() => document.querySelector("[data-violet-menu]")?.getAttribute("data-visible") === "true");
+    const intro = page.locator('[data-v5-entry-intro]');
+    if (!await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches) && await intro.count()) await page.getByRole('button', { name: '인트로 건너뛰기', exact: true }).click();
+    await intro.waitFor({ state: 'detached' });
     await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await page.evaluate(() => document.fonts.ready);
     const root = page.locator(heroSelector);

@@ -68,7 +68,7 @@ const definitions: readonly ComponentDefinition[] = [
     { id: "floating-panel", name: "FloatingPanel", source: "components/FloatingPanel.tsx", exportName: "default", kind: "ui", guide: "components/floating-menu", purpose: "초점·위치·WebGL 모션을 관리하는 비차단 창" },
     { id: "floating-menu", name: "FloatingMenu", source: "components/FloatingMenu.tsx", exportName: "default", kind: "ui", guide: "components/floating-menu", purpose: "FloatingPanel을 사용하는 실제 전체 메뉴", parent: "floating-panel" },
     { id: "small-notification", name: "알림소형모달", source: "components/SmallNotificationModal.tsx", exportName: "default", kind: "ui", guide: "components/small-notification", purpose: "하단 캡슐과 부드러운 등장·퇴장" },
-    { id: "quick-menu", name: "VioletQuickMenu", source: "components/VioletQuickMenu.tsx", exportName: "default", kind: "ui", guide: "motion/quick-menu", purpose: "노랑·초록의 유동 표면을 돌려 탐색하는 원형 퀵메뉴" },
+    { id: "quick-menu", name: "VioletQuickMenu", source: "components/VioletQuickMenu.tsx", exportName: "default", kind: "ui", guide: "motion/quick-menu", purpose: "공통 중립 표면과 어스 블랙 행동 버튼으로 탐색하는 원형 퀵메뉴" },
     { id: "context-menu", name: "ContextMenu", source: "components/ContextMenu.tsx", exportName: "default", kind: "ui", guide: "components/registry", purpose: "현재 영역의 주소와 이동을 돕는 문맥 메뉴", previewRoute: "/v5/" },
     { id: "return-top", name: "ReturnTop", source: "components/ReturnTop.tsx", exportName: "default", kind: "ui", guide: "components/registry", purpose: "스크롤 위치에 따라 나타나는 위로 가기", previewRoute: "/v5/#discover-programs" },
     { id: "global-scrollbar", name: "GlobalScrollbar", source: "components/GlobalScrollbar.tsx", exportName: "default", kind: "structure", guide: "components/registry", purpose: "본문·모달·가이드의 기본 스크롤 동작을 유지하며 투명 트랙과 얇은 스크롤 엄지의 공통 스타일을 적용" },

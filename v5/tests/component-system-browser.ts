@@ -43,7 +43,13 @@ page.on("console", message => {
     if (message.type() === "error" && /hydration|uncaught|invalid.*prop|cannot.*contain/i.test(message.text())) errors.push(message.text());
 });
 page.setDefaultTimeout(10000);
-const go = (route = "") => page.goto(new URL(route, base).href, { waitUntil: "networkidle" });
+const go = async (route = "") => {
+    const response = await page.goto(new URL(route, base).href, { waitUntil: "networkidle" });
+    const intro = page.locator("[data-v5-entry-intro]");
+    if (!await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches) && await intro.count()) await page.getByRole("button", { name: "인트로 건너뛰기", exact: true }).click();
+    await intro.waitFor({ state: "detached" });
+    return response;
+};
 async function metrics(selector: string) {
     return page.locator(selector).first().evaluate(element => {
         const style = getComputedStyle(element);
@@ -172,7 +178,8 @@ try {
         const dialog = page.locator('#search-dialog[data-component="dialog"]');
         await dialog.waitFor();
         assert.ok(await dialog.evaluate(element => element.matches(":modal")));
-        assert.equal(await dialog.locator('input[type="search"]').evaluate(element => document.activeElement === element), true);
+        await expect.poll(() => dialog.locator('input[type="search"], deep-chat #text-input').evaluateAll(elements => elements.some(element =>
+            (element.getRootNode() as Document | ShadowRoot).activeElement === element))).toBe(true);
         await page.keyboard.press("Shift+Tab");
         assert.ok(await page.evaluate(() => Boolean(document.activeElement?.closest("#search-dialog"))));
         await page.keyboard.press("Escape");

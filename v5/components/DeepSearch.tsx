@@ -4,10 +4,15 @@ import Script from "next/script";
 import { SystemButton, SystemField } from "./SystemPrimitives";
 import { useEffect, useRef, useState } from "react";
 import { searchContent } from "../src/lib/discovery";
+import { EMBEDDED_CHAT_STYLE, EMBEDDED_CHAT_AUXILIARY_CSS } from "../src/data/design-tokens";
 
 type SearchMessage = { role?: string; text?: string };
 type ResponseSignal = { onResponse: (reply: { text?: string; error?: string }) => void | Promise<void> };
 type DeepSearchElement = HTMLElement & {
+    chatStyle?: Record<string, string>;
+    auxiliaryStyle?: string;
+    focusInput?: () => void;
+    onComponentRender?: () => void;
     connect?: { handler: (body: { messages?: SearchMessage[] }, signals: ResponseSignal) => void };
     loadHistory?: () => SearchMessage[];
     requestBodyLimits?: { maxMessages: number };
@@ -72,10 +77,18 @@ export default function DeepSearch({ initialQuery = "", compact = false, onSearc
         const node = mount.current;
         if (!loaded || !node || node.querySelector("deep-chat")) return;
         const chat = document.createElement("deep-chat") as DeepSearchElement;
+        Object.assign(chat.style, EMBEDDED_CHAT_STYLE);
+        chat.chatStyle = { ...EMBEDDED_CHAT_STYLE };
+        chat.auxiliaryStyle = EMBEDDED_CHAT_AUXILIARY_CSS;
+        chat.tabIndex = 0;
+        chat.setAttribute("data-autofocus", "");
+        chat.addEventListener("focus", () => chat.focusInput?.());
+        chat.onComponentRender = () => {
+            if (chat.closest("dialog:modal")) chat.focusInput?.();
+        };
         chat.style.display = "block";
         chat.style.width = "100%";
         chat.style.height = compact ? "min(390px, 48vh)" : "min(480px, 60vh)";
-        chat.style.borderRadius = "14px";
         chat.setAttribute("aria-label", "대화형 콘텐츠 통합 검색");
         chat.introMessage = { text: "무엇을 찾고 계세요? 공연, 전시, 공간, 주차와 방문 안내를 검색해 드릴게요." };
         chat.connect = {
@@ -98,6 +111,7 @@ export default function DeepSearch({ initialQuery = "", compact = false, onSearc
         <div data-text="body" data-component-id="deep-search" className={"sejong-deep-search" + (compact ? " sejong-deep-search--compact" : "")}>
             <Script
                 src={DEEP_CHAT_CDN}
+                type="module"
                 strategy="afterInteractive"
                 onReady={() => setLoaded(true)}
                 onError={() => setFailed(true)}

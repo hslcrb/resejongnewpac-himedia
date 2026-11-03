@@ -44,6 +44,7 @@ import {
 } from "../../src/data/design-system";
 import type { ChapterId } from "../../src/data/design-system";
 import { HEADER_ACTION_ICONS } from "../../src/system/component-contracts";
+import { QUICK_MENU_MATERIAL, QUICK_MENU_TOKENS } from "../../src/data/design-tokens";
 
 const groups = [...new Set(CHAPTERS.map((chapter) => chapter.group))];
 const searchEntries = [
@@ -1509,9 +1510,9 @@ export default function DesignRulesPage() {
                             "원형 퀵메뉴",
                             <>
                                 <p data-text="body">
-                                    브랜드 노랑과 전용 초록이 원 안에서 천천히 흐릅니다.
-                                    털이나 입자 없이 매끈한 표면으로 표현하고, 포인터와 회전 방향에
-                                    맞춰 물결이 부드럽게 반응합니다.
+                                    공통 오프화이트 표면과 옅은 안쪽 경계를 사용합니다.
+                                    선택 영역은 중립색으로 표시하고, 중앙의 어스 블랙 버튼으로
+                                    이동합니다. 홈과 아래 예제는 같은 컴포넌트와 토큰을 사용합니다.
                                 </p>
                                 <div className="ds-quick-menu">
                                     <VioletQuickMenu placement="inline" items={inlineMenuItems} />
@@ -1526,14 +1527,24 @@ export default function DesignRulesPage() {
                                         이동하지 않습니다.
                                     </li>
                                     <li data-text="body">
-                                        색상은 QUICK_MENU_MATERIAL의 노랑·레몬·초록·민트를
-                                        사용합니다. 기본 흐름은 14초 주기이며 화면 밖에서는 그리기를 멈춥니다.
+                                        표면·선택·행동·규격은 QUICK_MENU_TOKENS에서 관리합니다.
+                                        장식 재질도 같은 표면 토큰을 사용하며 기본 흐름은 {QUICK_MENU_MATERIAL.motion.period}초
+                                        주기입니다. 화면 밖에서는 그리기를 멈춥니다.
                                     </li>
                                     <li data-text="body">
                                         동작 줄이기에서는 장식 움직임을 멈추고 탐색 기능은
                                         유지합니다.
                                     </li>
                                 </ul>
+                                <div className="ds-table-wrap">
+                                    <table className="ds-table" data-quick-menu-contract>
+                                        <caption data-text="label">제품과 가이드가 공유하는 퀵메뉴 토큰</caption>
+                                        <thead><tr><th data-text="label" scope="col">토큰</th><th data-text="label" scope="col">현재 정의</th></tr></thead>
+                                        <tbody>{Object.entries(QUICK_MENU_TOKENS).map(([token, value]) =>
+                                            <tr key={token}><th data-text="body" scope="row"><code data-text="body">{token}</code></th><td data-text="body"><code data-text="body">{value}</code></td></tr>
+                                        )}</tbody>
+                                    </table>
+                                </div>
                             </>,
                         )}
                     </>

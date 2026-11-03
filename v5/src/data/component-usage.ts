@@ -297,6 +297,7 @@ export const COMPONENT_USAGE = {
         "productUses": [
             "components/CatalogPage.tsx#blocks",
             "components/CompletedPage.tsx#SectionBody",
+            "components/DeepSearchDisclosure.tsx#DeepSearchDisclosure",
             "components/FloatingMenu.tsx#FloatingMenu",
             "components/ServiceGoods.tsx#ServiceGoods",
             "components/ServiceRequestForm.tsx#ServiceRequestForm"
@@ -304,6 +305,7 @@ export const COMPONENT_USAGE = {
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#renderChapter",
+            "components/DeepSearchDisclosure.tsx#DeepSearchDisclosure",
             "components/FloatingMenu.tsx#FloatingMenu"
         ]
     },
@@ -689,6 +691,7 @@ export const COMPONENT_USAGE = {
             "app/not-found.tsx#NotFound",
             "app/page.tsx#HomePage",
             "components/AccountExperience.tsx#AccountExperience",
+            "components/AiChatWidget.tsx#AiChatWidget",
             "components/BookingDatePreview.tsx#BookingDatePreview",
             "components/CatalogPage.tsx#CatalogPage",
             "components/CatalogPage.tsx#blocks",
@@ -703,6 +706,7 @@ export const COMPONENT_USAGE = {
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/_documentation/GsapPlayground.tsx#GsapPlayground",
             "app/design-rules/page.tsx#renderChapter",
+            "components/AiChatWidget.tsx#AiChatWidget",
             "components/BookingDatePreview.tsx#BookingDatePreview"
         ]
     },

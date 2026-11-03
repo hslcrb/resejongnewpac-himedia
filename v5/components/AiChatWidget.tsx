@@ -2,11 +2,13 @@
 
 import Script from "next/script";
 import { SystemButton } from "./SystemPrimitives";
+import { SystemSurface } from "./SystemSurface";
+import { EMBEDDED_CHAT_STYLE, EMBEDDED_CHAT_AUXILIARY_CSS } from "../src/data/design-tokens";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../src/lib/supabase";
 import { loadGuestChat, saveGuestChat, type LocalChatLine } from "../src/lib/guest-chat-storage";
 
-type DeepElement = HTMLElement & { connect?: unknown; loadHistory?: unknown; requestBodyLimits?: unknown; introMessage?: unknown };
+type DeepElement = HTMLElement & { connect?: unknown; loadHistory?: unknown; requestBodyLimits?: unknown; introMessage?: unknown; chatStyle?: Record<string, string>; auxiliaryStyle?: string };
 const ENDPOINT = process.env.NEXT_PUBLIC_AI_CHAT_API_URL || "";
 type Signal = { onResponse: (reply: { text?: string; error?: string }) => void };
 function toChatLine(item: { role?: string; text?: string }): LocalChatLine | null {
@@ -75,17 +77,19 @@ export default function AiChatWidget() {
 
   return (
     <aside data-text="body" className="sejong-ai-widget" aria-label="AI 안내 상담" data-component-id="ai-chat-widget">
-      {enabled && <Script src="https://unpkg.com/deep-chat@2.5.1/dist/deepChat.bundle.js" strategy="afterInteractive" onLoad={() => setScriptReady(true)} />}
+      {enabled && <Script src="https://unpkg.com/deep-chat@2.5.1/dist/deepChat.bundle.js" type="module" strategy="afterInteractive" onLoad={() => setScriptReady(true)} />}
       {open && (
-        <section className="sejong-ai-panel" aria-label="AI 상담 창">
-          <div className="sejong-ai-panel-head"><strong data-text="label">세종 AI 안내</strong><SystemButton variant="quiet" type="button" onClick={() => setOpen(false)} aria-label="상담 닫기">×</SystemButton></div>
+        <SystemSurface as="section" variant="elevated" padding="none" className="sejong-ai-panel" aria-label="AI 상담 창">
+          <div className="sejong-ai-panel-head"><strong data-text="label">세종 AI 안내</strong><SystemButton variant="inverse-quiet" type="button" onClick={() => setOpen(false)} aria-label="상담 닫기">×</SystemButton></div>
           {!enabled ? <p data-text="body" className="sejong-ai-loading">AI 상담 서비스 준비 중입니다.</p> : ready && scriptReady
             ? <div ref={node => { element.current = node?.querySelector("deep-chat") as DeepElement | null; }}><div className="sejong-ai-deep-mount" ref={node => {
                 if (!node || node.querySelector("deep-chat")) return;
                 const chat = document.createElement("deep-chat") as DeepElement;
+                Object.assign(chat.style, EMBEDDED_CHAT_STYLE);
+                chat.chatStyle = { ...EMBEDDED_CHAT_STYLE };
+                chat.auxiliaryStyle = EMBEDDED_CHAT_AUXILIARY_CSS;
                 chat.style.width = "100%";
                 chat.style.height = "min(480px, 58vh)";
-                chat.style.border = "none";
                 chat.connect = { handler };
                 chat.loadHistory = () => initialHistory.map(item => ({ role: item.role === "assistant" ? "ai" : "user", text: item.content }));
                 chat.requestBodyLimits = { maxMessages: 1 };
@@ -93,9 +97,9 @@ export default function AiChatWidget() {
                 element.current = chat;
               }} /></div>
             : <p data-text="body" className="sejong-ai-loading">상담 기능을 불러오는 중...</p>}
-        </section>
+        </SystemSurface>
       )}
-      <SystemButton variant="quiet" className="sejong-ai-trigger" type="button" aria-expanded={open} aria-label={open ? "AI 상담 닫기" : "AI 상담 열기"} onClick={() => setOpen(value => !value)}>
+      <SystemButton variant="primary" shape="circle" className="sejong-ai-trigger" type="button" aria-expanded={open} aria-label={open ? "AI 상담 닫기" : "AI 상담 열기"} onClick={() => setOpen(value => !value)}>
         <span aria-hidden="true">✦</span><span data-text="caption" className="sejong-ai-trigger-tip">무엇을 도와드릴까요?</span>
       </SystemButton>
     </aside>

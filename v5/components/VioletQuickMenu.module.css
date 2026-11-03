@@ -1,13 +1,11 @@
-/* [원 안에서 흐르는 노랑과 초록 / Yellow and green flowing inside the circle] */
+/* [중앙 디자인 계약을 사용하는 원형 탐색 / Radial navigation using the shared design contract] */
 .experience {
-    --menu-size: min(370px, calc(100vw - 38px), calc(100svh - 190px));
-    --quick-edge: color-mix(in srgb, var(--color-black) 9%, var(--color-transparent));
-    --quick-milk: color-mix(in srgb, var(--color-white) 84%, var(--color-transparent));
+    --menu-size: min(var(--quick-menu-size), calc(100vw - 38px), calc(100svh - 190px));
     position: fixed;
     inset: 0;
     z-index: 45;
     pointer-events: none;
-    color: var(--text-primary);
+    color: var(--quick-menu-ink);
     font-family: inherit;
     isolation: isolate;
 }
@@ -35,9 +33,9 @@
     width: 100%;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(50px) scale(.24) rotate(-18deg);
+    transform: translateY(16px) scale(.94);
     transform-origin: 50% 105%;
-    transition: transform .58s cubic-bezier(.18, .86, .26, 1.08), opacity .24s ease, visibility .58s;
+    transition: transform var(--quick-menu-duration) var(--quick-menu-ease), opacity var(--duration-feedback) ease, visibility var(--quick-menu-duration);
     pointer-events: none;
 }
 .experience[data-state="open"] .panel {
@@ -56,9 +54,9 @@
     transform: translateX(-50%);
     padding: 8px 16px;
     border-radius: var(--radius-pill);
-    background: var(--quick-milk);
-    box-shadow: inset 0 0 0 var(--stroke-width) var(--quick-edge);
-    color: var(--text-primary);
+    background: var(--quick-menu-surface);
+    box-shadow: inset 0 0 0 var(--stroke-width) var(--quick-menu-edge);
+    color: var(--quick-menu-ink);
     font-size: var(--text-min);
     font-weight: 500;
     line-height: 1.4;
@@ -76,7 +74,8 @@
     user-select: none;
     -webkit-user-select: none;
     -webkit-tap-highlight-color: var(--color-transparent);
-    box-shadow: 0 12px 36px color-mix(in srgb, var(--color-black) 12%, var(--color-transparent));
+    background: var(--quick-menu-surface);
+    box-shadow: var(--quick-menu-shadow);
 }
 .wheel[data-dragging="true"], .wheel[data-dragging="true"] a { cursor: grabbing; }
 .art {
@@ -84,7 +83,7 @@
     inset: 0;
     border-radius: 50%;
     overflow: hidden;
-    background: radial-gradient(ellipse at 30% 15%, var(--color-quick-lemon), var(--color-transparent) 65%), linear-gradient(140deg, var(--color-yellow) 15%, var(--color-quick-mint) 50%, var(--color-quick-green) 85%);
+    background: var(--quick-menu-surface);
     z-index: -2;
     pointer-events: none;
 }
@@ -94,14 +93,14 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    box-shadow: inset 0 0 0 var(--stroke-width) var(--quick-edge), inset 0 2px 2px color-mix(in srgb, var(--color-white) 45%, var(--color-transparent));
+    box-shadow: inset 0 0 0 var(--stroke-width) var(--quick-menu-edge);
     pointer-events: none;
 }
-.rotor { position: absolute; inset: 0; transform: rotate(var(--rotation, 0deg)); transition: transform .65s cubic-bezier(.2, .75, .2, 1); }
+.rotor { position: absolute; inset: 0; transform: rotate(var(--rotation, 0deg)); transition: transform var(--quick-menu-duration) var(--quick-menu-ease); }
 .wheel[data-dragging="true"] .rotor, .wheel[data-dragging="true"] .menuLink { transition: none; }
 .slices { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-.slice { fill: color-mix(in srgb, var(--color-white) 8%, var(--color-transparent)); stroke: var(--quick-edge); stroke-width: .8; transition: fill .25s; }
-.slice[data-selected="true"] { fill: color-mix(in srgb, var(--color-white) 55%, var(--color-transparent)); }
+.slice { fill: var(--color-transparent); stroke: var(--quick-menu-edge); stroke-width: 1; transition: fill var(--duration-feedback); }
+.slice[data-selected="true"] { fill: var(--quick-menu-selected); }
 .menuLink {
     position: absolute;
     left: var(--item-x);
@@ -112,12 +111,12 @@
     display: grid;
     place-items: center;
     border-radius: var(--surface-radius-compact);
-    color: var(--text-primary);
+    color: var(--quick-menu-ink);
     text-decoration: none;
     touch-action: none;
     -webkit-user-drag: none;
     transform: rotate(calc(-1 * var(--rotation, 0deg)));
-    transition: transform .65s cubic-bezier(.2, .75, .2, 1);
+    transition: transform var(--quick-menu-duration) var(--quick-menu-ease);
 }
 .menuLabel {
     display: flex;
@@ -130,20 +129,20 @@
     border-radius: inherit;
     transition: background .2s;
     font-size: var(--text-min);
-    font-weight: 650;
+    font-weight: var(--weight-action);
     letter-spacing: -.025em;
     line-height: 1.3;
     white-space: nowrap;
 }
-.menuLink:hover .menuLabel, .menuLink:focus-visible .menuLabel { background: color-mix(in srgb, var(--color-white) 45%, var(--color-transparent)); }
+.menuLink:hover .menuLabel, .menuLink:focus-visible .menuLabel { background: var(--quick-menu-selected); }
 .menuLink:focus-visible, .current:focus-visible, .toggle:focus-visible { outline: var(--focus-width) solid var(--border-focus); outline-offset: var(--focus-offset); }
-.marker { position: absolute; left: calc(50% - 3px); top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--color-black); pointer-events: none; }
+.marker { position: absolute; left: calc(50% - 3px); top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--quick-menu-ink); pointer-events: none; }
 .current {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 112px;
-    height: 112px;
+    width: var(--quick-menu-center-size);
+    height: var(--quick-menu-center-size);
     transform: translate(-50%, -50%);
     display: flex;
     flex-direction: column;
@@ -151,61 +150,60 @@
     align-items: center;
     gap: 6px;
     border-radius: 50%;
-    background: var(--quick-milk);
-    box-shadow: inset 0 0 0 var(--stroke-width) var(--quick-edge);
+    background: var(--quick-menu-action);
+    box-shadow: inset 0 0 0 var(--stroke-width) var(--stroke-inverse);
     backdrop-filter: blur(12px);
-    color: var(--text-primary);
+    color: var(--quick-menu-action-ink);
     text-decoration: none;
     text-align: center;
     cursor: pointer;
     touch-action: manipulation;
     transition: background .2s;
 }
-.current strong { font-size: max(var(--text-min), var(--text-quick-action)); font-weight: 650; letter-spacing: -.035em; line-height: 1.3; }
-.current:hover { background: var(--color-white); }
+.current strong { font-size: max(var(--text-min), var(--text-quick-action)); font-weight: var(--weight-action); letter-spacing: var(--tracking-body); line-height: 1.3; }
+.current:hover { background: var(--action-primary-hover); }
 .toggle {
     position: absolute;
     bottom: 0;
     left: 50%;
     display: grid;
     place-items: center;
-    width: 88px;
-    height: 88px;
+    width: var(--quick-menu-toggle-size);
+    height: var(--quick-menu-toggle-size);
     padding: 0;
     transform: translateX(-50%);
     border: 0;
     border-radius: 50%;
     isolation: isolate;
-    background: var(--color-transparent);
-    color: var(--text-primary);
+    background: var(--quick-menu-surface);
+    color: var(--quick-menu-ink);
     font: inherit;
     cursor: pointer;
     pointer-events: auto;
     touch-action: manipulation;
     -webkit-tap-highlight-color: var(--color-transparent);
-    box-shadow: 0 4px 20px color-mix(in srgb, var(--color-black) 10%, var(--color-transparent));
-    transition: width .5s cubic-bezier(.2,.8,.2,1), height .5s cubic-bezier(.2,.8,.2,1), background .4s;
+    box-shadow: var(--quick-menu-shadow);
+    transition: width var(--quick-menu-duration) var(--quick-menu-ease), height var(--quick-menu-duration) var(--quick-menu-ease), background var(--duration-feedback);
 }
-.toggleLabel { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: var(--text-min); font-weight: 650; line-height: 1.2; }
-.closedHint { position: absolute; bottom: -19px; left: 50%; width: max-content; transform: translateX(-50%); padding: 3px 8px; border-radius: var(--radius-pill); background: var(--quick-milk); font-size: var(--text-min); font-weight: 500; line-height: 1.2; color: var(--text-primary); transition: opacity .2s; }
-.experience[data-state="open"] .toggle { width: 44px; height: 44px; bottom: 6px; background: var(--quick-milk); backdrop-filter: blur(12px); }
-.experience[data-state="open"] .toggle .art, .experience[data-state="open"] .toggle .fluid, .experience[data-state="open"] .closedHint { opacity: 0; }
+.toggleLabel { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: var(--text-min); font-weight: var(--weight-action); line-height: 1.2; }
+.experience[data-state="open"] .toggle { width: var(--quick-menu-close-size); height: var(--quick-menu-close-size); bottom: 6px; background: var(--quick-menu-surface); }
+.experience[data-state="open"] .toggle .art, .experience[data-state="open"] .toggle .fluid { opacity: 0; }
 
 /* [문서 안의 동일한 실물과 좁은 화면 / Same live preview and narrow viewports] */
 .experience[data-placement="inline"] { position: relative; inset: auto; z-index: 0; min-height: 34rem; container-type: inline-size; overflow: hidden; border-radius: var(--surface-radius-panel); background: var(--surface-subtle); }
-.experience[data-placement="inline"] .dock { --menu-size: min(370px, calc(100cqi - 38px)); bottom: 24px; }
+.experience[data-placement="inline"] .dock { --menu-size: min(var(--quick-menu-size), calc(100cqi - 38px)); bottom: 24px; }
 .experience[data-placement="inline"] .instruction { max-width: calc(100cqi - 32px); }
 @media (max-width: 600px) {
-    .experience { --menu-size: min(332px, calc(100vw - 38px), calc(100svh - 176px)); }
+    .experience { --menu-size: min(var(--quick-menu-size-compact), calc(100vw - 38px), calc(100svh - 176px)); }
     .dock { bottom: max(24px, env(safe-area-inset-bottom)); height: calc(var(--menu-size) + 76px); }
-    .toggle { width: 76px; height: 76px; }
+    .toggle { width: var(--quick-menu-toggle-size-compact); height: var(--quick-menu-toggle-size-compact); }
     .menuLink { width: 76px; height: 56px; margin: -28px 0 0 -38px; }
     .menuLabel { gap: 4px; }
     .menuLabel svg { width: 21px; height: 21px; }
-    .current { width: 94px; height: 94px; }
+    .current { width: var(--quick-menu-center-size-compact); height: var(--quick-menu-center-size-compact); }
     .instruction { bottom: calc(100% + 16px); }
     .experience[data-placement="inline"] { min-height: 32rem; }
-    .experience[data-placement="inline"] .dock { --menu-size: min(332px, calc(100cqi - 38px)); }
+    .experience[data-placement="inline"] .dock { --menu-size: min(var(--quick-menu-size-compact), calc(100cqi - 38px)); }
 }
 @media (max-height: 550px) and (min-width: 601px) {
     .experience[data-placement="hero"] { --menu-size: min(280px, calc(100svh - 116px)); z-index: 60; }
@@ -215,16 +213,16 @@
     .experience[data-placement="hero"] .menuLink { width: 70px; height: 50px; margin: -25px 0 0 -35px; }
     .experience[data-placement="hero"] .menuLabel { gap: 2px; }
     .experience[data-placement="hero"] .menuLabel svg { width: 20px; height: 20px; }
-    .experience[data-placement="hero"] .toggle { width: 68px; height: 68px; }
+    .experience[data-placement="hero"] .toggle { width: var(--quick-menu-toggle-size-compact); height: var(--quick-menu-toggle-size-compact); }
 }
 @container (max-width: 370px) {
-    .experience[data-placement="inline"] .dock { --menu-size: min(332px, calc(100cqi - 38px)); height: calc(var(--menu-size) + 76px); }
-    .experience[data-placement="inline"] .toggle { width: 76px; height: 76px; }
-    .experience[data-placement="inline"][data-state="open"] .toggle { width: 44px; height: 44px; }
+    .experience[data-placement="inline"] .dock { --menu-size: min(var(--quick-menu-size-compact), calc(100cqi - 38px)); height: calc(var(--menu-size) + 76px); }
+    .experience[data-placement="inline"] .toggle { width: var(--quick-menu-toggle-size-compact); height: var(--quick-menu-toggle-size-compact); }
+    .experience[data-placement="inline"][data-state="open"] .toggle { width: var(--quick-menu-close-size); height: var(--quick-menu-close-size); }
     .experience[data-placement="inline"] .menuLink { width: 76px; height: 56px; margin: -28px 0 0 -38px; }
     .experience[data-placement="inline"] .menuLabel { gap: 4px; }
     .experience[data-placement="inline"] .menuLabel svg { width: 21px; height: 21px; }
-    .experience[data-placement="inline"] .current { width: 94px; height: 94px; }
+    .experience[data-placement="inline"] .current { width: var(--quick-menu-center-size-compact); height: var(--quick-menu-center-size-compact); }
     .experience[data-placement="inline"] .instruction { bottom: calc(100% + 16px); }
 }
 @container (max-width: 300px) {
@@ -237,7 +235,7 @@
 @media (forced-colors: active) {
     .fluid, .art { display: none; }
     .wheel, .toggle, .current { background: Canvas; border: 2px solid ButtonText; color: ButtonText; }
-    .menuLink, .menuLabel, .instruction, .closedHint { color: LinkText; }
-    .instruction, .closedHint { background: Canvas; }
+    .menuLink, .menuLabel, .instruction { color: LinkText; }
+    .instruction { background: Canvas; }
     .slice { stroke: ButtonText; fill: Canvas; }
 }

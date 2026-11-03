@@ -57,6 +57,10 @@ async function instrument(context, label) {
 async function load(page) {
   const response = await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
   assert.equal(response.status(), 200);
+    await page.waitForFunction(() => document.querySelector("[data-violet-menu]")?.getAttribute("data-visible") === "true");
+  const intro = page.locator('[data-v5-entry-intro]');
+  if (!await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches) && await intro.count()) await page.getByRole('button', { name: '인트로 건너뛰기', exact: true }).click();
+  await intro.waitFor({ state: 'detached' });
   await page.locator(toggleSelector).waitFor({ state: 'visible' });
   await page.waitForTimeout(650);
 }
