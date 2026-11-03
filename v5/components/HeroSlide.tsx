@@ -53,7 +53,7 @@ export default function HeroSlide({ feature, active, entering = false, preview, 
                         <Fragment key={index}>{line}{index < lines.length - 1 && <br />}</Fragment>
                     ))}</h2>
                     <p data-text="body" className="season-name">{feature.name}</p>
-                    <p data-text="caption" className="season-meta">{feature.date}<span data-text="body">{feature.venue}</span></p>
+                    <p data-text="caption" className="season-meta">{feature.date.replaceAll("-", "~")}<span data-text="body">{feature.venue}</span></p>
                     <p data-text="body" className="season-description">{feature.description}</p>
                     <div className="season-actions">
                         <SystemLink data-text="action" variant="inverse" href={`/programs/${feature.id}`} tabIndex={active ? 0 : -1} draggable={false}>

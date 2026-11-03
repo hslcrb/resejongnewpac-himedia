@@ -257,7 +257,7 @@ export default function HomePage() {
     return (
         <div className="home-v4-wrap" id="home" data-home-anchor>
             <HomeAnchorNavigation resolveAnchor={resolveHomeAnchor} />
-            <h1 data-text="title" className="sr-only">세종문화회관 - 공연·전시·교육 일정, 예매와 이용 안내</h1>
+            <h1 data-text="title" className="sr-only">세종문화회관: 공연·전시·교육 일정, 예매와 이용 안내</h1>
 
             <HeroCarousel ref={heroRef} externalPaused={isQuickMenuOpen} />
 

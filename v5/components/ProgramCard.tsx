@@ -74,7 +74,7 @@ export default function ProgramCard({ program }: ProgramCardProps) {
                 <h3 data-text="subheading">{program.title}</h3>
 
                 <p data-text="caption" className="program-card-date">
-                    {formatDate(program.start)} - {formatDate(program.end)}
+                    {formatDate(program.start)} ~ {formatDate(program.end)}
                 </p>
 
                 <p data-text="body" className="program-card-venue">{program.venue}</p>

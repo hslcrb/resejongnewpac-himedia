@@ -32,7 +32,7 @@ export function localSearchReply(input: string): string {
     if (!results.length) return "‘" + sanitizeLabel(term) + "’에 맞는 등록 콘텐츠를 찾지 못했어요.\n\n[일반 검색 페이지에서 다시 찾기](" + searchUrl + ")";
     const links = results.map((item: { title: string; path: string; description?: string }) =>
         "- [" + sanitizeLabel(item.title) + "](" + toPath(item.path) + ")" +
-        (item.description ? " - " + sanitizeLabel(item.description).slice(0, 90) : ""));
+        (item.description ? ": " + sanitizeLabel(item.description).slice(0, 90) : ""));
     return "**‘" + sanitizeLabel(term) + "’ 검색 결과** (" + results.length + "개 우선 표시)\n\n" +
         links.join("\n") + "\n\n[전체 검색 결과 보기](" + searchUrl + ")\n\n" +
         "안내 내용은 등록된 콘텐츠를 기준으로 합니다. 실제 일정·예매 가능 여부는 공식 페이지에서 확인해 주세요.";
@@ -55,7 +55,7 @@ export function contextSearchReply(input: string, entries: ContextSearchItem[], 
             new RegExp("^#[a-z0-9/_-]+$", "i").test(item.href)
         );
         const link = safeHref ? "[" + label + "](" + item.href + ")" : label;
-        return "- " + link + (item.description ? " - " + sanitizeLabel(item.description).slice(0, 85) : "");
+        return "- " + link + (item.description ? ": " + sanitizeLabel(item.description).slice(0, 85) : "");
     });
     return "**" + category + " 검색 결과 (" + matches.length + "개 우선 표시)**\n\n" + lines.join("\n") + "\n\n세부 조건은 원래 검색 필터에서 조정할 수 있어요.";
 }

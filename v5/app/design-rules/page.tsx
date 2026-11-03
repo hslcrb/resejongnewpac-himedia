@@ -1489,7 +1489,7 @@ export default function DesignRulesPage() {
                             "글자별 스크롤 등장 · Deprecated",
                             <>
                                 <p data-text="body">
-                                    Deprecated - 홈에서 사용을 종료한 이전 글자 모션입니다.
+                                    Deprecated: 홈에서 사용을 종료한 이전 글자 모션입니다.
                                     실행 예제와 구현은 활성 컴포넌트에서 제거했습니다.
                                     현재 홈의 ‘관람 예약’은 스크롤 위치와 관계없이 읽을 수 있는
                                     정적 공통 제목을 사용합니다.
