@@ -16,6 +16,7 @@ export function generateStaticParams() {
             if (
                 !p.startsWith("design-rules") &&
                 p !== "about/introduction" &&
+                p !== "visit/area" &&
                 !p.startsWith("account") &&
                 p !== "programs" &&
                 !/^programs\/[^/]+$/.test(p)

@@ -51,6 +51,7 @@ export const NAV: NavItem[] = [
         path: "/visit",
         items: [
             ["공간안내", "/visit/spaces"],
+            ["세종과 서울 둘러보기", "/visit/area"],
             ["오시는 길·주차", "/visit/directions"],
             ["편의시설", "/visit/amenities"],
             ["장애인 이용안내", "/visit/accessibility"],
