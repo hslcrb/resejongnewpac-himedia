@@ -15,18 +15,19 @@
 }
 
 .home-v4-wrap .season-track {
-    width: max-content;
-    gap: var(--slide-gap);
-    margin-left: calc((100% - var(--slide-width)) / 2);
-    transform: translate3d(calc(-2 * (var(--slide-width) + var(--slide-gap)) + var(--drag-x, 0px)), 0, 0);
+    width: 100%;
+    gap: 0;
+    margin-left: 0;
+    transform: none;
+    transition-timing-function: var(--ease-carousel);
 }
 
-.home-v4-wrap .season-track.is-moving {
-    transition: transform var(--duration-carousel) var(--ease-carousel);
-}
-
-.home-v4-wrap .season-track.is-returning {
-    transition: transform var(--duration-hero-settle) var(--ease-out);
+/* Swiper measures the whole cell; its inset preserves the responsive CSS gap. */
+.home-v4-wrap .season-swiper-slide {
+    display: flex;
+    justify-content: center;
+    width: calc(var(--slide-width) + var(--slide-gap));
+    height: auto;
 }
 
 .home-v4-wrap .season-slide {
@@ -54,10 +55,6 @@
 
 .home-v4-wrap .season-slide.is-entering .season-copy {
     opacity: 100%;
-}
-
-.home-v4-wrap .season-track.is-moving .season-slide.is-active .season-copy {
-    opacity: 0%;
 }
 
 .home-v4-wrap .season-copy h2 {

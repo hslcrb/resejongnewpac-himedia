@@ -5,6 +5,7 @@ import SiteShell from "../components/SiteShell";
 import GlobalScrollbar from "../components/GlobalScrollbar";
 import HomeEntryIntro from "../components/HomeEntryIntro";
 
+import "swiper/css";
 import "../styles/compat/shared.css";
 import "../styles/compat/programs.css";
 import "../styles/compat/pages.css";

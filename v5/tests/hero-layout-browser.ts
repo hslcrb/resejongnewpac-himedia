@@ -105,7 +105,7 @@ try {
         await page.mouse.move(current.x + current.width * 0.5, y); await page.mouse.down(); await page.mouse.move(current.x + current.width * 0.5 + 25, y, { steps: 3 });
         await page.locator(".season-stage").dispatchEvent("pointercancel", { pointerId: 1, clientX: current.x + current.width * 0.5 + 25, clientY: y });
         await page.mouse.up();
-        await page.waitForFunction(() => !document.querySelector(".season-track")?.classList.contains("is-returning"));
+        await settleViewport();
         assert.equal(await active(), "carmen");
         assert.equal(new URL(page.url()).pathname, "/v5/");
         const center = (await page.locator(".season-slide.is-active").boundingBox())!;
