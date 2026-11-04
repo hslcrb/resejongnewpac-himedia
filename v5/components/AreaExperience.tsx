@@ -76,7 +76,7 @@ export default function AreaExperience() {
         return () => { active = false; };
     }, [sight, browse, tileIndex]);
     const onStart = useCallback((kind: "click" | "view") => {
-        if (kind === "click") { selectionSequence.current++; searchSelectionActive.current = false; }
+        if (kind === "click") { selectionSequence.current++; searchSelectionActive.current = true; }
         return selectionSequence.current;
     }, []);
     const onInspection = useCallback((value: Inspection, token: number) => {
