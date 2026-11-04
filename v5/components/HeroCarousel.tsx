@@ -122,7 +122,8 @@ const HeroCarousel = forwardRef<HeroCarouselHandle, { externalPaused?: boolean }
         if (swiper && !swiper.destroyed && reducedMotion) finishTransition(swiper);
     }, [swiper, reducedMotion]);
 
-    const suspended = count < 2 || paused || reducedMotion || hovered || focused || externalPaused || !inView || documentHidden;
+    // Reduced motion pauses by default; explicit playback can advance with zero-duration transitions.
+    const suspended = count < 2 || paused || hovered || focused || externalPaused || !inView || documentHidden;
     useEffect(() => {
         if (!swiper || swiper.destroyed) return;
         // Stopping also prevents Swiper's transition/visibility hooks from resuming a blocked carousel.
