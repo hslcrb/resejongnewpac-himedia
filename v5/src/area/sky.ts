@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { Sky } from "three/examples/jsm/objects/Sky.js";
 import { seoulSolarPosition, sunDirection } from "./solar";
-import type { AreaMode } from "../../components/AreaViewport";
+import type { AreaMode } from "./buildings";
 
 // [서울 시간의 하늘 / Sky synchronized to Seoul time]
 // 태양 위치는 서울 시각과 계절을 따르며 기상 관측은 포함하지 않습니다.

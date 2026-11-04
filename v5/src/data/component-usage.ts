@@ -68,13 +68,6 @@ export const COMPONENT_USAGE = {
         ],
         "guideUses": []
     },
-    "area-viewport": {
-        "status": "product",
-        "productUses": [
-            "components/AreaExperience.tsx#AreaExperience"
-        ],
-        "guideUses": []
-    },
     "badge": {
         "status": "product",
         "productUses": [
@@ -141,8 +134,6 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
             "components/AiChatWidget.tsx#AiChatWidget",
-            "components/AreaExperience.tsx#AreaExperience",
-            "components/AreaExperience.tsx#BuildingInformation",
             "components/CompletedPage.tsx#CardsSection",
             "components/CompletedPage.tsx#CompletedPage",
             "components/CompletedPage.tsx#VenueComparison",
@@ -337,7 +328,6 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#AccountExperience",
             "components/AccountExperience.tsx#profilePanel",
             "components/AccountPanels.tsx#AccountDiary",
-            "components/AreaExperience.tsx#BuildingInformation",
             "components/CatalogPage.tsx#CatalogPage",
             "components/CompletedPage.tsx#CardsSection",
             "components/CompletedPage.tsx#RentalCalendar",
@@ -367,8 +357,6 @@ export const COMPONENT_USAGE = {
             "app/programs/page.tsx#ProgramsPage",
             "components/AccountExperience.tsx#AccountExperience",
             "components/AccountExperience.tsx#bookingsPanel",
-            "components/AreaExperience.tsx#AreaExperience",
-            "components/AreaExperience.tsx#BuildingInformation",
             "components/CompletedPage.tsx#CardsSection"
         ],
         "guideUses": [
@@ -712,7 +700,6 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#AccountExperience",
             "components/AiChatWidget.tsx#AiChatWidget",
             "components/AreaExperience.tsx#AreaExperience",
-            "components/AreaExperience.tsx#BuildingInformation",
             "components/BookingDatePreview.tsx#BookingDatePreview",
             "components/CatalogPage.tsx#CatalogPage",
             "components/CatalogPage.tsx#blocks",
@@ -756,8 +743,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 57,
-    "product": 57,
+    "total": 56,
+    "product": 56,
     "documentationOnly": 0,
     "unused": 0
 } as const;

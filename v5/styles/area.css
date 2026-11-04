@@ -47,3 +47,10 @@
 .area-global-search > [data-component="field"] { flex: 1 1 18rem; }
 .area-search-results { display: grid; gap: var(--space-2); max-height: 20rem; overflow-y: auto; margin: 0; padding-inline-start: 1.5rem; }
 .area-search-results button { text-align: left; white-space: normal; }
+
+/* [독립 3D 서비스 내장 / Standalone 3D service embed]
+   내용 높이는 검증된 프레임 메시지로 조절합니다.
+   Content height is updated only by validated frame messages. */
+.area-embed-frame { display:block; width:100%; min-height:43.75rem; border:0; border-radius:var(--surface-radius-panel); background:var(--color-gray-300); }
+.area-embed-link { color:inherit; text-decoration:underline; text-underline-offset:.2em; }
+.area-embed-note { margin:0; color:var(--text-secondary); }
