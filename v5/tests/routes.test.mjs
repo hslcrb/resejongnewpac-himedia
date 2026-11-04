@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { access } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import { PAGES, NAV, PROGRAMS, VENUES } from "../src/data/catalog.ts";
 import { PAGES as ORIGINAL_PAGES } from "../../v3/src/data/catalog.js";
 
@@ -43,6 +43,13 @@ test("each registered information, program and utility route produces content", 
   const { renderJourneys } = await import("../src/features/journeys.ts");
   const { renderDesignRules } = await import("../src/features/design-rules.ts");
   for (const p of PAGES.filter((p) => p.path !== "/")) {
+    // [Next 전용 주변 보기 / Next-only surroundings page]
+    // 구형 렌더러 대신 실제 정적 출력의 콘텐츠를 확인합니다. / Validate the actual static output rather than a retired renderer.
+    if (p.path === "/visit/area") {
+      const html = await readFile(new URL("../out/visit/area/index.html", import.meta.url), "utf8");
+      assert.ok(html.includes("세종과 광화문을 걷다") && html.includes("/map/") && html.includes("id=\"main\""), p.path + " is empty");
+      continue;
+    }
     const html = [(path) => path === "/design-rules" ? renderDesignRules() : null, renderJourneys, renderStory, renderGoods, renderFlows, renderPrograms, renderPages, renderUtilities]
       .map((f) => f(p.path, new URLSearchParams()))
       .find((x) => x != null);

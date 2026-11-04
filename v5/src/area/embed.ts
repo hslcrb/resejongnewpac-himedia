@@ -3,6 +3,7 @@
 // Accept only version 1 height messages from the expected origin and frame.
 export const LIVE_3D_ORIGIN = "https://live.renewsejongpac.rhee.life";
 export const LIVE_3D_URL = `${LIVE_3D_ORIGIN}/explore/?embed=1`;
+export const LIVE_MAP_URL = `${LIVE_3D_ORIGIN}/map/`;
 export function acceptedViewerHeight(event: { origin: string; source: unknown; data: unknown }, frame: unknown): number | null {
     if (!frame || event.origin !== LIVE_3D_ORIGIN || event.source !== frame || !event.data || typeof event.data !== "object") return null;
     const data = event.data as { type?: unknown; version?: unknown; height?: unknown };

@@ -54,3 +54,6 @@
 .area-embed-frame { display:block; width:100%; min-height:43.75rem; border:0; border-radius:var(--surface-radius-panel); background:var(--color-gray-300); }
 .area-embed-link { color:inherit; text-decoration:underline; text-underline-offset:.2em; }
 .area-embed-note { margin:0; color:var(--text-secondary); }
+
+/* [기본 화면과 별도 지도 링크 / Links to the local view and separate map] */
+.area-embed-links { display:flex; flex-wrap:wrap; gap:var(--space-4); }
