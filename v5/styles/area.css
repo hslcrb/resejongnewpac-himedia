@@ -1,0 +1,24 @@
+/* [공간 탐색 화면 / Spatial exploration screen]
+   조작과 상태를 지면 가까이에 두고 모바일에서는 자연스럽게 세로로 배치합니다.
+   Keep controls and status near the view and stack them naturally on small screens. */
+.area-page { max-width: 100%; }
+.area-explorer { display: grid; gap: var(--space-5); }
+.area-explorer-head { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--space-6); }
+.area-explorer-head h2, .area-explanation h2 { margin: 0; }
+.area-explorer-head p { margin: var(--space-2) 0 0; color: var(--text-secondary); }
+.area-mode-controls, .area-view-controls { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.area-stage { position: relative; overflow: hidden; border-radius: var(--surface-radius-panel); background: var(--color-gray-300); min-height: 32rem; height: min(65vh, 48rem); }
+.area-viewport-canvas, .area-viewport-canvas canvas { display: block; width: 100%; height: 100%; }
+.area-viewport-canvas canvas { touch-action: none; }
+.area-stage-message { position: absolute; inset: 0; display: grid; place-items: center; padding: var(--space-6); text-align: center; color: var(--text-primary); background: var(--color-gray-050); }
+.area-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.area-status { margin: 0; color: var(--text-secondary); }
+.area-error { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.area-error p { margin: 0; }
+.area-explanation { display: grid; gap: var(--space-4); max-width: var(--content-reading-width); margin-top: var(--space-12); }
+.area-explanation p { margin: 0; line-height: var(--leading-body); }
+.area-explanation a { color: inherit; text-underline-offset: .2em; }
+@media (max-width: 768px) {
+    .area-explorer-head { align-items: flex-start; flex-direction: column; }
+    .area-stage { min-height: 24rem; height: 55vh; }
+}
