@@ -12,6 +12,7 @@
 .area-viewport-canvas canvas { touch-action: none; }
 .area-stage-message { position: absolute; inset: 0; display: grid; place-items: center; padding: var(--space-6); text-align: center; color: var(--text-primary); background: var(--color-gray-050); }
 .area-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.area-status-group { display: flex; flex-wrap: wrap; gap: var(--space-4); }
 .area-status { margin: 0; color: var(--text-secondary); }
 .area-error { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
 .area-error p { margin: 0; }
@@ -22,3 +23,27 @@
     .area-explorer-head { align-items: flex-start; flex-direction: column; }
     .area-stage { min-height: 24rem; height: 55vh; }
 }
+
+/* [건물 정보의 투사와 상세 / Building projection and details]
+   화면에는 위치를 표시하고, 모든 원본 필드는 키보드로 접근 가능한 목록에 둡니다.
+   Project locations on the view while keeping all source fields in an accessible list. */
+.area-projection { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.area-tool-controls { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.area-tool-hint, .area-tool-state { margin: 0; color: var(--text-secondary); }
+.area-tool-state:empty { display: none; }
+.area-information { display: grid; gap: var(--space-4); margin-top: var(--space-8); }
+.area-information h2, .area-information p { margin: 0; }
+.area-building-list { display: grid; gap: var(--space-6); max-height: 48rem; overflow-y: auto; }
+.area-building { padding: var(--space-4); background: var(--color-gray-050); border-radius: var(--surface-radius-compact); }
+.area-building h3 { margin: 0 0 var(--space-2); }
+.area-building dl { display: grid; gap: var(--space-2); margin: var(--space-4) 0; }
+.area-building dl > div { display: grid; grid-template-columns: minmax(9rem, 13rem) minmax(0, 1fr); gap: var(--space-3); }
+.area-building dt { color: var(--text-secondary); }
+.area-building dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 480px) {
+    .area-building dl > div { grid-template-columns: 1fr; gap: 0; }
+}
+.area-global-search { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); }
+.area-global-search > [data-component="field"] { flex: 1 1 18rem; }
+.area-search-results { display: grid; gap: var(--space-2); max-height: 20rem; overflow-y: auto; margin: 0; padding-inline-start: 1.5rem; }
+.area-search-results button { text-align: left; white-space: normal; }

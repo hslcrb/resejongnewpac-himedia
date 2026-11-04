@@ -6,21 +6,31 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { gridCellPosition, isDetailedArea, SEJONG_IN_SEOUL } from "../src/area/coordinates";
+import { createSeoulSky } from "../src/area/sky";
+import { createBuildingExplorer } from "../src/area/building-explorer";
+import type { Inspection, InspectionState } from "../src/area/building-explorer";
 
 export type AreaMode = "local" | "seoul";
 export type AreaStatus = { state: "loading" | "ready" | "error"; message: string };
 type CityData = { version: number; cells: [number, number, number, number][] };
-type SceneController = { setMode: (mode: AreaMode) => void; reset: () => void; zoom: (factor: number) => void; rotate: (angle: number) => void };
+type SceneController = { setMode: (mode: AreaMode) => void; reset: () => void; zoom: (factor: number) => void; rotate: (angle: number) => void; tools: (sight: boolean, magnifier: boolean) => void; center: () => void };
 
 // [3D 장면과 자원 수명 / 3D scene and resource lifecycle]
 // 상세 회관은 공유하고 서울 격자는 처음 선택할 때만 불러옵니다.
 // Share the detailed model and load the Seoul grid only on first selection.
-export default function AreaViewport({ mode, resetCount, zoom, rotation, onStatus }: {
+export default function AreaViewport({ mode, resetCount, zoom, rotation, sight, magnifier, centerRequest, onStatus, onStart, onInspection, onInspectionState, onProjection }: {
     mode: AreaMode;
     resetCount: number;
     zoom: { serial: number; factor: number };
     rotation: { serial: number; angle: number };
+    sight: boolean;
+    magnifier: boolean;
+    centerRequest: number;
     onStatus: (status: AreaStatus) => void;
+    onStart: (kind: "click" | "view") => number;
+    onInspection: (value: Inspection, token: number) => void;
+    onInspectionState: (value: InspectionState, token?: number) => void;
+    onProjection: (message: string) => void;
 }) {
     const container = useRef<HTMLDivElement>(null);
     const controller = useRef<SceneController | null>(null);
@@ -43,15 +53,13 @@ export default function AreaViewport({ mode, resetCount, zoom, rotation, onStatu
         }
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
         renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 0.45;
         renderer.setClearColor(0xd9dedb);
         renderer.domElement.setAttribute("aria-hidden", "true");
         host.appendChild(renderer.domElement);
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0xd9dedb);
-        scene.add(new THREE.HemisphereLight(0xffffff, 0x77756e, 2));
-        const sunlight = new THREE.DirectionalLight(0xffffff, 2);
-        sunlight.position.set(5000, 10000, 7000);
-        scene.add(sunlight);
         const camera = new THREE.PerspectiveCamera(38, 1, 0.5, 160000);
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = false;
@@ -63,10 +71,14 @@ export default function AreaViewport({ mode, resetCount, zoom, rotation, onStatu
         let detailFailed = false;
         let currentMode: AreaMode = desiredMode.current;
         let frame = 0;
+        let sky: ReturnType<typeof createSeoulSky> | null = null;
+        let explorer: ReturnType<typeof createBuildingExplorer> | null = null;
         const draw = () => {
             if (disposed || frame) return;
-            frame = window.requestAnimationFrame(() => { frame = 0; if (!disposed) renderer.render(scene, camera); });
+            frame = window.requestAnimationFrame(() => { frame = 0; if (!disposed) { sky?.followCamera(); renderer.render(scene, camera); explorer?.paint(); } });
         };
+        sky = createSeoulSky(scene, camera, () => currentMode, draw);
+        explorer = createBuildingExplorer({ host, element: renderer.domElement, camera, controls, detail, city: () => city, mode: () => currentMode, draw, onStart, onInspection, onState: onInspectionState, onProjection });
         controls.addEventListener("change", draw);
         const resize = () => {
             const width = Math.max(1, host.clientWidth), height = Math.max(1, host.clientHeight);
@@ -150,6 +162,8 @@ export default function AreaViewport({ mode, resetCount, zoom, rotation, onStatu
         };
         const setMode = async (next: AreaMode) => {
             currentMode = next;
+            sky?.update();
+            explorer?.modeChanged();
             const token = ++sequence;
             onStatus({ state: "loading", message: next === "local" ? "세종문화회관 주변을 불러오고 있습니다." : "서울 전역을 불러오고 있습니다." });
             if (city) city.visible = next === "seoul";
@@ -183,13 +197,14 @@ export default function AreaViewport({ mode, resetCount, zoom, rotation, onStatu
             const offset = camera.position.clone().sub(controls.target);
             offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle);
             camera.position.copy(controls.target).add(offset); controls.update(); draw();
-        } };
+        }, tools: (show, inspect) => explorer?.configure(show, inspect), center: () => explorer?.center() };
         resize();
         void setMode(currentMode);
         const loader = new GLTFLoader();
         loader.setMeshoptDecoder(MeshoptDecoder);
         loader.load("/v5/area/sejong-area.glb", (gltf) => {
             if (disposed) { disposeObject(gltf.scene); return; }
+            gltf.scene.userData.inspectionModel = true;
             detail.add(gltf.scene);
             detailLoaded = true;
             if (currentMode === "local" || city) onStatus({ state: "ready", message: currentMode === "local" ? "세종문화회관과 광화문 주변" : "서울 전역과 광화문 주변" });
@@ -202,13 +217,17 @@ export default function AreaViewport({ mode, resetCount, zoom, rotation, onStatu
             disposed = true; sequence++; abort.abort(); controller.current = null;
             observer.disconnect(); controls.removeEventListener("change", draw); controls.dispose();
             if (frame) window.cancelAnimationFrame(frame);
+            sky?.dispose();
+            explorer?.dispose();
             disposeObject(scene); renderer.dispose(); renderer.domElement.remove();
         };
-    }, [onStatus]);
+    }, [onStatus, onStart, onInspection, onInspectionState, onProjection]);
 
     useEffect(() => { controller.current?.setMode(mode); }, [mode]);
     useEffect(() => { if (resetCount) controller.current?.reset(); }, [resetCount]);
     useEffect(() => { if (zoom.serial) controller.current?.zoom(zoom.factor); }, [zoom]);
     useEffect(() => { if (rotation.serial) controller.current?.rotate(rotation.angle); }, [rotation]);
+    useEffect(() => { controller.current?.tools(sight, magnifier); }, [sight, magnifier]);
+    useEffect(() => { if (centerRequest) controller.current?.center(); }, [centerRequest]);
     return <div ref={container} className="area-viewport-canvas" data-component-part="area-viewport" data-component-owner="area-experience" aria-hidden="true" />;
 }
