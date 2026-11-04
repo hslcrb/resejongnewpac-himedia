@@ -6,16 +6,21 @@ import { DESIGN_TOKEN_VALUES } from "../src/data/design-tokens.ts";
 const repo = new URL("../../", import.meta.url);
 const target = new URL("docs/readme/", repo);
 const check = process.argv.includes("--check");
-const color = (name: string) => DESIGN_TOKEN_VALUES[`--color-${name}`];
+const color = (name: string) => {
+    const value = DESIGN_TOKEN_VALUES[`--color-${name}`];
+    if (!value) throw new Error(`Unknown documentation color token: ${name}`);
+    return value;
+};
 const ink = color("black"), paper = color("white"), sky = color("sky"), yellow = color("yellow");
 const line = color("line-gentle"), muted = color("gray-600"), subtle = color("gray-050");
-const green = color("quick-mint");
+const publish = color("ochre");
 const xml = (value: string) => value.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
 const title = (value: string) => `<title>${xml(value)}</title>`;
 const readSvg = (file: URL) => readFileSync(file, "utf8").replace(/\r\n/g, "\n").trim();
 const favicon = readSvg(new URL("v5/public/assets/favicon.svg", repo));
 const supabase = readSvg(new URL("brand/supabase.svg", target));
 const vercel = readSvg(new URL("brand/vercel.svg", target));
+const cloudflare = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="70" text-anchor="middle" font-family="system-ui,sans-serif" style="font-size:54px" font-weight="700" fill="${ink}">CF</text></svg>`;
 const font = readFileSync(new URL("v5/public/assets/fonts/woff2/WantedSansVariable.woff2", repo)).toString("base64");
 const icon = (source: string, x: number, y: number, size: number) => source.replace(/<svg\b[^>]*>/, original => {
     const viewBox = /viewBox="([^"]+)"/.exec(original)?.[1];
@@ -29,17 +34,17 @@ ${icon(source, 20, 20, 48)}</svg>\n`;
 // [스크립트 없이 선택하는 구조도 / A script-free, selectable architecture diagram]
 const diagram = `<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="872" viewBox="0 0 1120 872" role="document" aria-labelledby="diagram-title diagram-description">
 <title id="diagram-title">세종문화회관 v5 구조 / How v5 works</title>
-<desc id="diagram-description">관람객의 화면은 Vercel에서 전달하고, 로그인과 콘텐츠·회원 기록은 Supabase가 관리합니다. 위의 링크로 회원 저장, 콘텐츠 발행, 전체 흐름과 모션 정지를 선택할 수 있습니다. Browser UI is served by Vercel. Supabase manages authentication and data. Select a flow using the keyboard or pointer.</desc>
+<desc id="diagram-description">관람객의 화면은 Cloudflare Pages에서 전달하고, 로그인과 콘텐츠·회원 기록은 Supabase가 관리합니다. 위의 링크로 회원 저장, 콘텐츠 발행, 전체 흐름과 모션 정지를 선택할 수 있습니다. Browser UI is served by Cloudflare Pages. Supabase manages authentication and data. Select a flow using the keyboard or pointer.</desc>
 <style>
 @font-face{font-family:ReadmeWanted;src:url(data:font/woff2;base64,${font}) format('woff2');font-weight:100 1000;font-display:swap}
 svg{background:${paper};color:${ink};font-family:ReadmeWanted,system-ui,'Segoe UI','Malgun Gothic',sans-serif}
 text{fill:${ink};font-size:22px}a{cursor:pointer}.muted{fill:${muted}}.heading{font-size:36px;font-weight:700}.node-title{font-size:28px;font-weight:650}.label{font-size:24px;font-weight:600}
 .frame,.tab{fill:${paper};stroke:${line};stroke-width:1;transition:fill 160ms,stroke 160ms}.node:hover .frame,.node:focus-visible .frame{stroke:${muted};stroke-width:3}.mode:hover .tab,.mode:focus-visible .tab{stroke:${muted};stroke-width:3}
-.flow{fill:none;stroke-width:3;stroke-dasharray:8 9;animation:travel 3s linear infinite;transition:opacity 160ms}.member-flow{stroke:${yellow}}.publish-flow{stroke:${green}}.delivery-flow{stroke:${sky}}.detail{display:none}
+.flow{fill:none;stroke-width:3;stroke-dasharray:8 9;animation:travel 3s linear infinite;transition:opacity 160ms}.member-flow{stroke:${yellow}}.publish-flow{stroke:${publish}}.delivery-flow{stroke:${sky}}.detail{display:none}
 #member:target ~ .scene .flow:not(.member-flow),#publish:target ~ .scene .flow:not(.publish-flow){opacity:.18}
 #member:target ~ .scene .all-detail,#publish:target ~ .scene .all-detail,#pause:target ~ .scene .all-detail{display:none}
 #member:target ~ .scene .member-detail,#publish:target ~ .scene .publish-detail,#pause:target ~ .scene .pause-detail{display:inline}
-#member:target ~ .scene .member-tab{fill:${yellow}}#publish:target ~ .scene .publish-tab{fill:${green}}#pause:target ~ .scene .pause-tab{fill:${sky}}
+#member:target ~ .scene .member-tab{fill:${yellow}}#publish:target ~ .scene .publish-tab{fill:${yellow}}#pause:target ~ .scene .pause-tab{fill:${sky}}
 #pause:target ~ .scene .flow{animation-play-state:paused}
 @keyframes travel{to{stroke-dashoffset:-68}}@media(prefers-reduced-motion:reduce){.flow{animation:none}.frame,.tab{transition:none}}
 </style>
@@ -72,18 +77,18 @@ ${icon(supabase,454,296,44)}
 <text x="440" y="394" class="node-title">Supabase</text>
 <text x="440" y="438">로그인과 회원 기록</text><text x="440" y="472">공연·페이지 콘텐츠</text>
 <text x="440" y="522" text-decoration="underline">기술 문서 열기 →</text></a>
-<a class="node" href="https://vercel.com/docs" target="_blank" aria-label="Vercel 문서 열기 / Open Vercel documentation">
+<a class="node" href="https://developers.cloudflare.com/pages/" target="_blank" aria-label="Cloudflare Pages 문서 열기 / Open Cloudflare Pages documentation">
 <rect class="frame" x="800.5" y="258.5" width="287" height="295" rx="24"/>
 <rect x="824.5" y="282.5" width="71" height="71" rx="18" fill="${paper}" stroke="${line}"/>
-${icon(vercel,838,296,44)}
-<text x="824" y="394" class="node-title">Vercel</text>
+${icon(cloudflare,838,296,44)}
+<text x="824" y="394" class="node-title">Cloudflare Pages</text>
 <text x="824" y="438">Next.js 정적 빌드</text><text x="824" y="472">공개 주소로 화면 제공</text>
 <text x="824" y="522" text-decoration="underline">기술 문서 열기 →</text></a>
 <rect x="32" y="594" width="1056" height="88" rx="20" fill="${subtle}"/>
 <text x="56" y="630" class="label">GitHub main</text><text x="56" y="662" class="muted">검증한 소스</text>
-<text x="322" y="648">→ Vercel 자동 빌드 → 정적 파일 배포 → 화면 전달</text>
+<text x="322" y="648">→ Cloudflare Pages 빌드 → 정적 파일 배포 → 화면 전달</text>
 <rect x="32" y="710" width="1056" height="128" rx="20" fill="${subtle}"/>
-<g class="all-detail"><text x="56" y="752">화면은 Vercel이, 로그인과 데이터는 Supabase가 담당합니다.</text><text x="56" y="790" class="muted">Select a flow above, or open each service for more information.</text></g>
+<g class="all-detail"><text x="56" y="752">화면은 Cloudflare Pages가, 로그인과 데이터는 Supabase가 담당합니다.</text><text x="56" y="790" class="muted">Select a flow above, or open each service for more information.</text></g>
 <g class="detail member-detail"><text x="56" y="752">로그인 → 본인 확인 → 내 관심 공연·관람노트 저장</text><text x="56" y="790" class="muted">Supabase Auth identifies the user. RLS protects each member's rows.</text></g>
 <g class="detail publish-detail"><text x="56" y="752">공개 DB 콘텐츠 → 빌드 스냅샷 → 정적 HTML → 브라우저 갱신</text><text x="56" y="790" class="muted">A build reads the published catalog; the browser can refresh it.</text></g>
 <g class="detail pause-detail"><text x="56" y="752">움직임을 멈췄습니다. 다른 흐름을 고르면 다시 이어집니다.</text><text x="56" y="790" class="muted">Reduced-motion preferences also stop the moving paths automatically.</text></g>
@@ -93,6 +98,7 @@ for (const [name, content] of Object.entries({
     "favicon-tile.svg": tile(favicon, "세종문화회관 v5 파비콘 / Project favicon"),
     "supabase-tile.svg": tile(supabase, "Supabase · 인증과 데이터베이스 / Authentication and database"),
     "vercel-tile.svg": tile(vercel, "Vercel · 빌드와 배포 / Build and deployment"),
+    "cloudflare-tile.svg": tile(cloudflare, "Cloudflare Pages · 빌드와 배포 / Build and deployment"),
     "system-overview.svg": diagram,
 })) {
     const file = new URL(name, target);

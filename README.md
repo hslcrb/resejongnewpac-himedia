@@ -8,9 +8,9 @@ A website for discovering performances, planning a visit, and keeping a personal
 
 **[웹사이트 / Website](https://renewsejongpac.rhee.life/v5/)** · [디자인 시스템 / Design system](https://renewsejongpac.rhee.life/v5/design-rules/) · [기여 안내 / Contributing](CONTRIBUTING.md)
 
-| v5 | Supabase | Vercel |
+| v5 | Supabase | Cloudflare Pages |
 | :---: | :---: | :---: |
-| [![v5 프로젝트 파비콘](docs/readme/favicon-tile.svg)](https://renewsejongpac.rhee.life/v5/) | [![Supabase 공식 로고](docs/readme/supabase-tile.svg)](https://supabase.com/) | [![Vercel 공식 로고](docs/readme/vercel-tile.svg)](https://vercel.com/) |
+| [![v5 프로젝트 파비콘](docs/readme/favicon-tile.svg)](https://renewsejongpac.rhee.life/v5/) | [![Supabase 공식 로고](docs/readme/supabase-tile.svg)](https://supabase.com/) | [![Cloudflare Pages 설명 타일](docs/readme/cloudflare-tile.svg)](https://developers.cloudflare.com/pages/) |
 | 화면과 인터랙션<br>Interface and interaction | 로그인과 데이터베이스<br>Authentication and database | 빌드와 웹 배포<br>Build and web hosting |
 
 ## 처음 보는 분께 / Start here
@@ -37,7 +37,7 @@ The server supports seat holds, unpaid reservations and cancellation. Booking op
 
 ## 어떻게 움직이나요 / How it works
 
-[![관람객의 화면, Supabase, Vercel 사이의 흐름을 보여 주는 구조도](docs/readme/system-overview.svg)](https://renewsejongpac.rhee.life/docs/readme/system-overview.svg)
+[![관람객의 화면, Supabase, Cloudflare Pages 사이의 흐름을 보여 주는 구조도](docs/readme/system-overview.svg)](https://renewsejongpac.rhee.life/docs/readme/system-overview.svg)
 
 **그림을 누르면 조작 가능한 SVG가 열립니다.** `회원 저장`과 `콘텐츠 발행`을 선택하면 해당 흐름과 설명이 바뀝니다. 키보드로도 선택할 수 있으며 움직임 정지와 모션 감소 설정을 지원합니다. GitHub README 안에서는 이미지 미리보기로 표시됩니다.
 
@@ -48,7 +48,11 @@ Click the diagram to open the interactive SVG. Choose a flow with the pointer or
 | Next.js · React · TypeScript | 화면을 만들고 사용자의 조작에 반응합니다. / Builds the interface and handles interaction. | `v5/app/`, `v5/components/` |
 | Supabase Auth | 로그인한 사람이 누구인지 확인합니다. / Identifies the signed-in user. | Google OAuth, 이메일 로그인 링크 / Email sign-in links |
 | Supabase PostgreSQL | 공연 정보와 회원 기록을 저장합니다. / Stores content and member records. | 공개 콘텐츠, 소유자별 RLS, 예약·신청 RPC / Catalog, owner RLS and server functions |
-| Vercel | 검증한 코드를 빌드해 공개 주소로 전달합니다. / Builds and serves the site. | `main` 푸시 → 정적 빌드 → 배포 / Push, build, deploy |
+| Cloudflare Pages | 검증한 코드를 빌드해 공개 주소로 전달합니다. / Builds and serves the site. | `main` 푸시 → 공개 DB 조회 → 정적 빌드 → 배포 / Push, catalog refresh, build, deploy |
+
+**현재 실서비스는 Cloudflare Pages입니다.** `renewsejongpac.rhee.life`는 `renewsejongpac.pages.dev`에 연결돼 있으며 `main`을 자동 배포합니다. DB·인증은 Supabase를 계속 사용합니다. [전환 검증·전체 작업 이력·Vercel 정리 상태](docs/operations/2026-11-04-cloudflare-transition-history.md)를 함께 확인하세요.
+
+Cloudflare Pages serves production. Supabase remains responsible for data and authentication. The linked operations record distinguishes completed hosting migration from the pending deletion of the former Vercel project.
 
 브라우저는 공개 콘텐츠를 읽고, 로그인한 사용자는 자신의 데이터에 접근합니다. **RLS**는 DB에서 회원별 행 접근을 제한하는 규칙이고, **RPC**는 좌석 확보나 신청 검증처럼 서버에서 한 번에 처리해야 하는 함수를 호출하는 방법입니다.
 
@@ -358,7 +362,9 @@ npm.cmd run build
 node scripts/audit-static-export.ts
 ```
 
-`out/`과 `v5/` 루트 미러는 자동 생성되는 배포본입니다. 둘 다 커밋합니다. JS·CSS는 원본 경로 기반 이름과 소스맵을 사용하고, HTML은 읽기 쉬운 형태로 출력합니다. [빌드 스크립트](v5/scripts/sync-out.ts) · [Vercel 설정](vercel.json)
+`out/`과 `v5/` 루트 미러는 자동 생성되는 배포본입니다. 둘 다 커밋합니다. JS·CSS는 원본 경로 기반 이름과 소스맵을 사용하고, HTML은 읽기 쉬운 형태로 출력합니다. [빌드 스크립트](v5/scripts/sync-out.ts) · [Cloudflare 공개 산출물 준비](v5/scripts/cloudflare-stage.ts) · [운영·전환 이력](docs/operations/2026-11-04-cloudflare-transition-history.md)
+
+Cloudflare Pages의 빌드 명령은 `npm ci --prefix v5 && npm run build --prefix v5 && node v5/scripts/cloudflare-stage.ts`, 출력 디렉터리는 `v5/.cloudflare-output`입니다. 기존 `vercel.json`은 이전 호스팅의 이력으로 보존하며 현재 배포 지침으로 사용하지 않습니다.
 
 Commit both generated exports. Client assets use source-based names and source maps; exported HTML is formatted for inspection.
 
