@@ -6,7 +6,9 @@ This is the active application. It uses Next.js 14.2.35, React 18, TypeScript an
 
 **사람과 모든 모델은 작업 브랜치를 반드시 사용합니다.** 동시 작업은 별도 worktree/clone으로 분리하고, 검토한 브랜치만 main에 `--no-ff`로 통합합니다. / Task branches are mandatory; integrate reviewed work with `--no-ff`.
 
-- [프로젝트 설명·구조도·전체 ERD / Overview, architecture and ERDs](../README.md)
+- [프로젝트 설명과 실행 / Project overview](../README.md)
+- [문서 지도](../docs/README.md) · [시스템 구조](../docs/architecture/overview.md) · [전체 ERD](../docs/architecture/data-model.md)
+- [Cloudflare 배포 절차](../docs/operations/deployment-runbook.md) · [운영·Vercel 삭제 이력](../docs/operations/2026-11-04-cloudflare-transition-history.md)
 - [사람 개발자의 실행·커밋·검증 절차 / Human contributor workflow](../CONTRIBUTING.md)
 - [에이전트의 v5 작업 규칙 / Agent instructions](CONTRIBUTING.md)
 - [디자인 시스템 / Design system](https://renewsejongpac.rhee.life/v5/design-rules/)
@@ -38,6 +40,8 @@ npm.cmd run build
 빌드는 공개 DB 스냅샷을 읽고 계약을 검사한 뒤 `out/`을 생성합니다. `scripts/sync-out.ts`가 결과를 이 폴더 루트에도 미러링합니다. 자동 생성된 파일을 직접 고치지 말고 **소스·전체 out·미러를 함께 커밋**합니다.
 
 The build reads the published database, checks contracts, exports to `out/` and mirrors that output here. Edit source files and commit sources together with the complete export and mirror.
+
+실서비스는 Cloudflare Pages다. `main`의 정식 빌드 후 `scripts/cloudflare-stage.ts`가 `v5/.cloudflare-output`을 준비한다. 이전 Vercel 프로젝트의 삭제는 확인 완료됐으며 DB·인증은 Supabase를 유지한다. 문서만 변경할 때는 [문서 자산 검사](../docs/readme/ASSETS.md)를 수행한다.
 
 현재 문서에서 구버전의 hash 경로·브라우저 저장 설명을 v5 지침으로 사용하지 않습니다. 이전 버전은 [v4 README](../v4/README.md)에 보존합니다.
 
