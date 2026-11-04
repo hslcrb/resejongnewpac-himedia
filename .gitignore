@@ -1,5 +1,6 @@
 .local-reports/
 node_modules/
+work/documentation-renderer/
 .DS_Store
 __pycache__/
 
