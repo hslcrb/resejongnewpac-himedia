@@ -24,7 +24,7 @@ export function createBuildingExplorer(options: {
     overlay.setAttribute("aria-hidden", "true");
     host.appendChild(overlay);
     const context = overlay.getContext("2d")!;
-    let sight = false, magnifier = false, destroyed = false, sequence = 0;
+    let sight = false, magnifier = false, destroyed = false, sequence = 0, clickPending = false;
     let features: Building[] = [];
     let points: THREE.Points | null = null;
     let localPoints: THREE.Points | null = null;
@@ -70,7 +70,9 @@ export function createBuildingExplorer(options: {
         }).catch(() => { if (!destroyed && sight) onProjection("건물 위치 투사에 실패했습니다. 전시천리안을 다시 켜 주세요."); }).finally(() => { pointPromise = null; });
     };
     const inspect = async (easting: number, northing: number, kind: "click" | "view") => {
+        if (kind === "view" && clickPending) return;
         const token = ++sequence;
+        if (kind === "click") clickPending = true;
         const selectionToken = onStart(kind);
         onState({ state: "loading", message: "건물 정보를 불러오고 있습니다.", kind }, selectionToken);
         try {
@@ -84,6 +86,8 @@ export function createBuildingExplorer(options: {
             draw();
         } catch {
             if (!destroyed && token === sequence) onState({ state: "error", message: "건물 정보를 불러오지 못했습니다. 다시 선택해 주세요.", kind }, selectionToken);
+        } finally {
+            if (kind === "click" && token === sequence) clickPending = false;
         }
     };
     const atCenter = () => {
@@ -125,7 +129,7 @@ export function createBuildingExplorer(options: {
                 if (points) { points.visible = mode() === "seoul"; if (localPoints) localPoints.visible = mode() === "local"; reportProjection(); draw(); }
                 else loadPoints();
                 schedule();
-            } else { sequence++; if (points) points.visible = false; if (localPoints) localPoints.visible = false; onProjection(""); window.clearTimeout(timer); features = []; draw(); }
+            } else { sequence++; clickPending = false; if (points) points.visible = false; if (localPoints) localPoints.visible = false; onProjection(""); window.clearTimeout(timer); features = []; draw(); }
         },
         center: atCenter,
         modeChanged() { if (points) points.visible = sight && mode() === "seoul"; if (localPoints) localPoints.visible = sight && mode() === "local"; if (points && sight) reportProjection(); schedule(); },

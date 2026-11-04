@@ -40,12 +40,15 @@ const assert = require('node:assert/strict');
         await page.getByRole('status').filter({hasText:'선택한 건물의 모든 필드'}).waitFor({timeout:30000});
         assert.match(await page.locator('.area-building').first().innerText(),/세종로 81-3/);
         assert.equal(await page.locator('.area-building').first().locator('dt').count(),29);
+        await page.route('**/area/buildings/*.json.gz', async route => { await new Promise(resolve => setTimeout(resolve, 1800)); await route.continue(); });
         await page.getByRole('button',{name:'서울 전역'}).click();
         await page.getByRole('status').filter({hasText:'서울 전역과 광화문 주변'}).waitFor({timeout:120000});
         const started=Date.now();
         await page.locator('.area-stage canvas').first().click({position:{x:500,y:300}});
         await page.getByRole('status').filter({hasText:'선택 지점 주변 건물'}).waitFor({timeout:30000});
         console.log('Seoul magnifier response ms:',Date.now()-started);
+        await page.waitForTimeout(2000);
+        await page.getByRole('status').filter({hasText:'선택 지점 주변 건물'}).waitFor({timeout:5000});
         assert.deepEqual(errors,[]);
         console.log('PASS: magnifier, nearby records, 29 fields, projection, all 695753 records across 664 areas, paging');
     } finally { await browser.close(); }
