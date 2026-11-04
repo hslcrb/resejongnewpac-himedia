@@ -24,6 +24,9 @@ test("Cloudflare staging preserves public routes without publishing private file
         assert.equal(existsSync(join(out, "v5/.env.local")), false);
         assert.equal(existsSync(join(out, "v3/assets/icons/rounded/a.svg")), false);
         assert.match(readFileSync(join(out, "_redirects"), "utf8"), /\/v3\/assets\/icons\/rounded\/\* \/assets\/icons\/rounded\/:splat 301/);
+        const redirects = readFileSync(join(out, "_redirects"), "utf8");
+        assert.match(redirects, /^\/visit\/area \/v5\/visit\/area\/ 301$/m);
+        assert.match(redirects, /^\/visit\/area\/ \/v5\/visit\/area\/ 301$/m);
         put("v4/assets/icons/rounded/a.svg", "different");
         assert.throws(() => stageCloudflare(root), /icon.*differ/i);
         put("v4/assets/icons/rounded/a.svg", "icon");
