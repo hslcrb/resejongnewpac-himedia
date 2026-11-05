@@ -4,7 +4,7 @@ import path from "node:path";
 import { chromium } from "playwright";
 import type { Locator } from "playwright";
 
-// [묶음·화살표 거리·실제 아이콘과 재배치 / Grouping, arrow proximity, painted icons and reflow]
+// [원본 아이콘·작은 화살표 들여쓰기·재배치 / Original icons, modest arrow inset and reflow]
 const base = new URL(process.argv[2] || "http://127.0.0.1:8001/v5/");
 const directory = path.resolve(process.env.PATHWAYS_REPORT_DIR || ".local-reports/home-pathways");
 fs.mkdirSync(directory, { recursive: true });
@@ -38,13 +38,13 @@ async function geometry(root: Locator) {
     assert.equal(values.length, 3);
     for (const value of values) {
         assert.ok(value.grouped);
-        assert.equal(value.icon.width, 40);
-        assert.equal(value.icon.height, 40);
+        assert.equal(value.icon.width, 26);
+        assert.equal(value.icon.height, 26);
         assert.ok(value.glyph.width > 0 && value.glyph.height > 0);
         assert.ok(value.glyph.x >= -0.1 && value.glyph.x + value.glyph.width <= 24.1);
         assert.ok(value.glyph.y >= -0.1 && value.glyph.y + value.glyph.height <= 24.1);
         assert.ok(value.arrow.x >= value.copy.right - 1);
-        assert.ok(value.arrow.right <= value.link.right - 15);
+        assert.ok(Math.abs(value.link.right - value.arrow.right - 16 * value.descriptionSize / 16) <= 1);
         assert.ok(value.copy.x >= value.icon.right - 1);
         assert.ok(value.titleSize >= 20 && value.descriptionSize >= 16);
         assert.ok(!value.clips);
@@ -61,11 +61,11 @@ try {
         const values = await geometry(root);
         const rows = new Set(values.map(value => Math.round(value.link.y)));
         assert.equal(rows.size, width >= 1024 ? 1 : 3);
-        if (width === 1794) for (const value of values) assert.ok(value.arrow.x - value.inkRight <= 32, "Arrow remains beside the words instead of the column edge.");
+        assert.deepEqual(values.map(value => value.symbol?.split("#").at(-1)), ["calendar_month", "confirmation_number", "location_on"]);
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
         if ([320, 390, 1024, 1794].includes(width)) await root.screenshot({ path: path.join(directory, `pathways-${width}.png`) });
         results.push({ width, values });
-        console.log(`PASS grouped pathways, painted 40px icons and reflow ${width}px`);
+        console.log(`PASS original icons, 16px arrow inset and grouped reflow ${width}px`);
     }
     const first = page.locator("#home-pathway-programs");
     const resting = await first.boundingBox();

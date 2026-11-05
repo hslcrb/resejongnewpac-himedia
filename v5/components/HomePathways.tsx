@@ -3,18 +3,18 @@ import Icon from "./Icon";
 import { SystemText } from "./SystemText";
 import "../styles/home-pathways.css";
 
-export const HOME_PATHWAY_ICON_SIZE = 40;
-export const HOME_PATHWAY_ARROW_SIZE = 24;
+export const HOME_PATHWAY_ICON_SIZE = 26;
+export const HOME_PATHWAY_ARROW_SIZE = 22;
 
 const pathways = [
     { id: "programs", title: "일정·예매", description: "공연·전시·교육 살펴보기", href: "/programs", icon: "calendar" },
-    { id: "group", title: "단체 관람", description: "단체관람 안내와 신청", href: "/visit/group", icon: "groups" },
-    { id: "rental", title: "대관", description: "대관 시설과 일정 확인", href: "/rental", icon: "building" },
+    { id: "group", title: "단체 관람", description: "단체관람 안내와 신청", href: "/visit/group", icon: "ticket" },
+    { id: "rental", title: "대관", description: "대관 시설과 일정 확인", href: "/rental", icon: "pin" },
 ] as const;
 
 // [아이콘·내용·화살표를 묶는 바로가기 / Shortcuts keeping icon, copy and arrow together]
-// 남는 칸 너비가 화살표를 밀어내지 않으며 실제 컨테이너 폭에 맞춰 세로로 전환합니다.
-// Keep the arrow beside the copy and stack by available container width.
+// 이전 아이콘과 오른쪽 정렬을 유지하고 화살표만 끝에서 16px 안쪽에 둡니다.
+// Restore the original icons and right alignment, with only a 16px arrow inset.
 export default function HomePathways({ id = "home-pathways", className = "" }: { id?: string; className?: string }) {
     const prefix = id === "home-pathways" ? "home-pathway" : id;
     return <nav id={id} className={`home-pathways ${className}`.trim()} data-component-id="home-pathways" data-home-anchor aria-label="이용 목적별 바로가기">

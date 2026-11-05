@@ -1,26 +1,26 @@
-/* [내용에 맞춰 묶이는 목적별 탐색 / Content-sized destination groups]
-   전체 링크는 조작 영역으로 유지하고 내부 묶음은 아이콘·내용·화살표만큼 차지합니다.
-   Retain the full link target while its inner group hugs the icon, copy and arrow. */
+/* [이전 배치를 보존하는 목적별 탐색 / Destination groups preserving the previous layout]
+   아이콘·텍스트·화살표를 한 묶음으로 유지하고 오른쪽 화살표만 16px 들여놓습니다.
+   Keep one linked group and inset the right-aligned arrow by just 16px. */
 .home-pathways {
     container: home-pathways / inline-size;
-    padding-block: var(--space-8);
-    box-shadow: inset 0 -1px 0 var(--border-default);
+    padding-block: 2.25rem;
+    border-block-end: 1px solid var(--border-default);
 }
 
 .home-pathway-list {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-6);
+    gap: var(--space-8);
 }
 
 .home-pathway-link {
     display: flex;
     align-items: center;
     min-inline-size: 0;
-    min-block-size: var(--space-24);
-    padding: var(--space-5) var(--space-6);
+    min-block-size: 4.5rem;
+    padding-inline-end: var(--space-4);
     border-radius: var(--radius-control);
-    color: var(--text-primary);
+    color: var(--color-detail-202220);
     text-decoration: none;
     transition: background-color var(--duration-feedback) var(--ease-standard);
 }
@@ -28,16 +28,16 @@
 .home-pathway-content {
     display: flex;
     align-items: center;
-    gap: var(--space-4);
-    inline-size: fit-content;
+    gap: 1.125rem;
+    inline-size: 100%;
     max-inline-size: 100%;
     min-inline-size: 0;
 }
 
 .home-pathway-copy {
     display: grid;
-    gap: var(--space-1);
-    flex: 0 1 auto;
+    gap: 0.3125rem;
+    flex: 1 1 0%;
     min-inline-size: 0;
     overflow-wrap: anywhere;
     word-break: keep-all;
@@ -48,8 +48,13 @@
     flex: none;
 }
 
-.home-pathway-description {
-    color: var(--text-secondary);
+.home-pathway-copy > .home-pathway-description {
+    color: var(--color-detail-63655e);
+    line-height: 1.6;
+}
+
+.home-pathway-copy > strong {
+    font-weight: 650;
 }
 
 /* [동작을 알리는 공통 상태 / Shared interaction feedback] */
@@ -73,6 +78,12 @@
 }
 
 /* [실제 공간에 맞는 재배치 / Reflow by available space, including text enlargement] */
+@media (max-width: 1100px) {
+    .home-pathway-list {
+        gap: var(--space-5);
+    }
+}
+
 @container home-pathways (max-width: 60rem) {
     .home-pathway-list {
         grid-template-columns: 1fr;
@@ -81,9 +92,6 @@
 }
 
 @container home-pathways (max-width: 28rem) {
-    .home-pathway-link {
-        padding-inline: var(--space-4);
-    }
     .home-pathway-content {
         gap: var(--space-3);
     }
