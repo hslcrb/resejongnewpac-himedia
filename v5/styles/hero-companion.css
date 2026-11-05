@@ -207,7 +207,7 @@
     border-top: 1px solid var(--border-default);
 }
 
-.hero-release-list li > a {
+.hero-release-entry {
     display: block;
     padding-block: var(--space-4);
 }
@@ -276,7 +276,7 @@
     font-weight: var(--weight-body);
 }
 
-.hero-next-release > a {
+.hero-next-release-content {
     display: block;
     min-height: var(--control-size);
 }
@@ -287,7 +287,7 @@
     font-variant-numeric: tabular-nums;
 }
 
-.hero-next-release a > span {
+.hero-next-release-content > span {
     display: flex;
     align-items: flex-start;
     gap: var(--space-2);

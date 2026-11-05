@@ -25,7 +25,6 @@ import { cancelMemberBooking, createMemberNote, loadMemberAccount, removeMemberN
 
 export type AccountTab = "space" | "bookings" | "favorites" | "notes" | "services" | "profile";
 const ACCOUNT_TABS: readonly AccountTab[] = ["space", "bookings", "favorites", "notes", "services", "profile"];
-const OFFICIAL_ACCOUNT = "https://www.sejongpac.or.kr/portal/myPage/individual/list.do?menuNo=200479";
 
 function accountTabFromHash(hash: string): AccountTab | null {
     const id = hash.replace(/^#account-panel-/, "");
@@ -260,7 +259,7 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
 
     const bookingsPanel = (
         <section data-text="body" className="account-bookings-panel" aria-labelledby="account-bookings-heading">
-            <div className="account-section-heading"><div><h2 data-text="heading" id="account-bookings-heading" tabIndex={-1}>나의 예매내역</h2><p data-text="body">관람 일정과 좌석을 확인하세요.</p></div><SystemLink data-text="action" variant="quiet" href={OFFICIAL_ACCOUNT} target="_blank">예매 서비스 열기 <Icon name="diagonal" size={20} /></SystemLink></div>
+            <div className="account-section-heading"><div><h2 data-text="heading" id="account-bookings-heading" tabIndex={-1}>나의 예매내역</h2><p data-text="body">관람 일정과 좌석을 확인하세요.</p></div></div>
             <div data-text="body" className="account-booking-filters" aria-label="예매내역 필터">{[{ id: "all", label: `전체 ${bookings.length}` }, { id: "upcoming", label: `관람 예정 ${summary.upcoming}` }, { id: "cancelled", label: `취소 ${summary.cancelled}` }].map(filter => <SystemFilterButton data-text="action" key={filter.id} selected={bookingFilter === filter.id} onClick={() => setBookingFilter(filter.id)}>{filter.label}</SystemFilterButton>)}</div>
             {visibleBookings.length ? <div data-text="body" className="account-ticket-list">{visibleBookings.map(booking => <AccountTicket key={booking.id} booking={booking} program={PROGRAMS.find(program => program.id === booking.programId)} onCancel={openCancellation} />)}</div> : <div className="account-empty"><h3 data-text="subheading">{bookingFilter === "all" ? "아직 저장한 예매가 없어요." : "이 조건에 맞는 예매 기록이 없어요."}</h3><p data-text="body">공연을 둘러보고 나에게 맞는 다음 무대를 찾아보세요.</p><SystemLink data-text="action" href="/programs/" variant="secondary">공연 둘러보기 <Icon name="arrow" size={20} /></SystemLink></div>}
         </section>
@@ -277,8 +276,8 @@ export default function AccountExperience({ initialTab = "space" }: { initialTab
         <section aria-labelledby="account-services-heading">
             <div className="account-section-heading"><div><h2 data-text="heading" id="account-services-heading">나의 신청과 회원 혜택</h2><p data-text="body">신청 현황과 멤버십 혜택을 확인하세요.</p></div></div>
             <div className="account-service-list">
-                <article><div><h3 data-text="subheading">회원 등급·포인트·쿠폰</h3><p data-text="body">나의 멤버십과 사용 가능한 혜택을 확인하세요.</p></div><SystemLink data-text="action" href={OFFICIAL_ACCOUNT} target="_blank" variant="secondary">세종문화회관 마이페이지 <Icon name="diagonal" size={20} /></SystemLink></article>
-                <article><div><h3 data-text="subheading">교육·행사 신청내역</h3><p data-text="body">신청 현황과 참여 안내를 확인하세요.</p></div><SystemLink data-text="action" href={OFFICIAL_ACCOUNT} target="_blank" variant="quiet">신청내역 확인 <Icon name="diagonal" size={20} /></SystemLink></article>
+                <article><div><h3 data-text="subheading">회원 등급·포인트·쿠폰</h3><p data-text="body">나의 멤버십과 사용 가능한 혜택을 확인하세요.</p></div></article>
+                <article><div><h3 data-text="subheading">교육·행사 신청내역</h3><p data-text="body">신청 현황과 참여 안내를 확인하세요.</p></div></article>
                 <article><div><h3 data-text="subheading">교육 프로그램</h3></div><SystemLink data-text="action" href="/programs/education/" variant="quiet">교육 프로그램 보기 <Icon name="arrow" size={20} /></SystemLink></article>
             </div>
         </section>

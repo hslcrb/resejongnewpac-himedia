@@ -1709,15 +1709,6 @@ export default function DesignRulesPage() {
                                 <ul className="ds-rules-list">
                                     <li data-text="body">
                                         <a data-text="action"
-                                            href="https://www.sejongpac.or.kr/portal/main/main.do"
-                                            target="_blank"
-                                            rel="noreferrer"
-                                        >
-                                            세종문화회관 원본 브랜드와 서비스 (새 창)
-                                        </a>
-                                    </li>
-                                    <li data-text="body">
-                                        <a data-text="action"
                                             href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html"
                                             target="_blank"
                                             rel="noreferrer"

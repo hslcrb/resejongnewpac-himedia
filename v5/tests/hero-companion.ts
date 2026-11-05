@@ -5,7 +5,7 @@ import { chromium } from "playwright";
 
 // [히어로 정보 영역의 실제 화면 검증 / Verify the rendered hero information rail]
 const base = process.argv[2] || "http://127.0.0.1:3000/v5/";
-const browser = await chromium.connectOverCDP(process.env.SEJONG_TEST_CDP || "http://127.0.0.1:9223");
+const browser = process.env.SEJONG_TEST_CDP ? await chromium.connectOverCDP(process.env.SEJONG_TEST_CDP) : await chromium.launch();
 const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, timezoneId: "America/Los_Angeles" });
 const page = await context.newPage();
 const directory = path.resolve(".local-reports/hero-companion");
@@ -27,8 +27,11 @@ try {
     await page.clock.pauseAt(new Date("2026-10-21T13:00:00+09:00"));
     await page.goto(base, { waitUntil: "networkidle" });
     await page.bringToFront();
+    const skip = page.getByRole("button", { name: "인트로 건너뛰기", exact: true });
+    if (await skip.isVisible()) await skip.click();
+    await page.locator("[data-v5-entry-intro]").waitFor({ state: "detached" });
     await page.waitForFunction(() => document.querySelector(".hero-clock")?.textContent === "13:00:00");
-    await page.getByRole("button", { name: "자동 재생 일시정지", exact: true }).click();
+    await page.locator("#home-feature-playback").click();
 
     await check("the first view keeps one main work and exposes both neighbouring program names", async () => {
         assert.equal(await page.locator('.season-slide.is-active').count(), 1);
@@ -36,16 +39,17 @@ try {
         const active = page.locator(".season-slide.is-active");
         assert.equal(await active.getByRole("link", { name: "상세보기", exact: true }).getAttribute("href"), "/v5/programs/dance/");
         assert.equal(await active.getByRole("link", { name: "예매하기", exact: true }).getAttribute("href"), "/v5/booking/dance/");
-        assert.ok((await active.locator(".season-description").innerText()).length > 10);
+        assert.match(await active.locator(".season-meta").innerText(), /\d{4}/);
+        assert.ok((await active.locator(".season-meta > span").innerText()).length > 0);
         const viewport = await page.locator(".season-stage").boundingBox();
         const slide = await active.boundingBox();
         assert.ok(viewport && slide && viewport.width - slide.width > 80);
     });
-    await check("the clock uses Seoul time, ticks independently and links the actual next official release", async () => {
+    await check("the clock uses Seoul time and displays the next release without outbound navigation", async () => {
         await page.clock.runFor(1100);
         assert.equal(await page.locator(".hero-clock").innerText(), "13:00:01");
         assert.match(await page.locator(".hero-next-release").innerText(), /10\. 28\. \(수\) 12:00/);
-        assert.match(await page.locator(".hero-next-release > a").getAttribute("href") || "", /nttId=50214/);
+        assert.equal(await page.locator(".hero-next-release a, .hero-release-list a").count(), 0);
         assert.match(await page.locator(".hero-next-release").innerText(), /D-7/);
         assert.equal(await page.locator(".hero-time-glass.liquid-glass .liquid-glass-optics").count(), 1);
     });
@@ -109,7 +113,7 @@ try {
     await check("at release time the next opening advances, then becomes an honest empty state", async () => {
         await page.clock.setSystemTime(new Date("2026-10-28T12:00:00+09:00"));
         await page.clock.runFor(1000);
-        assert.match(await page.locator(".hero-next-release > a").getAttribute("href") || "", /nttId=50215/);
+        assert.equal(await page.locator(".hero-next-release a, .hero-release-list a").count(), 0);
         assert.match(await page.locator(".hero-next-release").innerText(), /14:00/);
         await page.clock.setSystemTime(new Date("2026-10-28T14:00:00+09:00"));
         await page.clock.runFor(1000);

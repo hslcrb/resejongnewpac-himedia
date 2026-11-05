@@ -38,6 +38,14 @@ registerHooks({
 const primitives = await import("../components/SystemPrimitives.tsx");
 const render = (component, props) => renderToStaticMarkup(createElement(component, props));
 
+test("shared links omit official navigation without creating a disabled or empty control", () => {
+    for (const href of ["https://www.sejongpac.or.kr/portal/main/main.do", "//sejongpac.or.kr/", "mailto:sponsorship@sejongpac.or.kr"]) {
+        assert.equal(render(primitives.SystemLink, { href, children: "공식 안내" }), "");
+    }
+    assert.match(render(primitives.SystemLink, { href: "/visit/", children: "방문 안내" }), /href="(?:\/v5)?\/visit\/?"/);
+    assert.match(render(primitives.SystemLink, { href: "https://example.com/", children: "자료" }), /href="https:\/\/example\.com\/"/);
+});
+
 // [오류·결과와 두 레이아웃의 공통 흰 유리 / Shared white glass across error, status and both layouts]
 test("all notice contexts and states compose white LiquidGlass while preserving their semantics", () => {
     for (const variant of ["default", "flow"]) for (const error of [false, true]) {
