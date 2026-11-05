@@ -524,6 +524,8 @@
 
 /* [정보 블록의 반응형 배치 / Responsive information blocks] */
 .catalog-content-block { display: grid; gap: 24px; margin-block: 32px 48px; }
+/* [공통 탐색 아래의 실제 공지 목록 / Live notices follow the shared navigation spacing] */
+.catalog-notice-list { margin-block-start: 0; }
 .catalog-space-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 24px; margin-block: 32px; }
 .catalog-space-grid h2 { margin-bottom: 16px; }
 .catalog-space-grid p { margin-bottom: 20px; }

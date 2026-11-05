@@ -6,6 +6,7 @@ import Link from "next/link";
 import Icon from "../../components/Icon";
 import HomePathways, { HOME_PATHWAY_ICON_SIZE, HOME_PATHWAY_ARROW_SIZE } from "../../components/HomePathways";
 import SejongLogo, { SEJONG_LOGO_SRC } from "../../components/SejongLogo";
+import PageHeading from "../../components/PageHeading";
 import ProgramCard from "../../components/ProgramCard";
 import FloatingMenu from "../../components/FloatingMenu";
 import LiquidGlassDemo from "./_documentation/LiquidGlassDemo";
@@ -1160,6 +1161,9 @@ export default function DesignRulesPage() {
                                         </p>
                                     </SystemDisclosure>
                                 </div>
+                                <h3 data-text="subheading">페이지 제목과 형제 메뉴</h3>
+                                <p data-text="body">공지사항과 다른 소식 페이지는 같은 PageHeading으로 현재 위치·제목·설명·메뉴의 간격과 글자 위계를 공유합니다.</p>
+                                <div data-component-example="page-heading"><PageHeading title="공지사항" summary="공간과 티켓오픈·대관·운영 관련 공지를 확인하세요." path="/news/notices" group={NAV.find(group => group.path === "/news")} breadcrumbs={<><span data-text="action">홈</span><span aria-hidden="true">/</span><span data-text="action">소식과 혜택</span><span aria-hidden="true">/</span><span data-text="label" aria-current="page">공지사항</span></>} /></div>
                                 <h3 data-text="subheading">목적별 바로가기</h3>
                                 <p data-text="body">기존 달력·티켓·위치 아이콘 {HOME_PATHWAY_ICON_SIZE}px와 제목·설명·화살표 {HOME_PATHWAY_ARROW_SIZE}px를 한 링크로 묶습니다. 화살표는 오른쪽 끝에서 16px 안쪽에 두고, 컨테이너가 좁아지면 한 열로 바뀝니다.</p>
                                 <HomePathways id="demo-home-pathways" />

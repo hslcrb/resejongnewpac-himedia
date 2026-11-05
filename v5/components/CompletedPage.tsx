@@ -13,6 +13,7 @@ import { SystemControlGroup } from "./SystemControlGroup";
 import { SystemDisclosure } from "./SystemNavigation";
 import SystemSurface from "./SystemSurface";
 import { SystemText } from "./SystemText";
+import PageHeading from "./PageHeading";
 import ProgramCard from "./ProgramCard";
 import ServiceRequestForm from "./ServiceRequestForm";
 import ServiceGoods from "./ServiceGoods";
@@ -264,9 +265,7 @@ export default function CompletedPage({ path }: { path: string }) {
     const resolve: LinkResolver = href => destination(href, paths, anchors);
 
     return <div className="container completed-page" data-component-id="completed-page" lang={isEnglish ? "en" : undefined}>
-        <nav className="completed-breadcrumbs" aria-label="현재 위치"><Link data-text="action" href="/">홈</Link>{group && group.path !== path && <><span aria-hidden="true">/</span><Link data-text="action" href={group.path}>{group.title}</Link></>}{parent && parent.path !== group?.path && <><span aria-hidden="true">/</span><Link data-text="action" href={parent.path}>{parent.title}</Link></>}<span aria-hidden="true">/</span><span data-text="label" aria-current="page">{title}</span></nav>
-        <header className="completed-heading"><SystemText as="h1" variant="title">{title}</SystemText>{page?.summary && <SystemText as="p" variant="lead">{page.summary}</SystemText>}</header>
-        {group && <SystemControlGroup as="nav" className="completed-group-navigation" aria-label={`${group.title} 메뉴`} columns={{ compact: 2, medium: 3, wide: 6 }}>{group.items.map(([label, href]) => <SystemLink key={href} variant={path === href || path.startsWith(`${href}/`) ? "primary" : "secondary"} href={href} aria-current={path === href ? "page" : undefined}>{label}</SystemLink>)}</SystemControlGroup>}
+        <PageHeading title={title} summary={page?.summary} group={group} path={path} breadcrumbs={<><Link data-text="action" href="/">홈</Link>{group && group.path !== path && <><span aria-hidden="true">/</span><Link data-text="action" href={group.path}>{group.title}</Link></>}{parent && parent.path !== group?.path && <><span aria-hidden="true">/</span><Link data-text="action" href={parent.path}>{parent.title}</Link></>}<span aria-hidden="true">/</span><span data-text="label" aria-current="page">{title}</span></>} />
         {page ? <>
             {page.image && <ContentImage image={page.image} hero />}
             <div className="completed-body-layout">
