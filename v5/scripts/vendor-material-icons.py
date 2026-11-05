@@ -15,7 +15,7 @@ INTEGRITY = "W20MjbiDbLJQ5yi4CPz2y6lCZ9bk3pJ1d5Ra+uErvtj/guVrCNfcYyMZn3KqHpDyyKV
 DEST = Path(__file__).resolve().parents[1] / "assets/icons"
 SYMBOLS = [
     "arrow_forward", "arrow_back", "arrow_outward", "arrow_upward", "search", "menu", "close",
-    "calendar_month", "location_on", "confirmation_number", "person", "favorite",
+    "calendar_month", "location_on", "confirmation_number", "person", "groups", "favorite",
     "favorite-fill", "chevron_right", "schedule", "add", "check", "accessible",
     "directions_car", "apartment", "local_cafe", "mail", "download", "play_arrow", "pause",
     "refresh", "home", "undo", "content_copy", "open_in_new",
