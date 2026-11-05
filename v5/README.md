@@ -9,6 +9,7 @@ This is the active application. It uses Next.js 14.2.35, React 18, TypeScript an
 - [프로젝트 설명과 실행 / Project overview](../README.md)
 - [문서 지도](../docs/README.md) · [시스템 구조](../docs/architecture/overview.md) · [전체 ERD](../docs/architecture/data-model.md)
 - [Cloudflare 배포 절차](../docs/operations/deployment-runbook.md) · [운영·Vercel 삭제 이력](../docs/operations/2026-11-04-cloudflare-transition-history.md)
+- [완료 보고 전 Cloudflare MCP 빌드·배포 확인](docs/cloudflare-deployment-verification.md)
 - [사람 개발자의 실행·커밋·검증 절차 / Human contributor workflow](../CONTRIBUTING.md)
 - [에이전트의 v5 작업 규칙 / Agent instructions](CONTRIBUTING.md)
 - [디자인 시스템 / Design system](https://renewsejongpac.rhee.life/v5/design-rules/)
