@@ -20,7 +20,7 @@ const readSvg = (file: URL) => readFileSync(file, "utf8").replace(/\r\n/g, "\n")
 const favicon = readSvg(new URL("v5/public/assets/favicon.svg", repo));
 const supabase = readSvg(new URL("brand/supabase.svg", target));
 const vercel = readSvg(new URL("brand/vercel.svg", target));
-const cloudflare = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="70" text-anchor="middle" font-family="system-ui,sans-serif" style="font-size:54px" font-weight="700" fill="${ink}">CF</text></svg>`;
+const cloudflare = readSvg(new URL("brand/cloudflare.svg", target));
 const font = readFileSync(new URL("v5/public/assets/fonts/woff2/WantedSansVariable.woff2", repo)).toString("base64");
 const icon = (source: string, x: number, y: number, size: number) => source.replace(/<svg\b[^>]*>/, original => {
     const viewBox = /viewBox="([^"]+)"/.exec(original)?.[1];
