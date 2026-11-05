@@ -125,3 +125,25 @@ test("badges, notices and filters retain caller semantics", () => {
     assert.doesNotMatch(notice, /<strong/);
     assert.match(render(primitives.SystemFilterButton, { selected: true, children: "전체" }), /aria-pressed="true"/);
 });
+
+// [홈 관람 일정의 등록된 pill 베리언트 / Registered pill variant for home program filters]
+test("home program filters use the shared pill shape without changing other filter defaults", () => {
+    const home = readFileSync(new URL("../app/page.tsx", import.meta.url), "utf8");
+    const programFilters = home.slice(home.indexOf('id="home-program-filters"'), home.indexOf('id="home-program-calendar"'));
+    assert.match(programFilters, /<SystemFilterButton\b[^>]*\bshape="pill"/);
+    const newsFilters = home.slice(home.indexOf('id="home-news-filters"'));
+    assert.doesNotMatch(newsFilters, /<SystemFilterButton\b[^>]*\bshape="pill"/);
+    for (const selected of [false, true]) {
+        const html = render(primitives.SystemFilterButton, { shape: "pill", selected, children: "전체" });
+        assert.match(html, /data-component-id="filter-button"/);
+        assert.match(html, /data-shape="pill"/);
+        assert.match(html, new RegExp(`aria-pressed="${selected}"`));
+        assert.match(html, /data-stroke="inner"/);
+    }
+    assert.match(render(primitives.SystemFilterButton, { selected: false, children: "공지" }), /data-shape="rounded"/);
+    assert.match(render(primitives.SystemButton, { children: "예매" }), /data-shape="rounded"/);
+    const css = readFileSync(new URL("../styles/system-primitives.css", import.meta.url), "utf8");
+    assert.match(css, /\.ds-button\[data-context\]\[data-shape="pill"\]\s*\{\s*border-radius:\s*var\(--radius-pill\);/);
+});
+
+

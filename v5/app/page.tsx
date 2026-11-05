@@ -382,7 +382,7 @@ export default function HomePage() {
                 <div className="program-filter-row">
                     <div data-text="body" className="program-choice" id="home-program-filters" data-home-anchor role="group" aria-label="프로그램 분류">
                         {categories.map((cat) => (
-                            <SystemFilterButton data-text="action" selected={selectedCategory === cat}
+                            <SystemFilterButton data-text="action" shape="pill" selected={selectedCategory === cat}
                                 key={cat}
                                 id={`home-program-category-${programCategoryIds[cat]}`}
                                 data-home-anchor
