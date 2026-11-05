@@ -33,8 +33,8 @@ function controlItems(children: ReactNode, parentKeys: readonly string[] = []): 
 }
 
 // [내용 수와 화면 너비에 맞는 열 / Columns limited by content and viewport]
-// 간격을 뺀 너비를 균등 분배하며 마지막 줄도 남는 폭을 채웁니다.
-// Share the width after gaps; let the last row fill its remaining space.
+// 간격을 뺀 너비를 균등 분배하며 마지막 줄도 같은 항목 너비를 유지합니다.
+// Share the width after gaps; keep the same item width on the last row.
 export function SystemControlGroup<Element extends SystemControlGroupTag = "div">({
     as,
     columns,

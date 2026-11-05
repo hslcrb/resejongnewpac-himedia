@@ -17,7 +17,7 @@
 
 .system-control-group > .system-control-group-item {
     display: flex;
-    flex: 1 1 calc((100% - var(--control-group-gap) * (var(--control-group-columns) - 1)) / var(--control-group-columns));
+    flex: 0 1 calc((100% - var(--control-group-gap) * (var(--control-group-columns) - 1)) / var(--control-group-columns));
     min-inline-size: 0;
     max-inline-size: 100%;
 }
