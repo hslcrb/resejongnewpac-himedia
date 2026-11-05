@@ -478,6 +478,15 @@ export const COMPONENT_USAGE = {
             "app/layout.tsx#RootLayout"
         ]
     },
+    "home-pathways": {
+        "status": "product",
+        "productUses": [
+            "app/page.tsx#HomePage"
+        ],
+        "guideUses": [
+            "app/design-rules/page.tsx#renderChapter"
+        ]
+    },
     "icon": {
         "status": "product",
         "productUses": [
@@ -501,6 +510,7 @@ export const COMPONENT_USAGE = {
             "components/HeroCompanion.tsx#HeroCompanion",
             "components/HeroSlide.tsx#HeroSlide",
             "components/HomeBookingControls.tsx#BookingCalendar",
+            "components/HomePathways.tsx#HomePathways",
             "components/ProgramCard.tsx#ProgramCard",
             "components/ReturnTop.tsx#ReturnTop",
             "components/SeasonBanner.tsx#SeasonBanner",
@@ -526,6 +536,7 @@ export const COMPONENT_USAGE = {
             "components/HeroCompanion.tsx#HeroCompanion",
             "components/HeroSlide.tsx#HeroSlide",
             "components/HomeBookingControls.tsx#BookingCalendar",
+            "components/HomePathways.tsx#HomePathways",
             "components/ProgramCard.tsx#ProgramCard",
             "components/ReturnTop.tsx#ReturnTop",
             "components/SeasonBanner.tsx#SeasonBanner",
@@ -746,18 +757,20 @@ export const COMPONENT_USAGE = {
         "productUses": [
             "app/not-found.tsx#NotFound",
             "app/page.tsx#HomePage",
-            "components/CompletedPage.tsx#CompletedPage"
+            "components/CompletedPage.tsx#CompletedPage",
+            "components/HomePathways.tsx#HomePathways"
         ],
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
-            "app/design-rules/page.tsx#renderChapter"
+            "app/design-rules/page.tsx#renderChapter",
+            "components/HomePathways.tsx#HomePathways"
         ]
     }
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 57,
-    "product": 57,
+    "total": 58,
+    "product": 58,
     "documentationOnly": 0,
     "unused": 0
 } as const;

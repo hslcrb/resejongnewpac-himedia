@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
 import Link from "next/link";
 import Icon from "../../components/Icon";
+import HomePathways, { HOME_PATHWAY_ICON_SIZE, HOME_PATHWAY_ARROW_SIZE } from "../../components/HomePathways";
 import SejongLogo, { SEJONG_LOGO_SRC } from "../../components/SejongLogo";
 import ProgramCard from "../../components/ProgramCard";
 import FloatingMenu from "../../components/FloatingMenu";
@@ -1159,6 +1160,9 @@ export default function DesignRulesPage() {
                                         </p>
                                     </SystemDisclosure>
                                 </div>
+                                <h3 data-text="subheading">목적별 바로가기</h3>
+                                <p data-text="body">대표 아이콘 {HOME_PATHWAY_ICON_SIZE}px와 제목·설명·화살표 {HOME_PATHWAY_ARROW_SIZE}px를 한 링크로 묶습니다. 내부 묶음은 내용만큼 차지하고, 컨테이너가 좁아지면 한 열로 바뀝니다.</p>
+                                <HomePathways id="demo-home-pathways" />
                                 {/* [제품과 같은 비율 메뉴 / The same proportional menu as the product] */}
                                 <h3 data-text="subheading">메뉴 폭과 줄바꿈</h3>
                                 <p data-text="body">

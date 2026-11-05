@@ -10,6 +10,7 @@ import { sessionLocalParts } from "../src/lib/reservations";
 import ProgramCard from "../components/ProgramCard";
 import useProgramFlip from "../components/useProgramFlip";
 import Icon from "../components/Icon";
+import HomePathways from "../components/HomePathways";
 import VioletQuickMenu from "../components/VioletQuickMenu";
 import HomeAnchorNavigation from "../components/HomeAnchorNavigation";
 import HeroCarousel from "../components/HeroCarousel";
@@ -264,32 +265,7 @@ export default function HomePage() {
             <VioletQuickMenu heroId="featured-season" onOpenChange={setIsQuickMenuOpen} />
 
             {/* 2. 목적별 빠른 진입 (Quick Pathways) */}
-            <nav className="home-pathways container" id="home-pathways" data-home-anchor aria-label="이용 목적별 바로가기">
-                <Link data-text="action" href="/programs" id="home-pathway-programs" data-home-anchor>
-                    <Icon name="calendar" size={26} />
-                    <span>
-                        <strong data-text="item-title">일정·예매</strong>
-                        <small data-text="caption">공연·전시·교육 살펴보기</small>
-                    </span>
-                    <Icon name="arrow" size={22} />
-                </Link>
-                <Link data-text="action" href="/visit/group" id="home-pathway-group" data-home-anchor>
-                    <Icon name="ticket" size={26} />
-                    <span>
-                        <strong data-text="item-title">단체 관람</strong>
-                        <small data-text="caption">단체관람 안내와 신청</small>
-                    </span>
-                    <Icon name="arrow" size={22} />
-                </Link>
-                <Link data-text="action" href="/rental" id="home-pathway-rental" data-home-anchor>
-                    <Icon name="pin" size={26} />
-                    <span>
-                        <strong data-text="item-title">대관</strong>
-                        <small data-text="caption">대관 시설과 일정 확인</small>
-                    </span>
-                    <Icon name="arrow" size={22} />
-                </Link>
-            </nav>
+            <HomePathways className="container" />
 
             {/* 3. 캘린더 빠른 예매 위젯 (Quick Booking Widget) */}
             <section className="home-booking container" id="quick-booking" data-home-anchor aria-labelledby="quick-booking-heading">
