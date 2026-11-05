@@ -1,0 +1,9 @@
+{
+  "projectName": "renewsejongpac",
+  "productionBranch": "main",
+  "productionDeploymentsEnabled": true,
+  "previewDeploymentSetting": "none",
+  "latestCommitOnly": true,
+  "pollIntervalMs": 5000,
+  "remoteCheckTimeoutMs": 10000
+}
