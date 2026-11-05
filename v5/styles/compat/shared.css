@@ -159,7 +159,7 @@ input[type="radio"] {
   gap: 28px;
   margin-bottom: 32px;
 }
-.section-heading h2 {
+.section-heading h2:where(:not([data-text])) {
   font-size: max(var(--text-min), 36px);
   font-weight: 650;
   letter-spacing: -0.065em;
@@ -1065,7 +1065,7 @@ input[type="radio"] {
     margin-bottom: 25px;
     gap: 12px;
   }
-  .section-heading h2 {
+  .section-heading h2:where(:not([data-text])) {
     font-size: max(var(--text-min), 28px);
   }
   .section-heading p:not(.eyebrow) {

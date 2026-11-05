@@ -179,6 +179,15 @@ export const TYPE_SCALE = [
         leading: 1.5,
         use: "헤더 로그인·프로필·EN 링크",
     },
+    {
+        role: "홈 주요 제목",
+        token: "text-feature-heading",
+        size: 58,
+        mobile: 36,
+        weight: 650,
+        leading: 1.2,
+        use: "홈의 관람 예약·관람 일정·오시는 길·소식 제목",
+    },
 ] as const;
 
 // [문서 서체 스케일에서 파생한 공유 텍스트 역할 / Shared text roles derived from the documented scale]
@@ -199,6 +208,7 @@ export const TEXT_VARIANTS = {
     meta: { ...textVariant(TYPE_SCALE[7]), token: "text-meta" },
     navigation: textVariant(TYPE_SCALE[8]),
     utility: textVariant(TYPE_SCALE[9]),
+    "feature-heading": textVariant(TYPE_SCALE[10], "-0.045em"),
 } as const;
 export type TextVariant = keyof typeof TEXT_VARIANTS;
 
@@ -1143,6 +1153,7 @@ const FLUID_TYPE_VIEWPORTS: Partial<Record<(typeof TYPE_SCALE)[number]["token"],
     "text-display": "5vw",
     "text-title": "3.5vw",
     "text-heading": "2.5vw",
+    "text-feature-heading": "4vw",
 };
 const TYPOGRAPHY_TOKENS = {
     "--font-handwriting": '"Yeongwol", "Wanted Sans Variable", cursive',

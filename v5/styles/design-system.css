@@ -261,7 +261,8 @@
     line-height: var(--leading-body);
 }
 
-.ds-section h3 {
+/* [문서 제목과 실제 부품 분리 / Keep documentation headings outside component examples] */
+.ds-section > h3 {
     margin: 32px 0 14px;
     font-size: max(var(--text-min), 1.25rem);
     font-weight: 700;

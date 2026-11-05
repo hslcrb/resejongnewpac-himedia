@@ -898,6 +898,7 @@
     --text-sm: 1rem;
     --text-navigation: 1.125rem;
     --text-utility: 1rem;
+    --text-feature-heading: clamp(2.25rem, 4vw, 3.625rem);
     --text-action: 1.25rem;
     --text-card-title: 1.25rem;
     --text-meta: 1rem;

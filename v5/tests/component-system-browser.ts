@@ -15,9 +15,6 @@ const page = await context.newPage();
 const results: { name: string; passed: boolean; error?: string }[] = [];
 const errors: string[] = [];
 // [실제 이메일 발송을 막는 OTP 제공자 / OTP provider that cannot send real email]
-const environment = fs.readFileSync(".env.local", "utf8");
-const backend = environment.match(/^NEXT_PUBLIC_SUPABASE_URL=["']?([^\r\n"']+)/m)?.[1];
-if (!backend) throw new Error("The public Supabase URL is required to mock email authentication.");
 const otpRequests: Record<string, unknown>[] = [];
 const catalogFixture = JSON.parse(fs.readFileSync("src/generated/catalog-snapshot.json", "utf8"));
 let otpGate = Promise.resolve();
@@ -26,8 +23,9 @@ const holdOtp = () => {
     otpGate = new Promise<void>(resolve => { release = resolve; });
     return release;
 };
-await context.route(url => url.origin === new URL(backend).origin, async route => {
+await context.route(url => url.origin !== new URL(base).origin, async route => {
     const url = new URL(route.request().url());
+    if (!url.hostname.endsWith(".supabase.co")) return route.abort();
     if (url.pathname === "/auth/v1/settings") return route.fulfill({ json: { external: { google: false } } });
     if (url.pathname === "/rest/v1/rpc/sejong_catalog_snapshot" && route.request().method() === "POST") return route.fulfill({ json: catalogFixture });
     if (url.pathname === "/auth/v1/otp") {
@@ -150,11 +148,11 @@ try {
     }
     await check("home patterns retain their anchors and the booking heading is static shared text", async () => {
         await go();
-        assert.equal(await page.locator('[data-component="HeroSlide"]').count(), 5);
+        assert.deepEqual(await page.locator('[data-component="HeroSlide"]').evaluateAll(slides => [...new Set(slides.map(slide => slide.getAttribute("data-feature")))].sort()), catalogFixture.homeFeatures.map((feature: { id: string }) => feature.id).sort());
         assert.equal(await page.locator('[data-component="BookingCalendar"]').count(), 1);
         assert.equal(await page.locator('[data-component="SeasonBanner"]').count(), 1);
         assert.equal(await page.locator("#quick-booking-heading").innerText(), "관람 예약");
-        assert.equal(await page.locator("#quick-booking-heading").getAttribute("data-text"), "heading");
+        assert.equal(await page.locator("#quick-booking-heading").getAttribute("data-text"), "feature-heading");
         assert.equal(await page.locator("#quick-booking-heading .booking-invitation-letter").count(), 0);
         assert.equal(await page.locator("#quick-booking-heading").evaluate(element => element.getAnimations({ subtree: true }).length), 0);
         assert.deepEqual((({ minHeight, radius }) => [minHeight, radius])(await metrics("#home-booking-today")), ["48px", "12px"]);

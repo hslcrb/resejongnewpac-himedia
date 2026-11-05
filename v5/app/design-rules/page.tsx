@@ -740,7 +740,7 @@ export default function DesignRulesPage() {
                                     연결하며, HTML의 의미와 조작은 유지합니다. size를 지정할 때도
                                     역할 또는 control·hero-with-companion·hero-standalone·quick-action 크기를 사용합니다.
                                 </p>
-                                <CodeBlock title="SystemText.tsx" code={`<SystemText as="h2" variant="heading">관람 예약</SystemText>
+                                <CodeBlock title="SystemText.tsx" code={`<SystemText as="h2" variant="feature-heading">관람 예약</SystemText>
 <p {...textAttributes("caption")}>날짜와 관람 안내</p>
 <SystemText variant="body" size="lead">예매한 일정을 확인하세요.</SystemText>`} />
                                 <div className="ds-type-intro">

@@ -19,6 +19,7 @@
     "test:scroll:browser": "node tests/scroll-chrome-browser.ts",
     "check:system": "node scripts/prepare-design-system.ts --check",
     "test:system:browser": "node tests/component-system-browser.ts",
+    "test:system:parity": "node tests/design-system-parity-browser.ts",
     "test:auth:browser": "node scripts/run-auth-browser.ts",
     "test:entry-intro": "node --test tests/home-entry-intro.test.ts",
     "test:entry-intro:browser": "node tests/home-entry-intro-browser.ts",

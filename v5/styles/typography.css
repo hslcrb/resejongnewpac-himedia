@@ -96,6 +96,13 @@
     letter-spacing: -0.015em;
 }
 
+[data-text="feature-heading"] {
+    font-size: max(var(--text-min), var(--text-feature-heading));
+    font-weight: 650;
+    line-height: 1.2;
+    letter-spacing: -0.045em;
+}
+
 [data-text][data-text-size="display"] {
     font-size: max(var(--text-min), var(--text-display));
 }
@@ -146,6 +153,10 @@
 
 [data-text][data-text-size="utility"] {
     font-size: max(var(--text-min), var(--text-utility));
+}
+
+[data-text][data-text-size="feature-heading"] {
+    font-size: max(var(--text-min), var(--text-feature-heading));
 }
 
 [data-text][data-text-size="control"] {

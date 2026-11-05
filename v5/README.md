@@ -41,6 +41,17 @@ npm.cmd run build
 
 The build reads the published database, checks contracts, exports to `out/` and mirrors that output here. Edit source files and commit sources together with the complete export and mirror.
 
+## 디자인 시스템 일치 검사 / Design system parity
+
+`npm.cmd run check:system`은 등록·사용 연결·토큰·텍스트 속성을 검사합니다.
+정적 서버를 실행한 뒤 `npm.cmd run test:system:parity -- http://127.0.0.1:8000/v5/`로
+전체 내보낸 페이지와 디자인 가이드의 버튼·입력·배지·표면과 복합 컴포넌트의 텍스트 슬롯을 실제 브라우저에서 검사합니다.
+기본 너비는 320·390·768·1024·1440px입니다. 페이지는 배치를 담당하며, 같은 속성과 상태의
+공통 컴포넌트의 서체·색·곡률·경계·내부 여백을 따로 덮어쓰지 않습니다.
+
+The static audit checks registrations and tokens. The browser parity audit compares rendered shared
+controls and surfaces across the export and guide at five viewport widths; page layout stays independent.
+
 실서비스는 Cloudflare Pages다. `main`의 정식 빌드 후 `scripts/cloudflare-stage.ts`가 `v5/.cloudflare-output`을 준비한다. 이전 Vercel 프로젝트의 삭제는 확인 완료됐으며 DB·인증은 Supabase를 유지한다. 문서만 변경할 때는 [문서 자산 검사](../docs/readme/ASSETS.md)를 수행한다.
 
 현재 문서에서 구버전의 hash 경로·브라우저 저장 설명을 v5 지침으로 사용하지 않습니다. 이전 버전은 [v4 README](../v4/README.md)에 보존합니다.

@@ -56,10 +56,6 @@
 #discover-programs .section-heading h2,
 #plan-your-visit .section-heading h2,
 #sejong-news .section-heading h2 {
-    font-size: max(var(--text-min), clamp(36px, 4vw, 58px));
-    line-height: 1.2;
-    letter-spacing: -0.045em;
-    font-weight: 650;
     word-break: keep-all;
 }
 
@@ -508,21 +504,6 @@
     margin-bottom: 20px;
 }
 
-.home-news-filters button {
-    min-height: 48px;
-    padding: 8px 4px;
-    border-bottom: 1px solid var(--border-default);
-    color: var(--color-detail-666d62);
-    font-size: max(var(--text-min), 18px);
-    line-height: 1.5;
-}
-
-.home-news-filters button[aria-pressed="true"] {
-    border-color: var(--stroke-selected);
-    color: var(--color-detail-252c25);
-    font-weight: 650;
-}
-
 .home-participation {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -724,18 +705,8 @@
         gap: 8px;
     }
 
-    #discover-programs .program-choice button {
-        min-height: 48px;
-        padding-inline: 16px;
-        font-size: max(var(--text-min), 16px);
-    }
-
     .home-news-filters {
         gap: 14px;
-    }
-
-    .home-news-filters button {
-        font-size: max(var(--text-min), 16px);
     }
 
     .home-institution-links {
