@@ -190,11 +190,11 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountTicket",
             "components/CatalogPage.tsx#CatalogPage",
             "components/CatalogPage.tsx#blocks",
-            "components/CompletedPage.tsx#CompletedPage",
             "components/CompletedPage.tsx#RelatedPrograms",
             "components/CompletedPage.tsx#VenueComparison",
             "components/HeroSlide.tsx#HeroSlide",
             "components/IntroductionExperience.tsx#IntroductionExperience",
+            "components/PageHeading.tsx#PageHeading",
             "components/ServiceGoods.tsx#ServiceGoods",
             "components/ServiceRequestForm.tsx#ServiceRequestForm"
         ],
@@ -205,7 +205,8 @@ export const COMPONENT_USAGE = {
             "app/design-rules/page.tsx#renderChapter",
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
-            "components/HeroSlide.tsx#HeroSlide"
+            "components/HeroSlide.tsx#HeroSlide",
+            "components/PageHeading.tsx#PageHeading"
         ]
     },
     "catalog-page": {
@@ -257,10 +258,11 @@ export const COMPONENT_USAGE = {
         "status": "product",
         "productUses": [
             "components/CatalogPage.tsx#CatalogPage",
-            "components/CompletedPage.tsx#CompletedPage"
+            "components/PageHeading.tsx#PageHeading"
         ],
         "guideUses": [
-            "app/design-rules/page.tsx#renderChapter"
+            "app/design-rules/page.tsx#renderChapter",
+            "components/PageHeading.tsx#PageHeading"
         ]
     },
     "deep-search": {
@@ -609,6 +611,16 @@ export const COMPONENT_USAGE = {
             "components/SiteShell.tsx#SiteShell"
         ]
     },
+    "page-heading": {
+        "status": "product",
+        "productUses": [
+            "components/CatalogPage.tsx#CatalogPage",
+            "components/CompletedPage.tsx#CompletedPage"
+        ],
+        "guideUses": [
+            "app/design-rules/page.tsx#renderChapter"
+        ]
+    },
     "poster": {
         "status": "product",
         "productUses": [
@@ -758,19 +770,21 @@ export const COMPONENT_USAGE = {
             "app/not-found.tsx#NotFound",
             "app/page.tsx#HomePage",
             "components/CompletedPage.tsx#CompletedPage",
-            "components/HomePathways.tsx#HomePathways"
+            "components/HomePathways.tsx#HomePathways",
+            "components/PageHeading.tsx#PageHeading"
         ],
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#renderChapter",
-            "components/HomePathways.tsx#HomePathways"
+            "components/HomePathways.tsx#HomePathways",
+            "components/PageHeading.tsx#PageHeading"
         ]
     }
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 58,
-    "product": 58,
+    "total": 59,
+    "product": 59,
     "documentationOnly": 0,
     "unused": 0
 } as const;
