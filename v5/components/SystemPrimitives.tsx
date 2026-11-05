@@ -6,6 +6,7 @@ import { forwardRef, useId } from "react";
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, ReactNode, Ref, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
 import Icon from "./Icon";
 import LiquidGlass from "./LiquidGlass";
+import { isRemovedOfficialLink } from "../src/lib/link-policy";
 import type { ControlVariant, ControlContext, ControlShape, BadgeTone, Appearance } from "../src/system/component-contracts";
 
 // [공통 조작과 링크 / Shared controls and links]
@@ -29,6 +30,7 @@ export const SystemLink = forwardRef<HTMLAnchorElement, SystemLinkProps>(functio
     { variant = "primary", context = "default", shape = "rounded", className = "", href, rel, target, ...props }, ref,
 ) {
     const safeRel = target === "_blank" ? [...new Set([...(rel || "").split(/\s+/).filter(Boolean), "noopener", "noreferrer"])].join(" ") : rel;
+    if (isRemovedOfficialLink(href)) return null;
     const shared = { ref, rel: safeRel, target, "data-component": "link", "data-component-id": "button-link", "data-variant": variant, "data-context": context, "data-shape": shape, "data-stroke": "inner", className: `ds-button ds-button-${variant} ${className}`.trim() };
     if (typeof href === "string" && /^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(href)) {
         const { prefetch: _prefetch, replace: _replace, scroll: _scroll, shallow: _shallow, locale: _locale, ...anchorProps } = props;

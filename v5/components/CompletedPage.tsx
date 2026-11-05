@@ -18,6 +18,7 @@ import ServiceRequestForm from "./ServiceRequestForm";
 import ServiceGoods from "./ServiceGoods";
 import DeepSearchDisclosure from "./DeepSearchDisclosure";
 import { contextSearchReply } from "./DeepSearch";
+import { isRemovedOfficialLink } from "../src/lib/link-policy";
 import "../styles/completed-pages.css";
 
 type PublishedCompletion = PageContent & { completion?: CompletionPage };
@@ -38,6 +39,7 @@ function publishedPaths(catalog: CatalogSnapshot): Set<string> {
 }
 
 function destination(href: string, paths: Set<string>, anchors: Set<string>): string | undefined {
+    if (isRemovedOfficialLink(href)) return undefined;
     if (!href || href !== href.trim() || /[\\\u0000-\u001f\u007f]/.test(href)) return undefined;
     if (href.startsWith("#")) {
         try { return anchors.has(decodeURIComponent(href.slice(1))) ? href : undefined; } catch { return undefined; }
@@ -146,7 +148,7 @@ function SectionBody({ section, resolve }: { section: CompletionSection; resolve
         case "timeline": return <ol className="completed-timeline">{section.items.map((item, index) => <li key={`${item.date}-${index}`}><p data-text="label" className="completed-timeline-date">{item.date}</p><div><h3 data-text="item-title">{item.title}</h3><p data-text="body">{item.body}</p></div></li>)}</ol>;
         case "faq": return <div className="completed-faq">{section.items.map((item, index) => <SystemDisclosure appearance="plain" summary={item.question} key={`${item.question}-${index}`}><p data-text="body">{item.answer}</p></SystemDisclosure>)}</div>;
         case "links":
-        case "downloads": return <ul className="completed-resource-list">{section.items.map((item, index) => <li key={`${item.href}-${index}`}><div><ContentLink href={item.href} resolve={resolve} download={section.type === "downloads"}>{item.label}</ContentLink>{item.description && <p data-text="body">{item.description}</p>}</div>{section.type === "downloads" && resolve(item.href) && <span data-text="meta" className="completed-resource-kind">자료</span>}</li>)}</ul>;
+        case "downloads": return <ul className="completed-resource-list">{section.items.filter(item => !isRemovedOfficialLink(item.href)).map((item, index) => <li key={`${item.href}-${index}`}><div><ContentLink href={item.href} resolve={resolve} download={section.type === "downloads"}>{item.label}</ContentLink>{item.description && <p data-text="body">{item.description}</p>}</div>{section.type === "downloads" && resolve(item.href) && <span data-text="meta" className="completed-resource-kind">자료</span>}</li>)}</ul>;
         case "cards": return <CardsSection section={section} resolve={resolve} />;
         case "image": return <ContentImage image={section.image} />;
     }
@@ -249,7 +251,9 @@ export default function CompletedPage({ path }: { path: string }) {
     const title = page?.title || record?.title || PAGES.find(item => item.path === path)?.title || "페이지 안내";
     const isEnglish = path === "/english";
     const goodsMode = page?.special === "goods" || page?.special === "cart" || page?.special === "orders" ? page.special : undefined;
-    const sectionLinks = page?.sections.map((section, index) => ({ id: `completed-section-${index}`, title: section.title })) || [];
+    const sections = page?.sections.map((section, index) => ({ section, index })).filter(({ section }) => section.type !== "links" && section.type !== "downloads" || section.items.some(item => !isRemovedOfficialLink(item.href))) || [];
+    const sources = page?.sources.filter(source => !isRemovedOfficialLink(source.url)) || [];
+    const sectionLinks = sections.map(({ section, index }) => ({ id: `completed-section-${index}`, title: section.title }));
     if (page?.special === "venue-compare") sectionLinks.push({ id: "completed-venue-compare", title: "시설 비교" });
     if (page?.special === "rental-calendar") sectionLinks.push({ id: "completed-rental-calendar", title: "대관 공고 일정" });
     if (page?.special === "sitemap") sectionLinks.push({ id: "completed-sitemap", title: "전체 메뉴" });
@@ -268,14 +272,14 @@ export default function CompletedPage({ path }: { path: string }) {
             <div className="completed-body-layout">
                 {sectionLinks.length > 1 && <aside className="completed-outline"><nav aria-label={isEnglish ? "On this page" : "이 페이지에서"}><SystemText as="p" variant="label">{isEnglish ? "On this page" : "이 페이지에서"}</SystemText><ol>{sectionLinks.map(section => <li key={section.id}><a data-text="action" href={`#${section.id}`}>{section.title}</a></li>)}</ol></nav></aside>}
                 <div className="completed-main" key={path}>
-                    {page.sections.map((section, index) => <section className={`completed-section completed-section-${section.type}`} id={`completed-section-${index}`} aria-labelledby={`completed-section-title-${index}`} key={index}><h2 data-text="heading" id={`completed-section-title-${index}`}>{section.title}</h2><SectionBody section={section} resolve={resolve} /></section>)}
+                    {sections.map(({ section, index }) => <section className={`completed-section completed-section-${section.type}`} id={`completed-section-${index}`} aria-labelledby={`completed-section-title-${index}`} key={index}><h2 data-text="heading" id={`completed-section-title-${index}`}>{section.title}</h2><SectionBody section={section} resolve={resolve} /></section>)}
                     {page.special === "venue-compare" && <VenueComparison catalog={catalog} />}
                     {page.special === "rental-calendar" && <RentalCalendar catalog={catalog} resolve={resolve} />}
                     {page.special === "sitemap" && <SiteMap catalog={catalog} resolve={resolve} />}
                     {goodsMode && <div className="completed-service" id="completed-goods-service"><ServiceGoods mode={goodsMode} page={page} /></div>}
                     <RelatedPrograms page={page} catalog={catalog} />
                     {page.form && goodsMode !== "cart" && <section className="completed-section" id="completed-request" aria-label={page.form.title}><ServiceRequestForm page={page} /></section>}
-                    {page.sources.length > 0 && <footer className="completed-sources"><h2 data-text="item-title">{isEnglish ? "Sources and official information" : "자료 출처와 최신 안내"}</h2><ul>{page.sources.map((source, index) => <li key={`${source.url}-${index}`}><ContentLink href={source.url} resolve={resolve}>{source.label}</ContentLink></li>)}</ul></footer>}
+                    {sources.length > 0 && <footer className="completed-sources"><h2 data-text="item-title">{isEnglish ? "Sources and official information" : "자료 출처와 최신 안내"}</h2><ul>{sources.map((source, index) => <li key={`${source.url}-${index}`}><ContentLink href={source.url} resolve={resolve}>{source.label}</ContentLink></li>)}</ul></footer>}
                 </div>
             </div>
         </> : <SystemSurface variant="inset" padding="lg" className="completed-load-state"><p data-text="body" role="status">{loading ? "페이지 내용을 불러오는 중입니다." : error || "현재 페이지 내용을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."}</p><SystemButton variant="secondary" disabled={loading} onClick={() => { void refresh(); }}>다시 불러오기</SystemButton></SystemSurface>}

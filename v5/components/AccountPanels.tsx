@@ -33,7 +33,6 @@ export function AccountMembershipCard({ name, message, mode, counts, onEdit, onL
             <div className="account-membership-guide">
                 <h3 data-text="subheading">나의 멤버십</h3>
                 <p data-text="body">세종문화회관의 회원 등급·포인트·쿠폰을 확인하세요.</p>
-                <SystemLink data-text="action" variant="quiet" href="https://www.sejongpac.or.kr/portal/myPage/individual/list.do?menuNo=200479" target="_blank">멤버십 확인 <Icon name="diagonal" size={20} /></SystemLink>
             </div>
             <div data-text="body" className="account-identity-session">{signedIn ? <SystemButton data-text="action" variant="quiet" onClick={onLogout}>로그아웃 <Icon name="arrow" size={20} /></SystemButton> : <SystemLink data-text="action" href="/account/login/" variant="quiet">로그인 / 프로필 만들기 <Icon name="arrow" size={20} /></SystemLink>}</div>
         </section>

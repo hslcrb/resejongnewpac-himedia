@@ -4,12 +4,11 @@ import { useCatalog } from "../src/catalog/CatalogProvider";
 import { memo, useEffect, useState } from "react";
 import Icon from "./Icon";
 import LiquidGlass from "./LiquidGlass";
-import { TICKET_OPENINGS_URL } from "../src/data/ticket-openings";
 import { openingDateLabel, openingDayLabel, seoulClock, upcomingTicketOpenings } from "../src/lib/ticket-openings";
 
 // [작품 옆의 예매 정보 / Booking information beside the featured work]
-// 실시간 시계만 독립적으로 갱신하고 목록은 공식 공지로 연결합니다.
-// Update the clock independently and link each release to its official announcement.
+// 실시간 시계와 게시된 오픈 일정을 외부 이동 없이 표시합니다.
+// Display the live clock and published opening dates without outbound navigation.
 function HeroCompanion() {
     const { catalog } = useCatalog();
     const TICKET_OPENINGS = catalog.ticketOpenings;
@@ -42,20 +41,17 @@ function HeroCompanion() {
             <section className="hero-release-list" aria-labelledby="hero-release-heading">
                 <div className="hero-companion-heading">
                     <h2 data-text="heading" id="hero-release-heading">티켓오픈</h2>
-                    <a data-text="action" href={TICKET_OPENINGS_URL} target="_blank" rel="noreferrer" className="hero-companion-more" aria-label="티켓오픈 전체 안내 (새 창)">
-                        <Icon name="plus" size={24} />
-                    </a>
                 </div>
                 <ul>
                     {TICKET_OPENINGS.map(item => (
                         <li data-text="body" key={item.id}>
-                            <a data-text="action" href={item.href} target="_blank" rel="noreferrer">
+                            <div data-text="body" className="hero-release-entry">
                                 <strong data-text="item-title">{item.title}</strong>
                                 <span className="hero-release-meta">
                                     <time data-text="meta" dateTime={item.opensAt}>{openingDateLabel(item.opensAt)}</time>
                                     <span data-text="body">{now === null ? "오픈 안내" : openingDayLabel(item.opensAt, now)}</span>
                                 </span>
-                            </a>
+                            </div>
                         </li>
                     ))}
                 </ul>
@@ -73,15 +69,14 @@ function HeroCompanion() {
                 <div data-text="body" className="hero-next-release">
                     <p data-text="body">다음 티켓오픈 <span data-text="body">{next && now !== null ? openingDayLabel(next.opensAt, now) : ""}</span></p>
                     {next ? (
-                        <a data-text="action" href={next.href} target="_blank" rel="noreferrer" aria-label={`${next.title} 티켓오픈 안내 (새 창)`}>
+                        <div data-text="body" className="hero-next-release-content">
                             <time data-text="meta" dateTime={next.opensAt}>{openingDateLabel(next.opensAt)}</time>
-                            <span><span data-text="body">{next.title}</span><Icon name="diagonal" size={20} /></span>
-                        </a>
+                            <span data-text="body">{next.title}</span>
+                        </div>
                     ) : (
-                        <a data-text="action" href={TICKET_OPENINGS_URL} target="_blank" rel="noreferrer">
+                        <div data-text="body" className="hero-next-release-content">
                             <strong data-text="item-title">{now === null ? "일정 확인 중" : "예정된 티켓오픈이 없습니다"}</strong>
-                            <span><span data-text="body">전체 티켓오픈 안내</span><Icon name="diagonal" size={20} /></span>
-                        </a>
+                        </div>
                     )}
                 </div>
             </LiquidGlass>
