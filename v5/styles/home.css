@@ -145,7 +145,7 @@
     margin-bottom: 36px;
 }
 
-.section-heading h2, .visit-editorial h2 {
+.section-heading h2:where(:not([data-text])), .visit-editorial h2:where(:not([data-text])) {
     margin: 0;
     font-size: max(var(--text-min), clamp(32px, 3.4vw, 48px));
     font-weight: 720;
@@ -517,7 +517,7 @@
         width: 16px;
     }
 
-    .section-heading h2 {
+    .section-heading h2:where(:not([data-text])) {
         font-size: max(var(--text-min), 30px);
     }
 

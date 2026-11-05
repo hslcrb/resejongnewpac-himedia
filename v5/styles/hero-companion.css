@@ -98,8 +98,6 @@
     align-items: flex-start;
     gap: var(--space-3);
     width: max(3rem, min(12rem, calc((100vw - var(--slide-width)) / 2 - var(--slide-gap) - 2rem)));
-    min-width: 0;
-    padding: var(--space-3) 0;
     color: var(--text-inverse);
     background: var(--color-detail-j5afio);
     white-space: normal;
@@ -129,11 +127,6 @@
 
 .hero-neighbor-navigation {
     display: none;
-}
-
-.season-actions :is(.button, .ds-button) {
-    min-height: var(--control-size);
-    padding: var(--space-3) var(--space-6);
 }
 
 .season-slide[data-layout="standalone"] .season-copy {
@@ -363,7 +356,6 @@
         justify-content: flex-start;
         gap: var(--space-2);
         min-width: 0;
-        padding: var(--space-2) 0;
         white-space: normal;
         text-align: left;
     }
@@ -417,7 +409,6 @@
 
     .season-actions :is(.button, .ds-button) {
         flex: 1;
-        padding-inline: var(--space-3);
     }
 
     .hero-companion {

@@ -17,6 +17,7 @@ const before = existsSync(beforeFile) ? JSON.parse(readFileSync(beforeFile, "utf
 const widths = [320, 390, 768, 1024, 1440];
 const items = [
     ["공간안내", "visit/spaces/"],
+    ["세종과 서울 둘러보기", "visit/area/"],
     ["오시는 길·주차", "visit/directions/"],
     ["편의시설", "visit/amenities/"],
     ["장애인 이용안내", "visit/accessibility/"],
@@ -118,7 +119,7 @@ async function groupGeometry(group: Locator, columns: number, minimumFont = 16) 
         });
         return { x: rect.x, width: rect.width, height: rect.height, gap: Number.parseFloat(css.columnGap), children };
     });
-    assert.equal(data.children.length, 6);
+    assert.equal(data.children.length, items.length);
     const rows: typeof data.children[] = [];
     for (const child of data.children) {
         const row = rows.find(row => Math.abs(row[0].y - child.y) < 1);
@@ -127,12 +128,12 @@ async function groupGeometry(group: Locator, columns: number, minimumFont = 16) 
         assert.ok(child.height >= 48, `Target ${child.text} is ${child.height}px`);
         assert.ok(child.scrollWidth <= child.clientWidth + 1, `Text clips in ${child.text}`);
     }
-    assert.equal(rows.length, 6 / columns);
+    assert.equal(rows.length, Math.ceil(items.length / columns));
     const expectedWidth = (data.width - data.gap * (columns - 1)) / columns;
-    for (const row of rows) {
-        assert.equal(row.length, columns);
+    for (const [index, row] of rows.entries()) {
+        assert.equal(row.length, Math.min(columns, items.length - index * columns));
         near(row[0].x, data.x, "First item meets group left");
-        near(row.at(-1)!.right, data.x + data.width, "Last item meets group right");
+        near(row.at(-1)!.right, data.x + row.length * expectedWidth + (row.length - 1) * data.gap, "Last row preserves column width");
         for (const child of row) {
             near(child.width, expectedWidth, "Percentage share after gaps");
             near(child.height, row[0].height, "Same row target height", 0.1);
@@ -214,17 +215,17 @@ try {
         const columns = width < 768 ? 2 : width < 1024 ? 3 : 6;
         await check(`Visit navigation fills ${columns} equal columns at ${width}px`, async () => {
             await go("visit/", width);
-            const group = page.locator(".catalog-page-navigation[data-component='control-group']");
+            const group = page.locator("[data-component='control-group']:is(.catalog-page-navigation, .completed-group-navigation)");
             const geometry = await groupGeometry(group, columns);
             const links = group.locator("a");
-            for (let i = 0; i < 6; i++) innerStroke(await metrics(links.nth(i)), 12, "rgb(217, 215, 207)");
+            for (let i = 0; i < items.length; i++) innerStroke(await metrics(links.nth(i)), 12, "rgb(217, 215, 207)");
             productExamples.set(width, await metrics(links.first()));
             await page.screenshot({ path: path.join(evidence, `after-visit-${width}.png`), fullPage: true });
             await group.screenshot({ path: path.join(evidence, `after-visit-navigation-${width}.png`) });
             return geometry;
         });
         await check(`Hover, keyboard focus and press preserve target geometry at ${width}px`, async () => {
-            const link = page.locator(".catalog-page-navigation a").first();
+            const link = page.locator(":is(.catalog-page-navigation, .completed-group-navigation) a").first();
             await link.scrollIntoViewIfNeeded();
             const resting = await metrics(link);
             await link.hover();
@@ -247,7 +248,7 @@ try {
         });
         await check(`Selected navigation retains the dark fill with an inner transparent stroke at ${width}px`, async () => {
             await go("visit/directions/", width);
-            const group = page.locator(".catalog-page-navigation[data-component='control-group']");
+            const group = page.locator("[data-component='control-group']:is(.catalog-page-navigation, .completed-group-navigation)");
             await groupGeometry(group, columns);
             const current = group.locator("a[aria-current='page']");
             const value = await metrics(current);
@@ -260,7 +261,7 @@ try {
         });
         await check(`Two hundred percent text stays readable within the proportional group at ${width}px`, async () => {
             await go("visit/", width);
-            const group = page.locator(".catalog-page-navigation[data-component='control-group']");
+            const group = page.locator("[data-component='control-group']:is(.catalog-page-navigation, .completed-group-navigation)");
             const normal = await groupGeometry(group, columns);
             await page.addStyleTag({ content: "html { font-size: 200% !important; }" });
             const enlarged = await groupGeometry(group, columns, 32);

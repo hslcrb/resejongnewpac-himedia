@@ -296,7 +296,7 @@ export default function HomePage() {
                 <div className="section-heading">
                     <div>
                         {/* 정적 예약 제목 / Static booking heading */}
-                        <SystemText as="h2" variant="heading" id="quick-booking-heading" className="booking-invitation">관람 예약</SystemText>
+                        <SystemText as="h2" variant="feature-heading" id="quick-booking-heading" className="booking-invitation">관람 예약</SystemText>
                     </div>
                     <Link data-text="action" className="text-link" href="/programs?view=calendar" id="home-booking-full-calendar" data-home-anchor>
                         전체 일정 <Icon name="arrow" size={20} />
@@ -396,7 +396,7 @@ export default function HomePage() {
             <section className="home-programs container" id="discover-programs" data-home-anchor aria-labelledby="discover-heading">
                 <div className="section-heading">
                     <div>
-                        <h2 data-text="heading" id="discover-heading">관람 일정</h2>
+                        <SystemText as="h2" variant="feature-heading" id="discover-heading">관람 일정</SystemText>
                     </div>
                     <Link data-text="action" className="text-link" href="/programs" id="home-program-all" data-home-anchor>
                         모든 프로그램 <Icon name="arrow" size={20} />
@@ -446,7 +446,7 @@ export default function HomePage() {
             {/* 5. 방문 안내와 호버 미리보기 (Visit Guide with Photographic Previews) */}
             <section className="home-visit container" id="plan-your-visit" data-home-anchor aria-labelledby="visit-heading">
                 <div className="section-heading">
-                    <h2 data-text="heading" id="visit-heading">오시는 길</h2>
+                    <SystemText as="h2" variant="feature-heading" id="visit-heading">오시는 길</SystemText>
                     <Link data-text="action" className="text-link home-visit-planner" href="/visit/plan" id="home-visit-planner" data-home-anchor>
                         방문 계획 만들기 <Icon name="arrow" size={20} />
                     </Link>
@@ -518,7 +518,7 @@ export default function HomePage() {
             <section className="home-news container" id="sejong-news" data-home-anchor aria-labelledby="news-heading">
                 <div className="section-heading">
                     <div>
-                        <h2 data-text="heading" id="news-heading">소식과 참여</h2>
+                        <SystemText as="h2" variant="feature-heading" id="news-heading">소식과 참여</SystemText>
                     </div>
                     <Link data-text="action" href="/news" className="text-link" id="home-news-all" data-home-anchor>
                         소식 전체 보기 <Icon name="arrow" size={20} />
