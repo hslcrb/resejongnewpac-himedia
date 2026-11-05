@@ -655,6 +655,19 @@ export const COMPONENT_USAGE = {
             "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog"
         ]
     },
+    "sejong-logo": {
+        "status": "product",
+        "productUses": [
+            "components/Footer.tsx#Footer",
+            "components/Header.tsx#Header"
+        ],
+        "guideUses": [
+            "app/design-rules/page.tsx#DesignRulesPage",
+            "app/design-rules/page.tsx#renderChapter",
+            "components/Footer.tsx#Footer",
+            "components/Header.tsx#Header"
+        ]
+    },
     "service-goods": {
         "status": "product",
         "productUses": [
@@ -743,8 +756,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 56,
-    "product": 56,
+    "total": 57,
+    "product": 57,
     "documentationOnly": 0,
     "unused": 0
 } as const;

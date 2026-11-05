@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
 import Link from "next/link";
 import Icon from "../../components/Icon";
+import SejongLogo, { SEJONG_LOGO_SRC } from "../../components/SejongLogo";
 import ProgramCard from "../../components/ProgramCard";
 import FloatingMenu from "../../components/FloatingMenu";
 import LiquidGlassDemo from "./_documentation/LiquidGlassDemo";
@@ -390,8 +391,7 @@ export default function DesignRulesPage() {
                                     ))}
                                 </div>
                                 <div className="ds-brand-stage" style={{ marginTop: 32 }}>
-                                    <img
-                                        src="/v5/assets/images/sejong-wordmark.png"
+                                    <SejongLogo
                                         width={236}
                                         height={43}
                                         alt="세종문화회관 로고"
@@ -438,8 +438,7 @@ export default function DesignRulesPage() {
                                 <div className="ds-two-columns">
                                     <div>
                                         <div className="ds-brand-stage">
-                                            <img
-                                                src="/v5/assets/images/sejong-wordmark.png"
+                                            <SejongLogo
                                                 alt="밝은 바탕의 세종문화회관 워드마크"
                                                 width={236}
                                                 height={43}
@@ -449,8 +448,7 @@ export default function DesignRulesPage() {
                                     </div>
                                     <div>
                                         <div className="ds-brand-stage ds-brand-stage-inverse">
-                                            <img
-                                                src="/v5/assets/images/sejong-wordmark.png"
+                                            <SejongLogo
                                                 alt="어두운 바탕의 반전 워드마크"
                                                 width={236}
                                                 height={43}
@@ -485,8 +483,7 @@ export default function DesignRulesPage() {
                                 <div className="ds-clearspace-stage">
                                     <div className="ds-clearspace">
                                         <span data-text="body">상하좌우 0.5x 이상</span>
-                                        <img
-                                            src="/v5/assets/images/sejong-wordmark.png"
+                                        <SejongLogo
                                             width={236}
                                             height={43}
                                             alt="보호 공간 안에 배치한 로고"
@@ -526,8 +523,7 @@ export default function DesignRulesPage() {
                                         <Icon name="check" size={24} />
                                         사용
                                     </strong>
-                                    <img
-                                        src="/v5/assets/images/sejong-wordmark.png"
+                                    <SejongLogo
                                         width={160}
                                         height={29}
                                         alt="원형을 유지한 로고"
@@ -539,8 +535,7 @@ export default function DesignRulesPage() {
                                         <Icon name="close" size={24} />
                                         피하기
                                     </strong>
-                                    <img
-                                        src="/v5/assets/images/sejong-wordmark.png"
+                                    <SejongLogo
                                         width={160}
                                         height={29}
                                         alt="사용 금지 예: 가로로 늘어나고 흐릿해진 로고"
@@ -1676,8 +1671,8 @@ export default function DesignRulesPage() {
                                     바꾸지 않습니다.
                                 </p>
                                 <div className="ds-inline-links">
-                                    <a data-text="action" href="/v5/assets/images/sejong-wordmark.png" download>
-                                        워드마크 PNG
+                                    <a data-text="action" href={SEJONG_LOGO_SRC} download>
+                                        워드마크 SVG
                                         <Icon name="download" size={20} />
                                     </a>
                                     <a data-text="action" href="/v5/assets/images/sejong-official-symbol.png" download>
@@ -1732,8 +1727,7 @@ export default function DesignRulesPage() {
         <div className="design-system-page">
             <header className="ds-doc-header">
                 <Link data-text="action" className="ds-doc-brand" href="/" aria-label="세종문화회관 홈">
-                    <img
-                        src="/v5/assets/images/sejong-wordmark.png"
+                    <SejongLogo
                         width={158}
                         height={29}
                         alt="세종문화회관"

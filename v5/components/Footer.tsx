@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SystemField } from "./SystemPrimitives";
+import SejongLogo from "./SejongLogo";
 
 export default function Footer() {
     const router = useRouter();
@@ -29,19 +30,11 @@ export default function Footer() {
             <div className="container footer-main">
                 <div className="footer-identity" id="footer-identity" data-home-anchor>
                     <Link data-text="action" href="/" aria-label="세종문화회관 홈">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
+                        <SejongLogo
                             className="sejong-wordmark"
-                            src="/v5/assets/images/sejong-wordmark.png"
                             alt="세종문화회관"
                             width={236}
                             height={43}
-                            onError={(e) => {
-                                const target = e.currentTarget;
-                                if (!target.src.includes("/assets/")) {
-                                    target.src = "/assets/images/sejong-wordmark.png";
-                                }
-                            }}
                         />
                     </Link>
                     <span className="identity-marks" aria-hidden="true">
