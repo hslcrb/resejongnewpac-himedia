@@ -9,6 +9,7 @@ import { SystemIconButton } from "./SystemPrimitives";
 import DeepSearch from "./DeepSearch";
 import SystemDialog from "./SystemDialog";
 import Icon from "./Icon";
+import SejongLogo from "./SejongLogo";
 import type { PanelPoint } from "../src/lib/floating-panel";
 import { warmPanelSnapshot } from "../src/lib/panel-snapshot";
 import useAccountIdentity from "./useAccountIdentity";
@@ -50,20 +51,11 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
         <header id="header" className="renewal-header" data-component-id="header" data-header-variant={headerVariant}>
             <div className="masthead container">
                 <Link data-text="action" href="/" className="sejong-brand" aria-label="세종문화회관 홈">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <SejongLogo
                         className="sejong-wordmark"
-                        src="/v5/assets/images/sejong-wordmark.png"
                         alt="세종문화회관"
                         width={236}
                         height={43}
-                        onError={(e) => {
-                            // fallback if basePath isn't prepended automatically
-                            const target = e.currentTarget;
-                            if (!target.src.includes("/assets/")) {
-                                target.src = "/assets/images/sejong-wordmark.png";
-                            }
-                        }}
                     />
                 </Link>
 
