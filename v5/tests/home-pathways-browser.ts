@@ -38,8 +38,8 @@ async function geometry(root: Locator) {
     assert.equal(values.length, 3);
     for (const value of values) {
         assert.ok(value.grouped);
-        assert.equal(value.icon.width, 26);
-        assert.equal(value.icon.height, 26);
+        assert.equal(value.icon.width, 32);
+        assert.equal(value.icon.height, 32);
         assert.ok(value.glyph.width > 0 && value.glyph.height > 0);
         assert.ok(value.glyph.x >= -0.1 && value.glyph.x + value.glyph.width <= 24.1);
         assert.ok(value.glyph.y >= -0.1 && value.glyph.y + value.glyph.height <= 24.1);
