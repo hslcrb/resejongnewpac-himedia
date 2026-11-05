@@ -145,5 +145,3 @@ test("home program filters use the shared pill shape without changing other filt
     const css = readFileSync(new URL("../styles/system-primitives.css", import.meta.url), "utf8");
     assert.match(css, /\.ds-button\[data-context\]\[data-shape="pill"\]\s*\{\s*border-radius:\s*var\(--radius-pill\);/);
 });
-
-
