@@ -3,7 +3,7 @@ import Icon from "./Icon";
 import { SystemText } from "./SystemText";
 import "../styles/home-pathways.css";
 
-export const HOME_PATHWAY_ICON_SIZE = 26;
+export const HOME_PATHWAY_ICON_SIZE = 32;
 export const HOME_PATHWAY_ARROW_SIZE = 22;
 
 const pathways = [
