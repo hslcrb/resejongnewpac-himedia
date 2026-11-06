@@ -71,6 +71,8 @@ export const COMPONENT_USAGE = {
     "badge": {
         "status": "product",
         "productUses": [
+            "app/admin/page.tsx#AdminCmsWorkspacePage",
+            "app/login/page.tsx#CmsLoginGatePage",
             "app/page.tsx#HomePage",
             "app/programs/[id]/ProgramDetailClient.tsx#ProgramDetailClient",
             "components/AccountPanels.tsx#AccountMembershipCard",
@@ -133,7 +135,9 @@ export const COMPONENT_USAGE = {
             "app/account/login/page.tsx#LoginPage",
             "app/account/recovery/page.tsx#RecoveryPage",
             "app/account/signup/page.tsx#SignupPage",
+            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
+            "app/login/page.tsx#CmsLoginGatePage",
             "app/page.tsx#HomePage",
             "components/AccountExperience.tsx#AccountExperience",
             "components/AccountExperience.tsx#profilePanel",
@@ -186,7 +190,9 @@ export const COMPONENT_USAGE = {
         "status": "product",
         "productUses": [
             "app/account/callback/page.tsx#AccountCallbackPage",
+            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
+            "app/login/page.tsx#CmsLoginGatePage",
             "app/not-found.tsx#NotFound",
             "app/page.tsx#HomePage",
             "app/programs/[id]/ProgramDetailClient.tsx#ProgramDetailClient",
@@ -270,6 +276,8 @@ export const COMPONENT_USAGE = {
     "control-group": {
         "status": "product",
         "productUses": [
+            "app/admin/page.tsx#AdminCmsWorkspacePage",
+            "app/login/page.tsx#CmsLoginGatePage",
             "components/CatalogPage.tsx#CatalogPage",
             "components/PageHeading.tsx#PageHeading"
         ],
@@ -337,6 +345,7 @@ export const COMPONENT_USAGE = {
             "app/account/login/page.tsx#LoginPage",
             "app/account/recovery/page.tsx#RecoveryPage",
             "app/account/signup/page.tsx#SignupPage",
+            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
             "app/page.tsx#HomePage",
             "app/programs/page.tsx#ProgramsPage",
@@ -369,6 +378,7 @@ export const COMPONENT_USAGE = {
     "filter-button": {
         "status": "product",
         "productUses": [
+            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/page.tsx#HomePage",
             "app/programs/page.tsx#ProgramsPage",
             "components/AccountExperience.tsx#AccountExperience",
@@ -508,6 +518,8 @@ export const COMPONENT_USAGE = {
         "productUses": [
             "app/account/login/page.tsx#LoginPage",
             "app/account/signup/page.tsx#SignupPage",
+            "app/admin/page.tsx#AdminCmsWorkspacePage",
+            "app/login/page.tsx#CmsLoginGatePage",
             "app/page.tsx#HomePage",
             "components/AccountExperience.tsx#bookingsPanel",
             "components/AccountExperience.tsx#favoritesPanel",
@@ -600,7 +612,9 @@ export const COMPONENT_USAGE = {
             "app/account/login/page.tsx#LoginPage",
             "app/account/recovery/page.tsx#RecoveryPage",
             "app/account/signup/page.tsx#SignupPage",
+            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
+            "app/login/page.tsx#CmsLoginGatePage",
             "app/programs/[id]/ProgramDetailClient.tsx#ProgramDetailClient",
             "components/AccountExperience.tsx#AccountExperience",
             "components/AccountExperience.tsx#profilePanel",
@@ -745,7 +759,9 @@ export const COMPONENT_USAGE = {
             "app/account/login/page.tsx#LoginPage",
             "app/account/recovery/page.tsx#RecoveryPage",
             "app/account/signup/page.tsx#SignupPage",
+            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
+            "app/login/page.tsx#CmsLoginGatePage",
             "app/not-found.tsx#NotFound",
             "app/page.tsx#HomePage",
             "components/AccountExperience.tsx#AccountExperience",

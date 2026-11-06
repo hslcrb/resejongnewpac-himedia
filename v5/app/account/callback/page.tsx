@@ -45,7 +45,17 @@ export default function AccountCallbackPage() {
             await exchange.current;
             // Remove the single-use authorization code from browser history.
             window.history.replaceState(null, "", window.location.pathname);
-            if (mounted) router.replace("/account");
+            let nextRoute = "/account";
+            try {
+                const requested = window.sessionStorage.getItem("sejong_post_oauth_route");
+                if (requested === "/login" || requested === "/admin") {
+                    nextRoute = requested;
+                }
+                window.sessionStorage.removeItem("sejong_post_oauth_route");
+            } catch {
+                nextRoute = "/account";
+            }
+            if (mounted) router.replace(nextRoute);
         };
         void complete().catch((cause) => {
             if (mounted)
