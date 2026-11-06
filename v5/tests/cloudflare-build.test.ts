@@ -52,7 +52,18 @@ test("superseding a build also terminates its grandchild process", async () => {
         pid = Number(readFileSync(file, "utf8"));
         let alive = true;
         for (let attempt = 0; attempt < 100; attempt++) {
-            try { process.kill(pid, 0); } catch { alive = false; break; }
+            try {
+                process.kill(pid, 0);
+                if (process.platform === "linux") {
+                    const stat = readFileSync(`/proc/${pid}/stat`, "utf8");
+                    const state = stat.slice(stat.lastIndexOf(")") + 2).split(" ")[0];
+                    if (state === "Z" || state === "X") { alive = false; break; }
+                }
+            } catch (error) {
+                const code = (error as NodeJS.ErrnoException).code;
+                if (code === "ESRCH" || code === "ENOENT") { alive = false; break; }
+                throw error;
+            }
             await new Promise(done => setTimeout(done, 20));
         }
         assert.equal(alive, false, "Superseded build left a running descendant");
