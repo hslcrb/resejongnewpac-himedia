@@ -45,7 +45,11 @@ export default function FloatingMenu({
             closeLabel="전체 메뉴 닫기"
             moveLabel="메뉴 위치 이동"
         >
-            <div className="glass-menu-content" data-component-id="floating-menu" data-component-owner="floating-panel">
+            <div
+                className="glass-menu-content"
+                data-component-id="floating-menu"
+                data-component-owner="floating-panel"
+            >
                 <div className="glass-menu-journeys">
                     <a data-text="action" href="/v5/visit/plan/">
                         <span data-text="body">관람할 날부터 이동 안내까지</span>
@@ -61,38 +65,64 @@ export default function FloatingMenu({
                     </a>
                 </div>
                 <nav data-text="body" className="glass-menu-columns" aria-label="전체 메뉴">
-                    {NAV.map((group) => drawer ? (
-                        <SystemDisclosure
-                            appearance="plain"
-                            className="glass-menu-group"
-                            key={group.id}
-                            summary={<>{group.title} <Icon name="chevron" size={24} /></>}
-                        >
-                            <div data-text="body" className="glass-menu-group-links">
-                                <a data-text="action" className="glass-menu-overview" href={`/v5${group.path}/`}>{group.title} 전체</a>
+                    {NAV.map((group) =>
+                        drawer ? (
+                            <SystemDisclosure
+                                appearance="plain"
+                                className="glass-menu-group"
+                                key={group.id}
+                                summary={
+                                    <>
+                                        {group.title} <Icon name="chevron" size={24} />
+                                    </>
+                                }
+                            >
+                                <div data-text="body" className="glass-menu-group-links">
+                                    <a
+                                        data-text="action"
+                                        className="glass-menu-overview"
+                                        href={`/v5${group.path}/`}
+                                    >
+                                        {group.title} 전체
+                                    </a>
+                                    {group.items.map(([label, path]) => (
+                                        <a data-text="action" key={path} href={`/v5${path}/`}>
+                                            {label}
+                                        </a>
+                                    ))}
+                                </div>
+                            </SystemDisclosure>
+                        ) : (
+                            <div data-text="body" key={group.id}>
+                                <a
+                                    data-text="action"
+                                    className="glass-menu-title"
+                                    href={`/v5${group.path}/`}
+                                >
+                                    {group.title}
+                                </a>
                                 {group.items.map(([label, path]) => (
-                                    <a data-text="action" key={path} href={`/v5${path}/`}>{label}</a>
+                                    <a data-text="action" key={path} href={`/v5${path}/`}>
+                                        {label}
+                                    </a>
                                 ))}
                             </div>
-                        </SystemDisclosure>
-                    ) : (
-                        <div data-text="body" key={group.id}>
-                            <a data-text="action" className="glass-menu-title" href={`/v5${group.path}/`}>
-                                {group.title}
-                            </a>
-                            {group.items.map(([label, path]) => (
-                                <a data-text="action" key={path} href={`/v5${path}/`}>
-                                    {label}
-                                </a>
-                            ))}
-                        </div>
-                    ))}
+                        ),
+                    )}
                 </nav>
                 <nav className="glass-menu-utilities" aria-label="개인 서비스">
-                    <a data-text="action" href="/v5/account/">마이페이지</a>
-                    <a data-text="action" href="/v5/account/">예매내역</a>
-                    <a data-text="action" href="/v5/account/">관심 프로그램</a>
-                    <a data-text="action" href="/v5/sitemap/">사이트맵</a>
+                    <a data-text="action" href="/v5/account/">
+                        마이페이지
+                    </a>
+                    <a data-text="action" href="/v5/account/">
+                        예매내역
+                    </a>
+                    <a data-text="action" href="/v5/account/">
+                        관심 프로그램
+                    </a>
+                    <a data-text="action" href="/v5/sitemap/">
+                        사이트맵
+                    </a>
                     <a data-text="action" href="/v5/english/" lang="en">
                         English guide
                     </a>

@@ -63,7 +63,9 @@ export default function ContextMenu() {
         const onKeyDown = (event: KeyboardEvent) => {
             const shell = shellRef.current;
             if (!shell) return;
-            const items = Array.from(shell.querySelectorAll<HTMLButtonElement>("button:not([disabled])"));
+            const items = Array.from(
+                shell.querySelectorAll<HTMLButtonElement>("button:not([disabled])"),
+            );
             const currentIndex = items.indexOf(document.activeElement as HTMLButtonElement);
             if (event.key === "Escape" || event.key === "Tab") {
                 event.preventDefault();
@@ -112,7 +114,9 @@ export default function ContextMenu() {
         const y = Math.max(MARGIN, Math.min(menu.y, window.innerHeight - rect.height - MARGIN));
         shell.style.left = `${x}px`;
         shell.style.top = `${y}px`;
-        shell.querySelector<HTMLButtonElement>("button:not([disabled])")?.focus({ preventScroll: true });
+        shell
+            .querySelector<HTMLButtonElement>("button:not([disabled])")
+            ?.focus({ preventScroll: true });
     }, [menu]);
 
     const close = (restoreFocus: boolean = false) => {
@@ -153,28 +157,36 @@ export default function ContextMenu() {
         actions.push({
             icon: "content_copy",
             label: "링크 주소 복사",
-            run: () => { void copyAddress(linkLocation.href); },
+            run: () => {
+                void copyAddress(linkLocation.href);
+            },
             closeAfter: false,
         });
     } else {
         actions.push({
             icon: "content_copy",
             label: "페이지 주소 복사",
-            run: () => { void copyAddress(window.location.href); },
+            run: () => {
+                void copyAddress(window.location.href);
+            },
             closeAfter: false,
         });
     }
 
     return createPortal(
-        <div data-text="body"
-            ref={shellRef} data-component-id="context-menu"
+        <div
+            data-text="body"
+            ref={shellRef}
+            data-component-id="context-menu"
             className={ContextMenuStyles.shell}
             role="menu"
             aria-label="페이지 바로가기 메뉴"
             style={{ left: menu.x, top: menu.y }}
         >
             <div data-text="body" className={ContextMenuStyles.list}>
-                <SystemButton data-text="action" variant="quiet"
+                <SystemButton
+                    data-text="action"
+                    variant="quiet"
                     style={{ justifyContent: "flex-start" }}
                     type="button"
                     role="menuitem"
@@ -185,7 +197,9 @@ export default function ContextMenu() {
                     새로 고침
                 </SystemButton>
                 {actions.map((action) => (
-                    <SystemButton data-text="action" variant="quiet"
+                    <SystemButton
+                        data-text="action"
+                        variant="quiet"
                         style={{ justifyContent: "flex-start" }}
                         key={action.label}
                         type="button"
@@ -200,7 +214,9 @@ export default function ContextMenu() {
                         {action.label}
                     </SystemButton>
                 ))}
-                <SystemButton data-text="action" variant="quiet"
+                <SystemButton
+                    data-text="action"
+                    variant="quiet"
                     style={{ justifyContent: "flex-start" }}
                     type="button"
                     role="menuitem"
@@ -211,7 +227,9 @@ export default function ContextMenu() {
                     <Icon name="undo" size={20} />
                     이전 페이지로
                 </SystemButton>
-                <SystemButton data-text="action" variant="quiet"
+                <SystemButton
+                    data-text="action"
+                    variant="quiet"
                     style={{ justifyContent: "flex-start" }}
                     type="button"
                     role="menuitem"
@@ -232,6 +250,6 @@ export default function ContextMenu() {
                 </>
             )}
         </div>,
-        document.body
+        document.body,
     );
 }

@@ -4,7 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { MouseEvent, ReactNode } from "react";
 import Link from "next/link";
 import Icon from "../../components/Icon";
-import HomePathways, { HOME_PATHWAY_ICON_SIZE, HOME_PATHWAY_ARROW_SIZE } from "../../components/HomePathways";
+import HomePathways, {
+    HOME_PATHWAY_ICON_SIZE,
+    HOME_PATHWAY_ARROW_SIZE,
+} from "../../components/HomePathways";
 import SejongLogo, { SEJONG_LOGO_SRC } from "../../components/SejongLogo";
 import PageHeading from "../../components/PageHeading";
 import ProgramCard from "../../components/ProgramCard";
@@ -81,7 +84,9 @@ const sampleTabs = ["공연", "전시", "교육"];
 
 // [팔레트 글자색도 중앙 토큰에 연결 / Bind palette specimen ink to central tokens]
 const paletteInkVariable = (hex: string) => {
-    const token = Object.entries(DESIGN_TOKEN_VALUES).find(([name, value]) => name.startsWith("--color-") && value.toUpperCase() === hex.toUpperCase())?.[0];
+    const token = Object.entries(DESIGN_TOKEN_VALUES).find(
+        ([name, value]) => name.startsWith("--color-") && value.toUpperCase() === hex.toUpperCase(),
+    )?.[0];
     if (!token) throw new Error("팔레트 글자색의 공통 토큰을 찾지 못했습니다.");
     return `var(${token})`;
 };
@@ -114,7 +119,9 @@ function Section({
 }) {
     return (
         <section data-text="body" className="ds-section" id={`${chapter}-${id}`} data-doc-section>
-            <h2 data-text="heading" tabIndex={-1}>{title}</h2>
+            <h2 data-text="heading" tabIndex={-1}>
+                {title}
+            </h2>
             {children}
         </section>
     );
@@ -145,7 +152,9 @@ function DataTable({
                     {rows.map((row, index) => (
                         <tr key={index}>
                             {row.map((cell, cellIndex) => (
-                                <td data-text="body" key={cellIndex}>{cell}</td>
+                                <td data-text="body" key={cellIndex}>
+                                    {cell}
+                                </td>
                             ))}
                         </tr>
                     ))}
@@ -178,7 +187,9 @@ export default function DesignRulesPage() {
     const navigationDialog = useRef<HTMLDialogElement>(null);
     const demoDialog = useRef<HTMLDialogElement>(null);
     const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const pendingTarget = useRef<{ chapter: ChapterId; anchor: string; example?: string } | null>(null);
+    const pendingTarget = useRef<{ chapter: ChapterId; anchor: string; example?: string } | null>(
+        null,
+    );
     const chapter = CHAPTERS.find((item) => item.id === chapterId)!;
     const chapterIndex = CHAPTERS.findIndex((item) => item.id === chapterId);
     const normalizedQuery = query.toLocaleLowerCase().replace(/\s/g, "");
@@ -232,7 +243,16 @@ export default function DesignRulesPage() {
             )
                 ? parts[1]
                 : "";
-            pendingTarget.current = { chapter: next.id, anchor, example: next.id === "components" && anchor === "registry" && /^example-[a-z0-9-]+$/.test(parts[2] || "") ? parts[2] : undefined };
+            pendingTarget.current = {
+                chapter: next.id,
+                anchor,
+                example:
+                    next.id === "components" &&
+                    anchor === "registry" &&
+                    /^example-[a-z0-9-]+$/.test(parts[2] || "")
+                        ? parts[2]
+                        : undefined,
+            };
             setMessage("");
             setCopied("");
             setChapterId(next.id);
@@ -266,9 +286,11 @@ export default function DesignRulesPage() {
         if (pending?.chapter === chapter.id) {
             pendingTarget.current = null;
             frame = requestAnimationFrame(() => {
-                const target = pending.example ? document.getElementById(pending.example) : pending.anchor
-                    ? document.getElementById(`${chapter.id}-${pending.anchor}`)
-                    : document.getElementById("doc-page-title");
+                const target = pending.example
+                    ? document.getElementById(pending.example)
+                    : pending.anchor
+                      ? document.getElementById(`${chapter.id}-${pending.anchor}`)
+                      : document.getElementById("doc-page-title");
                 if (pending.anchor && target) {
                     target.scrollIntoView({
                         block: "start",
@@ -293,10 +315,12 @@ export default function DesignRulesPage() {
         document
             .querySelectorAll("[data-doc-section]")
             .forEach((section) => observer.observe(section));
-        const stopTracking = trackScrollFragments(() => (chapter.sections as readonly (readonly [string, string])[]).flatMap(([section]) => {
-            const element = document.getElementById(`${chapter.id}-${section}`);
-            return element ? [{ element, fragment: `${chapter.id}/${section}` }] : [];
-        }));
+        const stopTracking = trackScrollFragments(() =>
+            (chapter.sections as readonly (readonly [string, string])[]).flatMap(([section]) => {
+                const element = document.getElementById(`${chapter.id}-${section}`);
+                return element ? [{ element, fragment: `${chapter.id}/${section}` }] : [];
+            }),
+        );
         return () => {
             if (frame) cancelAnimationFrame(frame);
             observer.disconnect();
@@ -327,12 +351,16 @@ export default function DesignRulesPage() {
         setMessage("디자인 토큰 CSS 파일을 내려받았습니다.");
     };
     const navigationLinks = (mobile = false) => (
-        <nav data-text="body" aria-label={mobile ? "모바일 디자인 시스템 분류" : "디자인 시스템 분류"}>
+        <nav
+            data-text="body"
+            aria-label={mobile ? "모바일 디자인 시스템 분류" : "디자인 시스템 분류"}
+        >
             {groups.map((group) => (
                 <div data-text="body" className="ds-nav-group" key={group}>
                     <p data-text="body">{group}</p>
                     {CHAPTERS.filter((item) => item.group === group).map((item) => (
-                        <a data-text="action"
+                        <a
+                            data-text="action"
                             key={item.id}
                             href={`#${item.id}`}
                             aria-current={chapterId === item.id ? "page" : undefined}
@@ -393,11 +421,7 @@ export default function DesignRulesPage() {
                                     ))}
                                 </div>
                                 <div className="ds-brand-stage" style={{ marginTop: 32 }}>
-                                    <SejongLogo
-                                        width={236}
-                                        height={43}
-                                        alt="세종문화회관 로고"
-                                    />
+                                    <SejongLogo width={236} height={43} alt="세종문화회관 로고" />
                                 </div>
                                 <p data-text="caption" className="ds-caption">
                                     웹사이트에 사용하는 색상과 글자, 컴포넌트의 적용 기준입니다.
@@ -409,12 +433,15 @@ export default function DesignRulesPage() {
                             "시스템의 구성",
                             <div data-text="body" className="ds-chapter-list">
                                 {CHAPTERS.slice(1).map((item, index) => (
-                                    <a data-text="action"
+                                    <a
+                                        data-text="action"
                                         key={item.id}
                                         href={`#${item.id}`}
                                         onClick={(event) => navigate(item.id, "", event)}
                                     >
-                                        <span data-text="body">{String(index + 1).padStart(2, "0")}</span>
+                                        <span data-text="body">
+                                            {String(index + 1).padStart(2, "0")}
+                                        </span>
                                         <div>
                                             <strong data-text="item-title">{item.label}</strong>
                                             <p data-text="body">{item.description}</p>
@@ -446,7 +473,9 @@ export default function DesignRulesPage() {
                                                 height={43}
                                             />
                                         </div>
-                                        <p data-text="caption" className="ds-caption">기본형 · 밝은 바탕</p>
+                                        <p data-text="caption" className="ds-caption">
+                                            기본형 · 밝은 바탕
+                                        </p>
                                     </div>
                                     <div>
                                         <div className="ds-brand-stage ds-brand-stage-inverse">
@@ -456,7 +485,9 @@ export default function DesignRulesPage() {
                                                 height={43}
                                             />
                                         </div>
-                                        <p data-text="caption" className="ds-caption">반전형 · 어두운 바탕</p>
+                                        <p data-text="caption" className="ds-caption">
+                                            반전형 · 어두운 바탕
+                                        </p>
                                     </div>
                                 </div>
                                 <h3 data-text="subheading">보와 기둥</h3>
@@ -525,12 +556,10 @@ export default function DesignRulesPage() {
                                         <Icon name="check" size={24} />
                                         사용
                                     </strong>
-                                    <SejongLogo
-                                        width={160}
-                                        height={29}
-                                        alt="원형을 유지한 로고"
-                                    />
-                                    <p data-text="body">비율과 색을 유지하고 단색의 충분한 여백 위에 놓습니다.</p>
+                                    <SejongLogo width={160} height={29} alt="원형을 유지한 로고" />
+                                    <p data-text="body">
+                                        비율과 색을 유지하고 단색의 충분한 여백 위에 놓습니다.
+                                    </p>
                                 </div>
                                 <div className="ds-rule-example" data-incorrect>
                                     <strong data-text="item-title">
@@ -575,7 +604,9 @@ export default function DesignRulesPage() {
                                     ))}
                                 </div>
                                 <ul className="ds-rules-list">
-                                    <li data-text="body">아이콘의 색은 주변 글자의 currentColor를 따릅니다.</li>
+                                    <li data-text="body">
+                                        아이콘의 색은 주변 글자의 currentColor를 따릅니다.
+                                    </li>
                                     <li data-text="body">
                                         장식 아이콘은 읽기 순서에서 숨기고, 아이콘만 있는 버튼에는
                                         행동 이름을 제공합니다.
@@ -585,8 +616,23 @@ export default function DesignRulesPage() {
                                     </li>
                                 </ul>
                                 <h3 data-text="subheading">헤더 액션 그룹</h3>
-                                <p data-text="body">검색·전체 메뉴 두 아이콘은 <code data-text="body">group="header-action"</code>으로 구분합니다. 내부 기호는 28px, 원형 조작 영역은 48px이며 중앙 정렬과 원래 비율을 유지합니다. 일반 아이콘은 기존 크기를 사용합니다.</p>
-                                <div className="ds-icon-grid">{HEADER_ACTION_ICONS.map(name => <div key={name}><Icon name={name} group="header-action" /><span data-text="utility">{name === "search" ? "헤더 검색" : "헤더 전체 메뉴"}</span></div>)}</div>
+                                <p data-text="body">
+                                    {"검색·전체 메뉴 두 아이콘은 "}
+                                    <code data-text="body">group="header-action"</code>으로
+                                    구분합니다. 내부 기호는 28px, 원형 조작 영역은 48px이며 중앙
+                                    정렬과 원래 비율을 유지합니다. 일반 아이콘은 기존 크기를
+                                    사용합니다.
+                                </p>
+                                <div className="ds-icon-grid">
+                                    {HEADER_ACTION_ICONS.map((name) => (
+                                        <div key={name}>
+                                            <Icon name={name} group="header-action" />
+                                            <span data-text="utility">
+                                                {name === "search" ? "헤더 검색" : "헤더 전체 메뉴"}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
                             </>,
                         )}
                     </>
@@ -615,8 +661,11 @@ export default function DesignRulesPage() {
                                                 <span data-text="body">Aa</span>
                                             </div>
                                             <h3 data-text="subheading">{color.name}</h3>
-                                            <code data-text="caption" className="ds-token">--{color.token}</code>
-                                            <button data-text="action"
+                                            <code data-text="caption" className="ds-token">
+                                                --{color.token}
+                                            </code>
+                                            <button
+                                                data-text="action"
                                                 className="ds-copy-color"
                                                 onClick={() => copyValue(color.hex, color.name)}
                                                 aria-label={`${color.name} ${color.hex} 복사`}
@@ -679,30 +728,46 @@ export default function DesignRulesPage() {
                                         ["어스 블랙 / 하늘", "--color-black", "--color-sky"],
                                         ["어스 블랙 / 노랑", "--color-black", "--color-yellow"],
                                         ["진한 글자 / 황토", "--color-ink-strong", "--color-ochre"],
-                                        ["보조 글자 / 웜 화이트", "--color-gray-600", "--color-white"],
+                                        [
+                                            "보조 글자 / 웜 화이트",
+                                            "--color-gray-600",
+                                            "--color-white",
+                                        ],
                                         ["웜 화이트 / 하늘", "--color-white", "--color-sky"],
                                     ].map(([label, inkToken, backgroundToken]) => {
-                                        const ink = DESIGN_TOKEN_VALUES[inkToken as keyof typeof DESIGN_TOKEN_VALUES];
-                                        const background = DESIGN_TOKEN_VALUES[backgroundToken as keyof typeof DESIGN_TOKEN_VALUES];
+                                        const ink =
+                                            DESIGN_TOKEN_VALUES[
+                                                inkToken as keyof typeof DESIGN_TOKEN_VALUES
+                                            ];
+                                        const background =
+                                            DESIGN_TOKEN_VALUES[
+                                                backgroundToken as keyof typeof DESIGN_TOKEN_VALUES
+                                            ];
                                         return [
-                                        label,
-                                        <span data-text="body"
-                                            className="ds-contrast-sample"
-                                            key={label}
-                                            style={{ color: `var(${inkToken})`, background: `var(${backgroundToken})` }}
-                                        >
-                                            가독성
-                                        </span>,
-                                        `${contrastRatio(ink, background).toFixed(2)} : 1`,
-                                        contrastRatio(ink, background) >= 4.5
-                                            ? "사용 가능"
-                                            : "피하기",
-                                    ]; })}
+                                            label,
+                                            <span
+                                                data-text="body"
+                                                className="ds-contrast-sample"
+                                                key={label}
+                                                style={{
+                                                    color: `var(${inkToken})`,
+                                                    background: `var(${backgroundToken})`,
+                                                }}
+                                            >
+                                                가독성
+                                            </span>,
+                                            `${contrastRatio(ink, background).toFixed(2)} : 1`,
+                                            contrastRatio(ink, background) >= 4.5
+                                                ? "사용 가능"
+                                                : "피하기",
+                                        ];
+                                    })}
                                 />
                                 <p data-text="caption" className="ds-caption">
                                     색만으로 오류·선택·성공을 알리지 않습니다. 아이콘, 문장과 상태
                                     속성을 함께 사용합니다.{" "}
-                                    <a data-text="action"
+                                    <a
+                                        data-text="action"
                                         href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html"
                                         target="_blank"
                                         rel="noreferrer"
@@ -728,18 +793,24 @@ export default function DesignRulesPage() {
                                 </SystemText>
                                 <p data-text="body">
                                     파일 경로·코드·토큰은 로컬 D2Coding을 사용합니다. 한글과 영문을
-                                    고정폭으로 맞추고, 코드의 들여쓰기와 16px 최소 크기를 유지합니다.
+                                    고정폭으로 맞추고, 코드의 들여쓰기와 16px 최소 크기를
+                                    유지합니다.
                                 </p>
                                 {/* 공유 텍스트 속성의 실제 사용 / Live use of shared text properties */}
                                 <p {...textAttributes("caption")} className="ds-caption">
                                     새 텍스트는 SystemText의 variant로 역할을 고릅니다. 기존
                                     제목·링크·레이블은 data-text 또는 textAttributes로 같은 역할에
                                     연결하며, HTML의 의미와 조작은 유지합니다. size를 지정할 때도
-                                    역할 또는 control·hero-with-companion·hero-standalone·quick-action 크기를 사용합니다.
+                                    역할 또는
+                                    control·hero-with-companion·hero-standalone·quick-action 크기를
+                                    사용합니다.
                                 </p>
-                                <CodeBlock title="SystemText.tsx" code={`<SystemText as="h2" variant="feature-heading">관람 예약</SystemText>
+                                <CodeBlock
+                                    title="SystemText.tsx"
+                                    code={`<SystemText as="h2" variant="feature-heading">관람 예약</SystemText>
 <p {...textAttributes("caption")}>날짜와 관람 안내</p>
-<SystemText variant="body" size="lead">예매한 일정을 확인하세요.</SystemText>`} />
+<SystemText variant="body" size="lead">예매한 일정을 확인하세요.</SystemText>`}
+                                />
                                 <div className="ds-type-intro">
                                     <strong data-text="item-title">
                                         가나다, 세종.
@@ -773,10 +844,13 @@ export default function DesignRulesPage() {
                                                     : `${type.mobile}–${type.size}`}
                                                 px · {type.weight}
                                             </span>
-                                            <code data-text="caption" className="ds-token">--{type.token}</code>
+                                            <code data-text="caption" className="ds-token">
+                                                --{type.token}
+                                            </code>
                                         </div>
                                         <div className="ds-type-sample">
-                                            <div data-text="body"
+                                            <div
+                                                data-text="body"
                                                 style={{
                                                     fontSize: `var(--${type.token})`,
                                                     fontWeight: type.weight,
@@ -793,7 +867,8 @@ export default function DesignRulesPage() {
                                 ))}
                                 <p data-text="caption" className="ds-caption">
                                     본문 자간 −0.015em, 제목 자간 −0.035em. 제목과 본문의 위계는
-                                    공유 텍스트 역할에서 관리하며, 보조 정보도 최소 16px를 유지합니다.
+                                    공유 텍스트 역할에서 관리하며, 보조 정보도 최소 16px를
+                                    유지합니다.
                                 </p>
                             </>,
                         )}
@@ -801,7 +876,8 @@ export default function DesignRulesPage() {
                             "specimen",
                             "직접 조합하기",
                             <>
-                                <SystemField data-text="body"
+                                <SystemField
+                                    data-text="body"
                                     id="type-specimen-text"
                                     label="확인할 문장"
                                     value={specimen}
@@ -811,36 +887,41 @@ export default function DesignRulesPage() {
                                 />
                                 <div className="ds-specimen" style={{ marginTop: 24 }}>
                                     <div className="ds-specimen-controls">
-                                            <SystemField data-text="body"
-                                                as="select"
-                                                label="크기"
-                                                id="type-size"
-                                                value={specimenSize}
-                                                onChange={(event) =>
-                                                    setSpecimenSize(Number(event.target.value))
-                                                }
-                                            >
-                                                {[16, 18, 20, 24, 32, 48, 64].map((size) => (
-                                                    <option data-text="label" key={size} value={size}>
-                                                        {size}px
-                                                    </option>
-                                                ))}
-                                            </SystemField>
-                                            <SystemField data-text="body"
-                                                as="select"
-                                                label="굵기"
-                                                id="type-weight"
-                                                value={specimenWeight}
-                                                onChange={(event) =>
-                                                    setSpecimenWeight(Number(event.target.value))
-                                                }
-                                            >
-                                                {[400, 500, 600, 700].map((weight) => (
-                                                    <option data-text="label" key={weight}>{weight}</option>
-                                                ))}
-                                            </SystemField>
+                                        <SystemField
+                                            data-text="body"
+                                            as="select"
+                                            label="크기"
+                                            id="type-size"
+                                            value={specimenSize}
+                                            onChange={(event) =>
+                                                setSpecimenSize(Number(event.target.value))
+                                            }
+                                        >
+                                            {[16, 18, 20, 24, 32, 48, 64].map((size) => (
+                                                <option data-text="label" key={size} value={size}>
+                                                    {size}px
+                                                </option>
+                                            ))}
+                                        </SystemField>
+                                        <SystemField
+                                            data-text="body"
+                                            as="select"
+                                            label="굵기"
+                                            id="type-weight"
+                                            value={specimenWeight}
+                                            onChange={(event) =>
+                                                setSpecimenWeight(Number(event.target.value))
+                                            }
+                                        >
+                                            {[400, 500, 600, 700].map((weight) => (
+                                                <option data-text="label" key={weight}>
+                                                    {weight}
+                                                </option>
+                                            ))}
+                                        </SystemField>
                                     </div>
-                                    <div data-text="body"
+                                    <div
+                                        data-text="body"
                                         className="ds-live-type"
                                         data-type-specimen
                                         style={{
@@ -865,19 +946,31 @@ export default function DesignRulesPage() {
                             <>
                                 <p data-text="body">
                                     콘텐츠는 최대 {tokenPixels("--container")}까지 넓게 사용합니다.
-                                    문단은 {DESIGN_TOKEN_VALUES["--content-reading-width"]}, 입력 양식은 용도에 맞는 읽기 폭을 따로 둡니다.
-                                    카드와 목록은 남는 너비를 채우고 버튼과 레이블은 내용에 맞춰 늘어납니다.
+                                    문단은 {DESIGN_TOKEN_VALUES["--content-reading-width"]}, 입력
+                                    양식은 용도에 맞는 읽기 폭을 따로 둡니다. 카드와 목록은 남는
+                                    너비를 채우고 버튼과 레이블은 내용에 맞춰 늘어납니다.
                                 </p>
-                                <div data-text="body" className="ds-grid-sample" aria-label="반응형 그리드 예제">
+                                <div
+                                    data-text="body"
+                                    className="ds-grid-sample"
+                                    aria-label="반응형 그리드 예제"
+                                >
                                     {Array.from({ length: 12 }, (_, index) => (
-                                        <span data-text="body" key={index}>{index + 1}</span>
+                                        <span data-text="body" key={index}>
+                                            {index + 1}
+                                        </span>
                                     ))}
                                 </div>
                                 <DataTable
                                     label="화면 크기별 레이아웃 기준"
                                     headings={["화면", "분할", "권장 좌우 여백", "읽기"]}
                                     rows={[
-                                        ["1280px 이상", "12열", "32–48px", "넓은 목록과 별도 읽기 폭"],
+                                        [
+                                            "1280px 이상",
+                                            "12열",
+                                            "32–48px",
+                                            "넓은 목록과 별도 읽기 폭",
+                                        ],
                                         ["768–1279px", "8열", "20–32px", "본문 중심 배치"],
                                         ["767px 이하", "4열", "20px", "한 열, 문서 탐색은 메뉴로"],
                                     ]}
@@ -886,10 +979,26 @@ export default function DesignRulesPage() {
                                     label="내용과 공간에 따른 크기 결정"
                                     headings={["요소", "크기 결정", "적용 원칙"]}
                                     rows={[
-                                        ["페이지와 목록", "남는 너비 채우기", "minmax(0, 1fr)와 반응형 열"],
-                                        ["버튼과 상태", "내용에 맞추기", "높이는 최소 48px, 긴 글은 줄바꿈"],
-                                        ["문단과 입력", "읽기 폭 안에서 채우기", "넓은 프레임과 본문의 폭을 분리"],
-                                        ["아이콘과 좌석", "역할에 필요한 고정 크기", "아이콘 비례와 좌석의 공간 관계 유지"],
+                                        [
+                                            "페이지와 목록",
+                                            "남는 너비 채우기",
+                                            "minmax(0, 1fr)와 반응형 열",
+                                        ],
+                                        [
+                                            "버튼과 상태",
+                                            "내용에 맞추기",
+                                            "높이는 최소 48px, 긴 글은 줄바꿈",
+                                        ],
+                                        [
+                                            "문단과 입력",
+                                            "읽기 폭 안에서 채우기",
+                                            "넓은 프레임과 본문의 폭을 분리",
+                                        ],
+                                        [
+                                            "아이콘과 좌석",
+                                            "역할에 필요한 고정 크기",
+                                            "아이콘 비례와 좌석의 공간 관계 유지",
+                                        ],
                                     ]}
                                 />
                             </>,
@@ -905,7 +1014,9 @@ export default function DesignRulesPage() {
                                 {SPACE_SCALE.map((value) => (
                                     <div className="ds-space-row" key={value}>
                                         <strong data-text="item-title">{value}px</strong>
-                                        <code data-text="caption" className="ds-token">space-{value / 4}</code>
+                                        <code data-text="caption" className="ds-token">
+                                            space-{value / 4}
+                                        </code>
                                         <span className="ds-space-bar" style={{ width: value }} />
                                     </div>
                                 ))}
@@ -915,25 +1026,42 @@ export default function DesignRulesPage() {
                             "shape",
                             "형태와 경계",
                             <>
-                                <p data-text="body">일반 경계는 옅은 1px 안쪽 선입니다. 버튼·입력·패널은 inset 표면을 공유하고, 초점선도 안쪽에 표시해 크기와 배치가 바뀌지 않습니다. 곡률과 선 색은 아래 토큰에서 함께 관리합니다.</p>
+                                <p data-text="body">
+                                    일반 경계는 옅은 1px 안쪽 선입니다. 버튼·입력·패널은 inset
+                                    표면을 공유하고, 초점선도 안쪽에 표시해 크기와 배치가 바뀌지
+                                    않습니다. 곡률과 선 색은 아래 토큰에서 함께 관리합니다.
+                                </p>
                                 <div data-text="body" className="ds-shape-grid">
-                                    {([
-                                        ["--radius-control", "기본 조작", "버튼·입력·작은 패널"],
-                                        ["--radius-flow", "신청·계정", "flow 버튼·입력"],
-                                        ["--radius-media", "미디어", "포스터·사진"],
-                                        ["--surface-radius-panel", "공통 패널", "안내·계정·예매 표면"],
-                                        ["--radius-banner", "배너", "히어로·영상 프레임"],
-                                        ["--radius-dialog", "대화상자", "모달·안내 패널"],
-                                    ] as const).map(([token, label, text]) => (
+                                    {(
+                                        [
+                                            [
+                                                "--radius-control",
+                                                "기본 조작",
+                                                "버튼·입력·작은 패널",
+                                            ],
+                                            ["--radius-flow", "신청·계정", "flow 버튼·입력"],
+                                            ["--radius-media", "미디어", "포스터·사진"],
+                                            [
+                                                "--surface-radius-panel",
+                                                "공통 패널",
+                                                "안내·계정·예매 표면",
+                                            ],
+                                            ["--radius-banner", "배너", "히어로·영상 프레임"],
+                                            ["--radius-dialog", "대화상자", "모달·안내 패널"],
+                                        ] as const
+                                    ).map(([token, label, text]) => (
                                         <div key={token}>
-                                            <div data-text="body"
+                                            <div
+                                                data-text="body"
                                                 className="ds-shape-sample"
                                                 style={{ borderRadius: `var(${token})` }}
                                             >
                                                 {tokenPixels(token)}
                                             </div>
                                             <strong data-text="item-title">{label}</strong>
-                                            <p data-text="caption" className="ds-caption">{text}</p>
+                                            <p data-text="caption" className="ds-caption">
+                                                {text}
+                                            </p>
                                         </div>
                                     ))}
                                 </div>
@@ -951,16 +1079,37 @@ export default function DesignRulesPage() {
                                     </li>
                                 </ul>
                                 {/* 공통 표면과 중첩 정보 예제 / Shared surface and nested information example */}
-                                <SystemSurface as="section" variant="subtle" padding="lg" radius="panel" aria-labelledby="surface-demo-heading">
-                                    <SystemText as="h3" variant="item-title" id="surface-demo-heading">공통 안내 패널</SystemText>
-                                    <p data-text="body">SystemSurface는 기존 section·aside·form의 의미를 보존하며 배경과 경계를 공통 토큰에 연결합니다.</p>
+                                <SystemSurface
+                                    as="section"
+                                    variant="subtle"
+                                    padding="lg"
+                                    radius="panel"
+                                    aria-labelledby="surface-demo-heading"
+                                >
+                                    <SystemText
+                                        as="h3"
+                                        variant="item-title"
+                                        id="surface-demo-heading"
+                                    >
+                                        공통 안내 패널
+                                    </SystemText>
+                                    <p data-text="body">
+                                        SystemSurface는 기존 section·aside·form의 의미를 보존하며
+                                        배경과 경계를 공통 토큰에 연결합니다.
+                                    </p>
                                     <SystemSurface variant="inset" padding="sm" radius="compact">
-                                        <p data-text="caption">안쪽의 관련 정보는 inset 표면으로 구분합니다. 여백과 모서리는 속성으로 선택합니다.</p>
+                                        <p data-text="caption">
+                                            안쪽의 관련 정보는 inset 표면으로 구분합니다. 여백과
+                                            모서리는 속성으로 선택합니다.
+                                        </p>
                                     </SystemSurface>
                                 </SystemSurface>
-                                <CodeBlock title="SystemSurface.tsx" code={`<SystemSurface as="section" variant="subtle" padding="lg" radius="panel">
+                                <CodeBlock
+                                    title="SystemSurface.tsx"
+                                    code={`<SystemSurface as="section" variant="subtle" padding="lg" radius="panel">
     <SystemText as="h3" variant="item-title">공통 안내 패널</SystemText>
-</SystemSurface>`} />
+</SystemSurface>`}
+                                />
                             </>,
                         )}
                     </>
@@ -974,13 +1123,16 @@ export default function DesignRulesPage() {
                             "버튼",
                             <>
                                 <p data-text="body">
-                                    {tokenPixels("--control-size")} 높이와 {tokenPixels("--radius-control")} 모서리,
-                                    16px 레이블을 기본으로 합니다. 한 영역의 주요 행동은
-                                    하나로 정하고 나머지 행동은 우선순위를 낮춥니다.
+                                    {tokenPixels("--control-size")}
+                                    {" 높이와 "}
+                                    {tokenPixels("--radius-control")} 모서리, 16px 레이블을 기본으로
+                                    합니다. 한 영역의 주요 행동은 하나로 정하고 나머지 행동은
+                                    우선순위를 낮춥니다.
                                 </p>
                                 <div className="ds-demo ds-demo-stack">
                                     <div className="ds-demo-row">
-                                        <SystemButton data-text="action"
+                                        <SystemButton
+                                            data-text="action"
                                             onClick={() =>
                                                 setMessage("주요 행동 버튼을 눌렀습니다.")
                                             }
@@ -988,7 +1140,8 @@ export default function DesignRulesPage() {
                                             예매하기
                                             <Icon name="arrow" size={20} />
                                         </SystemButton>
-                                        <SystemButton data-text="action"
+                                        <SystemButton
+                                            data-text="action"
                                             variant="secondary"
                                             onClick={() =>
                                                 setMessage("보조 행동 버튼을 눌렀습니다.")
@@ -996,13 +1149,15 @@ export default function DesignRulesPage() {
                                         >
                                             상세 안내
                                         </SystemButton>
-                                        <SystemButton data-text="action"
+                                        <SystemButton
+                                            data-text="action"
                                             variant="accent"
                                             onClick={() => setMessage("탐색 버튼을 눌렀습니다.")}
                                         >
                                             일정 찾기
                                         </SystemButton>
-                                        <SystemButton data-text="action"
+                                        <SystemButton
+                                            data-text="action"
                                             variant="highlight"
                                             onClick={() => setMessage("강조 버튼을 눌렀습니다.")}
                                         >
@@ -1010,40 +1165,86 @@ export default function DesignRulesPage() {
                                         </SystemButton>
                                     </div>
                                     <div className="ds-demo-row">
-                                        <SystemButton data-text="action" disabled>예매 준비 중</SystemButton>
-                                        <SystemButton data-text="action"
+                                        <SystemButton data-text="action" disabled>
+                                            예매 준비 중
+                                        </SystemButton>
+                                        <SystemButton
+                                            data-text="action"
                                             variant="quiet"
                                             onClick={() => setMessage("취소 버튼을 눌렀습니다.")}
                                         >
                                             취소
                                         </SystemButton>
-                                        <SystemButton data-text="action"
+                                        <SystemButton
+                                            data-text="action"
                                             context="flow"
                                             aria-label="flow 버튼 규격"
-                                            onClick={() => setMessage("flow 버튼의 조작을 확인했습니다.")}
+                                            onClick={() =>
+                                                setMessage("flow 버튼의 조작을 확인했습니다.")
+                                            }
                                         >
                                             flow 버튼 규격
                                         </SystemButton>
                                     </div>
                                     <p data-text="caption" className="ds-caption">
-                                        flow 버튼은 {tokenPixels("--control-flow-button-size")} 높이와
-                                        {" "}{tokenPixels("--radius-flow")} 모서리를 사용합니다.
+                                        flow 버튼은 {tokenPixels("--control-flow-button-size")}
+                                        {" 높이와"}
+                                        {" "}
+                                        {tokenPixels("--radius-flow")} 모서리를 사용합니다.
                                     </p>
                                     <div className="ds-demo-row ds-overlay-controls">
-                                        <SystemButton data-text="action" variant="inverse" onClick={() => setMessage("이미지 위의 주요 행동입니다.")}>상세보기</SystemButton>
-                                        <SystemButton data-text="action" variant="inverse-outline" onClick={() => setMessage("이미지 위의 보조 행동입니다.")}>예매하기</SystemButton>
-                                        <SystemButton data-text="action" variant="inverse-quiet" onClick={() => setMessage("히어로의 양옆 작품을 선택하는 같은 버튼입니다.")}>다음 작품 <Icon name="arrow" size={20} /></SystemButton>
+                                        <SystemButton
+                                            data-text="action"
+                                            variant="inverse"
+                                            onClick={() =>
+                                                setMessage("이미지 위의 주요 행동입니다.")
+                                            }
+                                        >
+                                            상세보기
+                                        </SystemButton>
+                                        <SystemButton
+                                            data-text="action"
+                                            variant="inverse-outline"
+                                            onClick={() =>
+                                                setMessage("이미지 위의 보조 행동입니다.")
+                                            }
+                                        >
+                                            예매하기
+                                        </SystemButton>
+                                        <SystemButton
+                                            data-text="action"
+                                            variant="inverse-quiet"
+                                            onClick={() =>
+                                                setMessage(
+                                                    "히어로의 양옆 작품을 선택하는 같은 버튼입니다.",
+                                                )
+                                            }
+                                        >
+                                            다음 작품 <Icon name="arrow" size={20} />
+                                        </SystemButton>
                                     </div>
-                                    <p data-text="caption" className="ds-caption">inverse-quiet는 사진 위에서 테두리 없이 사용하는 반전 버튼입니다. 히어로의 인접 작품 제목에 같은 구현을 사용합니다.</p>
+                                    <p data-text="caption" className="ds-caption">
+                                        inverse-quiet는 사진 위에서 테두리 없이 사용하는 반전
+                                        버튼입니다. 히어로의 인접 작품 제목에 같은 구현을
+                                        사용합니다.
+                                    </p>
                                 </div>
                                 <DataTable
                                     label="버튼의 조작 상태"
                                     headings={["상태", "표현", "동작"]}
                                     rows={[
                                         ["기본", "역할에 맞는 면과 레이블", "고정된 위치"],
-                                        ["호버", "배경·경계의 명도 변화", DESIGN_TOKEN_VALUES["--duration-feedback"]],
+                                        [
+                                            "호버",
+                                            "배경·경계의 명도 변화",
+                                            DESIGN_TOKEN_VALUES["--duration-feedback"],
+                                        ],
                                         ["눌림", "면의 명도 변화", "실제 누르고 있는 동안"],
-                                        ["초점", `${DESIGN_TOKEN_VALUES["--focus-width"]} 안쪽 초점선 · offset ${DESIGN_TOKEN_VALUES["--focus-offset"]}`, "키보드에서 분명하게 · 배치 변화 없음"],
+                                        [
+                                            "초점",
+                                            `${DESIGN_TOKEN_VALUES["--focus-width"]} 안쪽 초점선 · offset ${DESIGN_TOKEN_VALUES["--focus-offset"]}`,
+                                            "키보드에서 분명하게 · 배치 변화 없음",
+                                        ],
                                         ["비활성", "비활성 면 + 상태 문구", "실제 disabled 속성"],
                                     ]}
                                 />
@@ -1065,7 +1266,9 @@ export default function DesignRulesPage() {
                                     <div>
                                         <h3 data-text="subheading">정보의 순서</h3>
                                         <ol className="ds-rules-list">
-                                            <li data-text="body">3:4 포스터, 여백 없이 비율 유지 크롭</li>
+                                            <li data-text="body">
+                                                3:4 포스터, 여백 없이 비율 유지 크롭
+                                            </li>
                                             <li data-text="body">분류와 상태</li>
                                             <li data-text="body">20px 제목</li>
                                             <li data-text="body">16px 일정과 장소</li>
@@ -1090,13 +1293,15 @@ export default function DesignRulesPage() {
                                 </p>
                                 <div className="ds-demo ds-demo-stack">
                                     <div className="ds-two-columns">
-                                        <SystemField data-text="body"
+                                        <SystemField
+                                            data-text="body"
                                             id="demo-field-default"
                                             label="기본 입력 규격"
                                             placeholder="기본 조작"
                                             hint={`${tokenPixels("--control-size")} 높이 · ${tokenPixels("--radius-control")} 모서리`}
                                         />
-                                        <SystemField data-text="body"
+                                        <SystemField
+                                            data-text="body"
                                             id="demo-field-flow"
                                             variant="flow"
                                             label="flow 입력 규격"
@@ -1105,13 +1310,15 @@ export default function DesignRulesPage() {
                                         />
                                     </div>
                                     <div className="ds-two-columns">
-                                        <SystemField data-text="body"
+                                        <SystemField
+                                            data-text="body"
                                             id="demo-name"
                                             label="이름"
                                             placeholder="관람하실 분의 이름"
                                             hint="공백을 포함해 입력할 수 있습니다."
                                         />
-                                        <SystemField data-text="body"
+                                        <SystemField
+                                            data-text="body"
                                             id="demo-error"
                                             label="이메일"
                                             type="email"
@@ -1119,14 +1326,18 @@ export default function DesignRulesPage() {
                                             error="이메일 주소를 끝까지 입력해 주세요."
                                         />
                                     </div>
-                                    <SystemField data-text="body"
+                                    <SystemField
+                                        data-text="body"
                                         id="demo-disabled"
                                         label="예매 번호"
                                         value="예매 후 확인할 수 있습니다"
                                         disabled
                                         readOnly
                                     />
-                                    <SystemCheckbox data-text="label" label="선택한 관람 정보를 확인했습니다." />
+                                    <SystemCheckbox
+                                        data-text="label"
+                                        label="선택한 관람 정보를 확인했습니다."
+                                    />
                                 </div>
                             </>,
                         )}
@@ -1162,25 +1373,64 @@ export default function DesignRulesPage() {
                                     </SystemDisclosure>
                                 </div>
                                 <h3 data-text="subheading">페이지 제목과 형제 메뉴</h3>
-                                <p data-text="body">공지사항과 다른 소식 페이지는 같은 PageHeading으로 현재 위치·제목·설명·메뉴의 간격과 글자 위계를 공유합니다.</p>
-                                <div data-component-example="page-heading"><PageHeading title="공지사항" summary="공간과 티켓오픈·대관·운영 관련 공지를 확인하세요." path="/news/notices" group={NAV.find(group => group.path === "/news")} breadcrumbs={<><span data-text="action">홈</span><span aria-hidden="true">/</span><span data-text="action">소식과 혜택</span><span aria-hidden="true">/</span><span data-text="label" aria-current="page">공지사항</span></>} /></div>
+                                <p data-text="body">
+                                    공지사항과 다른 소식 페이지는 같은 PageHeading으로 현재
+                                    위치·제목·설명·메뉴의 간격과 글자 위계를 공유합니다.
+                                </p>
+                                <div data-component-example="page-heading">
+                                    <PageHeading
+                                        title="공지사항"
+                                        summary="공간과 티켓오픈·대관·운영 관련 공지를 확인하세요."
+                                        path="/news/notices"
+                                        group={NAV.find((group) => group.path === "/news")}
+                                        breadcrumbs={
+                                            <>
+                                                <span data-text="action">홈</span>
+                                                <span aria-hidden="true">/</span>
+                                                <span data-text="action">소식과 혜택</span>
+                                                <span aria-hidden="true">/</span>
+                                                <span data-text="label" aria-current="page">
+                                                    공지사항
+                                                </span>
+                                            </>
+                                        }
+                                    />
+                                </div>
                                 <h3 data-text="subheading">목적별 바로가기</h3>
-                                <p data-text="body">기존 달력·티켓·위치 아이콘 {HOME_PATHWAY_ICON_SIZE}px와 제목·설명·화살표 {HOME_PATHWAY_ARROW_SIZE}px를 한 링크로 묶습니다. 화살표는 오른쪽 끝에서 16px 안쪽에 두고, 컨테이너가 좁아지면 한 열로 바뀝니다.</p>
+                                <p data-text="body">
+                                    기존 달력·티켓·위치 아이콘 {HOME_PATHWAY_ICON_SIZE}px와
+                                    제목·설명·화살표 {HOME_PATHWAY_ARROW_SIZE}px를 한 링크로
+                                    묶습니다. 화살표는 오른쪽 끝에서 16px 안쪽에 두고, 컨테이너가
+                                    좁아지면 한 열로 바뀝니다.
+                                </p>
                                 <HomePathways id="demo-home-pathways" />
                                 {/* [제품과 같은 비율 메뉴 / The same proportional menu as the product] */}
                                 <h3 data-text="subheading">메뉴 폭과 줄바꿈</h3>
                                 <p data-text="body">
                                     SystemControlGroup은 항목의 픽셀 폭을 정하지 않고 전체 너비에서
                                     간격을 뺀 나머지를 퍼센트로 나눕니다. 기본값은 768px 미만 2열,
-                                    768px부터 3열, 1024px부터 6열입니다. 항목이 적으면 실제 개수까지만
-                                    나누고 마지막 줄도 앞선 줄과 같은 항목 너비를 유지합니다. 같은 행의 높이는 가장 긴
-                                    문구에 맞추며, 글자는 16px 이상과 조작 높이 48px 이상을 유지합니다.
+                                    768px부터 3열, 1024px부터 6열입니다. 항목이 적으면 실제
+                                    개수까지만 나누고 마지막 줄도 앞선 줄과 같은 항목 너비를
+                                    유지합니다. 같은 행의 높이는 가장 긴 문구에 맞추며, 글자는 16px
+                                    이상과 조작 높이 48px 이상을 유지합니다.
                                 </p>
                                 <div className="ds-demo">
-                                    <SystemControlGroup as="nav" id="demo-visit-navigation" aria-label="반응형 이용안내 메뉴 예제">
-                                        {NAV.find((group) => group.id === "visit")?.items?.map(([label, href]) => (
-                                            <SystemLink key={href} href={href} variant="secondary">{label}</SystemLink>
-                                        ))}
+                                    <SystemControlGroup
+                                        as="nav"
+                                        id="demo-visit-navigation"
+                                        aria-label="반응형 이용안내 메뉴 예제"
+                                    >
+                                        {NAV.find((group) => group.id === "visit")?.items?.map(
+                                            ([label, href]) => (
+                                                <SystemLink
+                                                    key={href}
+                                                    href={href}
+                                                    variant="secondary"
+                                                >
+                                                    {label}
+                                                </SystemLink>
+                                            ),
+                                        )}
                                     </SystemControlGroup>
                                 </div>
                                 <DataTable
@@ -1188,9 +1438,17 @@ export default function DesignRulesPage() {
                                     headings={["속성", "기본값", "역할"]}
                                     rows={[
                                         ["as", "div", "nav · div · section · ul · ol의 의미 보존"],
-                                        ["columns", "compact: 2 / medium: 3 / wide: 6", "화면 구간마다 1–6열 지정"],
+                                        [
+                                            "columns",
+                                            "compact: 2 / medium: 3 / wide: 6",
+                                            "화면 구간마다 1–6열 지정",
+                                        ],
                                         ["maxColumns", "6", "항목 수와 함께 최대 열 수 제한"],
-                                        ["항목 너비", "(100% − 간격 × (열 수 − 1)) ÷ 열 수", "부모 너비에 반응하며 줄바꿈"],
+                                        [
+                                            "항목 너비",
+                                            "(100% − 간격 × (열 수 − 1)) ÷ 열 수",
+                                            "부모 너비에 반응하며 줄바꿈",
+                                        ],
                                     ]}
                                 />
                             </>,
@@ -1200,10 +1458,13 @@ export default function DesignRulesPage() {
                             "리퀴드 글래스",
                             <>
                                 <p data-text="body">
-                                    <code data-text="caption" className="ds-token">LiquidGlass</code>는 실제 배경을
-                                    굴절시키는 공통 표면 컴포넌트입니다. 불투명한 중심과 맑게
-                                    굴절되는 가장자리를 나누고, 반사광과 안쪽 음영으로 유리의 두께를
-                                    표현합니다. 안에 넣은 글자와 버튼은 선명하게 유지합니다.
+                                    <code data-text="caption" className="ds-token">
+                                        LiquidGlass
+                                    </code>
+                                    는 실제 배경을 굴절시키는 공통 표면 컴포넌트입니다. 불투명한
+                                    중심과 맑게 굴절되는 가장자리를 나누고, 반사광과 안쪽 음영으로
+                                    유리의 두께를 표현합니다. 안에 넣은 글자와 버튼은 선명하게
+                                    유지합니다.
                                 </p>
                                 <LiquidGlassDemo
                                     onCopy={(code) => copyValue(code, "리퀴드 글래스 코드")}
@@ -1213,11 +1474,31 @@ export default function DesignRulesPage() {
                                     label="LiquidGlass 컴포넌트 속성"
                                     headings={["속성", "기본값", "역할"]}
                                     rows={[
-                                        ["variant", "surface", "surface · 기본 표면 / drawer · 서랍 / hero · 히어로 / white · 밝은 알림 / black · 어두운 알림"],
-                                        ["opacity", GLASS_MATERIALS.surface.opacity, "흰 유리의 불투명도 · 0–1"],
-                                        ["refraction", GLASS_MATERIALS.surface.refraction, "굴절 강도 · 0–120"],
-                                        ["blur", GLASS_MATERIALS.surface.blur, "중심부 배경 흐림 · 0–40px"],
-                                        ["thickness", GLASS_MATERIALS.surface.thickness, "굴절되는 가장자리의 두께 · 1–64px"],
+                                        [
+                                            "variant",
+                                            "surface",
+                                            "surface · 기본 표면 / drawer · 서랍 / hero · 히어로 / white · 밝은 알림 / black · 어두운 알림",
+                                        ],
+                                        [
+                                            "opacity",
+                                            GLASS_MATERIALS.surface.opacity,
+                                            "흰 유리의 불투명도 · 0–1",
+                                        ],
+                                        [
+                                            "refraction",
+                                            GLASS_MATERIALS.surface.refraction,
+                                            "굴절 강도 · 0–120",
+                                        ],
+                                        [
+                                            "blur",
+                                            GLASS_MATERIALS.surface.blur,
+                                            "중심부 배경 흐림 · 0–40px",
+                                        ],
+                                        [
+                                            "thickness",
+                                            GLASS_MATERIALS.surface.thickness,
+                                            "굴절되는 가장자리의 두께 · 1–64px",
+                                        ],
                                         [
                                             "children / ref / HTML 속성",
                                             "기본 div와 동일",
@@ -1228,13 +1509,15 @@ export default function DesignRulesPage() {
                                 <DataTable
                                     label="리퀴드 글래스 재질 베리언트"
                                     headings={["베리언트", "불투명도", "굴절", "흐림", "두께"]}
-                                    rows={Object.entries(GLASS_MATERIALS).map(([variant, material]) => [
-                                        variant,
-                                        `${Math.round(material.opacity * 100)}%`,
-                                        material.refraction,
-                                        `${material.blur}px`,
-                                        `${material.thickness}px`,
-                                    ])}
+                                    rows={Object.entries(GLASS_MATERIALS).map(
+                                        ([variant, material]) => [
+                                            variant,
+                                            `${Math.round(material.opacity * 100)}%`,
+                                            material.refraction,
+                                            `${material.blur}px`,
+                                            `${material.thickness}px`,
+                                        ],
+                                    )}
                                 />
                                 <p data-text="caption" className="ds-caption">
                                     기본값은 디자인 토큰을 따릅니다. 속성을 지정하면 해당 표면만
@@ -1248,11 +1531,19 @@ export default function DesignRulesPage() {
                             "떠 있는 유리 메뉴",
                             <>
                                 <p data-text="body">
-                                    <code data-text="caption" className="ds-token">FloatingPanel</code>은{" "}
-                                    <code data-text="caption" className="ds-token">LiquidGlass</code>를 사용하는 공통
-                                    목록 창입니다. 위치·드래그·초점·등장과 퇴장을 담당하며,{" "}
-                                    <code data-text="caption" className="ds-token">FloatingMenu</code>는 그 안에 실제
-                                    사이트의 탐색 목록을 넣는 컴포넌트입니다.
+                                    <code data-text="caption" className="ds-token">
+                                        FloatingPanel
+                                    </code>
+                                    은{" "}
+                                    <code data-text="caption" className="ds-token">
+                                        LiquidGlass
+                                    </code>
+                                    를 사용하는 공통 목록 창입니다. 위치·드래그·초점·등장과 퇴장을
+                                    담당하며,{" "}
+                                    <code data-text="caption" className="ds-token">
+                                        FloatingMenu
+                                    </code>
+                                    는 그 안에 실제 사이트의 탐색 목록을 넣는 컴포넌트입니다.
                                 </p>
                                 <p data-text="body">
                                     전체 메뉴는 페이지를 가리는 흰 덮개 없이 독립된 창으로 뜹니다.
@@ -1260,7 +1551,8 @@ export default function DesignRulesPage() {
                                     반사를 겹쳐 깊이를 표현합니다. 글자는 굴절시키지 않습니다.
                                 </p>
                                 <div className="ds-demo">
-                                    <SystemButton data-text="action"
+                                    <SystemButton
+                                        data-text="action"
                                         ref={floatingMenuTrigger}
                                         aria-haspopup="dialog"
                                         aria-expanded={floatingMenuOpen}
@@ -1276,7 +1568,9 @@ export default function DesignRulesPage() {
                                         position={floatingMenuPosition}
                                     />
                                 </div>
-                                <h3 data-text="subheading">버튼에서 펼쳐지고, 버튼으로 돌아갑니다</h3>
+                                <h3 data-text="subheading">
+                                    버튼에서 펼쳐지고, 버튼으로 돌아갑니다
+                                </h3>
                                 <p data-text="body">
                                     WebGL의 32 × 22 메시가 실제 목록 텍스처를 휘며 펼쳐집니다.
                                     버튼에서 먼 모서리가 조금 늦게 따라오고, 마지막에는 탄성으로
@@ -1286,17 +1580,21 @@ export default function DesignRulesPage() {
                                 </p>
                                 <h3 data-text="subheading">작은 화면에서는 왼쪽 서랍으로</h3>
                                 <p data-text="body">
-                                    700px 이하에서 전체 메뉴는 왼쪽 벽에 붙는 세로 목록으로 바뀝니다.
-                                    그룹을 펼쳐 탐색하고, 창 안에서 스크롤합니다. 제목을 잡거나 이동
-                                    버튼의 위아래 방향키로 창을 세로 이동할 수 있습니다. 같은 WebGL 탄성이 왼쪽에서
-                                    펼쳐지고 다시 벽 안으로 들어가며, drawer 재질의 더 높은 불투명도와
-                                    강한 굴절로 목록의 가독성을 지킵니다.
+                                    700px 이하에서 전체 메뉴는 왼쪽 벽에 붙는 세로 목록으로
+                                    바뀝니다. 그룹을 펼쳐 탐색하고, 창 안에서 스크롤합니다. 제목을
+                                    잡거나 이동 버튼의 위아래 방향키로 창을 세로 이동할 수 있습니다.
+                                    같은 WebGL 탄성이 왼쪽에서 펼쳐지고 다시 벽 안으로 들어가며,
+                                    drawer 재질의 더 높은 불투명도와 강한 굴절로 목록의 가독성을
+                                    지킵니다.
                                 </p>
                                 <DataTable
                                     label="FloatingPanel 컴포넌트 속성"
                                     headings={["속성", "역할"]}
                                     rows={[
-                                        ["variant", "floating · 자유 이동 / drawer · 왼쪽 벽을 따라 세로 이동"],
+                                        [
+                                            "variant",
+                                            "floating · 자유 이동 / drawer · 왼쪽 벽을 따라 세로 이동",
+                                        ],
                                         [
                                             "open / onClose",
                                             "열림을 제어하며, 퇴장이 끝날 때까지 창을 유지합니다",
@@ -1314,7 +1612,10 @@ export default function DesignRulesPage() {
                                         ["className / id", "표면 크기와 식별자"],
                                     ]}
                                 />
-                                <CodeBlock title="FloatingPanel.tsx" code={`import FloatingPanel from "@/components/FloatingPanel";\n\n<FloatingPanel\n    open={open}\n    onClose={() => setOpen(false)}\n    anchorRef={buttonRef}\n    title="목록"\n>\n    <nav className="glass-menu-content" aria-label="목록">\n        <a href="/v5/programs/">프로그램</a>\n    </nav>\n</FloatingPanel>`} />
+                                <CodeBlock
+                                    title="FloatingPanel.tsx"
+                                    code={`import FloatingPanel from "@/components/FloatingPanel";\n\n<FloatingPanel\n    open={open}\n    onClose={() => setOpen(false)}\n    anchorRef={buttonRef}\n    title="목록"\n>\n    <nav className="glass-menu-content" aria-label="목록">\n        <a href="/v5/programs/">프로그램</a>\n    </nav>\n</FloatingPanel>`}
+                                />
                                 <p data-text="caption" className="ds-caption">
                                     이동 중에는 WebGL이 시각적 전환을 담당하고, 정착하면 실제 HTML
                                     링크와 버튼을 사용합니다. 모션 감소 설정에서는 짧은 페이드만
@@ -1339,8 +1640,16 @@ export default function DesignRulesPage() {
                                             `${tokenPixels("--text-menu-link")} · ${DESIGN_TOKEN_VALUES["--weight-label"]} · 조작 높이 ${tokenPixels("--control-size")}`,
                                             "--text-menu-link",
                                         ],
-                                        ["설명·개인 서비스", `${tokenPixels("--text-sm")} · ${DESIGN_TOKEN_VALUES["--weight-body"]}–${DESIGN_TOKEN_VALUES["--weight-label"]}`, "--text-sm"],
-                                        ["모서리", tokenPixels("--radius-dialog"), "--radius-dialog"],
+                                        [
+                                            "설명·개인 서비스",
+                                            `${tokenPixels("--text-sm")} · ${DESIGN_TOKEN_VALUES["--weight-body"]}–${DESIGN_TOKEN_VALUES["--weight-label"]}`,
+                                            "--text-sm",
+                                        ],
+                                        [
+                                            "모서리",
+                                            tokenPixels("--radius-dialog"),
+                                            "--radius-dialog",
+                                        ],
                                         [
                                             "유리 바탕",
                                             `흰색 ${Math.round(GLASS_MATERIALS.surface.opacity * 100)}% + 방향성 반사광`,
@@ -1391,33 +1700,54 @@ export default function DesignRulesPage() {
                             "알림소형모달",
                             <>
                                 <p data-text="body">
-                                    v4의 둥근 하단 알림을 공통 컴포넌트로 등록했습니다.
-                                    관심 등록·해제처럼 짧은 결과를 전달하며, 배경을 가리거나
-                                    초점을 옮기지 않습니다. 3.5초 뒤 부드럽게 사라지고,
-                                    새 알림은 같은 캡슐 안에서 갱신됩니다.
+                                    v4의 둥근 하단 알림을 공통 컴포넌트로 등록했습니다. 관심
+                                    등록·해제처럼 짧은 결과를 전달하며, 배경을 가리거나 초점을
+                                    옮기지 않습니다. 3.5초 뒤 부드럽게 사라지고, 새 알림은 같은 캡슐
+                                    안에서 갱신됩니다.
                                 </p>
                                 <div className="ds-demo-actions">
-                                    <SystemButton data-text="action" onClick={() => showSmallNotification("관심 프로그램에 저장했어요.")}>
+                                    <SystemButton
+                                        data-text="action"
+                                        onClick={() =>
+                                            showSmallNotification("관심 프로그램에 저장했어요.")
+                                        }
+                                    >
                                         알림소형모달 보기
                                     </SystemButton>
-                                    <SystemButton data-text="action" variant="quiet" onClick={() => showSmallNotification("관심 프로그램에서 삭제했어요.")}>
+                                    <SystemButton
+                                        data-text="action"
+                                        variant="quiet"
+                                        onClick={() =>
+                                            showSmallNotification("관심 프로그램에서 삭제했어요.")
+                                        }
+                                    >
                                         다음 알림으로 교체
                                     </SystemButton>
                                 </div>
-                                <DataTable label="알림소형모달 컴포넌트 속성"
+                                <DataTable
+                                    label="알림소형모달 컴포넌트 속성"
                                     headings={["속성", "역할"]}
                                     rows={[
                                         ["open / message", "표시 상태와 안내 문장"],
                                         ["id", "여러 표면을 구분하는 식별자 · 선택"],
-                                        ["SmallNotificationModalHost", "사이트에 한 번 등록하는 알림 호스트"],
-                                        ["showSmallNotification(message)", "어느 화면에서든 알림을 표시"],
+                                        [
+                                            "SmallNotificationModalHost",
+                                            "사이트에 한 번 등록하는 알림 호스트",
+                                        ],
+                                        [
+                                            "showSmallNotification(message)",
+                                            "어느 화면에서든 알림을 표시",
+                                        ],
                                         ["duration", "호스트의 표시 시간 · 기본 3500ms"],
                                     ]}
                                 />
-                                <CodeBlock title="SmallNotificationModal.tsx" code={`import SmallNotificationModal, {\n    showSmallNotification\n} from "@/components/SmallNotificationModal";\n\nshowSmallNotification("관심 프로그램에 저장했어요.");\n\n// 직접 상태를 제어하는 경우\n<SmallNotificationModal open={visible} message="저장했어요." />`} />
+                                <CodeBlock
+                                    title="SmallNotificationModal.tsx"
+                                    code={`import SmallNotificationModal, {\n    showSmallNotification\n} from "@/components/SmallNotificationModal";\n\nshowSmallNotification("관심 프로그램에 저장했어요.");\n\n// 직접 상태를 제어하는 경우\n<SmallNotificationModal open={visible} message="저장했어요." />`}
+                                />
                                 <p data-text="caption" className="ds-caption">
-                                    양끝은 완전한 캡슐이며, 글자는 최소 16px로 유지합니다.
-                                    모션 감소 설정에서는 위치 이동 없이 페이드만 사용합니다.
+                                    양끝은 완전한 캡슐이며, 글자는 최소 16px로 유지합니다. 모션 감소
+                                    설정에서는 위치 이동 없이 페이드만 사용합니다.
                                 </p>
                             </>,
                         )}
@@ -1425,17 +1755,32 @@ export default function DesignRulesPage() {
                             "feedback",
                             "상태와 대화상자",
                             <>
-                                <p data-text="body">SystemNotice는 LiquidGlass의 white 베리언트를 조합합니다. default·flow 레이아웃과 status·error 상태는 같은 흰 유리 재질을 사용합니다.</p>
+                                <p data-text="body">
+                                    SystemNotice는 LiquidGlass의 white 베리언트를 조합합니다.
+                                    default·flow 레이아웃과 status·error 상태는 같은 흰 유리 재질을
+                                    사용합니다.
+                                </p>
                                 <div className="ds-demo-stack">
                                     <div className="ds-demo-row">
                                         <SystemBadge data-text="meta">안내</SystemBadge>
-                                        <SystemBadge data-text="meta" tone="highlight">추천</SystemBadge>
-                                        <SystemBadge data-text="meta" tone="info">접근성 제공</SystemBadge>
+                                        <SystemBadge data-text="meta" tone="highlight">
+                                            추천
+                                        </SystemBadge>
+                                        <SystemBadge data-text="meta" tone="info">
+                                            접근성 제공
+                                        </SystemBadge>
                                     </div>
-                                    <SystemNotice data-text="body" title="관심 프로그램에 저장했습니다.">
+                                    <SystemNotice
+                                        data-text="body"
+                                        title="관심 프로그램에 저장했습니다."
+                                    >
                                         저장한 프로그램은 마이페이지에서 다시 확인할 수 있습니다.
                                     </SystemNotice>
-                                    <SystemNotice data-text="body" title="입력 내용을 확인해 주세요." error>
+                                    <SystemNotice
+                                        data-text="body"
+                                        title="입력 내용을 확인해 주세요."
+                                        error
+                                    >
                                         이메일 주소를 입력하면 다음 단계로 이동할 수 있습니다.
                                     </SystemNotice>
                                 </div>
@@ -1444,7 +1789,8 @@ export default function DesignRulesPage() {
                                     모달은 배경을 잠그고, Esc로 닫은 뒤 열었던 버튼으로 초점을
                                     돌려줍니다.
                                 </p>
-                                <SystemButton data-text="action"
+                                <SystemButton
+                                    data-text="action"
                                     variant="secondary"
                                     onClick={() => demoDialog.current?.showModal()}
                                 >
@@ -1481,7 +1827,12 @@ export default function DesignRulesPage() {
                                             DESIGN_TOKEN_VALUES["--duration-feedback"],
                                             "버튼·레이블",
                                         ],
-                                        ["패널 전환", "--duration-panel", DESIGN_TOKEN_VALUES["--duration-panel"], "모달·펼침"],
+                                        [
+                                            "패널 전환",
+                                            "--duration-panel",
+                                            DESIGN_TOKEN_VALUES["--duration-panel"],
+                                            "모달·펼침",
+                                        ],
                                         [
                                             "기본 곡선",
                                             "--ease-standard",
@@ -1498,13 +1849,17 @@ export default function DesignRulesPage() {
                             "글자별 스크롤 등장 · Deprecated",
                             <>
                                 <p data-text="body">
-                                    Deprecated: 홈에서 사용을 종료한 이전 글자 모션입니다.
-                                    실행 예제와 구현은 활성 컴포넌트에서 제거했습니다.
-                                    현재 홈의 ‘관람 예약’은 스크롤 위치와 관계없이 읽을 수 있는
-                                    정적 공통 제목을 사용합니다.
+                                    Deprecated: 홈에서 사용을 종료한 이전 글자 모션입니다. 실행
+                                    예제와 구현은 활성 컴포넌트에서 제거했습니다. 현재 홈의 ‘관람
+                                    예약’은 스크롤 위치와 관계없이 읽을 수 있는 정적 공통 제목을
+                                    사용합니다.
                                 </p>
-                                <SystemNotice data-lifecycle="deprecated" title="BookingInvitation · Deprecated">
-                                    이전 구현은 Git 이력에서 확인할 수 있습니다. 신규 화면은 SystemText의 정적 제목을 사용합니다.
+                                <SystemNotice
+                                    data-lifecycle="deprecated"
+                                    title="BookingInvitation · Deprecated"
+                                >
+                                    이전 구현은 Git 이력에서 확인할 수 있습니다. 신규 화면은
+                                    SystemText의 정적 제목을 사용합니다.
                                 </SystemNotice>
                                 <div className="ds-inline-links">
                                     <Link data-text="action" href="/">
@@ -1519,9 +1874,9 @@ export default function DesignRulesPage() {
                             "원형 퀵메뉴",
                             <>
                                 <p data-text="body">
-                                    공통 오프화이트 표면과 옅은 안쪽 경계를 사용합니다.
-                                    선택 영역은 중립색으로 표시하고, 중앙의 어스 블랙 버튼으로
-                                    이동합니다. 홈과 아래 예제는 같은 컴포넌트와 토큰을 사용합니다.
+                                    공통 오프화이트 표면과 옅은 안쪽 경계를 사용합니다. 선택 영역은
+                                    중립색으로 표시하고, 중앙의 어스 블랙 버튼으로 이동합니다. 홈과
+                                    아래 예제는 같은 컴포넌트와 토큰을 사용합니다.
                                 </p>
                                 <div className="ds-quick-menu">
                                     <VioletQuickMenu placement="inline" items={inlineMenuItems} />
@@ -1536,9 +1891,9 @@ export default function DesignRulesPage() {
                                         이동하지 않습니다.
                                     </li>
                                     <li data-text="body">
-                                        표면·선택·행동·규격은 QUICK_MENU_TOKENS에서 관리합니다.
-                                        장식 재질도 같은 표면 토큰을 사용하며 기본 흐름은 {QUICK_MENU_MATERIAL.motion.period}초
-                                        주기입니다. 화면 밖에서는 그리기를 멈춥니다.
+                                        {"표면·선택·행동·규격은 QUICK_MENU_TOKENS에서 관리합니다. 장식 재질도 같은 표면 토큰을 사용하며 기본 흐름은 "}
+                                        {QUICK_MENU_MATERIAL.motion.period}초 주기입니다. 화면
+                                        밖에서는 그리기를 멈춥니다.
                                     </li>
                                     <li data-text="body">
                                         동작 줄이기에서는 장식 움직임을 멈추고 탐색 기능은
@@ -1547,11 +1902,33 @@ export default function DesignRulesPage() {
                                 </ul>
                                 <div className="ds-table-wrap">
                                     <table className="ds-table" data-quick-menu-contract>
-                                        <caption data-text="label">제품과 가이드가 공유하는 퀵메뉴 토큰</caption>
-                                        <thead><tr><th data-text="label" scope="col">토큰</th><th data-text="label" scope="col">현재 정의</th></tr></thead>
-                                        <tbody>{Object.entries(QUICK_MENU_TOKENS).map(([token, value]) =>
-                                            <tr key={token}><th data-text="body" scope="row"><code data-text="body">{token}</code></th><td data-text="body"><code data-text="body">{value}</code></td></tr>
-                                        )}</tbody>
+                                        <caption data-text="label">
+                                            제품과 가이드가 공유하는 퀵메뉴 토큰
+                                        </caption>
+                                        <thead>
+                                            <tr>
+                                                <th data-text="label" scope="col">
+                                                    토큰
+                                                </th>
+                                                <th data-text="label" scope="col">
+                                                    현재 정의
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {Object.entries(QUICK_MENU_TOKENS).map(
+                                                ([token, value]) => (
+                                                    <tr key={token}>
+                                                        <th data-text="body" scope="row">
+                                                            <code data-text="body">{token}</code>
+                                                        </th>
+                                                        <td data-text="body">
+                                                            <code data-text="body">{value}</code>
+                                                        </td>
+                                                    </tr>
+                                                ),
+                                            )}
+                                        </tbody>
                                     </table>
                                 </div>
                             </>,
@@ -1571,7 +1948,9 @@ export default function DesignRulesPage() {
                                 </p>
                                 <ul className="ds-rules-list">
                                     <li data-text="body">제목은 h1 → h2 → h3 순서로 구성합니다.</li>
-                                    <li data-text="body">본문과 배경의 대비는 4.5:1 이상으로 확인합니다.</li>
+                                    <li data-text="body">
+                                        본문과 배경의 대비는 4.5:1 이상으로 확인합니다.
+                                    </li>
                                     <li data-text="body">
                                         화면을 확대해도 본문은 줄바꿈하고, 표는 이름이 있는 내부
                                         영역에서 스크롤합니다.
@@ -1591,11 +1970,17 @@ export default function DesignRulesPage() {
                                     <SystemButton data-text="action" variant="secondary">
                                         Tab으로 초점 확인
                                     </SystemButton>
-                                    <SystemButton data-text="action" variant="primary">Enter로 실행</SystemButton>
+                                    <SystemButton data-text="action" variant="primary">
+                                        Enter로 실행
+                                    </SystemButton>
                                 </div>
                                 <ul className="ds-rules-list">
-                                    <li data-text="body">일반 조작 영역은 48px를 기본으로 확보합니다.</li>
-                                    <li data-text="body">초점은 3px 안쪽 선과 -3px offset으로 표시합니다.</li>
+                                    <li data-text="body">
+                                        일반 조작 영역은 48px를 기본으로 확보합니다.
+                                    </li>
+                                    <li data-text="body">
+                                        초점은 3px 안쪽 선과 -3px offset으로 표시합니다.
+                                    </li>
                                     <li data-text="body">
                                         열리는 메뉴와 모달은 닫기·Esc·초점 복귀를 함께 제공합니다.
                                     </li>
@@ -1660,14 +2045,21 @@ export default function DesignRulesPage() {
                                         <Icon name="download" size={20} />
                                         토큰 CSS 다운로드
                                     </SystemButton>
-                                    <SystemButton data-text="action"
+                                    <SystemButton
+                                        data-text="action"
                                         variant="secondary"
                                         onClick={() => copyValue(designTokensCss(), "디자인 토큰")}
                                     >
                                         {copied === "디자인 토큰" ? "복사됨" : "전체 코드 복사"}
                                     </SystemButton>
                                 </div>
-                                <CodeBlock title="tokens.css" language="css" onCopy={() => copyValue(designTokensCss(), "디자인 토큰")} copied={copied === "디자인 토큰"} code={designTokensCss()} />
+                                <CodeBlock
+                                    title="tokens.css"
+                                    language="css"
+                                    onCopy={() => copyValue(designTokensCss(), "디자인 토큰")}
+                                    copied={copied === "디자인 토큰"}
+                                    code={designTokensCss()}
+                                />
                             </>,
                         )}
                         {section(
@@ -1683,7 +2075,11 @@ export default function DesignRulesPage() {
                                         워드마크 SVG
                                         <Icon name="download" size={20} />
                                     </a>
-                                    <a data-text="action" href="/v5/assets/images/sejong-official-symbol.png" download>
+                                    <a
+                                        data-text="action"
+                                        href="/v5/assets/images/sejong-official-symbol.png"
+                                        download
+                                    >
                                         심벌 PNG
                                         <Icon name="download" size={20} />
                                     </a>
@@ -1696,7 +2092,8 @@ export default function DesignRulesPage() {
                                     워드마크는 세종문화회관의 기존 공식 소스에서 추출한 파일입니다.
                                     재사용 시 원 권리자의 사용 조건을 확인합니다.
                                 </p>
-                                <SystemButton data-text="action"
+                                <SystemButton
+                                    data-text="action"
                                     variant="secondary"
                                     className="ds-no-print"
                                     onClick={() => window.print()}
@@ -1711,7 +2108,8 @@ export default function DesignRulesPage() {
                             <>
                                 <ul className="ds-rules-list">
                                     <li data-text="body">
-                                        <a data-text="action"
+                                        <a
+                                            data-text="action"
                                             href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html"
                                             target="_blank"
                                             rel="noreferrer"
@@ -1734,16 +2132,18 @@ export default function DesignRulesPage() {
     return (
         <div className="design-system-page">
             <header className="ds-doc-header">
-                <Link data-text="action" className="ds-doc-brand" href="/" aria-label="세종문화회관 홈">
-                    <SejongLogo
-                        width={158}
-                        height={29}
-                        alt="세종문화회관"
-                    />
+                <Link
+                    data-text="action"
+                    className="ds-doc-brand"
+                    href="/"
+                    aria-label="세종문화회관 홈"
+                >
+                    <SejongLogo width={158} height={29} alt="세종문화회관" />
                     <span data-text="body">디자인 시스템</span>
                 </Link>
                 <div className="ds-doc-actions">
-                    <button data-text="action"
+                    <button
+                        data-text="action"
                         type="button"
                         className="ds-search-trigger"
                         aria-label="디자인 가이드 검색"
@@ -1758,7 +2158,8 @@ export default function DesignRulesPage() {
                         사이트 보기
                         <Icon name="diagonal" size={20} />
                     </Link>
-                    <SystemButton data-text="action"
+                    <SystemButton
+                        data-text="action"
                         className="ds-menu-trigger"
                         variant="quiet"
                         aria-label="디자인 시스템 목차 열기"
@@ -1781,17 +2182,22 @@ export default function DesignRulesPage() {
                 <div className="ds-doc-layout">
                     <main data-text="body" id="main" tabIndex={-1} className="ds-document">
                         <nav className="ds-breadcrumbs" aria-label="문서 위치">
-                            <a data-text="action"
+                            <a
+                                data-text="action"
                                 href="#overview"
                                 onClick={(event) => navigate("overview", "", event)}
                             >
                                 가이드
                             </a>
-                            <span data-text="body" aria-hidden="true">/</span>
+                            <span data-text="body" aria-hidden="true">
+                                /
+                            </span>
                             <span data-text="body">{chapter.label}</span>
                         </nav>
                         <div className="ds-page-heading">
-                            <p data-text="body" className="ds-version">v5 · 2026.10</p>
+                            <p data-text="body" className="ds-version">
+                                v5 · 2026.10
+                            </p>
                             <h1 data-text="title" id="doc-page-title" tabIndex={-1}>
                                 {chapterId === "overview"
                                     ? "세종문화회관 디자인 시스템"
@@ -1803,31 +2209,46 @@ export default function DesignRulesPage() {
                                     : chapter.description}
                             </p>
                         </div>
-                        <p data-text="body" className="ds-feedback-line" role="status" aria-live="polite">
+                        <p
+                            data-text="body"
+                            className="ds-feedback-line"
+                            role="status"
+                            aria-live="polite"
+                        >
                             {message}
                         </p>
                         {renderChapter()}
-                        <nav data-text="body" className="ds-chapter-footer" aria-label="이전 다음 문서">
+                        <nav
+                            data-text="body"
+                            className="ds-chapter-footer"
+                            aria-label="이전 다음 문서"
+                        >
                             {chapterIndex > 0 && (
-                                <a data-text="action"
+                                <a
+                                    data-text="action"
                                     href={`#${CHAPTERS[chapterIndex - 1].id}`}
                                     onClick={(event) =>
                                         navigate(CHAPTERS[chapterIndex - 1].id, "", event)
                                     }
                                 >
                                     <span data-text="body">이전</span>
-                                    <strong data-text="item-title">{CHAPTERS[chapterIndex - 1].label}</strong>
+                                    <strong data-text="item-title">
+                                        {CHAPTERS[chapterIndex - 1].label}
+                                    </strong>
                                 </a>
                             )}
                             {chapterIndex < CHAPTERS.length - 1 && (
-                                <a data-text="action"
+                                <a
+                                    data-text="action"
                                     href={`#${CHAPTERS[chapterIndex + 1].id}`}
                                     onClick={(event) =>
                                         navigate(CHAPTERS[chapterIndex + 1].id, "", event)
                                     }
                                 >
                                     <span data-text="body">다음</span>
-                                    <strong data-text="item-title">{CHAPTERS[chapterIndex + 1].label}</strong>
+                                    <strong data-text="item-title">
+                                        {CHAPTERS[chapterIndex + 1].label}
+                                    </strong>
                                 </a>
                             )}
                         </nav>
@@ -1835,7 +2256,8 @@ export default function DesignRulesPage() {
                     <nav data-text="body" className="ds-outline" aria-label="현재 문서 목차">
                         <p data-text="body">이 문서의 내용</p>
                         {chapter.sections.map(([id, label]) => (
-                            <a data-text="action"
+                            <a
+                                data-text="action"
                                 href={`#${chapterId}/${id}`}
                                 key={id}
                                 aria-current={
@@ -1857,8 +2279,11 @@ export default function DesignRulesPage() {
                 closeOnBackdrop={false}
             >
                 <div className="ds-dialog-heading">
-                    <h2 data-text="heading" id="doc-search-title">가이드 검색</h2>
-                    <SystemButton data-text="action"
+                    <h2 data-text="heading" id="doc-search-title">
+                        가이드 검색
+                    </h2>
+                    <SystemButton
+                        data-text="action"
                         variant="quiet"
                         className="ds-dialog-close"
                         aria-label="검색 닫기"
@@ -1867,7 +2292,8 @@ export default function DesignRulesPage() {
                         <Icon name="close" size={24} />
                     </SystemButton>
                 </div>
-                <SystemField data-text="body"
+                <SystemField
+                    data-text="body"
                     id="doc-search"
                     label="찾을 기준"
                     placeholder="예: 컬러, 16px, 모션"
@@ -1875,17 +2301,26 @@ export default function DesignRulesPage() {
                     onChange={(event) => setQuery(event.target.value)}
                     autoFocus
                 />
-                <DeepSearchDisclosure title="대화로 디자인 기준 검색"
-                    onSearch={term => contextSearchReply(term, searchEntries.map(entry => ({
-                        title: entry.title,
-                        description: entry.description,
-                        href: "#" + entry.chapter + (entry.anchor ? "/" + entry.anchor : ""),
-                    })), "디자인 기준")}
+                <DeepSearchDisclosure
+                    title="대화로 디자인 기준 검색"
+                    onSearch={(term) =>
+                        contextSearchReply(
+                            term,
+                            searchEntries.map((entry) => ({
+                                title: entry.title,
+                                description: entry.description,
+                                href:
+                                    "#" + entry.chapter + (entry.anchor ? "/" + entry.anchor : ""),
+                            })),
+                            "디자인 기준",
+                        )
+                    }
                 />
                 <div data-text="body" className="ds-search-results">
                     {results.length ? (
                         results.map((result) => (
-                            <a data-text="action"
+                            <a
+                                data-text="action"
                                 key={result.chapter + result.anchor + result.title}
                                 href={`#${result.chapter}${result.anchor ? "/" + result.anchor : ""}`}
                                 onClick={(event) => navigate(result.chapter, result.anchor, event)}
@@ -1911,8 +2346,11 @@ export default function DesignRulesPage() {
                 closeOnBackdrop={false}
             >
                 <div className="ds-dialog-heading">
-                    <h2 data-text="heading" id="doc-navigation-title">디자인 시스템</h2>
-                    <SystemButton data-text="action"
+                    <h2 data-text="heading" id="doc-navigation-title">
+                        디자인 시스템
+                    </h2>
+                    <SystemButton
+                        data-text="action"
                         variant="quiet"
                         className="ds-dialog-close"
                         aria-label="목차 닫기"
@@ -1929,8 +2367,11 @@ export default function DesignRulesPage() {
                 closeOnBackdrop={false}
             >
                 <div className="ds-dialog-heading">
-                    <h2 data-text="heading" id="sample-dialog-title">관람할 날짜를 선택해 주세요</h2>
-                    <SystemButton data-text="action"
+                    <h2 data-text="heading" id="sample-dialog-title">
+                        관람할 날짜를 선택해 주세요
+                    </h2>
+                    <SystemButton
+                        data-text="action"
                         variant="quiet"
                         className="ds-dialog-close"
                         aria-label="날짜 선택 닫기"
@@ -1939,19 +2380,27 @@ export default function DesignRulesPage() {
                         <Icon name="close" size={24} />
                     </SystemButton>
                 </div>
-                <SystemField data-text="body"
+                <SystemField
+                    data-text="body"
                     id="sample-date"
                     label="관람일"
                     type="date"
                     value={demoDate}
                     onChange={(event) => setDemoDate(event.target.value)}
                 />
-                <p data-text="body">디자인 컴포넌트를 확인하는 예제입니다. 실제 예매에는 반영되지 않습니다.</p>
+                <p data-text="body">
+                    디자인 컴포넌트를 확인하는 예제입니다. 실제 예매에는 반영되지 않습니다.
+                </p>
                 <div className="ds-dialog-actions">
-                    <SystemButton data-text="action" variant="secondary" onClick={() => demoDialog.current?.close()}>
+                    <SystemButton
+                        data-text="action"
+                        variant="secondary"
+                        onClick={() => demoDialog.current?.close()}
+                    >
                         취소
                     </SystemButton>
-                    <SystemButton data-text="action"
+                    <SystemButton
+                        data-text="action"
                         onClick={() => {
                             setMessage(
                                 demoDate

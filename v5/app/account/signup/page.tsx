@@ -5,7 +5,12 @@ import Icon from "../../../components/Icon";
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import Link from "next/link";
-import { SystemButton, SystemCheckbox, SystemField, SystemNotice } from "../../../components/SystemPrimitives";
+import {
+    SystemButton,
+    SystemCheckbox,
+    SystemField,
+    SystemNotice,
+} from "../../../components/SystemPrimitives";
 import { SystemSurface } from "../../../components/SystemSurface";
 import { requestEmailSignIn } from "../../../src/lib/supabase.ts";
 
@@ -52,10 +57,16 @@ export default function SignupPage() {
 
         setPending(true);
         try {
-            await requestEmailSignIn(email.trim(), { createUser: true, name: name.trim(), phone: phone.trim() });
+            await requestEmailSignIn(email.trim(), {
+                createUser: true,
+                name: name.trim(),
+                phone: phone.trim(),
+            });
             setSuccessMessage("이메일로 로그인 링크를 보냈습니다.");
         } catch {
-            setErrorMessage("가입 링크를 보내지 못했습니다. 이메일을 확인하고 잠시 후 다시 시도해 주세요.");
+            setErrorMessage(
+                "가입 링크를 보내지 못했습니다. 이메일을 확인하고 잠시 후 다시 시도해 주세요.",
+            );
         } finally {
             setPending(false);
         }
@@ -67,16 +78,28 @@ export default function SignupPage() {
             <section className="page-heading" id="page-heading">
                 <div className="container">
                     <nav className="breadcrumbs" aria-label="현재 위치">
-                        <Link data-text="action" href="/">홈</Link>
-                        <span data-text="body" aria-hidden="true">/</span>
-                        <Link data-text="action" href="/account">마이페이지</Link>
-                        <span data-text="body" aria-hidden="true">/</span>
-                        <span data-text="body" aria-current="page">회원가입</span>
+                        <Link data-text="action" href="/">
+                            홈
+                        </Link>
+                        <span data-text="body" aria-hidden="true">
+                            /
+                        </span>
+                        <Link data-text="action" href="/account">
+                            마이페이지
+                        </Link>
+                        <span data-text="body" aria-hidden="true">
+                            /
+                        </span>
+                        <span data-text="body" aria-current="page">
+                            회원가입
+                        </span>
                     </nav>
                     <div className="page-title-row">
                         <div>
                             <h1 data-text="title">회원가입</h1>
-                            <p data-text="body" className="page-description">이메일을 확인하고 나의 공간과 관람노트를 이용하세요.</p>
+                            <p data-text="body" className="page-description">
+                                이메일을 확인하고 나의 공간과 관람노트를 이용하세요.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -84,8 +107,14 @@ export default function SignupPage() {
 
             <div className="container page-content flow-content">
                 <div className="account-auth-layout">
-                    <section className="account-auth-intro" id="account-intro" aria-labelledby="account-intro-title">
-                        <h2 data-text="heading" id="account-intro-title">회원 서비스</h2>
+                    <section
+                        className="account-auth-intro"
+                        id="account-intro"
+                        aria-labelledby="account-intro-title"
+                    >
+                        <h2 data-text="heading" id="account-intro-title">
+                            회원 서비스
+                        </h2>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                             className="account-auth-photo"
@@ -96,27 +125,69 @@ export default function SignupPage() {
                         />
                     </section>
 
-                    <SystemSurface as="form" variant="panel" padding="lg" className="flow-panel" id="account-signup-form" data-scroll-fragment data-account-auth="signup" onSubmit={handleSubmit} noValidate>
+                    <SystemSurface
+                        as="form"
+                        variant="panel"
+                        padding="lg"
+                        className="flow-panel"
+                        id="account-signup-form"
+                        data-scroll-fragment
+                        data-account-auth="signup"
+                        onSubmit={handleSubmit}
+                        noValidate
+                    >
                         <h2 data-text="heading">회원가입</h2>
                         <p data-text="body" className="flow-fineprint">
                             가입할 이메일로 보낸 링크를 열면 계정을 사용할 수 있습니다.
                         </p>
-                        <p data-text="body" className="flow-fineprint">이미 가입했다면 <Link data-text="action" href="/account/login">로그인</Link>을 이용하세요.</p>
+                        <p data-text="body" className="flow-fineprint">
+                            {"이미 가입했다면 "}
+                            <Link data-text="action" href="/account/login">
+                                로그인
+                            </Link>
+                            을 이용하세요.
+                        </p>
 
-                        {continuedFromLogin && <SystemNotice data-text="body" variant="flow">입력한 이메일로 회원가입을 이어갑니다. 이름을 입력하고 필수 동의를 확인해 주세요.</SystemNotice>}
+                        {continuedFromLogin && (
+                            <SystemNotice data-text="body" variant="flow">
+                                입력한 이메일로 회원가입을 이어갑니다. 이름을 입력하고 필수 동의를
+                                확인해 주세요.
+                            </SystemNotice>
+                        )}
 
                         {errorMessage && (
-                            <SystemNotice data-text="body" variant="flow" error className="flow-error" id="flow-error" tabIndex={-1}>
+                            <SystemNotice
+                                data-text="body"
+                                variant="flow"
+                                error
+                                className="flow-error"
+                                id="flow-error"
+                                tabIndex={-1}
+                            >
                                 {errorMessage}
                             </SystemNotice>
                         )}
 
-                        <SystemField data-text="body"
+                        <SystemField
+                            data-text="body"
                             ref={nameField}
                             variant="flow"
                             outerClassName="form-field"
-                            label={<>이름 <span data-text="body" className="flow-required" aria-hidden="true">*</span>
-                                <span data-text="body" className="sr-only">필수</span></>}
+                            label={
+                                <>
+                                    {"이름 "}
+                                    <span
+                                        data-text="body"
+                                        className="flow-required"
+                                        aria-hidden="true"
+                                    >
+                                        *
+                                    </span>
+                                    <span data-text="body" className="sr-only">
+                                        필수
+                                    </span>
+                                </>
+                            }
                             id="flow-name"
                             name="name"
                             required
@@ -129,11 +200,25 @@ export default function SignupPage() {
                             disabled={pending}
                         />
 
-                        <SystemField data-text="body"
+                        <SystemField
+                            data-text="body"
                             variant="flow"
                             outerClassName="form-field"
-                            label={<>이메일 <span data-text="body" className="flow-required" aria-hidden="true">*</span>
-                                <span data-text="body" className="sr-only">필수</span></>}
+                            label={
+                                <>
+                                    {"이메일 "}
+                                    <span
+                                        data-text="body"
+                                        className="flow-required"
+                                        aria-hidden="true"
+                                    >
+                                        *
+                                    </span>
+                                    <span data-text="body" className="sr-only">
+                                        필수
+                                    </span>
+                                </>
+                            }
                             id="flow-email"
                             name="email"
                             required
@@ -145,10 +230,18 @@ export default function SignupPage() {
                             disabled={pending}
                         />
 
-                        <SystemField data-text="body"
+                        <SystemField
+                            data-text="body"
                             variant="flow"
                             outerClassName="form-field"
-                            label={<>연락처 <span data-text="body" className="flow-optional">(선택)</span></>}
+                            label={
+                                <>
+                                    {"연락처 "}
+                                    <span data-text="body" className="flow-optional">
+                                        (선택)
+                                    </span>
+                                </>
+                            }
                             id="flow-phone"
                             name="phone"
                             autoComplete="tel"
@@ -159,9 +252,15 @@ export default function SignupPage() {
                             disabled={pending}
                         />
 
-                        <SystemCheckbox data-text="label"
+                        <SystemCheckbox
+                            data-text="label"
                             className="flow-consent"
-                            label={<span data-text="body">회원가입을 위한 개인정보 수집 및 이용에 동의합니다. <strong data-text="item-title">(필수)</strong></span>}
+                            label={
+                                <span data-text="body">
+                                    {"회원가입을 위한 개인정보 수집 및 이용에 동의합니다. "}
+                                    <strong data-text="item-title">(필수)</strong>
+                                </span>
+                            }
                             name="consent"
                             required
                             checked={consent}
@@ -169,15 +268,28 @@ export default function SignupPage() {
                             disabled={pending}
                         />
 
-                        <SystemButton data-text="action" context="flow" className="flow-button-full" type="submit" disabled={pending} aria-busy={pending}>
+                        <SystemButton
+                            data-text="action"
+                            context="flow"
+                            className="flow-button-full"
+                            type="submit"
+                            disabled={pending}
+                            aria-busy={pending}
+                        >
                             {pending ? "가입 링크 전송 중…" : "이메일로 가입 링크 받기"}
                             <Icon name="arrow" size={20} />
                         </SystemButton>
 
-                        {successMessage && <SystemNotice data-text="body" variant="flow" className="flow-info-box">{successMessage} 받은 이메일의 링크를 열어 가입을 완료해 주세요.</SystemNotice>}
+                        {successMessage && (
+                            <SystemNotice data-text="body" variant="flow" className="flow-info-box">
+                                {successMessage} 받은 이메일의 링크를 열어 가입을 완료해 주세요.
+                            </SystemNotice>
+                        )}
 
                         <div className="account-auth-links">
-                            <Link data-text="action" href="/account/login">로그인으로 돌아가기</Link>
+                            <Link data-text="action" href="/account/login">
+                                로그인으로 돌아가기
+                            </Link>
                         </div>
                     </SystemSurface>
                 </div>

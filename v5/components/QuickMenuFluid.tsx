@@ -4,7 +4,12 @@ import { useEffect, useRef } from "react";
 import type { MutableRefObject } from "react";
 import { QUICK_MENU_MATERIAL } from "../src/data/design-tokens";
 import { createFluidPaint, drawFluid, FLUID_SIZE, stepFluid } from "../src/lib/quick-menu-fluid";
-import type { FluidPaint, FluidPalette, FluidState, QuickMenuInteraction } from "../src/lib/quick-menu-fluid";
+import type {
+    FluidPaint,
+    FluidPalette,
+    FluidState,
+    QuickMenuInteraction,
+} from "../src/lib/quick-menu-fluid";
 import styles from "./VioletQuickMenu.module.css";
 
 interface QuickMenuFluidProps {
@@ -15,7 +20,12 @@ interface QuickMenuFluidProps {
 }
 
 /** Native navigation remains usable with the CSS material if Canvas is unavailable. */
-export default function QuickMenuFluid({ awake, animated, expanded = false, interaction }: QuickMenuFluidProps) {
+export default function QuickMenuFluid({
+    awake,
+    animated,
+    expanded = false,
+    interaction,
+}: QuickMenuFluidProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const state = useRef<FluidState>({ phase: 0.7, x: 0, y: 0, spin: 0 });
 
@@ -32,12 +42,17 @@ export default function QuickMenuFluid({ awake, animated, expanded = false, inte
         const modest = window.matchMedia("(pointer: coarse)").matches;
         const ratio = Math.min(window.devicePixelRatio || 1, modest ? 1.5 : 2);
         let paint: FluidPaint;
-        const interval = 1000 / (modest ? QUICK_MENU_MATERIAL.motion.mobileFps : QUICK_MENU_MATERIAL.motion.desktopFps);
+        const interval =
+            1000 /
+            (modest ? QUICK_MENU_MATERIAL.motion.mobileFps : QUICK_MENU_MATERIAL.motion.desktopFps);
         let frame = 0;
         let lastDraw = 0;
         let previous = 0;
         const resize = () => {
-            const pixels = Math.max(96, Math.min(800, Math.round((canvas.clientWidth || (expanded ? 370 : 88)) * ratio)));
+            const pixels = Math.max(
+                96,
+                Math.min(800, Math.round((canvas.clientWidth || (expanded ? 370 : 88)) * ratio)),
+            );
             if (canvas.width !== pixels || canvas.height !== pixels) {
                 canvas.width = pixels;
                 canvas.height = pixels;
@@ -54,7 +69,7 @@ export default function QuickMenuFluid({ awake, animated, expanded = false, inte
             stepFluid(state.current, interaction.current, elapsed, now);
             if (now - lastDraw >= interval) {
                 drawFluid(context, paint, state.current);
-                lastDraw = now - (now - lastDraw) % interval;
+                lastDraw = now - ((now - lastDraw) % interval);
             }
             frame = requestAnimationFrame(tick);
         };
@@ -62,8 +77,20 @@ export default function QuickMenuFluid({ awake, animated, expanded = false, inte
         const observer = new ResizeObserver(resize);
         observer.observe(canvas);
         if (animated) frame = requestAnimationFrame(tick);
-        return () => { cancelAnimationFrame(frame); observer.disconnect(); };
+        return () => {
+            cancelAnimationFrame(frame);
+            observer.disconnect();
+        };
     }, [awake, animated, expanded, interaction]);
 
-    return <canvas ref={canvasRef} className={styles.fluid} data-component-part="quick-menu-fluid" data-component-owner="quick-menu" data-quick-fluid={expanded ? "expanded" : "resting"} aria-hidden="true" />;
+    return (
+        <canvas
+            ref={canvasRef}
+            className={styles.fluid}
+            data-component-part="quick-menu-fluid"
+            data-component-owner="quick-menu"
+            data-quick-fluid={expanded ? "expanded" : "resting"}
+            aria-hidden="true"
+        />
+    );
 }

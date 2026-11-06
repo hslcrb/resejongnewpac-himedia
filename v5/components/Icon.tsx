@@ -39,14 +39,22 @@ type IconProps = {
     | { name: HeaderActionIcon; group: "header-action"; size?: never }
 );
 
-export default function Icon({ name, size = 24, group = "general", className = "", filled = false }: IconProps) {
+export default function Icon({
+    name,
+    size = 24,
+    group = "general",
+    className = "",
+    filled = false,
+}: IconProps) {
     const symbol = names[name] || name || "arrow_forward";
     const hasFilledVariant = symbol === "favorite" || symbol === "lightbulb";
 
     return (
         <svg
             data-component-id="icon"
-            data-icon-group={group === "header-action" && isHeaderActionIcon(name) ? "header-action" : "general"}
+            data-icon-group={
+                group === "header-action" && isHeaderActionIcon(name) ? "header-action" : "general"
+            }
             className={`material-icon ${className}`.trim()}
             width={size}
             height={size}

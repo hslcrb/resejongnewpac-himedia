@@ -4,4 +4,6 @@ import { assertCatalogSnapshot } from "./repository.ts";
 const published: unknown = snapshot;
 assertCatalogSnapshot(published);
 export const CATALOG_SNAPSHOT: CatalogSnapshot = published;
-export function loadPublishedCatalog(): CatalogSnapshot { return CATALOG_SNAPSHOT; }
+export function loadPublishedCatalog(): CatalogSnapshot {
+    return CATALOG_SNAPSHOT;
+}

@@ -27,7 +27,17 @@ export type SystemDialogProps = DialogHTMLAttributes<HTMLDialogElement> & {
 };
 
 export const SystemDialog = forwardRef<HTMLDialogElement, SystemDialogProps>(function SystemDialog(
-    { open, triggerRef, initialFocusRef, closeOnBackdrop = true, className = "", onClick, children, ...props }, forwardedRef,
+    {
+        open,
+        triggerRef,
+        initialFocusRef,
+        closeOnBackdrop = true,
+        className = "",
+        onClick,
+        children,
+        ...props
+    },
+    forwardedRef,
 ) {
     const dialogRef = useRef<HTMLDialogElement>(null);
     const focusRefs = useRef({ triggerRef, initialFocusRef });
@@ -41,15 +51,31 @@ export const SystemDialog = forwardRef<HTMLDialogElement, SystemDialogProps>(fun
         let returnFocus: HTMLElement | null = null;
         let active = false;
         function available(element: HTMLElement) {
-            return dialog.contains(element) && !element.matches(":disabled") && element.getClientRects().length > 0 && getComputedStyle(element).visibility !== "hidden" && !element.closest("[inert]");
+            return (
+                dialog.contains(element) &&
+                !element.matches(":disabled") &&
+                element.getClientRects().length > 0 &&
+                getComputedStyle(element).visibility !== "hidden" &&
+                !element.closest("[inert]")
+            );
         }
         function enter() {
             if (active) return;
             active = true;
             lockScroll(dialog);
             const preferred = focusRefs.current.initialFocusRef?.current;
-            const autofocus = [...dialog.querySelectorAll<HTMLElement>("[autofocus],[data-autofocus]")].find(available);
-            const first = preferred && available(preferred) ? preferred : autofocus || [...dialog.querySelectorAll<HTMLElement>("button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex='-1'])")].find(available);
+            const autofocus = [
+                ...dialog.querySelectorAll<HTMLElement>("[autofocus],[data-autofocus]"),
+            ].find(available);
+            const first =
+                preferred && available(preferred)
+                    ? preferred
+                    : autofocus ||
+                      [
+                          ...dialog.querySelectorAll<HTMLElement>(
+                              "button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex='-1'])",
+                          ),
+                      ].find(available);
             if (first) first.focus({ preventScroll: true });
             else dialog.focus({ preventScroll: true });
         }
@@ -63,16 +89,33 @@ export const SystemDialog = forwardRef<HTMLDialogElement, SystemDialogProps>(fun
         }
         function containTab(event: KeyboardEvent) {
             if (!active || event.key !== "Tab" || event.defaultPrevented) return;
-            const controls = [...dialog.querySelectorAll<HTMLElement>("button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex='-1'])")].filter((element) => element.tabIndex >= 0 && available(element));
+            const controls = [
+                ...dialog.querySelectorAll<HTMLElement>(
+                    "button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex='-1'])",
+                ),
+            ].filter((element) => element.tabIndex >= 0 && available(element));
             const first = controls[0];
             const last = controls[controls.length - 1];
-            if (!first) { event.preventDefault(); dialog.focus(); return; }
-            if (event.shiftKey && (document.activeElement === first || document.activeElement === dialog)) { event.preventDefault(); last.focus(); }
-            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+            if (!first) {
+                event.preventDefault();
+                dialog.focus();
+                return;
+            }
+            if (
+                event.shiftKey &&
+                (document.activeElement === first || document.activeElement === dialog)
+            ) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
         }
         dialog.showModal = function () {
             if (dialog.open) return;
-            returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+            returnFocus =
+                document.activeElement instanceof HTMLElement ? document.activeElement : null;
             nativeShowModal.call(dialog);
             enter();
         };
@@ -107,12 +150,36 @@ export const SystemDialog = forwardRef<HTMLDialogElement, SystemDialogProps>(fun
         else if (!open && dialog.open) dialog.close();
     }, [open]);
 
-    return <dialog data-text="body" {...props} ref={dialogRef} className={`ds-dialog ${className}`.trim()} data-component="dialog" data-component-id="dialog" data-stroke="inner" onClick={(event) => {
-        onClick?.(event);
-        if (event.defaultPrevented || !closeOnBackdrop || event.target !== event.currentTarget) return;
-        const rect = event.currentTarget.getBoundingClientRect();
-        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) event.currentTarget.close();
-    }}>{children}</dialog>;
+    return (
+        <dialog
+            data-text="body"
+            {...props}
+            ref={dialogRef}
+            className={`ds-dialog ${className}`.trim()}
+            data-component="dialog"
+            data-component-id="dialog"
+            data-stroke="inner"
+            onClick={(event) => {
+                onClick?.(event);
+                if (
+                    event.defaultPrevented ||
+                    !closeOnBackdrop ||
+                    event.target !== event.currentTarget
+                )
+                    return;
+                const rect = event.currentTarget.getBoundingClientRect();
+                if (
+                    event.clientX < rect.left ||
+                    event.clientX > rect.right ||
+                    event.clientY < rect.top ||
+                    event.clientY > rect.bottom
+                )
+                    event.currentTarget.close();
+            }}
+        >
+            {children}
+        </dialog>
+    );
 });
 
 export default SystemDialog;

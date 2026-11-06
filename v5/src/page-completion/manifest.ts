@@ -88,7 +88,7 @@ export const COMPLETION_PATHS = [
     "/visit/support/lost",
     "/visit/support/lost/glasses",
     "/visit/support/lost/scarf",
-    "/visit/support/lost/umbrella"
+    "/visit/support/lost/umbrella",
 ] as const;
 
 const allowed = new Set<string>(COMPLETION_PATHS);

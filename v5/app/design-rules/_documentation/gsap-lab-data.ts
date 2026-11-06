@@ -1,16 +1,124 @@
 export const GSAP_EXAMPLES = [
-    { id: "timeline", label: "Timeline · 순서와 겹침", api: "timeline · fromTo · stagger", description: "세 개의 도형이 같은 타임라인에서 조금씩 겹쳐 이동합니다. 진행률을 바꾸면 전체 장면을 함께 탐색합니다.", use: "대표 이미지·제목·장식의 짧은 시퀀스", href: "https://gsap.com/docs/v3/GSAP/Timeline/", code: `const sequence = gsap.timeline({ paused: true });\nsequence.fromTo(targets, { x: 0, scale: .8 }, {\n    x: travel, scale: 1, rotation: 90,\n    duration: 1.2, stagger: .2, ease: "power2.inOut"\n});\nsequence.play(); // pause(), restart(), progress(.5)` },
-    { id: "easing", label: "CustomEase · 속도의 차이", api: "CustomEase · ease", description: "같은 거리와 시간에 선형·맞춤 곡선·탄성 곡선을 나란히 비교합니다. 중간 진행률에서 도형의 위치 차이를 확인하세요.", use: "동작의 성격에 맞는 일정한 속도 곡선", href: "https://gsap.com/docs/v3/Eases/CustomEase/", code: `const soft = CustomEase.create("sejongLabEase", ".16,1,.3,1");\nconst eases = ["none", soft, "elastic.out(1,.5)"];\nconst sequence = gsap.timeline({ paused: true });\ntargets.forEach((target, index) => {\n    sequence.to(target, { x: travel, duration: 2, ease: eases[index] }, 0);\n});` },
-    { id: "scroll", label: "ScrollTrigger · 영역 안의 스크롤", api: "ScrollTrigger · scrub · scroller", description: "이 예제의 작은 스크롤 영역만 장면에 연결합니다. 영역을 직접 스크롤하거나 진행률을 조절해 보세요. 페이지의 스크롤은 바꾸지 않습니다.", use: "사진이나 장식과 읽는 위치의 연결", href: "https://gsap.com/docs/v3/Plugins/ScrollTrigger/", code: `const movement = gsap.to(target, { x: travel, rotation: 180, paused: true });\nconst trigger = ScrollTrigger.create({\n    scroller, trigger: content, start: "top top", end: "bottom bottom",\n    animation: movement, scrub: true\n});\n// 정리할 때 이 예제의 trigger만 kill하고 context를 revert합니다.` },
-    { id: "flip", label: "Flip · 배치가 바뀌는 카드", api: "Flip.getState · Flip.from", description: "카드의 원래 좌표를 기록한 뒤 실제 DOM 순서를 바꾸고, 바뀐 위치까지 연결합니다. 실제 프로그램 분류에서도 같은 원리로 남는 카드의 위치를 잇습니다.", use: "분류·정렬 뒤 남아 있는 항목의 관계", href: "https://gsap.com/docs/v3/Plugins/Flip/", code: `const state = Flip.getState(tiles);\n// React에서는 setState 이전에 기록하고 commit 이후에 실행합니다.\ncontainer.append(tiles[0]);\nconst sequence = Flip.from(state, {\n    duration: 1.6, ease: "power2.inOut", paused: true, scale: true\n});` },
-    { id: "draw", label: "DrawSVG · 선을 그리는 범위", api: "DrawSVGPlugin · drawSVG", description: "SVG 경로의 stroke가 시작점부터 이어집니다. 50%로 옮기면 경로의 절반만 남습니다. 글꼴을 손글씨 획으로 바꾸는 기능은 아닙니다.", use: "장식선·동선·선으로 그린 기관 그래픽", href: "https://gsap.com/docs/v3/Plugins/DrawSVGPlugin/", code: `const sequence = gsap.fromTo(path,\n    { drawSVG: "0% 0%" },\n    { drawSVG: "0% 100%", duration: 2, ease: "none", paused: true }\n);` },
-    { id: "motion-path", label: "MotionPath · 경로를 따르는 점", api: "MotionPathPlugin · motionPath", description: "장식점이 SVG와 같은 좌표계의 곡선을 따라 움직입니다. 경로를 따라 정보를 읽게 강제하지 않고 장식 요소에 사용합니다.", use: "장면 사이를 잇는 작은 장식점", href: "https://gsap.com/docs/v3/Plugins/MotionPathPlugin/", code: `const sequence = gsap.to(dot, {\n    motionPath: { path, align: path, alignOrigin: [.5, .5] },\n    duration: 2, ease: "none", paused: true\n});` },
-    { id: "morph", label: "MorphSVG · 하나의 윤곽에서 다음으로", api: "MorphSVGPlugin · morphSVG", description: "원형에 가까운 경로가 별 모양의 경로로 변합니다. 두 경로의 점 개수가 달라도 플러그인이 윤곽을 맞춥니다.", use: "의미가 연결되는 작은 아이콘이나 장식", href: "https://gsap.com/docs/v3/Plugins/MorphSVGPlugin/", code: `const sequence = gsap.to(path, {\n    morphSVG: starPath, duration: 2,\n    ease: "power2.inOut", paused: true\n});\n// fill과 stroke는 사이트의 기존 색상 토큰을 사용합니다.` },
-    { id: "split", label: "SplitText · 원문을 보존하는 제목", api: "SplitText · autoSplit · onSplit", description: "링크가 없는 짧은 제목을 줄과 단어로 나눕니다. 글꼴·너비 변화 시 다시 나누고, 예제를 바꾸면 원래 DOM으로 되돌립니다. 보조 기술에는 원문을 한 번 전달합니다.", use: "링크 없는 짧은 대표 제목", href: "https://gsap.com/docs/v3/Plugins/SplitText/", code: `const split = SplitText.create(title, {\n    type: "lines,words", aria: "auto", autoSplit: true,\n    onSplit(self) {\n        return gsap.from(self.words, {\n            y: 16, opacity: .35, stagger: .08,\n            duration: 1.2, paused: true\n        });\n    }\n});\n// 종료 시 split.revert()로 원문과 내부 관찰자를 복원합니다.` },
-    { id: "drag", label: "Draggable · 범위 안에서 직접 이동", api: "Draggable · bounds · onDrag", description: "점을 좌우로 드래그해 보세요. 초점을 두고 방향키·Home·End로도 같은 위치를 고를 수 있습니다. 세로 터치 스크롤은 그대로 유지합니다.", use: "명시적인 손잡이·실습 영역의 직접 조작", href: "https://gsap.com/docs/v3/Plugins/Draggable/", code: `const [drag] = Draggable.create(dot, {\n    type: "x", bounds: { minX: 0, maxX: travel },\n    allowNativeTouchScrolling: true, minimumMovement: 4,\n    onDrag() { report(this.x / travel); }\n});\n// 키보드 위치 변경도 제공하고 종료 시 drag.kill()합니다.` },
-    { id: "observer", label: "Observer · 입력을 같은 반응으로", api: "Observer · wheel/touch/pointer", description: "실습 영역의 휠·드래그 입력을 작은 위치 변화로 바꿉니다. 영역의 방향키와 이전·다음 반응 버튼도 같은 동작을 합니다. 전역 스크롤을 막지 않습니다.", use: "특정 영역의 입력을 일관된 조작으로 연결", href: "https://gsap.com/docs/v3/Plugins/Observer/", code: `const observer = Observer.create({\n    target: stage, type: "wheel,touch,pointer", preventDefault: false,\n    onChangeY(self) { nudge(self.deltaY > 0 ? .05 : -.05); }\n});\n// target을 지정하고 키보드 대안을 제공합니다.\n// 종료 시 observer.kill()합니다.` },
-    { id: "scramble", label: "ScrambleText · 문구가 모이는 과정", api: "ScrambleTextPlugin · scrambleText", description: "짧은 장식 문구가 무작위 문자에서 완성됩니다. 접근 가능한 원문은 별도로 유지합니다. 안내문·가격·버튼 레이블에는 적용하지 않습니다.", use: "정보와 분리한 짧은 장식 문구", href: "https://gsap.com/docs/v3/Plugins/ScrambleTextPlugin/", code: `const sequence = gsap.to(decorativeText, {\n    duration: 2, paused: true,\n    scrambleText: { text: "예술이 일상이 되는 곳", chars: "세종문화예술", speed: .5 }\n});\n// 장식은 aria-hidden, 원문은 별도 텍스트로 제공합니다.` },
-    { id: "physics", label: "Physics2D · 범위를 계산한 포물선", api: "Physics2DPlugin · gsap.utils", description: "사용 가능한 폭으로 속도를 계산한 뒤 중력과 각도로 포물선을 만듭니다. 진행률을 움직여 시간에 따른 좌표를 살펴보세요.", use: "한 번 재생하는 작은 장식 움직임", href: "https://gsap.com/docs/v3/Plugins/Physics2DPlugin/", code: `const velocity = gsap.utils.clamp(60, 170, stage.clientWidth / 2);\nconst sequence = gsap.to(dot, {\n    physics2D: { velocity, angle: -55, gravity: 160 },\n    duration: 1.6, ease: "none", paused: true\n});\nconst percent = gsap.utils.snap(1, sequence.progress() * 100);` },
+    {
+        id: "timeline",
+        label: "Timeline · 순서와 겹침",
+        api: "timeline · fromTo · stagger",
+        description:
+            "세 개의 도형이 같은 타임라인에서 조금씩 겹쳐 이동합니다. 진행률을 바꾸면 전체 장면을 함께 탐색합니다.",
+        use: "대표 이미지·제목·장식의 짧은 시퀀스",
+        href: "https://gsap.com/docs/v3/GSAP/Timeline/",
+        code: `const sequence = gsap.timeline({ paused: true });\nsequence.fromTo(targets, { x: 0, scale: .8 }, {\n    x: travel, scale: 1, rotation: 90,\n    duration: 1.2, stagger: .2, ease: "power2.inOut"\n});\nsequence.play(); // pause(), restart(), progress(.5)`,
+    },
+    {
+        id: "easing",
+        label: "CustomEase · 속도의 차이",
+        api: "CustomEase · ease",
+        description:
+            "같은 거리와 시간에 선형·맞춤 곡선·탄성 곡선을 나란히 비교합니다. 중간 진행률에서 도형의 위치 차이를 확인하세요.",
+        use: "동작의 성격에 맞는 일정한 속도 곡선",
+        href: "https://gsap.com/docs/v3/Eases/CustomEase/",
+        code: `const soft = CustomEase.create("sejongLabEase", ".16,1,.3,1");\nconst eases = ["none", soft, "elastic.out(1,.5)"];\nconst sequence = gsap.timeline({ paused: true });\ntargets.forEach((target, index) => {\n    sequence.to(target, { x: travel, duration: 2, ease: eases[index] }, 0);\n});`,
+    },
+    {
+        id: "scroll",
+        label: "ScrollTrigger · 영역 안의 스크롤",
+        api: "ScrollTrigger · scrub · scroller",
+        description:
+            "이 예제의 작은 스크롤 영역만 장면에 연결합니다. 영역을 직접 스크롤하거나 진행률을 조절해 보세요. 페이지의 스크롤은 바꾸지 않습니다.",
+        use: "사진이나 장식과 읽는 위치의 연결",
+        href: "https://gsap.com/docs/v3/Plugins/ScrollTrigger/",
+        code: `const movement = gsap.to(target, { x: travel, rotation: 180, paused: true });\nconst trigger = ScrollTrigger.create({\n    scroller, trigger: content, start: "top top", end: "bottom bottom",\n    animation: movement, scrub: true\n});\n// 정리할 때 이 예제의 trigger만 kill하고 context를 revert합니다.`,
+    },
+    {
+        id: "flip",
+        label: "Flip · 배치가 바뀌는 카드",
+        api: "Flip.getState · Flip.from",
+        description:
+            "카드의 원래 좌표를 기록한 뒤 실제 DOM 순서를 바꾸고, 바뀐 위치까지 연결합니다. 실제 프로그램 분류에서도 같은 원리로 남는 카드의 위치를 잇습니다.",
+        use: "분류·정렬 뒤 남아 있는 항목의 관계",
+        href: "https://gsap.com/docs/v3/Plugins/Flip/",
+        code: `const state = Flip.getState(tiles);\n// React에서는 setState 이전에 기록하고 commit 이후에 실행합니다.\ncontainer.append(tiles[0]);\nconst sequence = Flip.from(state, {\n    duration: 1.6, ease: "power2.inOut", paused: true, scale: true\n});`,
+    },
+    {
+        id: "draw",
+        label: "DrawSVG · 선을 그리는 범위",
+        api: "DrawSVGPlugin · drawSVG",
+        description:
+            "SVG 경로의 stroke가 시작점부터 이어집니다. 50%로 옮기면 경로의 절반만 남습니다. 글꼴을 손글씨 획으로 바꾸는 기능은 아닙니다.",
+        use: "장식선·동선·선으로 그린 기관 그래픽",
+        href: "https://gsap.com/docs/v3/Plugins/DrawSVGPlugin/",
+        code: `const sequence = gsap.fromTo(path,\n    { drawSVG: "0% 0%" },\n    { drawSVG: "0% 100%", duration: 2, ease: "none", paused: true }\n);`,
+    },
+    {
+        id: "motion-path",
+        label: "MotionPath · 경로를 따르는 점",
+        api: "MotionPathPlugin · motionPath",
+        description:
+            "장식점이 SVG와 같은 좌표계의 곡선을 따라 움직입니다. 경로를 따라 정보를 읽게 강제하지 않고 장식 요소에 사용합니다.",
+        use: "장면 사이를 잇는 작은 장식점",
+        href: "https://gsap.com/docs/v3/Plugins/MotionPathPlugin/",
+        code: `const sequence = gsap.to(dot, {\n    motionPath: { path, align: path, alignOrigin: [.5, .5] },\n    duration: 2, ease: "none", paused: true\n});`,
+    },
+    {
+        id: "morph",
+        label: "MorphSVG · 하나의 윤곽에서 다음으로",
+        api: "MorphSVGPlugin · morphSVG",
+        description:
+            "원형에 가까운 경로가 별 모양의 경로로 변합니다. 두 경로의 점 개수가 달라도 플러그인이 윤곽을 맞춥니다.",
+        use: "의미가 연결되는 작은 아이콘이나 장식",
+        href: "https://gsap.com/docs/v3/Plugins/MorphSVGPlugin/",
+        code: `const sequence = gsap.to(path, {\n    morphSVG: starPath, duration: 2,\n    ease: "power2.inOut", paused: true\n});\n// fill과 stroke는 사이트의 기존 색상 토큰을 사용합니다.`,
+    },
+    {
+        id: "split",
+        label: "SplitText · 원문을 보존하는 제목",
+        api: "SplitText · autoSplit · onSplit",
+        description:
+            "링크가 없는 짧은 제목을 줄과 단어로 나눕니다. 글꼴·너비 변화 시 다시 나누고, 예제를 바꾸면 원래 DOM으로 되돌립니다. 보조 기술에는 원문을 한 번 전달합니다.",
+        use: "링크 없는 짧은 대표 제목",
+        href: "https://gsap.com/docs/v3/Plugins/SplitText/",
+        code: `const split = SplitText.create(title, {\n    type: "lines,words", aria: "auto", autoSplit: true,\n    onSplit(self) {\n        return gsap.from(self.words, {\n            y: 16, opacity: .35, stagger: .08,\n            duration: 1.2, paused: true\n        });\n    }\n});\n// 종료 시 split.revert()로 원문과 내부 관찰자를 복원합니다.`,
+    },
+    {
+        id: "drag",
+        label: "Draggable · 범위 안에서 직접 이동",
+        api: "Draggable · bounds · onDrag",
+        description:
+            "점을 좌우로 드래그해 보세요. 초점을 두고 방향키·Home·End로도 같은 위치를 고를 수 있습니다. 세로 터치 스크롤은 그대로 유지합니다.",
+        use: "명시적인 손잡이·실습 영역의 직접 조작",
+        href: "https://gsap.com/docs/v3/Plugins/Draggable/",
+        code: `const [drag] = Draggable.create(dot, {\n    type: "x", bounds: { minX: 0, maxX: travel },\n    allowNativeTouchScrolling: true, minimumMovement: 4,\n    onDrag() { report(this.x / travel); }\n});\n// 키보드 위치 변경도 제공하고 종료 시 drag.kill()합니다.`,
+    },
+    {
+        id: "observer",
+        label: "Observer · 입력을 같은 반응으로",
+        api: "Observer · wheel/touch/pointer",
+        description:
+            "실습 영역의 휠·드래그 입력을 작은 위치 변화로 바꿉니다. 영역의 방향키와 이전·다음 반응 버튼도 같은 동작을 합니다. 전역 스크롤을 막지 않습니다.",
+        use: "특정 영역의 입력을 일관된 조작으로 연결",
+        href: "https://gsap.com/docs/v3/Plugins/Observer/",
+        code: `const observer = Observer.create({\n    target: stage, type: "wheel,touch,pointer", preventDefault: false,\n    onChangeY(self) { nudge(self.deltaY > 0 ? .05 : -.05); }\n});\n// target을 지정하고 키보드 대안을 제공합니다.\n// 종료 시 observer.kill()합니다.`,
+    },
+    {
+        id: "scramble",
+        label: "ScrambleText · 문구가 모이는 과정",
+        api: "ScrambleTextPlugin · scrambleText",
+        description:
+            "짧은 장식 문구가 무작위 문자에서 완성됩니다. 접근 가능한 원문은 별도로 유지합니다. 안내문·가격·버튼 레이블에는 적용하지 않습니다.",
+        use: "정보와 분리한 짧은 장식 문구",
+        href: "https://gsap.com/docs/v3/Plugins/ScrambleTextPlugin/",
+        code: `const sequence = gsap.to(decorativeText, {\n    duration: 2, paused: true,\n    scrambleText: { text: "예술이 일상이 되는 곳", chars: "세종문화예술", speed: .5 }\n});\n// 장식은 aria-hidden, 원문은 별도 텍스트로 제공합니다.`,
+    },
+    {
+        id: "physics",
+        label: "Physics2D · 범위를 계산한 포물선",
+        api: "Physics2DPlugin · gsap.utils",
+        description:
+            "사용 가능한 폭으로 속도를 계산한 뒤 중력과 각도로 포물선을 만듭니다. 진행률을 움직여 시간에 따른 좌표를 살펴보세요.",
+        use: "한 번 재생하는 작은 장식 움직임",
+        href: "https://gsap.com/docs/v3/Plugins/Physics2DPlugin/",
+        code: `const velocity = gsap.utils.clamp(60, 170, stage.clientWidth / 2);\nconst sequence = gsap.to(dot, {\n    physics2D: { velocity, angle: -55, gravity: 160 },\n    duration: 1.6, ease: "none", paused: true\n});\nconst percent = gsap.utils.snap(1, sequence.progress() * 100);`,
+    },
 ] as const;
 
-export type GsapExampleId = typeof GSAP_EXAMPLES[number]["id"];
+export type GsapExampleId = (typeof GSAP_EXAMPLES)[number]["id"];

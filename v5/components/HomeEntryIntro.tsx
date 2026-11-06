@@ -3,7 +3,12 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { SystemButton } from "./SystemPrimitives";
-import { HOME_ENTRY_COPY, HOME_ENTRY_TIMING, homeEntryTimeline, isV5HomeEntry } from "../src/lib/home-entry-intro";
+import {
+    HOME_ENTRY_COPY,
+    HOME_ENTRY_TIMING,
+    homeEntryTimeline,
+    isV5HomeEntry,
+} from "../src/lib/home-entry-intro";
 import styles from "./HomeEntryIntro.module.css";
 
 /**
@@ -30,22 +35,31 @@ export default function HomeEntryIntro() {
         const dialog = dialogRef.current;
         if (!dialog) return;
         const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-        if (motion.matches || document.visibilityState === "hidden" ||
-            window.location.hash || new URLSearchParams(window.location.search).get("mode") === "cms-scm") {
+        if (
+            motion.matches ||
+            document.visibilityState === "hidden" ||
+            window.location.hash ||
+            new URLSearchParams(window.location.search).get("mode") === "cms-scm"
+        ) {
             setVisible(false);
             return;
         }
         // 로컬 손글씨를 미리 준비하되 폰트 실패로 진입을 막지 않는다.
         void document.fonts?.load('400 48px "Yeongwol"', HOME_ENTRY_COPY).catch(() => {});
 
-        const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        const previousFocus =
+            document.activeElement instanceof HTMLElement ? document.activeElement : null;
         const previousOverflow = document.body.style.getPropertyValue("overflow");
         const previousOverflowPriority = document.body.style.getPropertyPriority("overflow");
         const underlay = Array.from(document.body.children)
-            .filter((element): element is HTMLElement =>
-                element instanceof HTMLElement && element !== dialog &&
-                !element.contains(dialog) && !["SCRIPT", "STYLE", "LINK"].includes(element.tagName))
-            .map(element => ({
+            .filter(
+                (element): element is HTMLElement =>
+                    element instanceof HTMLElement &&
+                    element !== dialog &&
+                    !element.contains(dialog) &&
+                    !["SCRIPT", "STYLE", "LINK"].includes(element.tagName),
+            )
+            .map((element) => ({
                 element,
                 inert: element.inert,
                 ariaHidden: element.getAttribute("aria-hidden"),
@@ -77,8 +91,12 @@ export default function HomeEntryIntro() {
                 skipRef.current?.focus({ preventScroll: true });
             }
         };
-        const onVisibilityChange = () => { if (document.visibilityState === "hidden") finish(); };
-        const onMotionChange = (event: MediaQueryListEvent) => { if (event.matches) finish(); };
+        const onVisibilityChange = () => {
+            if (document.visibilityState === "hidden") finish();
+        };
+        const onMotionChange = (event: MediaQueryListEvent) => {
+            if (event.matches) finish();
+        };
 
         document.addEventListener("keydown", onKeyDown);
         document.addEventListener("visibilitychange", onVisibilityChange);
@@ -88,8 +106,10 @@ export default function HomeEntryIntro() {
 
         schedule(() => setPhase("copy"), HOME_ENTRY_TIMING.copyStart);
         for (let count = 1; count <= HOME_ENTRY_COPY.length; count++) {
-            schedule(() => setCharacterCount(count),
-                HOME_ENTRY_TIMING.copyStart + count * HOME_ENTRY_TIMING.typeCharacter);
+            schedule(
+                () => setCharacterCount(count),
+                HOME_ENTRY_TIMING.copyStart + count * HOME_ENTRY_TIMING.typeCharacter,
+            );
         }
         const { exitAt, finishAt } = homeEntryTimeline();
         schedule(() => setPhase("exit"), exitAt);
@@ -109,15 +129,26 @@ export default function HomeEntryIntro() {
                 else item.element.setAttribute("aria-hidden", item.ariaHidden);
             }
             if (previousOverflow) {
-                document.body.style.setProperty("overflow", previousOverflow, previousOverflowPriority);
+                document.body.style.setProperty(
+                    "overflow",
+                    previousOverflow,
+                    previousOverflowPriority,
+                );
             } else {
                 document.body.style.removeProperty("overflow");
             }
             // 이미 다른 곳으로 포커스를 옮겼다면 기존 포커스를 빼앗지 않는다.
-            if (document.activeElement === document.body || document.activeElement && dialog.contains(document.activeElement)) {
-                const destination = previousFocus?.isConnected && previousFocus !== document.body && previousFocus !== document.documentElement && !previousFocus.closest("[inert]")
-                    ? previousFocus
-                    : document.getElementById("main");
+            if (
+                document.activeElement === document.body ||
+                (document.activeElement && dialog.contains(document.activeElement))
+            ) {
+                const destination =
+                    previousFocus?.isConnected &&
+                    previousFocus !== document.body &&
+                    previousFocus !== document.documentElement &&
+                    !previousFocus.closest("[inert]")
+                        ? previousFocus
+                        : document.getElementById("main");
                 if (destination instanceof HTMLElement) destination.focus({ preventScroll: true });
             }
         };
@@ -137,7 +168,13 @@ export default function HomeEntryIntro() {
             aria-label="세종문화회관 시작 화면"
             aria-describedby={descriptionId}
         >
-            <link rel="preload" href="/v5/assets/fonts/Yeongwol-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+            <link
+                rel="preload"
+                href="/v5/assets/fonts/Yeongwol-Regular.woff2"
+                as="font"
+                type="font/woff2"
+                crossOrigin="anonymous"
+            />
             <p data-text="body" id={descriptionId} className={styles.srOnly}>
                 2026 화이팅! 건너뛰기 버튼 또는 Escape 키로 바로 이동할 수 있습니다.
             </p>
@@ -156,14 +193,33 @@ export default function HomeEntryIntro() {
                     />
                 </div>
                 <div className={styles.copy} aria-hidden="true">
-                    <span data-text="label" className={styles.eyebrow}>SEJONG PERFORMING ARTS CENTER</span>
-                    <p data-text="heading" className={styles.message} data-intro-handwriting aria-label={HOME_ENTRY_COPY}>
+                    <span data-text="label" className={styles.eyebrow}>
+                        SEJONG PERFORMING ARTS CENTER
+                    </span>
+                    <p
+                        data-text="heading"
+                        className={styles.message}
+                        data-intro-handwriting
+                        aria-label={HOME_ENTRY_COPY}
+                    >
                         {Array.from(HOME_ENTRY_COPY).map((letter, index) => (
-                            <span data-text="heading" data-intro-glyph data-written={index < characterCount || undefined}
-                                className={styles.glyph} key={index}>{letter === " " ? "\u00a0" : letter}</span>
+                            <span
+                                data-text="heading"
+                                data-intro-glyph
+                                data-written={index < characterCount || undefined}
+                                className={styles.glyph}
+                                key={index}
+                            >
+                                {letter === " " ? "\u00a0" : letter}
+                            </span>
                         ))}
                     </p>
-                    <svg className={styles.flourish} viewBox="0 0 400 32" aria-hidden="true" fill="none">
+                    <svg
+                        className={styles.flourish}
+                        viewBox="0 0 400 32"
+                        aria-hidden="true"
+                        fill="none"
+                    >
                         <path d="M12 20C98 5 247 9 379 17M328 26L388 13" pathLength="1" />
                     </svg>
                 </div>

@@ -11,7 +11,8 @@ export type PanelFrame = {
 
 // [화면 안의 자유로운 배치 / Free positioning within the viewport]
 export function constrainPanel(point: PanelPoint, frame: PanelFrame, docked = false): PanelPoint {
-    if (docked) return { x: 0, y: Math.max(0, Math.min(point.y, frame.height - frame.panelHeight)) };
+    if (docked)
+        return { x: 0, y: Math.max(0, Math.min(point.y, frame.height - frame.panelHeight)) };
     return {
         x: Math.max(frame.inset, Math.min(point.x, frame.width - frame.panelWidth - frame.inset)),
         y: Math.max(frame.inset, Math.min(point.y, frame.height - frame.panelHeight - frame.inset)),

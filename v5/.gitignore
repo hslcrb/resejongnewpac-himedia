@@ -13,6 +13,7 @@ __pycache__/
 /index.txt
 /404.html
 /readable-assets.json
+*.tsbuildinfo
 /*/index.html
 /*/index.txt
 /*/**/index.html

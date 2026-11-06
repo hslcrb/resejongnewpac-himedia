@@ -8,7 +8,15 @@ import { mediaPath } from "../src/lib/media";
 import type { HomeFeature } from "../src/data/home-features";
 
 // [작품 중심 히어로의 공통 규격 / Shared artwork-led hero slide]
-export default function HeroSlide({ feature, active, entering = false, preview, onSelect, layout = "with-companion", idPrefix = "home-feature" }: {
+export default function HeroSlide({
+    feature,
+    active,
+    entering = false,
+    preview,
+    onSelect,
+    layout = "with-companion",
+    idPrefix = "home-feature",
+}: {
     feature: HomeFeature;
     active: boolean;
     entering?: boolean;
@@ -21,7 +29,8 @@ export default function HeroSlide({ feature, active, entering = false, preview, 
         <article
             className={`card card--hero season-slide season-${feature.theme}${active ? " is-active" : ""}${entering ? " is-entering" : ""}`}
             data-card="hero"
-            data-component="HeroSlide" data-component-id="hero-slide"
+            data-component="HeroSlide"
+            data-component-id="hero-slide"
             data-layout={layout}
             data-feature={feature.id}
             data-preview={preview}
@@ -39,7 +48,7 @@ export default function HeroSlide({ feature, active, entering = false, preview, 
                     height={941}
                     draggable={false}
                     loading={active || preview ? "eager" : "lazy"}
-                    onError={event => {
+                    onError={(event) => {
                         if (event.currentTarget.dataset.fallback) return;
                         event.currentTarget.dataset.fallback = "true";
                         event.currentTarget.src = mediaPath();
@@ -47,27 +56,54 @@ export default function HeroSlide({ feature, active, entering = false, preview, 
                     }}
                 />
                 <div className="season-copy" aria-hidden={!active}>
-                    <p data-text="label" className="season-label">{feature.label}</p>
-                    <h2 data-text="heading" data-text-size={layout === "standalone" ? "hero-standalone" : "hero-with-companion"}>{feature.name}</h2>
-                    <p data-text="caption" className="season-meta">{feature.date.replaceAll("-", "~")}<span data-text="body">{feature.venue}</span></p>
+                    <p data-text="label" className="season-label">
+                        {feature.label}
+                    </p>
+                    <h2
+                        data-text="heading"
+                        data-text-size={
+                            layout === "standalone" ? "hero-standalone" : "hero-with-companion"
+                        }
+                    >
+                        {feature.name}
+                    </h2>
+                    <p data-text="caption" className="season-meta">
+                        {feature.date.replaceAll("-", "~")}
+                        <span data-text="body">{feature.venue}</span>
+                    </p>
                     <div className="season-actions">
-                        <SystemLink data-text="action" variant="inverse" href={`/programs/${feature.id}`} tabIndex={active ? 0 : -1} draggable={false}>
+                        <SystemLink
+                            data-text="action"
+                            variant="inverse"
+                            href={`/programs/${feature.id}`}
+                            tabIndex={active ? 0 : -1}
+                            draggable={false}
+                        >
                             상세보기 <Icon name="arrow" size={20} />
                         </SystemLink>
-                        <SystemLink data-text="action" variant="inverse-outline" href={`/booking/${feature.id}`} tabIndex={active ? 0 : -1} draggable={false}>
+                        <SystemLink
+                            data-text="action"
+                            variant="inverse-outline"
+                            href={`/booking/${feature.id}`}
+                            tabIndex={active ? 0 : -1}
+                            draggable={false}
+                        >
                             예매하기 <Icon name="ticket" size={20} />
                         </SystemLink>
                     </div>
                 </div>
-                {preview && <SystemButton data-text="action"
-                    variant="inverse-quiet"
-                    className="season-peer-title"
-                    aria-label={`${feature.name} ${preview === "previous" ? "이전" : "다음"} 슬라이드로 보기`}
-                    onClick={onSelect}
-                >
-                    <Icon name={preview === "previous" ? "back" : "arrow"} size={24} />
-                    <strong data-text="item-title">{feature.programTitle}</strong>
-                </SystemButton>}
+                {preview && (
+                    <SystemButton
+                        data-text="action"
+                        variant="inverse-quiet"
+                        className="season-peer-title"
+                        aria-label={`${feature.name} ${preview === "previous" ? "이전" : "다음"} 슬라이드로 보기`}
+                        onClick={onSelect}
+                    >
+                        <Icon name={preview === "previous" ? "back" : "arrow"} size={24} />
+                        <strong data-text="item-title">{feature.programTitle}</strong>
+                    </SystemButton>
+                )}
             </div>
         </article>
     );

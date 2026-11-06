@@ -17,7 +17,12 @@ export function isRemovedOfficialLink(value: unknown): boolean {
     try {
         const url = new URL(value.trim(), "https://navigation.local");
         if (officialHost(url.hostname)) return true;
-        return url.protocol === "mailto:" && decodeURIComponent(url.pathname).split(/[,;]/).some(address => officialHost(address.split("@").at(-1) || ""));
+        return (
+            url.protocol === "mailto:" &&
+            decodeURIComponent(url.pathname)
+                .split(/[,;]/)
+                .some((address) => officialHost(address.split("@").at(-1) || ""))
+        );
     } catch {
         return false;
     }

@@ -40,11 +40,16 @@ export function generateStaticParams() {
     }));
 }
 
-
 // [제목뿐인 범용 본문을 사용하지 않는 경로 / Resolve an actual content record]
 export default function CatalogDynamicPage({ params }: { params: { slug: string[] } }) {
     const path = "/" + params.slug.join("/");
-    const known = CATALOG_SNAPSHOT.pages.some(page => page.path === path) || VENUES.some(venue => path === `/visit/spaces/${venue.id}` || path === `/rental/venues/${venue.id}`) || NOTICES.some(notice => path === `/news/notices/${notice.id}`);
+    const known =
+        CATALOG_SNAPSHOT.pages.some((page) => page.path === path) ||
+        VENUES.some(
+            (venue) =>
+                path === `/visit/spaces/${venue.id}` || path === `/rental/venues/${venue.id}`,
+        ) ||
+        NOTICES.some((notice) => path === `/news/notices/${notice.id}`);
     if (!known) notFound();
     if (isCompletionPath(path)) return <CompletedPage path={path} />;
     return <CatalogPage path={path} />;

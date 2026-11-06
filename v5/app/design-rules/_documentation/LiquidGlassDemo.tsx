@@ -25,18 +25,34 @@ export default function LiquidGlassDemo({
     return (
         <div data-documentation-tool="glass-demo" data-component-owner="glass">
             <div className="ds-glass-variant">
-                <label data-text="label" htmlFor="glass-variant">재질 베리언트</label>
-                <select id="glass-variant" value={variant} onChange={event => {
-                    const next = event.target.value as GlassVariant;
-                    setVariant(next);
-                    setOpacity(GLASS_VARIANTS[next].opacity);
-                    setRefraction(GLASS_VARIANTS[next].refraction);
-                }}>
-                    <option data-text="label" value="surface">Surface · 기본 표면</option>
-                    <option data-text="label" value="drawer">Drawer · 모바일 서랍</option>
-                    <option data-text="label" value="hero">Hero · 히어로 안내</option>
-                    <option data-text="label" value="white">White · 밝은 알림</option>
-                    <option data-text="label" value="black">Black · 알림 캡슐</option>
+                <label data-text="label" htmlFor="glass-variant">
+                    재질 베리언트
+                </label>
+                <select
+                    id="glass-variant"
+                    value={variant}
+                    onChange={(event) => {
+                        const next = event.target.value as GlassVariant;
+                        setVariant(next);
+                        setOpacity(GLASS_VARIANTS[next].opacity);
+                        setRefraction(GLASS_VARIANTS[next].refraction);
+                    }}
+                >
+                    <option data-text="label" value="surface">
+                        Surface · 기본 표면
+                    </option>
+                    <option data-text="label" value="drawer">
+                        Drawer · 모바일 서랍
+                    </option>
+                    <option data-text="label" value="hero">
+                        Hero · 히어로 안내
+                    </option>
+                    <option data-text="label" value="white">
+                        White · 밝은 알림
+                    </option>
+                    <option data-text="label" value="black">
+                        Black · 알림 캡슐
+                    </option>
                 </select>
             </div>
             <div className="ds-glass-stage">
@@ -46,8 +62,15 @@ export default function LiquidGlassDemo({
                     alt=""
                     className="ds-glass-backdrop"
                 />
-                <LiquidGlass variant={variant} className="ds-glass-example" opacity={opacity} refraction={refraction}>
-                    <code data-text="caption" className="ds-glass-component-name">LiquidGlass</code>
+                <LiquidGlass
+                    variant={variant}
+                    className="ds-glass-example"
+                    opacity={opacity}
+                    refraction={refraction}
+                >
+                    <code data-text="caption" className="ds-glass-component-name">
+                        LiquidGlass
+                    </code>
                     <h3 data-text="heading">빛을 머금은 유리</h3>
                     <p data-text="body">배경은 가장자리에서 꺾이고, 글자는 선명하게 남습니다.</p>
                 </LiquidGlass>
@@ -56,7 +79,9 @@ export default function LiquidGlassDemo({
                 <div>
                     <label data-text="label" htmlFor="glass-opacity">
                         불투명도{" "}
-                        <output data-text="meta" htmlFor="glass-opacity">{Math.round(opacity * 100)}%</output>
+                        <output data-text="meta" htmlFor="glass-opacity">
+                            {Math.round(opacity * 100)}%
+                        </output>
                     </label>
                     <input
                         id="glass-opacity"
@@ -71,7 +96,10 @@ export default function LiquidGlassDemo({
                 </div>
                 <div>
                     <label data-text="label" htmlFor="glass-refraction">
-                        굴절 강도 <output data-text="meta" htmlFor="glass-refraction">{refraction}</output>
+                        {"굴절 강도 "}
+                        <output data-text="meta" htmlFor="glass-refraction">
+                            {refraction}
+                        </output>
                     </label>
                     <input
                         id="glass-refraction"
@@ -95,12 +123,22 @@ export default function LiquidGlassDemo({
                     기본값으로
                 </SystemButton>
             </div>
-            <CodeBlock title="LiquidGlass.tsx" code={code} onCopy={() => onCopy(code)} copied={copied} />
-            <p data-text="caption">제품에서는 variant로 재질을 선택합니다. 아래 조절값 코드는 가이드 안의 재질 실험 전용입니다.</p>
+            <CodeBlock
+                title="LiquidGlass.tsx"
+                code={code}
+                onCopy={() => onCopy(code)}
+                copied={copied}
+            />
+            <p data-text="caption">
+                제품에서는 variant로 재질을 선택합니다. 아래 조절값 코드는 가이드 안의 재질 실험
+                전용입니다.
+            </p>
             <details>
                 <summary data-text="label">문서 전용 실험 코드</summary>
                 <CodeBlock title="재질 실험" code={documentationOnlyCode} />
-                <SystemButton variant="secondary" onClick={() => onCopy(documentationOnlyCode)}>문서 전용 코드 복사</SystemButton>
+                <SystemButton variant="secondary" onClick={() => onCopy(documentationOnlyCode)}>
+                    문서 전용 코드 복사
+                </SystemButton>
             </details>
         </div>
     );

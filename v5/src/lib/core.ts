@@ -5,10 +5,7 @@ const memory = new Map<string, any>();
 export const esc = (value: any): string =>
     String(value ?? "").replace(
         /[&<>"']/g,
-        (c) =>
-            ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
-                c
-            ] || c
+        (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] || c,
     );
 
 export const href = (path: string): string => "#" + (path.startsWith("/") ? path : "/" + path);
@@ -34,13 +31,19 @@ export function getRoute(): { path: string; query: URLSearchParams } {
 
 export function filterPrograms(
     items: Program[],
-    { category = "전체", date = "", search = "", genre = "", venue = "" }: {
+    {
+        category = "전체",
+        date = "",
+        search = "",
+        genre = "",
+        venue = "",
+    }: {
         category?: string;
         date?: string;
         search?: string;
         genre?: string;
         venue?: string;
-    } = {}
+    } = {},
 ): Program[] {
     const q = search.trim().toLocaleLowerCase();
     return items.filter(
@@ -53,7 +56,7 @@ export function filterPrograms(
                 [p.title, p.genre, p.venue, p.description]
                     .join(" ")
                     .toLocaleLowerCase()
-                    .includes(q))
+                    .includes(q)),
     );
 }
 
@@ -103,7 +106,7 @@ export const money = (value?: number | string): string =>
 
 export function validateBooking(
     booking: { date?: string; time?: string; seats?: string[] },
-    program?: Program
+    program?: Program,
 ): { ok: boolean; error?: string } {
     if (
         !program ||

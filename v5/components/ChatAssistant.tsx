@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import useAccountIdentity from "./useAccountIdentity";
 import { supabase } from "../src/lib/supabase.ts";
-import { clearGuestChat, loadGuestChat, sanitizeChatLines, saveGuestChat } from "../src/lib/chat-vault.ts";
+import {
+    clearGuestChat,
+    loadGuestChat,
+    sanitizeChatLines,
+    saveGuestChat,
+} from "../src/lib/chat-vault.ts";
 import type { ChatLine } from "../src/lib/chat-vault.ts";
 import styles from "./ChatAssistant.module.css";
 
@@ -41,27 +46,42 @@ function loadDeepChat(): Promise<void> {
             };
             script.onerror = () => reject(new Error("채팅 UI를 불러오지 못했습니다."));
             document.head.append(script);
-        }).catch(error => { loader = null; throw error; });
+        }).catch((error) => {
+            loader = null;
+            throw error;
+        });
     }
     return loader;
 }
 
-async function apiRequest(method: "GET" | "POST" | "DELETE", isLoggedIn: boolean, body?: object): Promise<unknown> {
+async function apiRequest(
+    method: "GET" | "POST" | "DELETE",
+    isLoggedIn: boolean,
+    body?: object,
+): Promise<unknown> {
     if (!CHAT_ENDPOINT || !PUBLIC_KEY) throw new Error("채팅 연결 설정을 확인해 주세요.");
     const headers: Record<string, string> = {
         apikey: PUBLIC_KEY,
         "Content-Type": "application/json",
     };
     if (isLoggedIn) {
-        const { data: { session }, error } = await supabase!.auth.getSession();
-        if (error || !session?.access_token) throw new Error("로그인 세션이 만료되었습니다. 다시 로그인해 주세요.");
+        const {
+            data: { session },
+            error,
+        } = await supabase!.auth.getSession();
+        if (error || !session?.access_token)
+            throw new Error("로그인 세션이 만료되었습니다. 다시 로그인해 주세요.");
         headers.Authorization = `Bearer ${session.access_token}`;
     }
     const response = await fetch(CHAT_ENDPOINT, {
-        method, headers, body: body ? JSON.stringify(body) : undefined, cache: "no-store",
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+        cache: "no-store",
     });
     if (!response.ok) {
-        if (response.status === 429) throw new Error("이용량 한도에 도달했습니다. 잠시 후 다시 이용해 주세요.");
+        if (response.status === 429)
+            throw new Error("이용량 한도에 도달했습니다. 잠시 후 다시 이용해 주세요.");
         if (response.status === 401) throw new Error("로그인 상태를 다시 확인해 주세요.");
         if (response.status === 503) throw new Error("AI 상담 서비스가 준비되지 않았습니다.");
         throw new Error("AI 답변을 받지 못했습니다. 다시 시도해 주세요.");
@@ -107,7 +127,12 @@ function ChatAssistant() {
             if (!rootRef.current?.contains(document.activeElement)) setOpen(false);
         }, 220);
     };
-    useEffect(() => () => { if (closeTimer.current) clearTimeout(closeTimer.current); }, []);
+    useEffect(
+        () => () => {
+            if (closeTimer.current) clearTimeout(closeTimer.current);
+        },
+        [],
+    );
 
     useEffect(() => {
         if (!hasOpened || !ready || !contentRef.current) return;
@@ -121,7 +146,9 @@ function ChatAssistant() {
                 const results = await Promise.all([
                     loadDeepChat(),
                     isLoggedIn
-                        ? apiRequest("GET", true).then(value => sanitizeChatLines((value as { messages?: unknown }).messages))
+                        ? apiRequest("GET", true).then((value) =>
+                              sanitizeChatLines((value as { messages?: unknown }).messages),
+                          )
                         : loadGuestChat(),
                 ]);
                 if (cancelled) return;
@@ -135,11 +162,16 @@ function ChatAssistant() {
                 node.style.border = "none";
                 node.style.background = "transparent";
                 node.history = history;
-                node.introMessage = { text: "안녕하세요! 세종문화회관의 공연·전시·이용 안내에 관해 무엇이든 물어보세요. AI 답변은 공식 안내와 다를 수 있어요." };
+                node.introMessage = {
+                    text: "안녕하세요! 세종문화회관의 공연·전시·이용 안내에 관해 무엇이든 물어보세요. AI 답변은 공식 안내와 다를 수 있어요.",
+                };
                 node.names = true;
                 node.scrollButton = true;
                 node.requestBodyLimits = { maxMessages: 16, totalMessagesMaxCharLength: 10000 };
-                node.textInput = { placeholder: { text: "궁금한 점을 입력해 보세요" }, characterLimit: 2000 };
+                node.textInput = {
+                    placeholder: { text: "궁금한 점을 입력해 보세요" },
+                    characterLimit: 2000,
+                };
                 node.connect = {
                     handler: (body, signals) => {
                         void (async () => {
@@ -148,20 +180,31 @@ function ChatAssistant() {
                                 if (!lines.length || lines[lines.length - 1].role !== "user") {
                                     throw new Error("질문 내용을 확인해 주세요.");
                                 }
-                                const result = await apiRequest("POST", isLoggedIn, {
-                                    provider: providerRef.current, messages: lines,
-                                }) as ChatReply;
-                                if (typeof result.text !== "string" || !result.text.trim()) throw new Error("빈 답변을 받았습니다.");
-                                const updated = sanitizeChatLines([...lines, { role: "ai", text: result.text }]);
+                                const result = (await apiRequest("POST", isLoggedIn, {
+                                    provider: providerRef.current,
+                                    messages: lines,
+                                })) as ChatReply;
+                                if (typeof result.text !== "string" || !result.text.trim())
+                                    throw new Error("빈 답변을 받았습니다.");
+                                const updated = sanitizeChatLines([
+                                    ...lines,
+                                    { role: "ai", text: result.text },
+                                ]);
                                 if (!isLoggedIn) await saveGuestChat(updated);
                                 historyRef.current = updated;
                                 if (cancelled) return;
-                                setLastModel([result.provider, result.model].filter(Boolean).join(" · "));
+                                setLastModel(
+                                    [result.provider, result.model].filter(Boolean).join(" · "),
+                                );
                                 await signals.onResponse({ text: result.text });
                             } catch (problem) {
-                                if (!cancelled) await signals.onResponse({
-                                    error: problem instanceof Error ? problem.message : "메시지를 전송하지 못했습니다.",
-                                });
+                                if (!cancelled)
+                                    await signals.onResponse({
+                                        error:
+                                            problem instanceof Error
+                                                ? problem.message
+                                                : "메시지를 전송하지 못했습니다.",
+                                    });
                             }
                         })();
                     },
@@ -170,7 +213,12 @@ function ChatAssistant() {
                 contentRef.current?.replaceChildren(node);
                 setLoaded(true);
             } catch (problem) {
-                if (!cancelled) setError(problem instanceof Error ? problem.message : "대화 기록을 불러오지 못했습니다.");
+                if (!cancelled)
+                    setError(
+                        problem instanceof Error
+                            ? problem.message
+                            : "대화 기록을 불러오지 못했습니다.",
+                    );
             }
         };
         void mount();
@@ -203,7 +251,7 @@ function ChatAssistant() {
                 if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) reveal();
             }}
             onMouseLeave={scheduleClose}
-            onKeyDown={event => {
+            onKeyDown={(event) => {
                 if (event.key === "Escape" && open) {
                     event.stopPropagation();
                     dismiss();
@@ -219,27 +267,80 @@ function ChatAssistant() {
                 inert={!open}
             >
                 <header className={styles.panelHeader}>
-                    <span data-text="label" className={styles.heading}><span aria-hidden="true" className={styles.sparkle}>✳</span> 세종 AI 도우미</span>
+                    <span data-text="label" className={styles.heading}>
+                        <span aria-hidden="true" className={styles.sparkle}>
+                            ✳
+                        </span>
+                        {" 세종 AI 도우미"}
+                    </span>
                     <div className={styles.actions}>
-                        <button data-text="action" type="button" className={styles.minorButton} onClick={() => void clear()} aria-label="대화 기록 삭제">기록 삭제</button>
-                        <button data-text="action" type="button" className={styles.closeButton} onClick={dismiss} aria-label="채팅 닫기">×</button>
+                        <button
+                            data-text="action"
+                            type="button"
+                            className={styles.minorButton}
+                            onClick={() => void clear()}
+                            aria-label="대화 기록 삭제"
+                        >
+                            기록 삭제
+                        </button>
+                        <button
+                            data-text="action"
+                            type="button"
+                            className={styles.closeButton}
+                            onClick={dismiss}
+                            aria-label="채팅 닫기"
+                        >
+                            ×
+                        </button>
                     </div>
                 </header>
                 <div className={styles.toolbar}>
-                    <label data-text="label" htmlFor="sejong-chat-provider">AI 모델</label>
-                    <select id="sejong-chat-provider" value={provider} onChange={event => setProvider(event.target.value as Provider)}>
-                        <option data-text="label" value="auto">자동 선택</option>
-                        <option data-text="label" value="groq">Groq</option>
-                        <option data-text="label" value="mistral">Mistral</option>
+                    <label data-text="label" htmlFor="sejong-chat-provider">
+                        AI 모델
+                    </label>
+                    <select
+                        id="sejong-chat-provider"
+                        value={provider}
+                        onChange={(event) => setProvider(event.target.value as Provider)}
+                    >
+                        <option data-text="label" value="auto">
+                            자동 선택
+                        </option>
+                        <option data-text="label" value="groq">
+                            Groq
+                        </option>
+                        <option data-text="label" value="mistral">
+                            Mistral
+                        </option>
                     </select>
-                    <span data-text="caption" className={styles.storage}>{isLoggedIn ? "계정 암호화 기록" : "이 기기 암호화 기록"}</span>
+                    <span data-text="caption" className={styles.storage}>
+                        {isLoggedIn ? "계정 암호화 기록" : "이 기기 암호화 기록"}
+                    </span>
                 </div>
-                <div ref={contentRef} className={styles.chat} aria-busy={hasOpened && !loaded && !error}>
-                    {!loaded && !error && <p data-text="body" className={styles.notice}>대화 기록을 불러오는 중…</p>}
-                    {error && <p data-text="body" className={styles.error} role="alert">{error}</p>}
+                <div
+                    ref={contentRef}
+                    className={styles.chat}
+                    aria-busy={hasOpened && !loaded && !error}
+                >
+                    {!loaded && !error && (
+                        <p data-text="body" className={styles.notice}>
+                            대화 기록을 불러오는 중…
+                        </p>
+                    )}
+                    {error && (
+                        <p data-text="body" className={styles.error} role="alert">
+                            {error}
+                        </p>
+                    )}
                 </div>
-                {lastModel && <p data-text="caption" className={styles.model} aria-live="polite">응답 모델: {lastModel}</p>}
-                <p data-text="caption" className={styles.disclaimer}>AI가 작성한 답변입니다. 실제 공연·예매 정보는 반드시 확인해 주세요.</p>
+                {lastModel && (
+                    <p data-text="caption" className={styles.model} aria-live="polite">
+                        응답 모델: {lastModel}
+                    </p>
+                )}
+                <p data-text="caption" className={styles.disclaimer}>
+                    AI가 작성한 답변입니다. 실제 공연·예매 정보는 반드시 확인해 주세요.
+                </p>
             </section>
             <button
                 ref={buttonRef}
@@ -248,14 +349,27 @@ function ChatAssistant() {
                 aria-label={open ? "AI 상담 접기" : "AI 상담 열기"}
                 aria-controls="sejong-ai-panel"
                 aria-expanded={open}
-                onClick={() => open ? dismiss() : reveal()}
+                onClick={() => (open ? dismiss() : reveal())}
             >
-                <svg viewBox="0 0 48 48" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2.7" aria-hidden="true">
-                    <path d="M9 13a7 7 0 0 1 7-7h17a7 7 0 0 1 7 7v17a7 7 0 0 1-7 7H21l-11 7V30a7 7 0 0 1-1-4Z" strokeLinejoin="round" />
+                <svg
+                    viewBox="0 0 48 48"
+                    width="30"
+                    height="30"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.7"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M9 13a7 7 0 0 1 7-7h17a7 7 0 0 1 7 7v17a7 7 0 0 1-7 7H21l-11 7V30a7 7 0 0 1-1-4Z"
+                        strokeLinejoin="round"
+                    />
                     <path d="m18 26 3-9 3 9m-5-3h4m7-6v9" strokeLinecap="round" />
                     <path d="M32 11v3m-1.5-1.5h3" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
-                <span data-text="label" className={styles.logoLabel}>AI</span>
+                <span data-text="label" className={styles.logoLabel}>
+                    AI
+                </span>
             </button>
         </div>
     );

@@ -246,9 +246,20 @@ export function createPanelTransition(options: TransitionOptions): PanelTransiti
     );
     gl.activeTexture(gl.TEXTURE0);
     const uniforms = Object.fromEntries(
-        ["viewport", "size", "radius", "fade", "opacity", "texture", "content", "backdrop", "refraction", "blur", "thickness", "drawer"].map(
-            (name) => [name, gl.getUniformLocation(program, "u_" + name)],
-        ),
+        [
+            "viewport",
+            "size",
+            "radius",
+            "fade",
+            "opacity",
+            "texture",
+            "content",
+            "backdrop",
+            "refraction",
+            "blur",
+            "thickness",
+            "drawer",
+        ].map((name) => [name, gl.getUniformLocation(program, "u_" + name)]),
     );
     gl.uniform1i(uniforms.content, 0);
     gl.uniform1i(uniforms.backdrop, 1);
@@ -284,10 +295,16 @@ export function createPanelTransition(options: TransitionOptions): PanelTransiti
     };
     const contentKey = () => {
         const scrolling = [...panel.querySelectorAll<HTMLElement>("*")]
-            .map((element, index) => element.scrollTop || element.scrollLeft
-                ? `${index}:${element.scrollTop},${element.scrollLeft}` : "")
-            .filter(Boolean).join(";");
-        const disclosures = [...panel.querySelectorAll("details")].map(element => Number(element.open)).join("");
+            .map((element, index) =>
+                element.scrollTop || element.scrollLeft
+                    ? `${index}:${element.scrollTop},${element.scrollLeft}`
+                    : "",
+            )
+            .filter(Boolean)
+            .join(";");
+        const disclosures = [...panel.querySelectorAll("details")]
+            .map((element) => Number(element.open))
+            .join("");
         return `${panel.offsetWidth}x${panel.offsetHeight}|${scrolling}|${disclosures}|${panel.textContent}`;
     };
     const capture = async () => {
@@ -328,8 +345,7 @@ export function createPanelTransition(options: TransitionOptions): PanelTransiti
         if (target) {
             phase(options, "open");
             scheduleCapture();
-        }
-        else options.onClosed();
+        } else options.onClosed();
     };
     const draw = (now: number) => {
         if (disposed || fallback) return;
@@ -448,7 +464,14 @@ export function createPanelTransition(options: TransitionOptions): PanelTransiti
             gl.activeTexture(gl.TEXTURE0);
             if (!textureReadyAt || (!open && capturedContent !== contentKey())) {
                 gl.bindTexture(gl.TEXTURE_2D, texture);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, capturePanelPreview(panel));
+                gl.texImage2D(
+                    gl.TEXTURE_2D,
+                    0,
+                    gl.RGBA,
+                    gl.RGBA,
+                    gl.UNSIGNED_BYTE,
+                    capturePanelPreview(panel),
+                );
                 textureReadyAt = performance.now() - 90;
                 canvas.dataset.texture = "preview";
             }

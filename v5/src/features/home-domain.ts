@@ -51,26 +51,34 @@ export function moveMonth(month: string, step: number): string {
 
 export function programsForDate(programs: Program[], date?: string): Program[] {
     if (!validDate(date)) return [];
-    return programs.filter((program) => (program.start || "") <= (date || "") && (program.end || "") >= (date || ""));
+    return programs.filter(
+        (program) => (program.start || "") <= (date || "") && (program.end || "") >= (date || ""),
+    );
 }
 
 export function canSelectProgram(program?: Program): boolean {
     return Boolean(
         program &&
-        program.times?.length &&
-        !/매진|종료|마감|예정|준비|오픈\s*전/.test(program.status || "")
+            program.times?.length &&
+            !/매진|종료|마감|예정|준비|오픈\s*전/.test(program.status || ""),
     );
 }
 
 export function createBookingState(date = seoulToday()): BookingState {
     const selectedDate = validDate(date) ? date : seoulToday();
-    return { month: selectedDate.slice(0, 7), date: selectedDate, programId: "", time: "", participants: 1 };
+    return {
+        month: selectedDate.slice(0, 7),
+        date: selectedDate,
+        programId: "",
+        time: "",
+        participants: 1,
+    };
 }
 
 export function changeBookingState(
     state: BookingState,
     change: BookingChange,
-    programs: Program[]
+    programs: Program[],
 ): BookingState {
     if (change.type === "month") {
         return monthDates(change.value).length ? { ...state, month: change.value } : state;
@@ -81,8 +89,15 @@ export function changeBookingState(
             : { ...state, date: "", programId: "", time: "", participants: 1 };
     }
     if (change.type === "program") {
-        const program = programsForDate(programs, state.date).find((item) => item.id === change.value);
-        return { ...state, programId: canSelectProgram(program) ? program!.id : "", time: "", participants: 1 };
+        const program = programsForDate(programs, state.date).find(
+            (item) => item.id === change.value,
+        );
+        return {
+            ...state,
+            programId: canSelectProgram(program) ? program!.id : "",
+            time: "",
+            participants: 1,
+        };
     }
     if (change.type === "time") {
         const program = programs.find((item) => item.id === state.programId);
@@ -90,15 +105,24 @@ export function changeBookingState(
     }
     if (change.type === "participants") {
         const count = Number(change.value);
-        return { ...state, participants: Number.isInteger(count) && count >= 1 && count <= 4 ? count : 0 };
+        return {
+            ...state,
+            participants: Number.isInteger(count) && count >= 1 && count <= 4 ? count : 0,
+        };
     }
     return state;
 }
 
 // [다음 단계로 전달 / Handoff to the next step]
 // 선택을 다시 검증한 뒤 동일한 값으로 공연·전시·교육 흐름을 엽니다.
-export function bookingDestination(state: BookingState, programs: Program[], today = seoulToday()): string {
-    const program = programsForDate(programs, state.date).find((item) => item.id === state.programId);
+export function bookingDestination(
+    state: BookingState,
+    programs: Program[],
+    today = seoulToday(),
+): string {
+    const program = programsForDate(programs, state.date).find(
+        (item) => item.id === state.programId,
+    );
     if (
         !canSelectProgram(program) ||
         state.date < today ||
@@ -129,13 +153,19 @@ const seasonPrograms = new Set([
     "chamber-autumn",
 ]);
 
-export function discoverPrograms(programs: Program[], category = "전체", today = seoulToday()): Program[] {
+export function discoverPrograms(
+    programs: Program[],
+    category = "전체",
+    today = seoulToday(),
+): Program[] {
     return programs
         .filter(
             (program) =>
                 (program.end || "") >= today &&
                 (category === "전체" ||
-                    (category === "기획·시즌" ? seasonPrograms.has(program.id) : program.category === category))
+                    (category === "기획·시즌"
+                        ? seasonPrograms.has(program.id)
+                        : program.category === category)),
         )
         .sort((left, right) => {
             const leftToday = (left.start || "") <= today;

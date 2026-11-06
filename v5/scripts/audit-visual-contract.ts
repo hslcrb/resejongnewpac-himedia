@@ -16,6 +16,9 @@ export function auditTextBindings(source: string, fileName: string): VisualIssue
     const hasAttribute = (attributes: ts.JsxAttributes, name: string) => attributes.properties.some((property) =>
         ts.isJsxAttribute(property) && property.name.getText(file) === name);
     const literalText = (expression: ts.Expression): boolean => {
+        // 괄호는 표시 내용을 바꾸지 않습니다. / Parentheses do not change rendered content.
+        if (ts.isParenthesizedExpression(expression)) return literalText(expression.expression);
+        if (ts.isStringLiteralLike(expression)) return Boolean(expression.text.trim());
         if (ts.isJsxElement(expression) || ts.isJsxSelfClosingElement(expression) || ts.isJsxFragment(expression)) return false;
         if (expression.kind === ts.SyntaxKind.NullKeyword || expression.kind === ts.SyntaxKind.FalseKeyword || expression.kind === ts.SyntaxKind.TrueKeyword) return false;
         if (ts.isConditionalExpression(expression)) return literalText(expression.whenTrue) || literalText(expression.whenFalse);

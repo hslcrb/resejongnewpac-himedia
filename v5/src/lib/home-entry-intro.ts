@@ -18,7 +18,10 @@ export function isV5HomeEntry(pathname: string | null | undefined): boolean {
 }
 
 export function homeEntryTimeline(text = HOME_ENTRY_COPY) {
-    const typedAt = HOME_ENTRY_TIMING.copyStart + text.length * HOME_ENTRY_TIMING.typeCharacter + HOME_ENTRY_TIMING.glyphReveal;
+    const typedAt =
+        HOME_ENTRY_TIMING.copyStart +
+        text.length * HOME_ENTRY_TIMING.typeCharacter +
+        HOME_ENTRY_TIMING.glyphReveal;
     const exitAt = typedAt + HOME_ENTRY_TIMING.copyHold;
     return { typedAt, exitAt, finishAt: exitAt + HOME_ENTRY_TIMING.exit };
 }

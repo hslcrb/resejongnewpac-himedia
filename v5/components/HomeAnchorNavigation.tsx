@@ -13,15 +13,29 @@ const hiddenByContent = (element: HTMLElement) =>
 
 function focusTarget(target: HTMLElement) {
     const canFocus = (element: HTMLElement) =>
-        !hiddenByContent(element) && !element.matches(":disabled") && element.getClientRects().length > 0;
-    const nativeTarget = target.matches("a[href], button, input, select, textarea, [tabindex]") && canFocus(target);
-    const heading = Array.from(target.querySelectorAll<HTMLElement>("h1, h2, h3, h4")).find(canFocus);
-    const control = Array.from(target.querySelectorAll<HTMLElement>("a[href], button, input, select, textarea")).find(canFocus);
+        !hiddenByContent(element) &&
+        !element.matches(":disabled") &&
+        element.getClientRects().length > 0;
+    const nativeTarget =
+        target.matches("a[href], button, input, select, textarea, [tabindex]") && canFocus(target);
+    const heading = Array.from(target.querySelectorAll<HTMLElement>("h1, h2, h3, h4")).find(
+        canFocus,
+    );
+    const control = Array.from(
+        target.querySelectorAll<HTMLElement>("a[href], button, input, select, textarea"),
+    ).find(canFocus);
     const parentLink = target.closest<HTMLAnchorElement>("a[href]");
-    const element = nativeTarget ? target : heading || control || parentLink || (target.matches(":disabled") ? target.parentElement : target);
+    const element = nativeTarget
+        ? target
+        : heading ||
+          control ||
+          parentLink ||
+          (target.matches(":disabled") ? target.parentElement : target);
     if (!element || !canFocus(element)) return;
 
-    const temporaryTabIndex = !element.matches("a[href], button, input, select, textarea, [tabindex]");
+    const temporaryTabIndex = !element.matches(
+        "a[href], button, input, select, textarea, [tabindex]",
+    );
     if (temporaryTabIndex) {
         element.setAttribute("tabindex", "-1");
         element.addEventListener("blur", () => element.removeAttribute("tabindex"), { once: true });
@@ -47,22 +61,39 @@ export default function HomeAnchorNavigation({ resolveAnchor }: HomeAnchorNaviga
             const stickyTop = Number.parseFloat(getComputedStyle(header).top) || 0;
             return Math.max(0, header.getBoundingClientRect().height + Math.min(0, stickyTop));
         };
-        const measureHeader = () => html.style.setProperty("--anchor-header-offset", `${Math.ceil(headerOffset())}px`);
+        const measureHeader = () =>
+            html.style.setProperty("--anchor-header-offset", `${Math.ceil(headerOffset())}px`);
         measureHeader();
-        const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measureHeader);
+        const observer =
+            typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measureHeader);
         if (header) observer?.observe(header);
         window.addEventListener("resize", measureHeader);
-        const stopTracking = trackScrollFragments(() => ["featured-season", "home-pathways", "quick-booking", "discover-programs", "plan-your-visit", "sejong-news", "our-identity", "home-institution", "footer"].flatMap(id => {
-            const element = document.getElementById(id);
-            return element ? [{ element, fragment: id }] : [];
-        }));
+        const stopTracking = trackScrollFragments(() =>
+            [
+                "featured-season",
+                "home-pathways",
+                "quick-booking",
+                "discover-programs",
+                "plan-your-visit",
+                "sejong-news",
+                "our-identity",
+                "home-institution",
+                "footer",
+            ].flatMap((id) => {
+                const element = document.getElementById(id);
+                return element ? [{ element, fragment: id }] : [];
+            }),
+        );
 
         const navigate = () => {
             const token = ++navigation;
             cancelAnimationFrame(frame);
             let id: string;
-            try { id = decodeURIComponent(window.location.hash.slice(1)); }
-            catch { return; }
+            try {
+                id = decodeURIComponent(window.location.hash.slice(1));
+            } catch {
+                return;
+            }
             if (!id || !resolveRef.current(id)) return;
             let attempts = 0;
 
@@ -83,16 +114,20 @@ export default function HomeAnchorNavigation({ resolveAnchor }: HomeAnchorNaviga
                     list.scrollTop += itemRect.top - listRect.top - 8;
                 }
                 focusTarget(target);
-                const top = Math.max(0, window.scrollY + target.getBoundingClientRect().top - headerOffset() - 16);
+                const top = Math.max(
+                    0,
+                    window.scrollY + target.getBoundingClientRect().top - headerOffset() - 16,
+                );
                 // Fragment navigation is immediate; it never scrolls a cloned slide sideways.
                 window.scrollTo({ top, left: window.scrollX, behavior: "instant" });
             };
 
             // The preloaded font can finish after the server's native fragment jump.
             // Wait for its final layout, then let React reveal the requested content.
-            if (document.fonts.status === "loading") document.fonts.ready.then(() => {
-                if (!disposed && token === navigation) frame = requestAnimationFrame(place);
-            });
+            if (document.fonts.status === "loading")
+                document.fonts.ready.then(() => {
+                    if (!disposed && token === navigation) frame = requestAnimationFrame(place);
+                });
             else frame = requestAnimationFrame(place);
         };
 

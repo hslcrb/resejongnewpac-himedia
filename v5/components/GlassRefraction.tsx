@@ -40,12 +40,16 @@ export default function GlassRefraction({
             );
             const radius = Math.max(
                 0,
-                Math.min(Math.max(
-                    parseFloat(computed.borderTopLeftRadius) || 0,
-                    parseFloat(computed.borderTopRightRadius) || 0,
-                    parseFloat(computed.borderBottomRightRadius) || 0,
-                    parseFloat(computed.borderBottomLeftRadius) || 0,
-                ), width / 2, height / 2),
+                Math.min(
+                    Math.max(
+                        parseFloat(computed.borderTopLeftRadius) || 0,
+                        parseFloat(computed.borderTopRightRadius) || 0,
+                        parseFloat(computed.borderBottomRightRadius) || 0,
+                        parseFloat(computed.borderBottomLeftRadius) || 0,
+                    ),
+                    width / 2,
+                    height / 2,
+                ),
             );
             const sizeKey = `${width}x${height}:${radius}:${options.thickness}`;
             if (previousSize.current === sizeKey) return;
@@ -72,7 +76,9 @@ export default function GlassRefraction({
     }, [id, surfaceRef, blur, refraction, thickness]);
     return (
         <svg
-            className="glass-lens-definitions" data-component-part="glass-refraction" data-component-owner="glass"
+            className="glass-lens-definitions"
+            data-component-part="glass-refraction"
+            data-component-owner="glass"
             width="0"
             height="0"
             aria-hidden="true"
