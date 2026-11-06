@@ -12,7 +12,7 @@ export type CmsCapability =
     | "cms:create_pr"
     | "cms:reconcile_release";
 
-export type CmsDestinationId = "visitor_account" | " visitor_home" | "admin_cms" | "lock_login_gate";
+export type CmsDestinationId = "visitor_account" | "visitor_home" | "admin_cms" | "lock_login_gate";
 
 export interface CmsDestinationOption {
     id: "visitor_account" | "admin_cms" | "lock_login_gate";

@@ -299,10 +299,12 @@ export function reconcileMergedPrRelease(input: {
     if (!/^[0-9a-f]{7,40}$/.test(mergeSha)) {
         throw new PrOnlyViolationError("병합 커밋 SHA(mergeCommitOid)를 확인하지 못했습니다.");
     }
+    const cfSha = (cloudflareDeployment.commitSha || "").trim().toLowerCase();
     if (
         cloudflareDeployment.status !== "deployed" ||
         !cloudflareDeployment.id.trim() ||
-        !mergeSha.startsWith(cloudflareDeployment.commitSha.trim().toLowerCase().slice(0, 7))
+        !/^[0-9a-f]{7,40}$/.test(cfSha) ||
+        !(mergeSha.startsWith(cfSha) || cfSha.startsWith(mergeSha))
     ) {
         throw new Error(
             `Cloudflare Pages 생산 배포가 아직 완료되지 않았거나 병합 SHA와 일치하지 않습니다(상태: ${cloudflareDeployment.status}).`,
