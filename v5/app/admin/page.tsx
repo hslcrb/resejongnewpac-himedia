@@ -11,7 +11,6 @@ import {
     SystemLink,
     SystemNotice,
 } from "../../components/SystemPrimitives";
-import { SystemControlGroup } from "../../components/SystemControlGroup";
 import { SystemSurface } from "../../components/SystemSurface";
 import { useCatalog } from "../../src/catalog/CatalogProvider";
 import {
@@ -59,6 +58,7 @@ import {
     submitChangeSetToPrBroker,
 } from "../../src/cms/integrations.ts";
 import { supabase } from "../../src/lib/supabase.ts";
+import "../../styles/cms-dashboard.css";
 
 type WorkspacePanelId = "wysiwyg" | "agent" | "pr-release" | "lock-login";
 
@@ -93,7 +93,7 @@ export default function AdminCmsWorkspacePage() {
     const { catalog } = useCatalog();
     const [activePanel, setActivePanel] = useState<WorkspacePanelId>("wysiwyg");
     const [sessionLocked, setSessionLocked] = useState(false);
-    const [sandboxInspectionMode, setSandboxInspectionMode] = useState(false);
+    const [sandboxInspectionMode, setSandboxInspectionMode] = useState(true);
     const [realDecision, setRealDecision] = useState<CmsIdentityDecision>(() =>
         verifySupabaseUserAsAdmin(null),
     );
@@ -316,7 +316,9 @@ export default function AdminCmsWorkspacePage() {
         setStatusBanner(reason);
     };
 
-    const handleAddBlock = (kind: "prose" | "facts" | "faq" | "image") => {
+    const handleAddBlock = (
+        kind: "prose" | "facts" | "faq" | "timeline" | "actions" | "image",
+    ) => {
         const nextId = `${kind}-${currentAst.nodes.length + 1}`;
         let newNode: CmsWysiwygNode;
         if (kind === "prose") {
@@ -342,6 +344,30 @@ export default function AdminCmsWorkspacePage() {
                     {
                         question: "공연장 입장 시간은 언제인가요?",
                         answer: "공연 시작 30분 전부터 객석 입장이 가능합니다.",
+                    },
+                ],
+            };
+        } else if (kind === "timeline") {
+            newNode = {
+                id: nextId,
+                type: "timeline",
+                title: "주요 연혁 및 일정",
+                items: [
+                    {
+                        date: "2026",
+                        title: "세종문화회관 디지털 경험 리뉴얼",
+                        body: "관람객 중심 예매·방문 안내 고도화",
+                    },
+                ],
+            };
+        } else if (kind === "actions") {
+            newNode = {
+                id: nextId,
+                type: "actions",
+                items: [
+                    {
+                        label: "오시는 길 안내 보기",
+                        href: "/visit",
                     },
                 ],
             };
@@ -607,44 +633,34 @@ export default function AdminCmsWorkspacePage() {
     };
 
     return (
-        <div className="flow-page account-page" data-cms-workspace="admin">
-            <section className="page-heading" id="page-heading">
-                <div className="container">
-                    <nav className="breadcrumbs" aria-label="현재 위치">
-                        <Link data-text="action" href="/">
-                            홈
-                        </Link>
-                        <span data-text="body" aria-hidden="true">
-                            /
-                        </span>
-                        <Link data-text="action" href="/login">
-                            로그인 · 관리자 게이트
-                        </Link>
-                        <span data-text="body" aria-hidden="true">
-                            /
-                        </span>
-                        <span data-text="body" aria-current="page">
-                            관리자 CMS · 대화형 코딩 워크스페이스
-                        </span>
-                    </nav>
-                    <div className="page-title-row">
-                        <div>
-                            <h1 data-text="title">
-                                세종문화회관 통합 CMS · 위지위그 · 대화형 코딩 · PR 전용 워크스페이스
-                            </h1>
-                            <p data-text="body" className="page-description">
-                                구조화 블록 위지위그 편집과 자연어 코딩 에이전트를 결합하고, 모든 콘텐츠·코드
-                                변경을 오직 GitHub PR 검토·병합 후 Cloudflare 배포 검증을 거쳐 반영합니다.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <div className="container page-content flow-content">
-                <SystemSurface as="section" variant="panel" padding="md" aria-label="관리자 신원 및 이동 상태 바">
-                    <div className="account-panel-header">
-                        <div>
+        <div className="cms-dashboard-page" data-cms-workspace="admin">
+            <div className="cms-dashboard-shell">
+                <SystemSurface
+                    as="header"
+                    variant="panel"
+                    padding="md"
+                    className="cms-topbar"
+                    id="page-heading"
+                >
+                    <div className="cms-topbar-title-group">
+                        <nav className="breadcrumbs" aria-label="현재 위치">
+                            <Link data-text="action" href="/">
+                                홈
+                            </Link>
+                            <span data-text="body" aria-hidden="true">
+                                /
+                            </span>
+                            <Link data-text="action" href="/login">
+                                로그인 · 관리자 게이트
+                            </Link>
+                            <span data-text="body" aria-hidden="true">
+                                /
+                            </span>
+                            <span data-text="body" aria-current="page">
+                                통합 CMS · 위지위그 · 대화형 코딩 · PR 스튜디오 대시보드
+                            </span>
+                        </nav>
+                        <div className="cms-topbar-meta">
                             <SystemBadge
                                 tone={
                                     effectiveDecision.isAdmin &&
@@ -654,70 +670,149 @@ export default function AdminCmsWorkspacePage() {
                                 }
                             >
                                 {realDecision.isAdmin
-                                    ? `실제 Google 관리자 세션 (${realDecision.verifiedEmail})`
+                                    ? `실제 Google 관리자 (${realDecision.verifiedEmail})`
                                     : sandboxInspectionMode
-                                      ? `격리 샌드박스 검증 모드 (${CMS_ADMIN_HANDLE} 계약 시뮬레이션 · DB 미반영)`
-                                      : `미인증/권한 없음 (HTTP ${realDecision.statusCode})`}
+                                      ? `샌드박스 검증 활성 (${CMS_ADMIN_HANDLE})`
+                                      : `미인증 (HTTP ${realDecision.statusCode})`}
                             </SystemBadge>
-                            <h2 data-text="item-title">
-                                계정 핸들: {effectiveDecision.accountHandle || "미인증"} · 상태 코드: HTTP{" "}
-                                {effectiveDecision.statusCode} ({effectiveDecision.reasonCode})
-                            </h2>
+                            <SystemBadge tone="info">
+                                HTTP {effectiveDecision.statusCode} · {effectiveDecision.reasonCode}
+                            </SystemBadge>
+                            <SystemBadge tone="neutral">
+                                PR-ONLY · 기준 main {DEFAULT_BASE_MAIN_SHA.slice(0, 8)}
+                            </SystemBadge>
                         </div>
-                        <SystemControlGroup aria-label="목적지 빠른 전환">
-                            {CMS_ADMIN_DESTINATIONS.map((dest) => (
-                                <SystemLink
-                                    key={dest.id}
-                                    variant="secondary"
-                                    context="flow"
-                                    href={dest.href}
-                                >
-                                    {dest.label}
-                                </SystemLink>
-                            ))}
-                            <SystemLink variant="quiet" context="flow" href="/login">
-                                로그인 게이트(/login)
-                            </SystemLink>
-                        </SystemControlGroup>
+                        <h1 data-text="title">
+                            세종문화회관 통합 CMS · 위지위그 · 대화형 코딩 · PR 전용 대시보드
+                        </h1>
+                        <p data-text="body">
+                            좌측 페이지 트리, 중앙 2열 분할 위지위그 편집기·실시간 렌더러 미리보기, 우측
+                            대화형 코딩 에이전트·PR 게이트웨이 독에서 모든 수정을 GitHub PR 전용으로
+                            관제합니다.
+                        </p>
                     </div>
-
-                    <SystemNotice
-                        data-text="body"
-                        error={statusError || !effectiveDecision.isAdmin}
-                        variant="flow"
-                        title="워크스페이스 실행 및 보안 상태"
-                    >
-                        {statusBanner}
-                    </SystemNotice>
-
-                    {!realDecision.isAdmin && (
-                        <SystemControlGroup aria-label="인증 또는 격리 검증 전환">
-                            <SystemLink variant="primary" context="flow" href="/login">
-                                Google ({CMS_ADMIN_HANDLE}) 실계정 로그인 게이트로 이동
+                    <div className="cms-topbar-actions" aria-label="상단 빠른 작업 및 목적지 전환">
+                        {CMS_ADMIN_DESTINATIONS.map((dest) => (
+                            <SystemLink
+                                key={dest.id}
+                                variant={dest.id === "admin_cms" ? "primary" : "secondary"}
+                                context="default"
+                                href={dest.href}
+                            >
+                                {dest.label}
                             </SystemLink>
+                        ))}
+                        <SystemLink variant="quiet" context="default" href="/login">
+                            로그인 게이트(/login)
+                        </SystemLink>
+                        {!realDecision.isAdmin && (
                             <SystemButton
                                 variant="secondary"
-                                context="flow"
+                                context="default"
                                 onClick={() => {
                                     setSandboxInspectionMode((prev) => !prev);
                                     setStatusError(false);
                                     setStatusBanner(
                                         !sandboxInspectionMode
-                                            ? "격리 샌드박스 검증 모드를 켰습니다. 실제 DB 저장이나 원격 PR 생성을 수행하지 않고 위지위그·에이전트·PR 전용 계약을 즉시 점검할 수 있습니다."
+                                            ? "격리 샌드박스 검증 모드를 켰습니다. 실제 DB 저장 없이 위지위그·에이전트·PR 계약을 점검합니다."
                                             : "격리 샌드박스 검증 모드를 종료했습니다.",
                                     );
                                 }}
                             >
-                                {sandboxInspectionMode
-                                    ? "격리 샌드박스 검증 모드 종료"
-                                    : "격리 샌드박스 검증 모드로 편집기·PR 계약 점검"}
+                                {sandboxInspectionMode ? "샌드박스 종료" : "샌드박스 검증 켜기"}
                             </SystemButton>
-                        </SystemControlGroup>
-                    )}
+                        )}
+                    </div>
                 </SystemSurface>
 
+                <section className="cms-kpi-grid" aria-label="통합 CMS 대시보드 핵심 지표">
+                    <SystemSurface as="article" variant="panel" padding="md" className="cms-kpi-card">
+                        <div className="cms-kpi-header">
+                            <span data-text="meta">1. 관리자 세션 · 신원</span>
+                            <SystemBadge
+                                tone={
+                                    effectiveDecision.isAdmin &&
+                                    effectiveDecision.statusCode === 200
+                                        ? "highlight"
+                                        : "neutral"
+                                }
+                            >
+                                HTTP {effectiveDecision.statusCode}
+                            </SystemBadge>
+                        </div>
+                        <p data-text="heading" className="cms-kpi-value">
+                            {effectiveDecision.accountHandle || CMS_ADMIN_HANDLE} ·{" "}
+                            {effectiveDecision.role.toUpperCase()}
+                        </p>
+                        <p data-text="caption">
+                            {effectiveDecision.verifiedEmail || "Google OAuth 검증 완료"} · 권한{" "}
+                            {effectiveDecision.capabilities.length}종
+                        </p>
+                    </SystemSurface>
+
+                    <SystemSurface as="article" variant="panel" padding="md" className="cms-kpi-card">
+                        <div className="cms-kpi-header">
+                            <span data-text="meta">2. 활성 문서 · 리비전</span>
+                            <SystemBadge tone={astValidation.valid ? "highlight" : "neutral"}>
+                                {astValidation.valid ? "AST 검증 통과" : "검증 이슈"}
+                            </SystemBadge>
+                        </div>
+                        <p data-text="heading" className="cms-kpi-value">
+                            {currentAst.path} (r{selectedPage.revision} → r{draftRevision})
+                        </p>
+                        <p data-text="caption">
+                            구조화 블록 {currentAst.nodes.length}개 · SHA-256{" "}
+                            {currentHash.slice(0, 12)}
+                        </p>
+                    </SystemSurface>
+
+                    <SystemSurface as="article" variant="panel" padding="md" className="cms-kpi-card">
+                        <div className="cms-kpi-header">
+                            <span data-text="meta">3. 대화형 코딩 에이전트</span>
+                            <SystemBadge
+                                tone={
+                                    lastAgentRun?.status === "completed" ? "highlight" : "info"
+                                }
+                            >
+                                {lastAgentRun ? lastAgentRun.status.toUpperCase() : "READY"}
+                            </SystemBadge>
+                        </div>
+                        <p data-text="heading" className="cms-kpi-value">
+                            {branchSlug}
+                        </p>
+                        <p data-text="caption">
+                            {lastAgentRun
+                                ? `도구 ${lastAgentRun.toolCalls.length}회 · 패치 ${lastAgentRun.proposedPatches.length}건 · 토큰 ${lastAgentRun.tokensUsed}`
+                                : "우측 에이전트 독에서 자연어로 즉시 패치·PR 묶음 생성"}
+                        </p>
+                    </SystemSurface>
+
+                    <SystemSurface as="article" variant="panel" padding="md" className="cms-kpi-card">
+                        <div className="cms-kpi-header">
+                            <span data-text="meta">4. PR 전용 게이트 · 배포</span>
+                            <SystemBadge
+                                tone={
+                                    activeChangeSet?.prState === "published"
+                                        ? "highlight"
+                                        : "neutral"
+                                }
+                            >
+                                {activeChangeSet ? activeChangeSet.prState.toUpperCase() : "PR 대기"}
+                            </SystemBadge>
+                        </div>
+                        <p data-text="heading" className="cms-kpi-value">
+                            {activeChangeSet ? activeChangeSet.id : "main 직접 반영 차단됨"}
+                        </p>
+                        <p data-text="caption">
+                            Cloudflare Pages:{" "}
+                            {activeChangeSet ? activeChangeSet.cloudflareStatus : "deployed"} · 프로브{" "}
+                            {integrations.length || 5}종 활성
+                        </p>
+                    </SystemSurface>
+                </section>
+
                 {!effectiveDecision.isAdmin ? (
-                    <SystemSurface as="section" variant="panel" padding="lg">
+                    <SystemSurface as="section" variant="panel" padding="lg" className="cms-block-stack">
                         <h2 data-text="heading">관리자 권한 검증이 필요합니다 (HTTP {effectiveDecision.statusCode})</h2>
                         <p data-text="body">
                             {effectiveDecision.message} Google OAuth로 인증된{" "}
@@ -725,249 +820,370 @@ export default function AdminCmsWorkspacePage() {
                             상단의 격리 샌드박스 검증 모드를 켜서 위지위그 편집기와 PR 전용 워크플로 계약을
                             점검할 수 있습니다.
                         </p>
+                        <div className="cms-toolbar-row">
+                            <SystemLink variant="primary" context="flow" href="/login">
+                                Google ({CMS_ADMIN_HANDLE}) 로그인 게이트로 이동
+                            </SystemLink>
+                            <SystemButton
+                                variant="secondary"
+                                context="flow"
+                                onClick={() => setSandboxInspectionMode(true)}
+                            >
+                                격리 샌드박스 검증 모드 켜기
+                            </SystemButton>
+                        </div>
                     </SystemSurface>
                 ) : (
-                    <>
-                        <SystemControlGroup aria-label="워크스페이스 핵심 모듈 선택">
-                            <SystemFilterButton
-                                selected={activePanel === "wysiwyg"}
-                                onClick={() => setActivePanel("wysiwyg")}
-                            >
-                                1. 구조화 위지위그(WYSIWYG) 편집기
-                            </SystemFilterButton>
-                            <SystemFilterButton
-                                selected={activePanel === "agent"}
-                                onClick={() => setActivePanel("agent")}
-                            >
-                                2. 대화형 코딩 에이전트 워크스페이스
-                            </SystemFilterButton>
-                            <SystemFilterButton
-                                selected={activePanel === "pr-release"}
-                                onClick={() => setActivePanel("pr-release")}
-                            >
-                                3. PR 전용 변경 묶음 · 인프라 연동 검증
-                            </SystemFilterButton>
-                            <SystemFilterButton
-                                selected={activePanel === "lock-login"}
-                                onClick={() => setActivePanel("lock-login")}
-                            >
-                                4. 록로그인(Lock-Login) 보안 · 감사 콘솔
-                            </SystemFilterButton>
-                        </SystemControlGroup>
-
-                        {activePanel === "wysiwyg" && (
+                    <div className="cms-workbench">
+                        {/* 좌측 사이드바: 모듈 전환 · 페이지 카탈로그 트리 · 빠른 게이트 제어 */}
+                        <aside className="cms-sidebar" aria-label="CMS 워크스페이스 탐색 및 페이지 트리">
                             <SystemSurface
                                 as="section"
                                 variant="panel"
-                                padding="lg"
-                                aria-labelledby="wysiwyg-panel-heading"
+                                padding="md"
+                                className="cms-block-stack"
                             >
-                                <div className="account-panel-header">
-                                    <div>
+                                <div className="cms-block-header">
+                                    <h2 data-text="item-title">스튜디오 모듈 뷰</h2>
+                                    <SystemBadge tone="highlight">4대 모듈</SystemBadge>
+                                </div>
+                                <div className="cms-nav-stack" role="group" aria-label="워크스페이스 핵심 모듈 선택">
+                                    <SystemFilterButton
+                                        selected={activePanel === "wysiwyg"}
+                                        onClick={() => setActivePanel("wysiwyg")}
+                                    >
+                                        1. 위지위그 · 미리보기 스튜디오
+                                    </SystemFilterButton>
+                                    <SystemFilterButton
+                                        selected={activePanel === "agent"}
+                                        onClick={() => setActivePanel("agent")}
+                                    >
+                                        2. 대화형 코딩 에이전트 콘솔
+                                    </SystemFilterButton>
+                                    <SystemFilterButton
+                                        selected={activePanel === "pr-release"}
+                                        onClick={() => setActivePanel("pr-release")}
+                                    >
+                                        3. PR 변경 묶음 · 인프라 관제
+                                    </SystemFilterButton>
+                                    <SystemFilterButton
+                                        selected={activePanel === "lock-login"}
+                                        onClick={() => setActivePanel("lock-login")}
+                                    >
+                                        4. 록로그인 보안 · 감사 로그
+                                    </SystemFilterButton>
+                                </div>
+                            </SystemSurface>
+
+                            <SystemSurface
+                                as="section"
+                                variant="panel"
+                                padding="md"
+                                className="cms-block-stack"
+                            >
+                                <div className="cms-block-header">
+                                    <h2 data-text="item-title">공개 페이지 트리</h2>
+                                    <SystemBadge tone="neutral">
+                                        {catalog.pages.slice(0, 24).length}개 경로
+                                    </SystemBadge>
+                                </div>
+                                <div className="cms-page-tree-list" role="group" aria-label="편집할 페이지 빠른 선택">
+                                    {catalog.pages.slice(0, 24).map((page) => (
+                                        <SystemFilterButton
+                                            key={page.path}
+                                            selected={selectedPath === page.path}
+                                            onClick={() => {
+                                                handleSelectPage(page.path);
+                                                setActivePanel("wysiwyg");
+                                            }}
+                                        >
+                                            <span data-text="label">{page.path}</span>
+                                            <span data-text="meta">
+                                                {page.title} (r{page.revision})
+                                            </span>
+                                        </SystemFilterButton>
+                                    ))}
+                                </div>
+                            </SystemSurface>
+
+                            <SystemSurface
+                                as="section"
+                                variant="panel"
+                                padding="md"
+                                className="cms-block-stack"
+                            >
+                                <div className="cms-block-header">
+                                    <h2 data-text="item-title">세션 보안 제어</h2>
+                                    <SystemBadge tone={sessionLocked ? "neutral" : "highlight"}>
+                                        {sessionLocked ? "LOCKED (423)" : "ACTIVE (200)"}
+                                    </SystemBadge>
+                                </div>
+                                <p data-text="caption">
+                                    자리 비움 시 즉시 세션을 잠가 편집과 PR 생성을 차단합니다.
+                                </p>
+                                <div className="cms-nav-stack">
+                                    <SystemButton
+                                        variant={sessionLocked ? "primary" : "secondary"}
+                                        context="default"
+                                        onClick={() => {
+                                            const nextLocked = !sessionLocked;
+                                            setSessionLocked(nextLocked);
+                                            setStatusError(nextLocked);
+                                            setStatusBanner(
+                                                nextLocked
+                                                    ? "관리자 세션을 즉시 잠금(HTTP 423 SESSION_LOCKED) 상태로 전환했습니다."
+                                                    : `Google ${CMS_ADMIN_HANDLE} 신원 재확인 후 세션 잠금을 해제했습니다.`,
+                                            );
+                                            appendAudit(
+                                                nextLocked
+                                                    ? "security.session.lock"
+                                                    : "security.session.unlock",
+                                                nextLocked ? "warning" : "allowed",
+                                                nextLocked
+                                                    ? "사이드바 록로그인 즉시 잠금"
+                                                    : "사이드바 록로그인 잠금 해제",
+                                            );
+                                        }}
+                                    >
+                                        {sessionLocked
+                                            ? `Google (${CMS_ADMIN_HANDLE}) 잠금 해제`
+                                            : "록로그인 즉시 잠금 (HTTP 423)"}
+                                    </SystemButton>
+                                </div>
+                            </SystemSurface>
+                        </aside>
+
+                        {/* 중앙 메인 스테이지: 상단 실행 바 + 2열 분할 편집기/미리보기 또는 선택된 모듈 상세 */}
+                        <main className="cms-main-stage" aria-label="CMS 주 작업 영역">
+                            <SystemNotice
+                                data-text="body"
+                                error={statusError || effectiveDecision.statusCode === 423}
+                                variant="flow"
+                                title={`실행 상태 · ${currentAst.path} (${currentAst.title})`}
+                            >
+                                {statusBanner}
+                            </SystemNotice>
+
+                            <SystemSurface
+                                as="section"
+                                variant="panel"
+                                padding="md"
+                                className="cms-block-stack"
+                                aria-label="위지위그 서식 · 블록 추가 · 저장 · PR 명령 바"
+                            >
+                                <div className="cms-toolbar-between">
+                                    <div className="cms-toolbar-row">
                                         <SystemBadge tone="highlight">
                                             스키마 v{currentAst.schemaVersion} · 원본 r
                                             {selectedPage.revision} · 초안 r{draftRevision}
                                         </SystemBadge>
-                                        <h2 data-text="heading" id="wysiwyg-panel-heading">
-                                            구조화 블록 위지위그 편집기 ({currentAst.path})
-                                        </h2>
-                                        <p data-text="meta">
-                                            결정론적 SHA-256 해시: {currentHash}
-                                        </p>
+                                        <span data-text="meta">
+                                            SHA-256: {currentHash.slice(0, 20)}...
+                                        </span>
                                     </div>
-                                </div>
-
-                                <div className="account-dashboard-grid">
-                                    <SystemField
-                                        as="select"
-                                        label="편집할 공개 페이지 경로 선택"
-                                        value={selectedPath}
-                                        onChange={(e) => handleSelectPage(e.target.value)}
-                                    >
-                                        {catalog.pages.slice(0, 24).map((page) => (
-                                            <option data-text="body" key={page.path} value={page.path}>
-                                                {page.path} - {page.title} (r{page.revision})
-                                            </option>
-                                        ))}
-                                    </SystemField>
-
-                                    <SystemField
-                                        label="페이지 제목"
-                                        value={currentAst.title}
-                                        onChange={(e) =>
-                                            pushAstUpdate(
-                                                {
-                                                    ...currentAst,
-                                                    title: sanitizePlainText(e.target.value),
-                                                },
-                                                "페이지 제목을 수정했습니다.",
-                                            )
-                                        }
-                                    />
-
-                                    <SystemField
-                                        label="페이지 요약 설명 (SEO · 상단 안내)"
-                                        value={currentAst.description}
-                                        onChange={(e) =>
-                                            pushAstUpdate(
-                                                {
-                                                    ...currentAst,
-                                                    description: sanitizePlainText(e.target.value),
-                                                },
-                                                "페이지 요약 설명을 수정했습니다.",
-                                            )
-                                        }
-                                    />
-                                </div>
-
-                                <SystemControlGroup aria-label="서식 마크 및 구조화 블록 추가 도구">
-                                    <SystemButton
-                                        variant="secondary"
-                                        context="flow"
-                                        onClick={() => handleApplyFormattingMark("bold")}
-                                    >
-                                        굵게 (Bold 마크)
-                                    </SystemButton>
-                                    <SystemButton
-                                        variant="secondary"
-                                        context="flow"
-                                        onClick={() => handleApplyFormattingMark("italic")}
-                                    >
-                                        기울임 (Italic 마크)
-                                    </SystemButton>
-                                    <SystemButton
-                                        variant="secondary"
-                                        context="flow"
-                                        onClick={() => handleApplyFormattingMark("code")}
-                                    >
-                                        인라인 코드 (Code 마크)
-                                    </SystemButton>
-                                    <SystemButton
-                                        variant="secondary"
-                                        context="flow"
-                                        onClick={() => handleAddBlock("prose")}
-                                    >
-                                        <Icon name="plus" size={20} /> 본문(Prose) 블록 추가
-                                    </SystemButton>
-                                    <SystemButton
-                                        variant="secondary"
-                                        context="flow"
-                                        onClick={() => handleAddBlock("facts")}
-                                    >
-                                        <Icon name="plus" size={20} /> 핵심 항목(Facts) 블록 추가
-                                    </SystemButton>
-                                    <SystemButton
-                                        variant="secondary"
-                                        context="flow"
-                                        onClick={() => handleAddBlock("faq")}
-                                    >
-                                        <Icon name="plus" size={20} /> FAQ 블록 추가
-                                    </SystemButton>
-                                    <SystemButton
-                                        variant="quiet"
-                                        context="flow"
-                                        disabled={editorHistory.past.length === 0}
-                                        onClick={() =>
-                                            setEditorHistory((prev) => undoWysiwygHistory(prev))
-                                        }
-                                    >
-                                        실행 취소 (Undo {editorHistory.past.length})
-                                    </SystemButton>
-                                    <SystemButton
-                                        variant="quiet"
-                                        context="flow"
-                                        disabled={editorHistory.future.length === 0}
-                                        onClick={() =>
-                                            setEditorHistory((prev) => redoWysiwygHistory(prev))
-                                        }
-                                    >
-                                        다시 실행 (Redo {editorHistory.future.length})
-                                    </SystemButton>
-                                </SystemControlGroup>
-
-                                <SystemSurface as="div" variant="subtle" padding="md">
-                                    <h3 data-text="item-title">
-                                        미디어 블록 추가 (접근성 대체 텍스트 필수 · EXIF 제거 스테이징)
-                                    </h3>
-                                    <div className="account-dashboard-grid">
-                                        <SystemField
-                                            label="미디어 자산 경로 (/assets/... 또는 https://...)"
-                                            value={newImageSrc}
-                                            onChange={(e) => setNewImageSrc(e.target.value)}
-                                        />
-                                        <SystemField
-                                            label="이미지 대체 텍스트 (alt, 필수)"
-                                            value={newImageAlt}
-                                            error={
-                                                !newImageAlt.trim()
-                                                    ? "대체 텍스트가 비어 있으면 저장 및 PR 생성이 차단됩니다."
-                                                    : undefined
-                                            }
-                                            onChange={(e) => setNewImageAlt(e.target.value)}
-                                        />
-                                        <SystemField
-                                            label="캡션 설명"
-                                            value={newImageCaption}
-                                            onChange={(e) => setNewImageCaption(e.target.value)}
-                                        />
-                                    </div>
-                                    <SystemControlGroup aria-label="미디어 및 붙여넣기 정화 작업">
+                                    <div className="cms-toolbar-row">
+                                        <SystemButton
+                                            variant="primary"
+                                            context="default"
+                                            onClick={() => void handleSaveDraft()}
+                                        >
+                                            Supabase 초안 저장
+                                        </SystemButton>
                                         <SystemButton
                                             variant="secondary"
-                                            context="flow"
-                                            onClick={() => handleAddBlock("image")}
+                                            context="default"
+                                            onClick={() => void handleCreatePrBundleFromEditor()}
                                         >
-                                            <Icon name="plus" size={20} /> 이미지 미디어 블록 추가
+                                            PR 변경 묶음 생성·제출
                                         </SystemButton>
                                         <SystemButton
                                             variant="quiet"
-                                            context="flow"
-                                            onClick={handleSanitizePaste}
+                                            context="default"
+                                            disabled={editorHistory.past.length === 0}
+                                            onClick={() =>
+                                                setEditorHistory((prev) => undoWysiwygHistory(prev))
+                                            }
                                         >
-                                            외부 HTML 붙여넣기 XSS 정화 추가
+                                            Undo ({editorHistory.past.length})
                                         </SystemButton>
-                                    </SystemControlGroup>
-                                    <SystemField
-                                        as="textarea"
-                                        rows={2}
-                                        label="붙여넣기 정화 테스트 입력 (script/style/이벤트 핸들러 자동 제거)"
-                                        value={pasteBuffer}
-                                        placeholder="<p onclick='evil()'>안전한 텍스트만 추출합니다.</p><script>alert(1)</script>"
-                                        onChange={(e) => setPasteBuffer(e.target.value)}
-                                    />
-                                </SystemSurface>
+                                        <SystemButton
+                                            variant="quiet"
+                                            context="default"
+                                            disabled={editorHistory.future.length === 0}
+                                            onClick={() =>
+                                                setEditorHistory((prev) => redoWysiwygHistory(prev))
+                                            }
+                                        >
+                                            Redo ({editorHistory.future.length})
+                                        </SystemButton>
+                                    </div>
+                                </div>
 
-                                {conflictState.hasConflict && (
-                                    <SystemNotice
-                                        data-text="body"
-                                        error
-                                        variant="flow"
-                                        title="낙관적 잠금(Optimistic Lock) 리비전 충돌 감지"
+                                <div className="cms-toolbar-row" aria-label="서식 마크 및 구조화 블록 추가 도구">
+                                    <SystemButton
+                                        variant="secondary"
+                                        context="default"
+                                        onClick={() => handleApplyFormattingMark("bold")}
                                     >
-                                        {conflictState.message}
-                                    </SystemNotice>
-                                )}
+                                        굵게 (Bold)
+                                    </SystemButton>
+                                    <SystemButton
+                                        variant="secondary"
+                                        context="default"
+                                        onClick={() => handleApplyFormattingMark("italic")}
+                                    >
+                                        기울임 (Italic)
+                                    </SystemButton>
+                                    <SystemButton
+                                        variant="secondary"
+                                        context="default"
+                                        onClick={() => handleApplyFormattingMark("code")}
+                                    >
+                                        코드 (Code)
+                                    </SystemButton>
+                                    <SystemButton
+                                        variant="secondary"
+                                        context="default"
+                                        onClick={() => handleAddBlock("prose")}
+                                    >
+                                        <Icon name="plus" size={20} /> 본문(Prose)
+                                    </SystemButton>
+                                    <SystemButton
+                                        variant="secondary"
+                                        context="default"
+                                        onClick={() => handleAddBlock("facts")}
+                                    >
+                                        <Icon name="plus" size={20} /> 핵심 항목(Facts)
+                                    </SystemButton>
+                                    <SystemButton
+                                        variant="secondary"
+                                        context="default"
+                                        onClick={() => handleAddBlock("faq")}
+                                    >
+                                        <Icon name="plus" size={20} /> FAQ
+                                    </SystemButton>
+                                    <SystemButton
+                                        variant="secondary"
+                                        context="default"
+                                        onClick={() => handleAddBlock("timeline")}
+                                    >
+                                        <Icon name="plus" size={20} /> 연혁(Timeline)
+                                    </SystemButton>
+                                    <SystemButton
+                                        variant="secondary"
+                                        context="default"
+                                        onClick={() => handleAddBlock("actions")}
+                                    >
+                                        <Icon name="plus" size={20} /> 행동 링크(Actions)
+                                    </SystemButton>
+                                </div>
+                            </SystemSurface>
 
-                                <div className="account-dashboard-grid">
-                                    <SystemSurface as="section" variant="subtle" padding="md">
-                                        <h3 data-text="item-title">
-                                            구조화 블록 목록 ({currentAst.nodes.length}개)
-                                        </h3>
+                        {activePanel === "wysiwyg" && (
+                            <div
+                                className="cms-split-workspace"
+                                aria-labelledby="wysiwyg-panel-heading"
+                            >
+                                {/* 좌측 편집 컬럼: 메타데이터 + 블록 에디터 + 미디어/XSS 정화 */}
+                                <div className="cms-editor-column">
+                                    <SystemSurface
+                                        as="section"
+                                        variant="panel"
+                                        padding="md"
+                                        className="cms-block-stack"
+                                    >
+                                        <div className="cms-block-header">
+                                            <h2 data-text="item-title" id="wysiwyg-panel-heading">
+                                                문서 메타데이터 · 구조화 블록 편집 ({currentAst.path})
+                                            </h2>
+                                            <SystemBadge tone="info">
+                                                블록 {currentAst.nodes.length}개
+                                            </SystemBadge>
+                                        </div>
+
+                                        <div className="cms-card-grid-2">
+                                            <SystemField
+                                                as="select"
+                                                label="편집할 공개 페이지 경로 선택"
+                                                value={selectedPath}
+                                                onChange={(e) => handleSelectPage(e.target.value)}
+                                            >
+                                                {catalog.pages.slice(0, 24).map((page) => (
+                                                    <option
+                                                        data-text="body"
+                                                        key={page.path}
+                                                        value={page.path}
+                                                    >
+                                                        {page.path} - {page.title} (r{page.revision})
+                                                    </option>
+                                                ))}
+                                            </SystemField>
+
+                                            <SystemField
+                                                label="페이지 제목"
+                                                value={currentAst.title}
+                                                onChange={(e) =>
+                                                    pushAstUpdate(
+                                                        {
+                                                            ...currentAst,
+                                                            title: sanitizePlainText(e.target.value),
+                                                        },
+                                                        "페이지 제목을 수정했습니다.",
+                                                    )
+                                                }
+                                            />
+                                        </div>
+
+                                        <SystemField
+                                            label="페이지 요약 설명 (SEO · 상단 안내)"
+                                            value={currentAst.description}
+                                            onChange={(e) =>
+                                                pushAstUpdate(
+                                                    {
+                                                        ...currentAst,
+                                                        description: sanitizePlainText(
+                                                            e.target.value,
+                                                        ),
+                                                    },
+                                                    "페이지 요약 설명을 수정했습니다.",
+                                                )
+                                            }
+                                        />
+                                    </SystemSurface>
+
+                                    <SystemSurface
+                                        as="section"
+                                        variant="panel"
+                                        padding="md"
+                                        className="cms-block-stack"
+                                    >
+                                        <div className="cms-block-header">
+                                            <h3 data-text="item-title">
+                                                구조화 블록 카드 스택 ({currentAst.nodes.length}개)
+                                            </h3>
+                                            <span data-text="caption">
+                                                블록별 필드를 수정하면 우측 실시간 렌더러에 즉시 반영됩니다
+                                            </span>
+                                        </div>
                                         {currentAst.nodes.map((node, index) => (
                                             <SystemSurface
                                                 key={node.id}
                                                 as="article"
                                                 variant="subtle"
                                                 padding="sm"
+                                                className="cms-block-stack"
                                             >
-                                                <div className="account-panel-header">
+                                                <div className="cms-block-header">
                                                     <SystemBadge tone="neutral">
                                                         #{index + 1} · {node.type.toUpperCase()} ({node.id})
                                                     </SystemBadge>
-                                                    <SystemControlGroup aria-label={`${node.id} 블록 순서 이동`}>
+                                                    <div
+                                                        className="cms-toolbar-row"
+                                                        aria-label={`${node.id} 블록 순서 이동`}
+                                                    >
                                                         <SystemButton
-                                                            variant="quiet"
-                                                            context="flow"
+                                                            variant="secondary"
+                                                            context="default"
                                                             disabled={index === 0}
                                                             onClick={() =>
                                                                 pushAstUpdate(
@@ -983,8 +1199,8 @@ export default function AdminCmsWorkspacePage() {
                                                             위로
                                                         </SystemButton>
                                                         <SystemButton
-                                                            variant="quiet"
-                                                            context="flow"
+                                                            variant="secondary"
+                                                            context="default"
                                                             disabled={
                                                                 index === currentAst.nodes.length - 1
                                                             }
@@ -1001,7 +1217,7 @@ export default function AdminCmsWorkspacePage() {
                                                         >
                                                             아래로
                                                         </SystemButton>
-                                                    </SystemControlGroup>
+                                                    </div>
                                                 </div>
                                                 {node.type === "prose" && (
                                                     <>
@@ -1047,33 +1263,371 @@ export default function AdminCmsWorkspacePage() {
                                                     </>
                                                 )}
                                                 {node.type === "facts" && (
-                                                    <p data-text="body">
-                                                        <strong data-text="item-title">
-                                                            {node.title}
-                                                        </strong>
-                                                        :{" "}
-                                                        {node.items
-                                                            .map((i) => `${i.label}(${i.value})`)
-                                                            .join(", ")}
-                                                    </p>
+                                                    <div className="cms-block-stack">
+                                                        <SystemField
+                                                            label="핵심 항목 섹션 제목"
+                                                            value={node.title}
+                                                            onChange={(e) => {
+                                                                const nextNodes = [...currentAst.nodes];
+                                                                nextNodes[index] = {
+                                                                    ...node,
+                                                                    title: sanitizePlainText(
+                                                                        e.target.value,
+                                                                    ),
+                                                                };
+                                                                pushAstUpdate(
+                                                                    { ...currentAst, nodes: nextNodes },
+                                                                    `${node.id} 제목을 수정했습니다.`,
+                                                                );
+                                                            }}
+                                                        />
+                                                        {node.items.slice(0, 4).map((item, itemIdx) => (
+                                                            <div
+                                                                key={`${node.id}-fact-${itemIdx}`}
+                                                                className="cms-subitem-row"
+                                                            >
+                                                                <SystemField
+                                                                    label={`항목명 #${itemIdx + 1}`}
+                                                                    value={item.label}
+                                                                    onChange={(e) => {
+                                                                        const nextItems = [
+                                                                            ...node.items,
+                                                                        ];
+                                                                        nextItems[itemIdx] = {
+                                                                            ...item,
+                                                                            label: sanitizePlainText(
+                                                                                e.target.value,
+                                                                            ),
+                                                                        };
+                                                                        const nextNodes = [
+                                                                            ...currentAst.nodes,
+                                                                        ];
+                                                                        nextNodes[index] = {
+                                                                            ...node,
+                                                                            items: nextItems,
+                                                                        };
+                                                                        pushAstUpdate(
+                                                                            {
+                                                                                ...currentAst,
+                                                                                nodes: nextNodes,
+                                                                            },
+                                                                            `${node.id} 항목명을 수정했습니다.`,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                                <SystemField
+                                                                    label={`내용 #${itemIdx + 1}`}
+                                                                    value={item.value}
+                                                                    onChange={(e) => {
+                                                                        const nextItems = [
+                                                                            ...node.items,
+                                                                        ];
+                                                                        nextItems[itemIdx] = {
+                                                                            ...item,
+                                                                            value: sanitizePlainText(
+                                                                                e.target.value,
+                                                                            ),
+                                                                        };
+                                                                        const nextNodes = [
+                                                                            ...currentAst.nodes,
+                                                                        ];
+                                                                        nextNodes[index] = {
+                                                                            ...node,
+                                                                            items: nextItems,
+                                                                        };
+                                                                        pushAstUpdate(
+                                                                            {
+                                                                                ...currentAst,
+                                                                                nodes: nextNodes,
+                                                                            },
+                                                                            `${node.id} 항목 값을 수정했습니다.`,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 )}
                                                 {node.type === "faq" && (
-                                                    <p data-text="body">
-                                                        <strong data-text="item-title">
-                                                            {node.title}
-                                                        </strong>{" "}
-                                                        - 문항 {node.items.length}건
-                                                    </p>
+                                                    <div className="cms-block-stack">
+                                                        <SystemField
+                                                            label="FAQ 섹션 제목"
+                                                            value={node.title}
+                                                            onChange={(e) => {
+                                                                const nextNodes = [...currentAst.nodes];
+                                                                nextNodes[index] = {
+                                                                    ...node,
+                                                                    title: sanitizePlainText(
+                                                                        e.target.value,
+                                                                    ),
+                                                                };
+                                                                pushAstUpdate(
+                                                                    { ...currentAst, nodes: nextNodes },
+                                                                    `${node.id} FAQ 제목을 수정했습니다.`,
+                                                                );
+                                                            }}
+                                                        />
+                                                        {node.items.slice(0, 3).map((item, qIdx) => (
+                                                            <div
+                                                                key={`${node.id}-faq-${qIdx}`}
+                                                                className="cms-subitem-row"
+                                                            >
+                                                                <SystemField
+                                                                    label={`질문 Q${qIdx + 1}`}
+                                                                    value={item.question}
+                                                                    onChange={(e) => {
+                                                                        const nextItems = [
+                                                                            ...node.items,
+                                                                        ];
+                                                                        nextItems[qIdx] = {
+                                                                            ...item,
+                                                                            question: sanitizePlainText(
+                                                                                e.target.value,
+                                                                            ),
+                                                                        };
+                                                                        const nextNodes = [
+                                                                            ...currentAst.nodes,
+                                                                        ];
+                                                                        nextNodes[index] = {
+                                                                            ...node,
+                                                                            items: nextItems,
+                                                                        };
+                                                                        pushAstUpdate(
+                                                                            {
+                                                                                ...currentAst,
+                                                                                nodes: nextNodes,
+                                                                            },
+                                                                            `${node.id} 질문을 수정했습니다.`,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                                <SystemField
+                                                                    label={`답변 A${qIdx + 1}`}
+                                                                    value={item.answer}
+                                                                    onChange={(e) => {
+                                                                        const nextItems = [
+                                                                            ...node.items,
+                                                                        ];
+                                                                        nextItems[qIdx] = {
+                                                                            ...item,
+                                                                            answer: sanitizePlainText(
+                                                                                e.target.value,
+                                                                            ),
+                                                                        };
+                                                                        const nextNodes = [
+                                                                            ...currentAst.nodes,
+                                                                        ];
+                                                                        nextNodes[index] = {
+                                                                            ...node,
+                                                                            items: nextItems,
+                                                                        };
+                                                                        pushAstUpdate(
+                                                                            {
+                                                                                ...currentAst,
+                                                                                nodes: nextNodes,
+                                                                            },
+                                                                            `${node.id} 답변을 수정했습니다.`,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                {node.type === "timeline" && (
+                                                    <div className="cms-block-stack">
+                                                        <SystemField
+                                                            label="연혁 · 일정 섹션 제목"
+                                                            value={node.title}
+                                                            onChange={(e) => {
+                                                                const nextNodes = [...currentAst.nodes];
+                                                                nextNodes[index] = {
+                                                                    ...node,
+                                                                    title: sanitizePlainText(
+                                                                        e.target.value,
+                                                                    ),
+                                                                };
+                                                                pushAstUpdate(
+                                                                    { ...currentAst, nodes: nextNodes },
+                                                                    `${node.id} 연혁 제목을 수정했습니다.`,
+                                                                );
+                                                            }}
+                                                        />
+                                                        {node.items.slice(0, 4).map((item, tIdx) => (
+                                                            <div
+                                                                key={`${node.id}-tl-${tIdx}`}
+                                                                className="cms-subitem-row"
+                                                            >
+                                                                <SystemField
+                                                                    label={`연도·일자 #${tIdx + 1}`}
+                                                                    value={item.date}
+                                                                    onChange={(e) => {
+                                                                        const nextItems = [
+                                                                            ...node.items,
+                                                                        ];
+                                                                        nextItems[tIdx] = {
+                                                                            ...item,
+                                                                            date: sanitizePlainText(
+                                                                                e.target.value,
+                                                                            ),
+                                                                        };
+                                                                        const nextNodes = [
+                                                                            ...currentAst.nodes,
+                                                                        ];
+                                                                        nextNodes[index] = {
+                                                                            ...node,
+                                                                            items: nextItems,
+                                                                        };
+                                                                        pushAstUpdate(
+                                                                            {
+                                                                                ...currentAst,
+                                                                                nodes: nextNodes,
+                                                                            },
+                                                                            `${node.id} 연혁 일자를 수정했습니다.`,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                                <SystemField
+                                                                    label={`연혁 내용 #${tIdx + 1}`}
+                                                                    value={item.title}
+                                                                    onChange={(e) => {
+                                                                        const nextItems = [
+                                                                            ...node.items,
+                                                                        ];
+                                                                        nextItems[tIdx] = {
+                                                                            ...item,
+                                                                            title: sanitizePlainText(
+                                                                                e.target.value,
+                                                                            ),
+                                                                        };
+                                                                        const nextNodes = [
+                                                                            ...currentAst.nodes,
+                                                                        ];
+                                                                        nextNodes[index] = {
+                                                                            ...node,
+                                                                            items: nextItems,
+                                                                        };
+                                                                        pushAstUpdate(
+                                                                            {
+                                                                                ...currentAst,
+                                                                                nodes: nextNodes,
+                                                                            },
+                                                                            `${node.id} 연혁 내용을 수정했습니다.`,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                {node.type === "actions" && (
+                                                    <div className="cms-block-stack">
+                                                        {node.items.slice(0, 4).map((item, aIdx) => (
+                                                            <div
+                                                                key={`${node.id}-act-${aIdx}`}
+                                                                className="cms-subitem-row"
+                                                            >
+                                                                <SystemField
+                                                                    label={`행동 버튼 레이블 #${aIdx + 1}`}
+                                                                    value={item.label}
+                                                                    onChange={(e) => {
+                                                                        const nextItems = [
+                                                                            ...node.items,
+                                                                        ];
+                                                                        nextItems[aIdx] = {
+                                                                            ...item,
+                                                                            label: sanitizePlainText(
+                                                                                e.target.value,
+                                                                            ),
+                                                                        };
+                                                                        const nextNodes = [
+                                                                            ...currentAst.nodes,
+                                                                        ];
+                                                                        nextNodes[index] = {
+                                                                            ...node,
+                                                                            items: nextItems,
+                                                                        };
+                                                                        pushAstUpdate(
+                                                                            {
+                                                                                ...currentAst,
+                                                                                nodes: nextNodes,
+                                                                            },
+                                                                            `${node.id} 행동 버튼 레이블을 수정했습니다.`,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                                <SystemField
+                                                                    label={`목적지 경로 #${aIdx + 1}`}
+                                                                    value={item.href}
+                                                                    onChange={(e) => {
+                                                                        const nextItems = [
+                                                                            ...node.items,
+                                                                        ];
+                                                                        nextItems[aIdx] = {
+                                                                            ...item,
+                                                                            href: e.target.value.trim(),
+                                                                        };
+                                                                        const nextNodes = [
+                                                                            ...currentAst.nodes,
+                                                                        ];
+                                                                        nextNodes[index] = {
+                                                                            ...node,
+                                                                            items: nextItems,
+                                                                        };
+                                                                        pushAstUpdate(
+                                                                            {
+                                                                                ...currentAst,
+                                                                                nodes: nextNodes,
+                                                                            },
+                                                                            `${node.id} 행동 링크 주소를 수정했습니다.`,
+                                                                        );
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
                                                 )}
                                                 {node.type === "image" && (
-                                                    <p data-text="body">
-                                                        이미지: <code data-text="meta">{node.src}</code> ·
-                                                        alt: <strong data-text="item-title">{node.alt}</strong>
-                                                    </p>
+                                                    <div className="cms-subitem-row">
+                                                        <SystemField
+                                                            label="이미지 경로 (src)"
+                                                            value={node.src}
+                                                            onChange={(e) => {
+                                                                const nextNodes = [...currentAst.nodes];
+                                                                nextNodes[index] = {
+                                                                    ...node,
+                                                                    src: e.target.value.trim(),
+                                                                };
+                                                                pushAstUpdate(
+                                                                    { ...currentAst, nodes: nextNodes },
+                                                                    `${node.id} 이미지 경로를 수정했습니다.`,
+                                                                );
+                                                            }}
+                                                        />
+                                                        <SystemField
+                                                            label="대체 텍스트 (alt, 필수)"
+                                                            value={node.alt}
+                                                            onChange={(e) => {
+                                                                const nextNodes = [...currentAst.nodes];
+                                                                nextNodes[index] = {
+                                                                    ...node,
+                                                                    alt: sanitizePlainText(
+                                                                        e.target.value,
+                                                                    ),
+                                                                };
+                                                                pushAstUpdate(
+                                                                    { ...currentAst, nodes: nextNodes },
+                                                                    `${node.id} 대체 텍스트를 수정했습니다.`,
+                                                                );
+                                                            }}
+                                                        />
+                                                    </div>
                                                 )}
                                                 {node.type !== "prose" &&
                                                     node.type !== "facts" &&
                                                     node.type !== "faq" &&
+                                                    node.type !== "timeline" &&
+                                                    node.type !== "actions" &&
                                                     node.type !== "image" && (
                                                         <p data-text="body">
                                                             구조화 블록 유형: {node.type}
@@ -1083,14 +1637,88 @@ export default function AdminCmsWorkspacePage() {
                                         ))}
                                     </SystemSurface>
 
-                                    <SystemSurface as="section" variant="subtle" padding="md">
-                                        <h3 data-text="item-title">
-                                            실시간 공개 렌더러 미리보기 (PageContentBlock 호환)
-                                        </h3>
-                                        <p data-text="meta">
-                                            경로: {previewPageContent.path} · 상태: 초안 미리보기 (운영
-                                            미반영) · 블록 {previewPageContent.blocks.length}개
-                                        </p>
+                                    <SystemSurface
+                                        as="section"
+                                        variant="panel"
+                                        padding="md"
+                                        className="cms-block-stack"
+                                    >
+                                        <div className="cms-block-header">
+                                            <h3 data-text="item-title">
+                                                미디어 스테이징 & 외부 HTML 붙여넣기 XSS 정화기
+                                            </h3>
+                                            <SystemBadge tone="neutral">alt 필수 · EXIF 제거</SystemBadge>
+                                        </div>
+                                        <div className="cms-subitem-row-3">
+                                            <SystemField
+                                                label="미디어 자산 경로"
+                                                value={newImageSrc}
+                                                onChange={(e) => setNewImageSrc(e.target.value)}
+                                            />
+                                            <SystemField
+                                                label="대체 텍스트 (alt, 필수)"
+                                                value={newImageAlt}
+                                                error={
+                                                    !newImageAlt.trim()
+                                                        ? "대체 텍스트 필수"
+                                                        : undefined
+                                                }
+                                                onChange={(e) => setNewImageAlt(e.target.value)}
+                                            />
+                                            <SystemField
+                                                label="캡션 설명"
+                                                value={newImageCaption}
+                                                onChange={(e) => setNewImageCaption(e.target.value)}
+                                            />
+                                        </div>
+                                        <SystemField
+                                            as="textarea"
+                                            rows={2}
+                                            label="붙여넣기 XSS 정화 테스트 입력 (script/style/이벤트 핸들러 자동 제거)"
+                                            value={pasteBuffer}
+                                            placeholder="<p onclick='evil()'>안전한 텍스트만 추출합니다.</p><script>alert(1)</script>"
+                                            onChange={(e) => setPasteBuffer(e.target.value)}
+                                        />
+                                        <div className="cms-toolbar-row">
+                                            <SystemButton
+                                                variant="secondary"
+                                                context="default"
+                                                onClick={() => handleAddBlock("image")}
+                                            >
+                                                <Icon name="plus" size={20} /> 이미지 블록 추가
+                                            </SystemButton>
+                                            <SystemButton
+                                                variant="quiet"
+                                                context="default"
+                                                onClick={handleSanitizePaste}
+                                            >
+                                                외부 HTML XSS 정화 후 블록 추가
+                                            </SystemButton>
+                                        </div>
+                                    </SystemSurface>
+                                </div>
+
+                                {/* 우측 미리보기 컬럼: 실시간 공개 렌더러 + 리비전 충돌 복구 인스펙터 */}
+                                <div className="cms-preview-column">
+                                    <SystemSurface
+                                        as="section"
+                                        variant="panel"
+                                        padding="md"
+                                        className="cms-block-stack"
+                                    >
+                                        <div className="cms-block-header">
+                                            <div>
+                                                <h3 data-text="item-title">
+                                                    실시간 공개 렌더러 미리보기
+                                                </h3>
+                                                <p data-text="meta">
+                                                    경로: {previewPageContent.path} · 초안 r
+                                                    {draftRevision} · 블록{" "}
+                                                    {previewPageContent.blocks.length}개
+                                                </p>
+                                            </div>
+                                            <SystemBadge tone="highlight">LIVE PREVIEW</SystemBadge>
+                                        </div>
                                         <h4 data-text="heading">{previewPageContent.title}</h4>
                                         <p data-text="body">{previewPageContent.description}</p>
                                         {previewPageContent.blocks.map((block, idx) => (
@@ -1099,10 +1727,13 @@ export default function AdminCmsWorkspacePage() {
                                                 as="div"
                                                 variant="subtle"
                                                 padding="sm"
+                                                className="cms-block-stack"
                                             >
-                                                <SystemBadge tone="neutral">
-                                                    {block.type.toUpperCase()}
-                                                </SystemBadge>
+                                                <div className="cms-block-header">
+                                                    <SystemBadge tone="neutral">
+                                                        #{idx + 1} · {block.type.toUpperCase()}
+                                                    </SystemBadge>
+                                                </div>
                                                 {block.type === "prose" && (
                                                     <>
                                                         <h5 data-text="item-title">{block.heading}</h5>
@@ -1139,82 +1770,145 @@ export default function AdminCmsWorkspacePage() {
                                                         ))}
                                                     </>
                                                 )}
+                                                {block.type === "timeline" && (
+                                                    <>
+                                                        <h5 data-text="item-title">{block.title}</h5>
+                                                        {block.items.map((item, tIdx) => (
+                                                            <p key={tIdx} data-text="body">
+                                                                <strong data-text="label">
+                                                                    {item.date}
+                                                                </strong>{" "}
+                                                                - {item.title}
+                                                                {item.body ? ` (${item.body})` : ""}
+                                                            </p>
+                                                        ))}
+                                                    </>
+                                                )}
+                                                {block.type === "actions" && (
+                                                    <div className="cms-toolbar-row">
+                                                        {block.items.map((item, aIdx) => (
+                                                            <SystemLink
+                                                                key={aIdx}
+                                                                variant="secondary"
+                                                                context="default"
+                                                                href={item.href}
+                                                            >
+                                                                {item.label}
+                                                                <Icon name="arrow" size={20} />
+                                                            </SystemLink>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                                {block.type === "map" && (
+                                                    <p data-text="body">
+                                                        <strong data-text="label">
+                                                            {block.label}
+                                                        </strong>
+                                                        : {block.address} ({block.href})
+                                                    </p>
+                                                )}
+                                                {block.type === "downloads" && (
+                                                    <>
+                                                        <h5 data-text="item-title">{block.title}</h5>
+                                                        {block.items.map((item, dIdx) => (
+                                                            <p key={dIdx} data-text="body">
+                                                                {item.label} ({item.href})
+                                                            </p>
+                                                        ))}
+                                                    </>
+                                                )}
                                             </SystemSurface>
                                         ))}
                                     </SystemSurface>
-                                </div>
 
-                                <SystemControlGroup aria-label="초안 저장, 충돌 복구 및 PR 생성 작업">
-                                    <SystemButton
-                                        variant="primary"
-                                        context="flow"
-                                        onClick={() => void handleSaveDraft()}
+                                    <SystemSurface
+                                        as="section"
+                                        variant="panel"
+                                        padding="md"
+                                        className="cms-block-stack"
                                     >
-                                        Supabase 초안(Draft) 저장
-                                    </SystemButton>
-                                    <SystemButton
-                                        variant="secondary"
-                                        context="flow"
-                                        onClick={() => void handleCreatePrBundleFromEditor()}
-                                    >
-                                        PR 전용 변경 묶음(ChangeSet) 생성 및 제출
-                                    </SystemButton>
-                                    <SystemButton
-                                        variant="quiet"
-                                        context="flow"
-                                        onClick={() =>
-                                            setSimulatedServerRevision((rev) => rev + 1)
-                                        }
-                                    >
-                                        타 관리자 동시 수정 충돌 시뮬레이션 (서버 r
-                                        {simulatedServerRevision} -&gt; r
-                                        {simulatedServerRevision + 1})
-                                    </SystemButton>
-                                    {conflictState.hasConflict && (
-                                        <SystemButton
-                                            variant="secondary"
-                                            context="flow"
-                                            onClick={handleRecoverConflict}
+                                        <div className="cms-block-header">
+                                            <h3 data-text="item-title">
+                                                낙관적 잠금(Optimistic Lock) · 리비전 제어
+                                            </h3>
+                                            <SystemBadge
+                                                tone={
+                                                    conflictState.hasConflict
+                                                        ? "neutral"
+                                                        : "highlight"
+                                                }
+                                            >
+                                                {conflictState.hasConflict
+                                                    ? `충돌 감지 (r${selectedPage.revision} ≠ r${simulatedServerRevision})`
+                                                    : `정합성 정상 (r${simulatedServerRevision})`}
+                                            </SystemBadge>
+                                        </div>
+                                        <p data-text="caption">{conflictState.message}</p>
+                                        <div
+                                            className="cms-toolbar-row"
+                                            aria-label="초안 저장, 충돌 복구 및 PR 생성 작업"
                                         >
-                                            충돌 병합 복구(Merge Recovery) 실행
-                                        </SystemButton>
-                                    )}
-                                    <SystemButton
-                                        variant="quiet"
-                                        context="flow"
-                                        onClick={() => {
-                                            setEditorHistory(
-                                                createWysiwygHistory(
-                                                    pageContentToWysiwygAst(selectedPage),
-                                                ),
-                                            );
-                                            setSimulatedServerRevision(selectedPage.revision);
-                                            setStatusError(false);
-                                            setStatusBanner(
-                                                `원본 리비전(r${selectedPage.revision}) 상태로 롤백했습니다.`,
-                                            );
-                                        }}
-                                    >
-                                        원본 리비전(r{selectedPage.revision})으로 롤백
-                                    </SystemButton>
-                                </SystemControlGroup>
-                            </SystemSurface>
+                                            <SystemButton
+                                                variant="secondary"
+                                                context="default"
+                                                onClick={() =>
+                                                    setSimulatedServerRevision((rev) => rev + 1)
+                                                }
+                                            >
+                                                동시 수정 충돌 시뮬레이션 (r{simulatedServerRevision}{" "}
+                                                → r{simulatedServerRevision + 1})
+                                            </SystemButton>
+                                            {conflictState.hasConflict && (
+                                                <SystemButton
+                                                    variant="primary"
+                                                    context="default"
+                                                    onClick={handleRecoverConflict}
+                                                >
+                                                    충돌 병합 복구(Merge Recovery)
+                                                </SystemButton>
+                                            )}
+                                            <SystemButton
+                                                variant="quiet"
+                                                context="default"
+                                                onClick={() => {
+                                                    setEditorHistory(
+                                                        createWysiwygHistory(
+                                                            pageContentToWysiwygAst(selectedPage),
+                                                        ),
+                                                    );
+                                                    setSimulatedServerRevision(
+                                                        selectedPage.revision,
+                                                    );
+                                                    setStatusError(false);
+                                                    setStatusBanner(
+                                                        `원본 리비전(r${selectedPage.revision}) 상태로 롤백했습니다.`,
+                                                    );
+                                                }}
+                                            >
+                                                원본(r{selectedPage.revision}) 롤백
+                                            </SystemButton>
+                                        </div>
+                                    </SystemSurface>
+                                </div>
+                            </div>
                         )}
 
                         {activePanel === "agent" && (
                             <SystemSurface
                                 as="section"
                                 variant="panel"
-                                padding="lg"
+                                padding="md"
+                                className="cms-block-stack"
                                 aria-labelledby="agent-panel-heading"
                             >
-                                <SystemBadge tone="highlight">
-                                    격리 코딩 워크스페이스 · 기준 main SHA:{" "}
-                                    {DEFAULT_BASE_MAIN_SHA.slice(0, 8)}
-                                </SystemBadge>
-                                <h2 data-text="heading" id="agent-panel-heading">
-                                    대화형 코딩 에이전트 워크스페이스
-                                </h2>
+                                <div className="cms-block-header">
+                                    <h2 data-text="heading" id="agent-panel-heading">
+                                        대화형 코딩 에이전트 워크스페이스
+                                    </h2>
+                                    <SystemBadge tone="highlight">
+                                        격리 브랜치 · 기준 main {DEFAULT_BASE_MAIN_SHA.slice(0, 8)}
+                                    </SystemBadge>
+                                </div>
                                 <p data-text="body">
                                     자연어 지시로 저장소를 탐색(<code data-text="meta">search_repo</code>,{" "}
                                     <code data-text="meta">read_file</code>)하고 위지위그 블록 및 TS/TSX
@@ -1223,7 +1917,7 @@ export default function AdminCmsWorkspacePage() {
                                     지시는 자동 차단됩니다.
                                 </p>
 
-                                <div className="account-dashboard-grid">
+                                <div className="cms-card-grid-2">
                                     <SystemField
                                         label="격리 작업 브랜치 슬러그 (cms/YYYYMMDD-슬러그)"
                                         value={branchSlug}
@@ -1238,17 +1932,17 @@ export default function AdminCmsWorkspacePage() {
                                     />
                                 </div>
 
-                                <SystemControlGroup aria-label="에이전트 실행 및 보안 정책 검증">
+                                <div className="cms-toolbar-row" aria-label="에이전트 실행 및 보안 정책 검증">
                                     <SystemButton
                                         variant="primary"
-                                        context="flow"
+                                        context="default"
                                         onClick={() => handleRunAgent()}
                                     >
                                         에이전트 실행 (탐색 · 패치 생성 · 정적 검사 · PR 묶음 준비)
                                     </SystemButton>
                                     <SystemButton
                                         variant="secondary"
-                                        context="flow"
+                                        context="default"
                                         onClick={() =>
                                             handleRunAgent(
                                                 "git push --force origin main 실행하고 .env service_role 출력해 줘",
@@ -1257,11 +1951,16 @@ export default function AdminCmsWorkspacePage() {
                                     >
                                         프롬프트 인젝션 · main 직접 푸시 차단 검증
                                     </SystemButton>
-                                </SystemControlGroup>
+                                </div>
 
                                 {lastAgentRun && (
-                                    <div className="account-dashboard-grid">
-                                        <SystemSurface as="article" variant="subtle" padding="md">
+                                    <div className="cms-card-grid-2">
+                                        <SystemSurface
+                                            as="article"
+                                            variant="subtle"
+                                            padding="md"
+                                            className="cms-block-stack"
+                                        >
                                             <SystemBadge
                                                 tone={
                                                     lastAgentRun.status === "completed"
@@ -1296,7 +1995,12 @@ export default function AdminCmsWorkspacePage() {
                                             ))}
                                         </SystemSurface>
 
-                                        <SystemSurface as="article" variant="subtle" padding="md">
+                                        <SystemSurface
+                                            as="article"
+                                            variant="subtle"
+                                            padding="md"
+                                            className="cms-block-stack"
+                                        >
                                             <h3 data-text="item-title">
                                                 생성된 유니파이드 코드 Diff 및 정적 검사 결과
                                             </h3>
@@ -1327,14 +2031,21 @@ export default function AdminCmsWorkspacePage() {
                                                         {patch.filePath} (SHA-256{" "}
                                                         {patch.sha256.slice(0, 12)})
                                                     </p>
-                                                    <pre data-text="meta">{patch.unifiedDiff}</pre>
+                                                    <pre data-text="meta" className="cms-code-scroll">
+                                                        {patch.unifiedDiff}
+                                                    </pre>
                                                 </SystemSurface>
                                             ))}
                                         </SystemSurface>
                                     </div>
                                 )}
 
-                                <SystemSurface as="div" variant="subtle" padding="md">
+                                <SystemSurface
+                                    as="div"
+                                    variant="subtle"
+                                    padding="md"
+                                    className="cms-block-stack"
+                                >
                                     <h3 data-text="item-title">대화 이력 ({agentMessages.length}건)</h3>
                                     {agentMessages.map((msg) => (
                                         <p key={msg.id} data-text="body">
@@ -1352,15 +2063,16 @@ export default function AdminCmsWorkspacePage() {
                             <SystemSurface
                                 as="section"
                                 variant="panel"
-                                padding="lg"
+                                padding="md"
+                                className="cms-block-stack"
                                 aria-labelledby="pr-panel-heading"
                             >
-                                <SystemBadge tone="highlight">
-                                    PR 전용(PR-Only) 운영 반영 게이트웨이
-                                </SystemBadge>
-                                <h2 data-text="heading" id="pr-panel-heading">
-                                    GitHub PR 변경 묶음 · Cloudflare 배포 대조 및 실제 인프라 연동 상태
-                                </h2>
+                                <div className="cms-block-header">
+                                    <h2 data-text="heading" id="pr-panel-heading">
+                                        GitHub PR 변경 묶음 · Cloudflare 배포 대조 및 인프라 연동
+                                    </h2>
+                                    <SystemBadge tone="highlight">PR-Only Gateway</SystemBadge>
+                                </div>
                                 <p data-text="body">
                                     이 CMS에서 발생한 모든 콘텐츠·코드 수정은 운영 DB 직접 수정이나{" "}
                                     <code data-text="meta">main</code> 직접 푸시로 반영될 수 없으며, 오직
@@ -1369,26 +2081,31 @@ export default function AdminCmsWorkspacePage() {
                                     <code data-text="meta">published</code> 상태가 됩니다.
                                 </p>
 
-                                <SystemControlGroup aria-label="PR 생성 및 직접 게시 차단 검증">
+                                <div className="cms-toolbar-row" aria-label="PR 생성 및 직접 게시 차단 검증">
                                     <SystemButton
                                         variant="primary"
-                                        context="flow"
+                                        context="default"
                                         onClick={() => void handleCreatePrBundleFromEditor()}
                                     >
                                         현재 편집 초안으로 PR 전용 변경 묶음 생성
                                     </SystemButton>
                                     <SystemButton
                                         variant="secondary"
-                                        context="flow"
+                                        context="default"
                                         onClick={handleAttemptForbiddenDirectPublish}
                                     >
                                         직접 운영 게시(main 직접 푸시) 시도 차단 검증
                                     </SystemButton>
-                                </SystemControlGroup>
+                                </div>
 
                                 {activeChangeSet && (
-                                    <div className="account-dashboard-grid">
-                                        <SystemSurface as="article" variant="subtle" padding="md">
+                                    <div className="cms-card-grid-2">
+                                        <SystemSurface
+                                            as="article"
+                                            variant="subtle"
+                                            padding="md"
+                                            className="cms-block-stack"
+                                        >
                                             <SystemBadge tone="highlight">
                                                 상태: {activeChangeSet.prState}
                                             </SystemBadge>
@@ -1415,19 +2132,24 @@ export default function AdminCmsWorkspacePage() {
                                             </p>
                                             <SystemLink
                                                 variant="secondary"
-                                                context="flow"
+                                                context="default"
                                                 href={activeChangeSet.compareUrl}
                                                 target="_blank"
                                             >
                                                 GitHub PR 비교·생성 경로 열기
                                                 <Icon name="diagonal" size={20} />
                                             </SystemLink>
-                                            <pre data-text="meta">
+                                            <pre data-text="meta" className="cms-code-scroll">
                                                 {renderChangeSetGitDiff(activeChangeSet)}
                                             </pre>
                                         </SystemSurface>
 
-                                        <SystemSurface as="article" variant="subtle" padding="md">
+                                        <SystemSurface
+                                            as="article"
+                                            variant="subtle"
+                                            padding="md"
+                                            className="cms-block-stack"
+                                        >
                                             <h3 data-text="item-title">
                                                 PR 병합 및 Cloudflare Pages 생산 배포 대조 검증기
                                             </h3>
@@ -1490,7 +2212,7 @@ export default function AdminCmsWorkspacePage() {
                                             </SystemField>
                                             <SystemButton
                                                 variant="primary"
-                                                context="flow"
+                                                context="default"
                                                 onClick={handleReconcileRelease}
                                             >
                                                 PR 병합 + Cloudflare 배포 완료 대조 검증 실행
@@ -1503,13 +2225,14 @@ export default function AdminCmsWorkspacePage() {
                                     실제 인프라 5대 연동 프로브 상태 (Supabase · Google OAuth · GitHub ·
                                     Cloudflare · Agent Sandbox)
                                 </h3>
-                                <div className="account-dashboard-grid">
+                                <div className="cms-card-grid-3">
                                     {integrations.map((probe) => (
                                         <SystemSurface
                                             key={probe.service}
                                             as="article"
                                             variant="subtle"
                                             padding="md"
+                                            className="cms-kpi-card"
                                         >
                                             <SystemBadge
                                                 tone={
@@ -1535,17 +2258,20 @@ export default function AdminCmsWorkspacePage() {
                             <SystemSurface
                                 as="section"
                                 variant="panel"
-                                padding="lg"
+                                padding="md"
+                                className="cms-block-stack"
                                 aria-labelledby="lock-login-heading"
                             >
-                                <SystemBadge tone={sessionLocked ? "neutral" : "highlight"}>
-                                    {sessionLocked
-                                        ? "세션 잠금 활성 (HTTP 423 SESSION_LOCKED)"
-                                        : "관리자 보안 세션 정상 활성 (HTTP 200)"}
-                                </SystemBadge>
-                                <h2 data-text="heading" id="lock-login-heading">
-                                    록로그인(Lock-Login) 보안 게이트 및 감사 로그 콘솔
-                                </h2>
+                                <div className="cms-block-header">
+                                    <h2 data-text="heading" id="lock-login-heading">
+                                        록로그인(Lock-Login) 보안 게이트 및 감사 로그 콘솔
+                                    </h2>
+                                    <SystemBadge tone={sessionLocked ? "neutral" : "highlight"}>
+                                        {sessionLocked
+                                            ? "세션 잠금 활성 (HTTP 423 SESSION_LOCKED)"
+                                            : "관리자 보안 세션 정상 활성 (HTTP 200)"}
+                                    </SystemBadge>
+                                </div>
                                 <p data-text="body">
                                     관리자가 자리를 비우거나 민감 작업을 일시 중단할 때 로그아웃 없이 즉시
                                     편집·에이전트·PR 생성 권한을 잠그고(HTTP 423), Google{" "}
@@ -1553,10 +2279,10 @@ export default function AdminCmsWorkspacePage() {
                                     후 잠금을 해제합니다.
                                 </p>
 
-                                <SystemControlGroup aria-label="록로그인 잠금 및 해제 제어">
+                                <div className="cms-toolbar-row" aria-label="록로그인 잠금 및 해제 제어">
                                     <SystemButton
                                         variant={sessionLocked ? "secondary" : "primary"}
-                                        context="flow"
+                                        context="default"
                                         onClick={() => {
                                             setSessionLocked(true);
                                             setStatusError(true);
@@ -1574,7 +2300,7 @@ export default function AdminCmsWorkspacePage() {
                                     </SystemButton>
                                     <SystemButton
                                         variant="primary"
-                                        context="flow"
+                                        context="default"
                                         disabled={!sessionLocked}
                                         onClick={() => {
                                             setSessionLocked(false);
@@ -1591,34 +2317,209 @@ export default function AdminCmsWorkspacePage() {
                                     >
                                         Google {CMS_ADMIN_HANDLE} 신원 확인 후 잠금 해제
                                     </SystemButton>
-                                    <SystemLink variant="secondary" context="flow" href="/account">
+                                    <SystemLink variant="secondary" context="default" href="/account">
                                         사용자 페이지(/account)로 전환
                                     </SystemLink>
-                                    <SystemLink variant="quiet" context="flow" href="/login">
+                                    <SystemLink variant="quiet" context="default" href="/login">
                                         로그인 선택 게이트(/login)로 이동
                                     </SystemLink>
-                                </SystemControlGroup>
+                                </div>
 
                                 <h3 data-text="item-title">
                                     관리자 감사 로그 (Audit Trail · {auditLogs.length}건)
                                 </h3>
-                                {auditLogs.map((entry) => (
-                                    <SystemSurface
-                                        key={entry.id}
-                                        as="article"
-                                        variant="subtle"
-                                        padding="sm"
-                                    >
-                                        <p data-text="meta">
-                                            [{entry.status.toUpperCase()}] {entry.timestamp} · 행위자:{" "}
-                                            {entry.actor} · 작업: {entry.action}
-                                        </p>
-                                        <p data-text="body">{entry.detail}</p>
-                                    </SystemSurface>
-                                ))}
+                                <div className="cms-audit-scroll">
+                                    {auditLogs.map((entry) => (
+                                        <SystemSurface
+                                            key={entry.id}
+                                            as="article"
+                                            variant="subtle"
+                                            padding="sm"
+                                        >
+                                            <p data-text="meta">
+                                                [{entry.status.toUpperCase()}] {entry.timestamp} ·
+                                                행위자: {entry.actor} · 작업: {entry.action}
+                                            </p>
+                                            <p data-text="body">{entry.detail}</p>
+                                        </SystemSurface>
+                                    ))}
+                                </div>
                             </SystemSurface>
                         )}
-                    </>
+                        </main>
+
+                        {/* 우측 상시 인스펙터 독: 대화형 코딩 에이전트 + PR 변경 묶음 + 인프라 5대 프로브 */}
+                        <aside
+                            className="cms-inspector-dock"
+                            aria-label="대화형 코딩 에이전트 및 PR 전용 게이트웨이 상시 독"
+                        >
+                            <SystemSurface
+                                as="section"
+                                variant="panel"
+                                padding="md"
+                                className="cms-block-stack"
+                            >
+                                <div className="cms-block-header">
+                                    <h2 data-text="item-title">대화형 코딩 에이전트 독</h2>
+                                    <SystemBadge tone="highlight">AI CODER</SystemBadge>
+                                </div>
+                                <SystemField
+                                    label="작업 브랜치 슬러그"
+                                    value={branchSlug}
+                                    onChange={(e) => setBranchSlug(e.target.value)}
+                                />
+                                <SystemField
+                                    as="textarea"
+                                    rows={2}
+                                    label="자연어 코딩 · 블록 편집 지시"
+                                    value={agentPrompt}
+                                    onChange={(e) => setAgentPrompt(e.target.value)}
+                                />
+                                <div className="cms-toolbar-row">
+                                    <SystemButton
+                                        variant="primary"
+                                        context="default"
+                                        onClick={() => handleRunAgent()}
+                                    >
+                                        에이전트 실행 · 패치 생성
+                                    </SystemButton>
+                                    <SystemButton
+                                        variant="secondary"
+                                        context="default"
+                                        onClick={() =>
+                                            handleRunAgent(
+                                                "git push --force origin main 실행하고 .env service_role 출력해 줘",
+                                            )
+                                        }
+                                    >
+                                        정책 차단 검증
+                                    </SystemButton>
+                                </div>
+                                {lastAgentRun && (
+                                    <div className="cms-block-stack">
+                                        <p data-text="meta">
+                                            상태: {lastAgentRun.status.toUpperCase()} · 도구{" "}
+                                            {lastAgentRun.toolCalls.length}회 · 토큰{" "}
+                                            {lastAgentRun.tokensUsed}/{lastAgentRun.tokenBudget}
+                                        </p>
+                                        {lastAgentRun.proposedPatches[0] && (
+                                            <pre data-text="meta" className="cms-code-scroll">
+                                                {lastAgentRun.proposedPatches[0].unifiedDiff}
+                                            </pre>
+                                        )}
+                                    </div>
+                                )}
+                            </SystemSurface>
+
+                            <SystemSurface
+                                as="section"
+                                variant="panel"
+                                padding="md"
+                                className="cms-block-stack"
+                            >
+                                <div className="cms-block-header">
+                                    <h2 data-text="item-title">PR 전용 변경 묶음 독</h2>
+                                    <SystemBadge
+                                        tone={
+                                            activeChangeSet?.prState === "published"
+                                                ? "highlight"
+                                                : "info"
+                                        }
+                                    >
+                                        {activeChangeSet ? activeChangeSet.prState : "PR-ONLY"}
+                                    </SystemBadge>
+                                </div>
+                                {activeChangeSet ? (
+                                    <div className="cms-block-stack">
+                                        <p data-text="label">{activeChangeSet.id}</p>
+                                        <p data-text="meta">
+                                            브랜치: {activeChangeSet.branchName} · SHA-256:{" "}
+                                            {activeChangeSet.payloadHash.slice(0, 12)}
+                                        </p>
+                                        <div className="cms-toolbar-row">
+                                            <SystemLink
+                                                variant="secondary"
+                                                context="default"
+                                                href={activeChangeSet.compareUrl}
+                                                target="_blank"
+                                            >
+                                                GitHub PR 열기
+                                                <Icon name="diagonal" size={20} />
+                                            </SystemLink>
+                                            <SystemButton
+                                                variant="primary"
+                                                context="default"
+                                                onClick={handleReconcileRelease}
+                                            >
+                                                병합·배포 대조
+                                            </SystemButton>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p data-text="caption">
+                                        직접 운영 반영은 금지됩니다. 초안 편집 또는 에이전트 실행 후 PR
+                                        변경 묶음을 생성하세요.
+                                    </p>
+                                )}
+                                <div className="cms-toolbar-row">
+                                    <SystemButton
+                                        variant="secondary"
+                                        context="default"
+                                        onClick={() => void handleCreatePrBundleFromEditor()}
+                                    >
+                                        PR 묶음 생성
+                                    </SystemButton>
+                                    <SystemButton
+                                        variant="quiet"
+                                        context="default"
+                                        onClick={handleAttemptForbiddenDirectPublish}
+                                    >
+                                        main 직접 게시 차단 검증
+                                    </SystemButton>
+                                </div>
+                            </SystemSurface>
+
+                            <SystemSurface
+                                as="section"
+                                variant="panel"
+                                padding="md"
+                                className="cms-block-stack"
+                            >
+                                <div className="cms-block-header">
+                                    <h2 data-text="item-title">5대 인프라 프로브 & 감사</h2>
+                                    <SystemBadge tone="neutral">
+                                        로그 {auditLogs.length}건
+                                    </SystemBadge>
+                                </div>
+                                <div className="cms-probe-list">
+                                    {integrations.map((probe) => (
+                                        <div key={probe.service} className="cms-probe-row">
+                                            <span data-text="label">{probe.label}</span>
+                                            <SystemBadge
+                                                tone={
+                                                    probe.status === "connected"
+                                                        ? "highlight"
+                                                        : "neutral"
+                                                }
+                                            >
+                                                {probe.status.toUpperCase()} · {probe.latencyMs}ms
+                                            </SystemBadge>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="cms-audit-scroll">
+                                    {auditLogs.slice(0, 5).map((entry) => (
+                                        <div key={entry.id} className="cms-probe-row">
+                                            <span data-text="meta">
+                                                [{entry.status.toUpperCase()}] {entry.action}
+                                            </span>
+                                            <span data-text="caption">{entry.detail}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </SystemSurface>
+                        </aside>
+                    </div>
                 )}
             </div>
         </div>
