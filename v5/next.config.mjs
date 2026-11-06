@@ -4,6 +4,7 @@ import { calculateReleaseId } from './scripts/readable-release.ts';
 
 const projectRoot = fileURLToPath(new URL('.', import.meta.url));
 const releaseId = calculateReleaseId(projectRoot);
+const figmaMakeDev = Boolean(process.env.FIGMA && process.env.FIGMA_MAKE_DEV);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -24,6 +25,11 @@ const nextConfig = {
   },
   typescript: {
     ignoreBuildErrors: false,
+  },
+  async redirects() {
+    return figmaMakeDev
+      ? [{ source: '/', destination: '/v5/', permanent: false, basePath: false }]
+      : [];
   },
 };
 
