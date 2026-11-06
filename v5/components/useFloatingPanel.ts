@@ -55,7 +55,13 @@ export default function useFloatingPanel(
                 panelHeight: panel.offsetHeight,
                 inset: 12,
             };
-            point = constrainPanel(docked ? drawerPosition.current || { x: 0, y: 0 } : savedPosition.current || initialPanelPosition(frame), frame, docked);
+            point = constrainPanel(
+                docked
+                    ? drawerPosition.current || { x: 0, y: 0 }
+                    : savedPosition.current || initialPanelPosition(frame),
+                frame,
+                docked,
+            );
             paint();
             panel.dataset.ready = "true";
         };

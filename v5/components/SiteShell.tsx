@@ -19,24 +19,45 @@ import { trackScrollFragments } from "../src/lib/scroll-fragments";
 export default function SiteShell({ children }: { children: ReactNode }) {
     const pathname = usePathname();
     const main = useRef<HTMLElement>(null);
-    useGSAP(() => main.current ? createEditorialMotion(main.current, pathname) : undefined,
-        { scope: main, dependencies: [pathname], revertOnUpdate: true });
+    useGSAP(() => (main.current ? createEditorialMotion(main.current, pathname) : undefined), {
+        scope: main,
+        dependencies: [pathname],
+        revertOnUpdate: true,
+    });
     const documentation = pathname.replace(/\/$/, "").endsWith("/design-rules");
     useEffect(() => {
         const path = pathname.replace(/^\/v5(?=\/|$)/, "").replace(/\/$/, "") || "/";
-        const accountState = /^\/account(?:\/|$)/.test(path) && !/^\/account\/(?:login|signup|recovery)$/.test(path);
+        const accountState =
+            /^\/account(?:\/|$)/.test(path) && !/^\/account\/(?:login|signup|recovery)$/.test(path);
         if (path === "/" || path === "/design-rules" || accountState) return;
         return trackScrollFragments(() => {
             const content = document.getElementById("main");
             const footer = document.getElementById("footer");
-            const elements = [content, ...Array.from(content?.querySelectorAll<HTMLElement>("section[id], [data-scroll-fragment][id]") || []), footer];
-            return elements.flatMap(element => element ? [{ element, fragment: element.id }] : []);
+            const elements = [
+                content,
+                ...Array.from(
+                    content?.querySelectorAll<HTMLElement>(
+                        "section[id], [data-scroll-fragment][id]",
+                    ) || [],
+                ),
+                footer,
+            ];
+            return elements.flatMap((element) =>
+                element ? [{ element, fragment: element.id }] : [],
+            );
         });
     }, [pathname]);
     if (documentation) {
         return (
             <>
-                <a data-text="action" data-text-size="control" data-component-owner="site-shell" data-component-part="skip-link" className="skip-link" href="#main">
+                <a
+                    data-text="action"
+                    data-text-size="control"
+                    data-component-owner="site-shell"
+                    data-component-part="skip-link"
+                    className="skip-link"
+                    href="#main"
+                >
                     본문 바로가기
                 </a>
                 {children}
@@ -46,11 +67,24 @@ export default function SiteShell({ children }: { children: ReactNode }) {
     }
     return (
         <>
-            <a data-text="action" data-text-size="control" data-component-owner="site-shell" data-component-part="skip-link" className="skip-link" href="#main">
+            <a
+                data-text="action"
+                data-text-size="control"
+                data-component-owner="site-shell"
+                data-component-part="skip-link"
+                className="skip-link"
+                href="#main"
+            >
                 본문 바로가기
             </a>
             <Header />
-            <main ref={main} data-component-id="site-shell" data-text="body" id="main" tabIndex={-1}>
+            <main
+                ref={main}
+                data-component-id="site-shell"
+                data-text="body"
+                id="main"
+                tabIndex={-1}
+            >
                 {children}
             </main>
             <Footer />

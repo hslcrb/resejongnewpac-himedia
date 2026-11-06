@@ -32,11 +32,14 @@ export function samplePanelVertex(
         // Keep the left edge behind the wall while the leading edge flexes.
         const envelope = Math.sin(Math.PI * Math.max(0, Math.min(progress, 1)));
         const p = progress - (1 - u) * 0.07 * envelope;
-        result.x = progress > 1
-            ? target.x + u * target.width * progress
-            : startX + (endX - startX) * p;
-        result.y = endY + Math.sin(v * Math.PI) * Math.sin(u * Math.PI / 2) *
-            envelope * Math.min(8, Math.abs(velocity) * 1.5);
+        result.x =
+            progress > 1 ? target.x + u * target.width * progress : startX + (endX - startX) * p;
+        result.y =
+            endY +
+            Math.sin(v * Math.PI) *
+                Math.sin((u * Math.PI) / 2) *
+                envelope *
+                Math.min(8, Math.abs(velocity) * 1.5);
         return result;
     }
     const centerX = origin.x + origin.width / 2;

@@ -10,11 +10,7 @@ export function generateStaticParams() {
     }));
 }
 
-export default function BookingPage({
-    params,
-}: {
-    params: { id: string };
-}) {
+export default function BookingPage({ params }: { params: { id: string } }) {
     const program = loadPublishedCatalog().programs.find((p) => String(p.id) === params.id);
     if (!program) notFound();
 

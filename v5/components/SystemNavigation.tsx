@@ -19,7 +19,20 @@ export type SystemTabsProps = Omit<HTMLAttributes<HTMLDivElement>, "onChange"> &
 };
 
 export const SystemTabs = forwardRef<HTMLDivElement, SystemTabsProps>(function SystemTabs(
-    { items, value, onValueChange, orientation = "horizontal", className = "", tabListClassName = "", panelClassName = "", idPrefix, "aria-label": label, "aria-labelledby": labelledBy, ...props }, ref,
+    {
+        items,
+        value,
+        onValueChange,
+        orientation = "horizontal",
+        className = "",
+        tabListClassName = "",
+        panelClassName = "",
+        idPrefix,
+        "aria-label": label,
+        "aria-labelledby": labelledBy,
+        ...props
+    },
+    ref,
 ) {
     const generatedPrefix = useId();
     const prefix = idPrefix || generatedPrefix;
@@ -34,23 +47,105 @@ export const SystemTabs = forwardRef<HTMLDivElement, SystemTabsProps>(function S
         if (![nextKey, previousKey, "Home", "End"].includes(event.key) || !enabled.length) return;
         event.preventDefault();
         const index = enabled.findIndex((item) => item.id === id);
-        const targetIndex = event.key === "Home" ? 0 : event.key === "End" ? enabled.length - 1 : (index + (event.key === nextKey ? 1 : -1) + enabled.length) % enabled.length;
+        const targetIndex =
+            event.key === "Home"
+                ? 0
+                : event.key === "End"
+                  ? enabled.length - 1
+                  : (index + (event.key === nextKey ? 1 : -1) + enabled.length) % enabled.length;
         const next = enabled[targetIndex].id;
         onValueChange(next);
         buttons.current.get(next)?.focus();
     }
-    return <div data-text="body" {...props} ref={ref} className={`ds-tab-group ${className}`.trim()} data-component="tabs" data-component-id="tabs" data-orientation={orientation}>
-        <div data-text="body" className={`ds-tabs ${tabListClassName}`.trim()} data-component-part="list" data-component-owner="tabs" role="tablist" aria-label={label} aria-labelledby={labelledBy} aria-orientation={orientation}>
-            {items.map((item) => <button data-text="action" data-text-size="control" key={item.id} ref={(element) => { if (element) buttons.current.set(item.id, element); else buttons.current.delete(item.id); }} type="button" role="tab" id={tabId(item.id)} aria-controls={panelId(item.id)} aria-selected={selected === item.id} tabIndex={selected === item.id ? 0 : -1} disabled={item.disabled} onClick={() => onValueChange(item.id)} onKeyDown={(event) => handleKey(event, item.id)}>{item.label}</button>)}
+    return (
+        <div
+            data-text="body"
+            {...props}
+            ref={ref}
+            className={`ds-tab-group ${className}`.trim()}
+            data-component="tabs"
+            data-component-id="tabs"
+            data-orientation={orientation}
+        >
+            <div
+                data-text="body"
+                className={`ds-tabs ${tabListClassName}`.trim()}
+                data-component-part="list"
+                data-component-owner="tabs"
+                role="tablist"
+                aria-label={label}
+                aria-labelledby={labelledBy}
+                aria-orientation={orientation}
+            >
+                {items.map((item) => (
+                    <button
+                        data-text="action"
+                        data-text-size="control"
+                        key={item.id}
+                        ref={(element) => {
+                            if (element) buttons.current.set(item.id, element);
+                            else buttons.current.delete(item.id);
+                        }}
+                        type="button"
+                        role="tab"
+                        id={tabId(item.id)}
+                        aria-controls={panelId(item.id)}
+                        aria-selected={selected === item.id}
+                        tabIndex={selected === item.id ? 0 : -1}
+                        disabled={item.disabled}
+                        onClick={() => onValueChange(item.id)}
+                        onKeyDown={(event) => handleKey(event, item.id)}
+                    >
+                        {item.label}
+                    </button>
+                ))}
+            </div>
+            {items.map((item) => (
+                <div
+                    data-text="body"
+                    key={item.id}
+                    id={panelId(item.id)}
+                    data-component-part="panel"
+                    data-component-owner="tabs"
+                    role="tabpanel"
+                    aria-labelledby={tabId(item.id)}
+                    hidden={selected !== item.id}
+                    tabIndex={0}
+                    className={`ds-tabpanel ${panelClassName}`.trim()}
+                >
+                    {item.content}
+                </div>
+            ))}
         </div>
-        {items.map((item) => <div data-text="body" key={item.id} id={panelId(item.id)} data-component-part="panel" data-component-owner="tabs" role="tabpanel" aria-labelledby={tabId(item.id)} hidden={selected !== item.id} tabIndex={0} className={`ds-tabpanel ${panelClassName}`.trim()}>{item.content}</div>)}
-    </div>;
+    );
 });
 
 // [브라우저 기본 펼침 동작 / Native disclosure behavior]
-export type SystemDisclosureProps = DetailsHTMLAttributes<HTMLDetailsElement> & { summary: ReactNode; summaryClassName?: string; appearance?: Appearance };
-export const SystemDisclosure = forwardRef<HTMLDetailsElement, SystemDisclosureProps>(function SystemDisclosure(
-    { summary, children, className = "", summaryClassName, appearance = "default", ...props }, ref,
-) {
-    return <details data-text="body" {...props} ref={ref} className={`${appearance === "plain" ? "ds-disclosure-plain" : "ds-disclosure"} ${className}`.trim()} data-component="disclosure" data-component-id="disclosure" data-appearance={appearance}><summary data-text="label" className={summaryClassName}>{summary}</summary>{children}</details>;
-});
+export type SystemDisclosureProps = DetailsHTMLAttributes<HTMLDetailsElement> & {
+    summary: ReactNode;
+    summaryClassName?: string;
+    appearance?: Appearance;
+};
+export const SystemDisclosure = forwardRef<HTMLDetailsElement, SystemDisclosureProps>(
+    function SystemDisclosure(
+        { summary, children, className = "", summaryClassName, appearance = "default", ...props },
+        ref,
+    ) {
+        return (
+            <details
+                data-text="body"
+                {...props}
+                ref={ref}
+                className={`${appearance === "plain" ? "ds-disclosure-plain" : "ds-disclosure"} ${className}`.trim()}
+                data-component="disclosure"
+                data-component-id="disclosure"
+                data-appearance={appearance}
+            >
+                <summary data-text="label" className={summaryClassName}>
+                    {summary}
+                </summary>
+                {children}
+            </details>
+        );
+    },
+);

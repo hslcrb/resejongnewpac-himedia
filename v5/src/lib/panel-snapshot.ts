@@ -23,8 +23,11 @@ export function capturePanelPreview(panel: HTMLElement) {
         if (
             !parent ||
             !node.textContent?.trim() ||
-            parent.closest(".sr-only, .liquid-glass-optics, .glass-lens-definitions, svg, script, style")
-        ) continue;
+            parent.closest(
+                ".sr-only, .liquid-glass-optics, .glass-lens-definitions, svg, script, style",
+            )
+        )
+            continue;
         const style = getComputedStyle(parent);
         if (style.visibility === "hidden" || style.display === "none") continue;
         context.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
@@ -45,7 +48,11 @@ export function capturePanelPreview(panel: HTMLElement) {
             );
         };
         context.save();
-        for (let ancestor = parent; ancestor && ancestor !== panel; ancestor = ancestor.parentElement!) {
+        for (
+            let ancestor = parent;
+            ancestor && ancestor !== panel;
+            ancestor = ancestor.parentElement!
+        ) {
             const computed = ancestor === parent ? style : getComputedStyle(ancestor);
             if (computed.overflowX !== "visible" || computed.overflowY !== "visible") {
                 const clip = ancestor.getBoundingClientRect();
@@ -56,7 +63,8 @@ export function capturePanelPreview(panel: HTMLElement) {
         }
         if (rectangles.length === 1) paint(node.textContent, rectangles[0]);
         else {
-            let line = "", box: DOMRect | null = null;
+            let line = "",
+                box: DOMRect | null = null;
             for (let index = 0; index < node.textContent.length; index++) {
                 range.setStart(node, index);
                 range.setEnd(node, index + 1);

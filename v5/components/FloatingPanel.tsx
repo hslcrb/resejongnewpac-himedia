@@ -116,7 +116,10 @@ function PanelSurface({
     return createPortal(
         <>
             <LiquidGlass
-                ref={panelRef} data-component-id="floating-panel" data-component-part="glass-surface" data-component-owner="floating-panel"
+                ref={panelRef}
+                data-component-id="floating-panel"
+                data-component-part="glass-surface"
+                data-component-owner="floating-panel"
                 id={id}
                 className={`floating-panel ${className}`.trim()}
                 variant={variant === "drawer" ? "drawer" : "surface"}
@@ -130,11 +133,18 @@ function PanelSurface({
             >
                 <div className="glass-menu-header floating-panel-header">
                     <div data-text="body">
-                        {eyebrow && <p data-text="body" className="glass-menu-brand">{eyebrow}</p>}
-                        <h2 data-text="heading" id={`${labelId}-heading`}>{title}</h2>
+                        {eyebrow && (
+                            <p data-text="body" className="glass-menu-brand">
+                                {eyebrow}
+                            </p>
+                        )}
+                        <h2 data-text="heading" id={`${labelId}-heading`}>
+                            {title}
+                        </h2>
                     </div>
                     <div data-text="body" className="glass-menu-actions">
-                        <SystemButton data-text="action"
+                        <SystemButton
+                            data-text="action"
                             variant="quiet"
                             shape="pill"
                             type="button"
@@ -148,7 +158,8 @@ function PanelSurface({
                             <Icon name="open_with" />
                             <span data-text="body">이동</span>
                         </SystemButton>
-                        <SystemIconButton data-text="action"
+                        <SystemIconButton
+                            data-text="action"
                             ref={closeRef}
                             type="button"
                             onClick={onClose}
@@ -159,8 +170,9 @@ function PanelSurface({
                     </div>
                 </div>
                 <p data-text="body" id={`${labelId}-move-help`} className="sr-only">
-                    {variant === "drawer" ? "제목을 잡아 위아래로 옮기세요. 이동 버튼에서 위아래 방향키로 옮기고 Home 키로 처음 위치로 돌립니다. 목록에서는 스크롤할 수 있습니다." :
-                        "마우스로 글자나 여백을 잡아 옮길 수 있습니다. 터치에서는 제목을 잡거나 이동 버튼을 켜세요. 이동 버튼에서 방향키로 옮기고 Home 키로 처음 위치로 돌립니다."}
+                    {variant === "drawer"
+                        ? "제목을 잡아 위아래로 옮기세요. 이동 버튼에서 위아래 방향키로 옮기고 Home 키로 처음 위치로 돌립니다. 목록에서는 스크롤할 수 있습니다."
+                        : "마우스로 글자나 여백을 잡아 옮길 수 있습니다. 터치에서는 제목을 잡거나 이동 버튼을 켜세요. 이동 버튼에서 방향키로 옮기고 Home 키로 처음 위치로 돌립니다."}
                 </p>
                 <span data-text="body" className="sr-only" role="status" aria-live="polite">
                     {announcement}

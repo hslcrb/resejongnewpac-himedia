@@ -7,8 +7,10 @@
 .shell {
     position: fixed;
     z-index: 1200;
-    min-width: 232px;
-    max-width: 340px;
+    min-width: min(232px, calc(100vw - 24px));
+    max-width: min(340px, calc(100vw - 24px));
+    box-sizing: border-box;
+    overflow: hidden;
     padding: 8px;
     background: var(--paper, var(--color-white));
     border: 1px solid var(--line, var(--color-gray-300));
@@ -90,6 +92,11 @@
 }
 
 .location {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
     padding: 8px 14px 6px;
     font-size: max(var(--text-min), var(--text-sm, 1rem));
     font-weight: var(--weight-label, 500);

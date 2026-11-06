@@ -17,7 +17,13 @@ interface ProgramCardProps {
 
 export default function ProgramCard({ program }: ProgramCardProps) {
     const { catalog } = useCatalog();
-    const hasVerifiedSession = catalog.sessions.some(session => session.programId === program.id && session.bookingEnabled && session.sourceState === "verified" && new Date(session.startsAt).valueOf() > Date.now());
+    const hasVerifiedSession = catalog.sessions.some(
+        (session) =>
+            session.programId === program.id &&
+            session.bookingEnabled &&
+            session.sourceState === "verified" &&
+            new Date(session.startsAt).valueOf() > Date.now(),
+    );
     const isFavorite = useFavorites().includes(program.id);
 
     const handleFavorite = async (e: React.MouseEvent) => {
@@ -25,9 +31,13 @@ export default function ProgramCard({ program }: ProgramCardProps) {
         e.stopPropagation();
         try {
             const { saved } = await toggleFavorite(program.id);
-            showSmallNotification(saved ? "관심 프로그램에 저장했어요." : "관심 프로그램에서 삭제했어요.");
+            showSmallNotification(
+                saved ? "관심 프로그램에 저장했어요." : "관심 프로그램에서 삭제했어요.",
+            );
         } catch (error) {
-            showSmallNotification(error instanceof Error ? error.message : "관심 프로그램을 저장하지 못했습니다.");
+            showSmallNotification(
+                error instanceof Error ? error.message : "관심 프로그램을 저장하지 못했습니다.",
+            );
         }
     };
 
@@ -37,8 +47,15 @@ export default function ProgramCard({ program }: ProgramCardProps) {
     const formatDate = (val?: string) => String(val || "").replaceAll("-", ".");
 
     return (
-        <article data-component-id="poster" className="card card--poster program-card" data-card="poster" data-program-flip data-flip-id={`program-${program.id}`}>
-            <Link data-text="action"
+        <article
+            data-component-id="poster"
+            className="card card--poster program-card"
+            data-card="poster"
+            data-program-flip
+            data-flip-id={`program-${program.id}`}
+        >
+            <Link
+                data-text="action"
                 href={`/programs/${program.id}`}
                 className="card-poster-link"
                 draggable={false}
@@ -48,7 +65,11 @@ export default function ProgramCard({ program }: ProgramCardProps) {
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={imagePath}
-                        alt={program.image ? (program.imageAlt || program.title) : "세종문화회관 공간 사진"}
+                        alt={
+                            program.image
+                                ? program.imageAlt || program.title
+                                : "세종문화회관 공간 사진"
+                        }
                         loading="lazy"
                         width={450}
                         height={600}
@@ -77,11 +98,14 @@ export default function ProgramCard({ program }: ProgramCardProps) {
                     {formatDate(program.start)} ~ {formatDate(program.end)}
                 </p>
 
-                <p data-text="body" className="program-card-venue">{program.venue}</p>
+                <p data-text="body" className="program-card-venue">
+                    {program.venue}
+                </p>
             </Link>
 
             <div className="card-poster-actions">
-                <SystemIconButton data-text="action"
+                <SystemIconButton
+                    data-text="action"
                     variant={isFavorite ? "highlight" : "secondary"}
                     type="button"
                     className={`favorite-button ${isFavorite ? "selected" : ""}`}

@@ -192,7 +192,11 @@ export const TYPE_SCALE = [
 
 // [문서 서체 스케일에서 파생한 공유 텍스트 역할 / Shared text roles derived from the documented scale]
 const textVariant = (type: (typeof TYPE_SCALE)[number], tracking = "-0.015em") => ({
-    token: type.token, weight: type.weight, leading: type.leading, tracking, minimum: type.mobile,
+    token: type.token,
+    weight: type.weight,
+    leading: type.leading,
+    tracking,
+    minimum: type.mobile,
 });
 export const TEXT_VARIANTS = {
     display: textVariant(TYPE_SCALE[0], "-0.035em"),
@@ -231,9 +235,19 @@ export const COMPONENT_TEXT_SIZES = {
 } as const;
 
 export const TEXT_SIZES = {
-    ...Object.fromEntries(Object.entries(TEXT_VARIANTS).map(([name, definition]) => [name, `var(--${definition.token})`])) as Record<TextVariant, string>,
+    ...(Object.fromEntries(
+        Object.entries(TEXT_VARIANTS).map(([name, definition]) => [
+            name,
+            `var(--${definition.token})`,
+        ]),
+    ) as Record<TextVariant, string>),
     control: "1rem",
-    ...Object.fromEntries(Object.entries(COMPONENT_TEXT_SIZES).map(([name, definition]) => [name, `var(${definition.token})`])) as Record<keyof typeof COMPONENT_TEXT_SIZES, string>,
+    ...(Object.fromEntries(
+        Object.entries(COMPONENT_TEXT_SIZES).map(([name, definition]) => [
+            name,
+            `var(${definition.token})`,
+        ]),
+    ) as Record<keyof typeof COMPONENT_TEXT_SIZES, string>),
 } as const;
 export type TextSize = keyof typeof TEXT_SIZES;
 
@@ -248,7 +262,12 @@ export type GlassMaterial = Readonly<{
 }>;
 
 // [밝고 어두운 알림이 공유하는 렌즈 / One lens for light and dark notifications]
-const NOTIFICATION_GLASS_MATERIAL = Object.freeze({ opacity: 0.82, refraction: 70, blur: 18, thickness: 24 }) satisfies GlassMaterial;
+const NOTIFICATION_GLASS_MATERIAL = Object.freeze({
+    opacity: 0.82,
+    refraction: 70,
+    blur: 18,
+    thickness: 24,
+}) satisfies GlassMaterial;
 
 export const GLASS_MATERIALS = Object.freeze({
     surface: Object.freeze({ opacity: 0.82, refraction: 64, blur: 18, thickness: 32 }),
@@ -293,7 +312,13 @@ export const QUICK_MENU_MATERIAL = Object.freeze({
         light: "--color-white",
         clear: "--color-transparent",
     }),
-    motion: Object.freeze({ period: 14, desktopFps: 30, mobileFps: 24, response: 5, maxInput: 0.16 }),
+    motion: Object.freeze({
+        period: 14,
+        desktopFps: 30,
+        mobileFps: 24,
+        response: 5,
+        maxInput: 0.16,
+    }),
 });
 
 // [외부 웹 컴포넌트도 같은 표면과 읽기 기준 / Shared presentation inside embedded web components]
@@ -1163,12 +1188,20 @@ const TYPOGRAPHY_TOKENS = {
     "--code-string": "color-mix(in srgb, var(--color-sky) 36%, var(--color-black))",
     "--code-property": "color-mix(in srgb, var(--color-ochre) 44%, var(--color-black))",
     "--text-min": rem(16),
-    ...Object.fromEntries(Object.values(COMPONENT_TEXT_SIZES).map(definition => [definition.token, definition.base])),
-    ...Object.fromEntries(TYPE_SCALE.map((type) => [
-        `--${type.token}`, FLUID_TYPE_VIEWPORTS[type.token]
-            ? `clamp(${rem(type.mobile)}, ${FLUID_TYPE_VIEWPORTS[type.token]}, ${rem(type.size)})`
-            : rem(type.size),
-    ])),
+    ...Object.fromEntries(
+        Object.values(COMPONENT_TEXT_SIZES).map((definition) => [
+            definition.token,
+            definition.base,
+        ]),
+    ),
+    ...Object.fromEntries(
+        TYPE_SCALE.map((type) => [
+            `--${type.token}`,
+            FLUID_TYPE_VIEWPORTS[type.token]
+                ? `clamp(${rem(type.mobile)}, ${FLUID_TYPE_VIEWPORTS[type.token]}, ${rem(type.size)})`
+                : rem(type.size),
+        ]),
+    ),
     "--text-action": rem(20),
     "--text-card-title": rem(20),
     "--text-meta": rem(16),
@@ -1184,7 +1217,8 @@ const TYPOGRAPHY_TOKENS = {
     "--leading-heading": "1.25",
     "--tracking-body": "-0.015em",
     "--tracking-heading": "-0.035em",
-    "--font": '"Wanted Sans Variable", "Wanted Sans", -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif',
+    "--font":
+        '"Wanted Sans Variable", "Wanted Sans", -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif',
     "--font-sans": reference("font"),
     "--display-font": reference("font"),
 } satisfies TokenValues;
@@ -1224,11 +1258,17 @@ const GEOMETRY_TOKENS = {
     "--stroke-control": reference("color-line-control"),
     "--stroke-selected": "color-mix(in srgb, var(--color-sky) 45%, var(--color-line-gentle))",
     "--stroke-inverse": "color-mix(in srgb, var(--color-white) 36%, var(--color-transparent))",
-    "--surface-shadow-elevated": "0 12px 36px color-mix(in srgb, var(--color-black) 8%, var(--color-transparent))",
+    "--surface-shadow-elevated":
+        "0 12px 36px color-mix(in srgb, var(--color-black) 8%, var(--color-transparent))",
 } satisfies TokenValues;
 
 // [히어로의 공유 시간 규격 / Shared hero timing contract]
-export const HERO_MOTION = Object.freeze({ interval: 3500, transition: 750, copy: 650, settle: 240 });
+export const HERO_MOTION = Object.freeze({
+    interval: 3500,
+    transition: 750,
+    copy: 650,
+    settle: 240,
+});
 
 // [색으로 표현하는 상태와 전환 / Color feedback and transition timing]
 const MOTION_AND_STATE_TOKENS = {
@@ -1252,17 +1292,21 @@ const MOTION_AND_STATE_TOKENS = {
 } satisfies TokenValues;
 
 const GLASS_TOKENS = {
-    ...Object.fromEntries(Object.entries(GLASS_MATERIALS).flatMap(([variant, material]) => {
-        const prefix = variant === "surface" ? "--glass" : `--glass-${variant}`;
-        return Object.entries(material).map(([property, value]) => [
-            `${prefix}-${property}`,
-            `${value}${property === "blur" || property === "thickness" ? "px" : ""}`,
-        ]);
-    })),
-    "--glass-tint": "color-mix(in srgb, var(--color-white) calc(var(--glass-opacity) * 100%), var(--color-transparent))",
+    ...Object.fromEntries(
+        Object.entries(GLASS_MATERIALS).flatMap(([variant, material]) => {
+            const prefix = variant === "surface" ? "--glass" : `--glass-${variant}`;
+            return Object.entries(material).map(([property, value]) => [
+                `${prefix}-${property}`,
+                `${value}${property === "blur" || property === "thickness" ? "px" : ""}`,
+            ]);
+        }),
+    ),
+    "--glass-tint":
+        "color-mix(in srgb, var(--color-white) calc(var(--glass-opacity) * 100%), var(--color-transparent))",
     "--glass-saturation": "1.4",
     "--glass-edge": "color-mix(in srgb, var(--color-white) 88%, var(--color-transparent))",
-    "--glass-shadow": "0 24px 80px color-mix(in srgb, var(--color-black) 18%, var(--color-transparent)), 0 4px 16px color-mix(in srgb, var(--color-black) 9%, var(--color-transparent))",
+    "--glass-shadow":
+        "0 24px 80px color-mix(in srgb, var(--color-black) 18%, var(--color-transparent)), 0 4px 16px color-mix(in srgb, var(--color-black) 9%, var(--color-transparent))",
 } satisfies TokenValues;
 
 // [문서와 배포 CSS가 공유하는 값 / Values shared by the guide and production CSS]
@@ -1270,7 +1314,9 @@ export const DESIGN_TOKEN_VALUES: TokenValues = Object.freeze({
     ...Object.fromEntries(DESIGN_COLORS.map((color) => [`--${color.token}`, color.hex])),
     ...SEMANTIC_COLOR_VALUES,
     ...EXTENDED_COLOR_VALUES,
-    ...Object.fromEntries(SEMANTIC_COLORS.map(([, token, source]) => [`--${token}`, reference(source)])),
+    ...Object.fromEntries(
+        SEMANTIC_COLORS.map(([, token, source]) => [`--${token}`, reference(source)]),
+    ),
     ...COMPATIBILITY_TOKENS,
     ...TYPOGRAPHY_TOKENS,
     ...GEOMETRY_TOKENS,
@@ -1281,14 +1327,30 @@ export const DESIGN_TOKEN_VALUES: TokenValues = Object.freeze({
 
 // [원본 로컬 폰트 선언을 보존하는 결정적 CSS 생성 / Deterministic CSS preserving the local font face]
 export function renderDesignTokensCss(extraColors: TokenValues = {}): string {
-    const componentSizes: readonly { token: string; responsive: readonly { maxWidth: number; value: string }[] }[] = Object.values(COMPONENT_TEXT_SIZES);
-    const breakpoints = [...new Set(componentSizes.flatMap(definition => definition.responsive.map(rule => rule.maxWidth)))].sort((first, second) => second - first);
-    const responsive = breakpoints.map(maxWidth => {
-        const declarations = componentSizes.flatMap(definition => definition.responsive.filter(rule => rule.maxWidth === maxWidth).map(rule => `        ${definition.token}: ${rule.value};`));
-        return `@media (max-width: ${maxWidth}px) {\n    :root {\n${declarations.join("\n")}\n    }\n}`;
-    }).join("\n\n");
+    const componentSizes: readonly {
+        token: string;
+        responsive: readonly { maxWidth: number; value: string }[];
+    }[] = Object.values(COMPONENT_TEXT_SIZES);
+    const breakpoints = [
+        ...new Set(
+            componentSizes.flatMap((definition) =>
+                definition.responsive.map((rule) => rule.maxWidth),
+            ),
+        ),
+    ].sort((first, second) => second - first);
+    const responsive = breakpoints
+        .map((maxWidth) => {
+            const declarations = componentSizes.flatMap((definition) =>
+                definition.responsive
+                    .filter((rule) => rule.maxWidth === maxWidth)
+                    .map((rule) => `        ${definition.token}: ${rule.value};`),
+            );
+            return `@media (max-width: ${maxWidth}px) {\n    :root {\n${declarations.join("\n")}\n    }\n}`;
+        })
+        .join("\n\n");
     const declarations = Object.entries({ ...DESIGN_TOKEN_VALUES, ...extraColors })
-        .map(([token, value]) => `    ${token}: ${value};`).join("\n");
+        .map(([token, value]) => `    ${token}: ${value};`)
+        .join("\n");
     return `/* [v5 디자인 토큰 / v5 design tokens]
    src/data/design-tokens.ts에서 생성됩니다. / Generated from src/data/design-tokens.ts.
    node scripts/sync-design-tokens.ts --check */
@@ -1329,8 +1391,18 @@ ${responsive}
 
 // [공유 컴포넌트의 역할별 CSS 생성 / Generate role styles for the shared text component]
 export function renderTypographyCss(): string {
-    const variants = Object.entries(TEXT_VARIANTS).map(([variant, definition]) => `[data-text="${variant}"] {\n    font-size: max(var(--text-min), var(--${definition.token}));\n    font-weight: ${definition.weight};\n    line-height: ${definition.leading};\n    letter-spacing: ${definition.tracking};\n}`).join("\n\n");
-    const sizes = Object.entries(TEXT_SIZES).map(([size, value]) => `[data-text][data-text-size="${size}"] {\n    font-size: max(var(--text-min), ${value});\n}`).join("\n\n");
+    const variants = Object.entries(TEXT_VARIANTS)
+        .map(
+            ([variant, definition]) =>
+                `[data-text="${variant}"] {\n    font-size: max(var(--text-min), var(--${definition.token}));\n    font-weight: ${definition.weight};\n    line-height: ${definition.leading};\n    letter-spacing: ${definition.tracking};\n}`,
+        )
+        .join("\n\n");
+    const sizes = Object.entries(TEXT_SIZES)
+        .map(
+            ([size, value]) =>
+                `[data-text][data-text-size="${size}"] {\n    font-size: max(var(--text-min), ${value});\n}`,
+        )
+        .join("\n\n");
     return `/* [공유 텍스트 역할과 최소 가독성 / Shared text roles and minimum readability]
    src/data/design-tokens.ts에서 생성됩니다. / Generated from src/data/design-tokens.ts.
    data-text는 기존 요소의 위계를 보존합니다. / Native data-text annotations preserve existing hierarchy. */

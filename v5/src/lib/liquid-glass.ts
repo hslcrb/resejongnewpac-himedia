@@ -8,9 +8,13 @@ export type GlassVariant = GlassMaterialVariant;
 export const GLASS_DEFAULTS: Readonly<GlassOptions> = GLASS_MATERIALS.surface;
 
 // [용도에 따른 재질 베리언트 / Material variants by purpose]
-export const GLASS_VARIANTS: Readonly<Record<GlassVariant, Readonly<GlassOptions>>> = GLASS_MATERIALS;
+export const GLASS_VARIANTS: Readonly<Record<GlassVariant, Readonly<GlassOptions>>> =
+    GLASS_MATERIALS;
 
-export function resolveGlassOptions(options: Partial<GlassOptions>, variant: GlassVariant = "surface"): GlassOptions {
+export function resolveGlassOptions(
+    options: Partial<GlassOptions>,
+    variant: GlassVariant = "surface",
+): GlassOptions {
     const defaults = GLASS_VARIANTS[variant];
     const bounded = (value: number | undefined, fallback: number, min: number, max: number) =>
         Math.max(min, Math.min(Number.isFinite(value) ? value! : fallback, max));

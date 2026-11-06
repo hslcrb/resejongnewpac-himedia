@@ -17,14 +17,21 @@ type ControlGroupStyle<Element extends SystemControlGroupTag> = {
 };
 
 export type SystemControlGroupProps<Element extends SystemControlGroupTag = "div"> =
-    ControlGroupStyle<Element> & Omit<ComponentPropsWithoutRef<Element>, keyof ControlGroupStyle<Element>>;
+    ControlGroupStyle<Element> &
+        Omit<ComponentPropsWithoutRef<Element>, keyof ControlGroupStyle<Element>>;
 
 // [프래그먼트와 배열을 같은 항목으로 해석 / Treat fragments and arrays as the same item sequence]
 // 각 경로의 key를 보존해 이름 있는 조작의 순서가 바뀌어도 상태를 유지합니다.
 // Preserve keyed ancestry so reordering named controls does not replace their state.
-function controlItems(children: ReactNode, parentKeys: readonly string[] = []): { child: ReactNode; key: string }[] {
+function controlItems(
+    children: ReactNode,
+    parentKeys: readonly string[] = [],
+): { child: ReactNode; key: string }[] {
     return Children.toArray(children).flatMap((child, index) => {
-        const keys = [...parentKeys, isValidElement(child) && child.key !== null ? String(child.key) : String(index)];
+        const keys = [
+            ...parentKeys,
+            isValidElement(child) && child.key !== null ? String(child.key) : String(index),
+        ];
         if (isValidElement<{ children?: ReactNode }>(child) && child.type === Fragment) {
             return controlItems(child.props.children, keys);
         }
@@ -56,17 +63,27 @@ export function SystemControlGroup<Element extends SystemControlGroupTag = "div"
     const tag = as || "div";
     const itemTag = tag === "ul" || tag === "ol" ? "li" : "div";
 
-    return createElement(tag, {
-        ...props,
-        className: `system-control-group ${className}`.trim(),
-        style: groupStyle,
-        "data-component": "control-group",
-        "data-component-id": "control-group",
-        "data-control-count": items.length,
-    }, items.map(({ child, key }) => createElement(itemTag, {
-        key,
-        className: "system-control-group-item",
-    }, child)));
+    return createElement(
+        tag,
+        {
+            ...props,
+            className: `system-control-group ${className}`.trim(),
+            style: groupStyle,
+            "data-component": "control-group",
+            "data-component-id": "control-group",
+            "data-control-count": items.length,
+        },
+        items.map(({ child, key }) =>
+            createElement(
+                itemTag,
+                {
+                    key,
+                    className: "system-control-group-item",
+                },
+                child,
+            ),
+        ),
+    );
 }
 
 export default SystemControlGroup;

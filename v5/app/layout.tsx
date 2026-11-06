@@ -52,7 +52,9 @@ export const metadata = {
     description: "공연·전시·교육 일정과 예매, 이용 안내를 한곳에서 확인하세요.",
 };
 
-export const viewport = { themeColor: DESIGN_COLORS.find(color => color.token === "color-white")!.hex };
+export const viewport = {
+    themeColor: DESIGN_COLORS.find((color) => color.token === "color-white")!.hex,
+};
 
 // 공개된 데이터 원본에만 조기 연결한다. 브라우저가 TCP/TLS 완료를 보장하는 것은 아니다.
 function catalogPreconnectOrigin(): string | null {
@@ -61,17 +63,14 @@ function catalogPreconnectOrigin(): string | null {
     try {
         const url = new URL(configuredUrl);
         return url.protocol === "https:" && url.hostname !== "your-project-id.supabase.co"
-            ? url.origin : null;
+            ? url.origin
+            : null;
     } catch {
         return null;
     }
 }
 
-export default function RootLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
     const dataOrigin = catalogPreconnectOrigin();
     return (
         <html lang="ko">
@@ -80,7 +79,13 @@ export default function RootLayout({
                 {dataOrigin && <link rel="preconnect" href={dataOrigin} crossOrigin="anonymous" />}
                 {dataOrigin && <link rel="dns-prefetch" href={dataOrigin} />}
                 <link rel="icon" type="image/svg+xml" href="/v5/assets/favicon.svg" />
-                <link rel="preload" href="/v5/assets/fonts/woff2/WantedSansVariable.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+                <link
+                    rel="preload"
+                    href="/v5/assets/fonts/woff2/WantedSansVariable.woff2"
+                    as="font"
+                    type="font/woff2"
+                    crossOrigin="anonymous"
+                />
             </head>
             <body>
                 <CatalogProvider><HomeEntryIntro /><SiteShell>{children}</SiteShell></CatalogProvider>

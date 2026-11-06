@@ -1,5 +1,14 @@
 // [실제 속성과 문서가 함께 사용하는 축 / Axes shared by implementation props and documentation]
-export const CONTROL_VARIANTS = ["primary", "secondary", "accent", "highlight", "quiet", "inverse", "inverse-outline", "inverse-quiet"] as const;
+export const CONTROL_VARIANTS = [
+    "primary",
+    "secondary",
+    "accent",
+    "highlight",
+    "quiet",
+    "inverse",
+    "inverse-outline",
+    "inverse-quiet",
+] as const;
 export const CONTROL_CONTEXTS = ["default", "flow"] as const;
 export const CONTROL_SHAPES = ["rounded", "circle", "pill"] as const;
 export const FIELD_ELEMENTS = ["input", "select", "textarea"] as const;
@@ -40,12 +49,23 @@ export type MembershipMode = (typeof MEMBERSHIP_MODES)[number];
 export type TicketVariant = (typeof TICKET_VARIANTS)[number];
 
 export type ComponentAxes = Readonly<Record<string, readonly string[]>>;
-export type ComponentExample = Readonly<{ id: string; axis?: string; value?: string; state?: string }>;
+export type ComponentExample = Readonly<{
+    id: string;
+    axis?: string;
+    value?: string;
+    state?: string;
+}>;
 
 // [안정적인 실물 예시 앵커 / Stable anchors for live implementation examples]
-export function contractExamples(id: string, axes: ComponentAxes = {}, states: readonly string[] = []): readonly ComponentExample[] {
+export function contractExamples(
+    id: string,
+    axes: ComponentAxes = {},
+    states: readonly string[] = [],
+): readonly ComponentExample[] {
     return [
-        ...Object.entries(axes).flatMap(([axis, values]) => values.map(value => ({ id: `example-${id}-${axis}-${value}`, axis, value }))),
-        ...states.map(state => ({ id: `example-${id}-state-${state}`, state })),
+        ...Object.entries(axes).flatMap(([axis, values]) =>
+            values.map((value) => ({ id: `example-${id}-${axis}-${value}`, axis, value })),
+        ),
+        ...states.map((state) => ({ id: `example-${id}-state-${state}`, state })),
     ];
 }

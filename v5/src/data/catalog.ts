@@ -1,21 +1,29 @@
 import type { Program, Venue, Notice, NavItem, PageMeta } from "../../types/sejong.ts";
 import { CATALOG_SNAPSHOT } from "../catalog/snapshot.ts";
 
-const page = (path: string, title: string, group: string, description = "", type = "content"): PageMeta => ({
+const page = (
+    path: string,
+    title: string,
+    group: string,
+    description = "",
+    type = "content",
+): PageMeta => ({
     path,
     title,
     group,
     description,
     type,
     eyebrow:
-        ({
-            programs: "PROGRAMS",
-            rental: "VENUE RENTAL",
-            visit: "VISIT SEJONG",
-            news: "NEWS & BENEFITS",
-            about: "ABOUT SEJONG",
-            account: "MY SEJONG",
-        } as Record<string, string>)[group] || "SEJONG CENTER",
+        (
+            {
+                programs: "PROGRAMS",
+                rental: "VENUE RENTAL",
+                visit: "VISIT SEJONG",
+                news: "NEWS & BENEFITS",
+                about: "ABOUT SEJONG",
+                account: "MY SEJONG",
+            } as Record<string, string>
+        )[group] || "SEJONG CENTER",
 });
 
 export const NAV: NavItem[] = [
@@ -155,33 +163,26 @@ export const PAGES: PageMeta[] = [
 ];
 
 // Published content is generated from the database; navigation stays in code.
-export const { programs: PROGRAMS, venues: VENUES, companies: COMPANIES, notices: NOTICES } = CATALOG_SNAPSHOT;
+export const {
+    programs: PROGRAMS,
+    venues: VENUES,
+    companies: COMPANIES,
+    notices: NOTICES,
+} = CATALOG_SNAPSHOT;
 
 for (const p of PROGRAMS)
     if (!PAGES.some((page) => page.path === "/programs/" + p.id))
-        PAGES.push(
-            page("/programs/" + p.id, p.title, "programs", p.description, "program")
-        );
+        PAGES.push(page("/programs/" + p.id, p.title, "programs", p.description, "program"));
 
 for (const v of VENUES) {
+    PAGES.push(page("/rental/venues/" + v.id, v.name, "rental", v.description, "venue"));
     PAGES.push(
-        page("/rental/venues/" + v.id, v.name, "rental", v.description, "venue")
-    );
-    PAGES.push(
-        page(
-            "/visit/spaces/" + v.id,
-            v.name + " 공간안내",
-            "visit",
-            v.description,
-            "space"
-        )
+        page("/visit/spaces/" + v.id, v.name + " 공간안내", "visit", v.description, "space"),
     );
 }
 
 for (const c of COMPANIES)
-    PAGES.push(
-        page("/about/companies/" + c.id, c.name, "about", c.description, "company")
-    );
+    PAGES.push(page("/about/companies/" + c.id, c.name, "about", c.description, "company"));
 
 for (const n of NOTICES)
     PAGES.push(page("/news/notices/" + n.id, n.title, "news", n.content, "notice"));
@@ -191,15 +192,7 @@ for (const [id, title] of [
     ["review", "관람 후기 이벤트"],
     ["summer-end", "여름의 기억"],
 ])
-    PAGES.push(
-        page(
-            "/news/events/" + id,
-            title,
-            "news",
-            "이벤트 상세 안내입니다.",
-            "event"
-        )
-    );
+    PAGES.push(page("/news/events/" + id, title, "news", "이벤트 상세 안내입니다.", "event"));
 
 for (const [path, title, group, description] of [
     [
@@ -236,7 +229,28 @@ for (const [path, title, group, description] of [
     PAGES.push(page(path, title, group, description));
 
 PAGES.push(
-    { path: "/visit/plan", title: "방문 계획", description: "관람 날짜와 이동 방법, 준비할 안내를 정리합니다.", group: "visit", eyebrow: "방문 준비", type: "content" },
-    { path: "/rental/compare", title: "대관 공간 비교", description: "규모와 무대, 장비를 비교하고 맞는 공간으로 이어가세요.", group: "rental", eyebrow: "대관 준비", type: "content" },
-    { path: "/design-rules", title: "디자인 시스템", description: "컬러·16px 타이포그래피·컴포넌트·모션을 정의한 v5 디자인 가이드", group: "rules", eyebrow: "디자인 설계", type: "content" }
+    {
+        path: "/visit/plan",
+        title: "방문 계획",
+        description: "관람 날짜와 이동 방법, 준비할 안내를 정리합니다.",
+        group: "visit",
+        eyebrow: "방문 준비",
+        type: "content",
+    },
+    {
+        path: "/rental/compare",
+        title: "대관 공간 비교",
+        description: "규모와 무대, 장비를 비교하고 맞는 공간으로 이어가세요.",
+        group: "rental",
+        eyebrow: "대관 준비",
+        type: "content",
+    },
+    {
+        path: "/design-rules",
+        title: "디자인 시스템",
+        description: "컬러·16px 타이포그래피·컴포넌트·모션을 정의한 v5 디자인 가이드",
+        group: "rules",
+        eyebrow: "디자인 설계",
+        type: "content",
+    },
 );

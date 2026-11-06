@@ -15,10 +15,18 @@ export default function DeepSearchDisclosure({
     const [open, setOpen] = useState(false);
     return (
         <div data-component-id="deep-search-disclosure">
-            <SystemDisclosure className="sejong-deep-search-disclosure" onToggle={event => setOpen(event.currentTarget.open)} summary={<>
-                <span data-text="action" data-text-size="control">{title}</span>
-                <span data-text="meta">Deep Chat</span>
-            </>}>
+            <SystemDisclosure
+                className="sejong-deep-search-disclosure"
+                onToggle={(event) => setOpen(event.currentTarget.open)}
+                summary={
+                    <>
+                        <span data-text="action" data-text-size="control">
+                            {title}
+                        </span>
+                        <span data-text="meta">Deep Chat</span>
+                    </>
+                }
+            >
                 {open && <DeepSearch compact onSearch={onSearch} />}
             </SystemDisclosure>
         </div>

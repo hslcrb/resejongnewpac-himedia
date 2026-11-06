@@ -6,13 +6,24 @@ import GlassRefraction from "./GlassRefraction";
 import { resolveGlassOptions } from "../src/lib/liquid-glass";
 import type { GlassOptions, GlassVariant } from "../src/lib/liquid-glass";
 
-export type LiquidGlassProps = HTMLAttributes<HTMLDivElement> & Partial<GlassOptions> & { variant?: GlassVariant };
+export type LiquidGlassProps = HTMLAttributes<HTMLDivElement> &
+    Partial<GlassOptions> & { variant?: GlassVariant };
 
 // [콘텐츠와 분리된 공통 유리 표면 / Reusable glass without altering its content]
 // 기본값은 디자인 토큰을 따르며 개별 표면만 props로 조정할 수 있습니다.
 // Defaults inherit design tokens; props override only this particular surface.
 const LiquidGlass = forwardRef<HTMLDivElement, LiquidGlassProps>(function LiquidGlass(
-    { children, className = "", style, variant = "surface", opacity, refraction, blur, thickness, ...props },
+    {
+        children,
+        className = "",
+        style,
+        variant = "surface",
+        opacity,
+        refraction,
+        blur,
+        thickness,
+        ...props
+    },
     forwardedRef,
 ) {
     const surfaceRef = useRef<HTMLDivElement>(null);

@@ -10,13 +10,23 @@ export interface QuickMenuInteraction {
     lastInput: number;
     active: boolean;
 }
-export interface FluidState { phase: number; x: number; y: number; spin: number }
+export interface FluidState {
+    phase: number;
+    x: number;
+    y: number;
+    spin: number;
+}
 export type FluidPalette = Record<keyof typeof QUICK_MENU_MATERIAL.colors, string>;
 export const FLUID_SIZE = 400;
 const clampInput = (value: number) => Math.max(-1, Math.min(1, value));
 
 // [입력의 잔향과 일정한 흐름 / Damped input and a steady flow]
-export function stepFluid(state: FluidState, input: QuickMenuInteraction, elapsed: number, now: number): void {
+export function stepFluid(
+    state: FluidState,
+    input: QuickMenuInteraction,
+    elapsed: number,
+    now: number,
+): void {
     const { period, response, maxInput } = QUICK_MENU_MATERIAL.motion;
     const dt = Math.min(0.05, Math.max(0, elapsed));
     const freshness = input.active ? 1 : Math.exp(-Math.max(0, now - input.lastInput) / 450);
@@ -24,7 +34,7 @@ export function stepFluid(state: FluidState, input: QuickMenuInteraction, elapse
     state.x += (clampInput(input.x) * maxInput * freshness - state.x) * follow;
     state.y += (clampInput(input.y) * maxInput * freshness - state.y) * follow;
     state.spin += (clampInput(input.spin) * freshness - state.spin) * follow;
-    state.phase += dt * (Math.PI * 2 / period + state.spin * 0.65);
+    state.phase += dt * ((Math.PI * 2) / period + state.spin * 0.65);
 }
 
 // [한 번 만든 색 면과 광택 / Cached color fields and soft highlights]
@@ -52,7 +62,11 @@ export type FluidPaint = ReturnType<typeof createFluidPaint>;
 
 // [직접 구성한 넓은 물결 / Authored broad wave contours]
 // A few continuous curves replace thousands of individual fibres.
-export function drawFluid(context: CanvasRenderingContext2D, paint: FluidPaint, state: FluidState): void {
+export function drawFluid(
+    context: CanvasRenderingContext2D,
+    paint: FluidPaint,
+    state: FluidState,
+): void {
     const phase = state.phase;
     const swell = Math.sin(phase) * 0.095;
     const tide = Math.cos(phase * 0.85) * 0.075;

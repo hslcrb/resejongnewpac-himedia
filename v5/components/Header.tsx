@@ -19,7 +19,11 @@ export type HeaderVariant = (typeof HEADER_VARIANTS)[number];
 
 export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
     const pathname = usePathname();
-    const headerVariant = variant || (pathname === "/about/introduction" || pathname === "/about/introduction/" ? "inverse" : "default");
+    const headerVariant =
+        variant ||
+        (pathname === "/about/introduction" || pathname === "/about/introduction/"
+            ? "inverse"
+            : "default");
     const { isLoggedIn } = useAccountIdentity();
     const [searchOpen, setSearchOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -46,11 +50,20 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
         setMenuOpen(false);
     }, [pathname]);
 
-
     return (
-        <header id="header" className="renewal-header" data-component-id="header" data-header-variant={headerVariant}>
+        <header
+            id="header"
+            className="renewal-header"
+            data-component-id="header"
+            data-header-variant={headerVariant}
+        >
             <div className="masthead container">
-                <Link data-text="action" href="/" className="sejong-brand" aria-label="세종문화회관 홈">
+                <Link
+                    data-text="action"
+                    href="/"
+                    className="sejong-brand"
+                    aria-label="세종문화회관 홈"
+                >
                     <SejongLogo
                         className="sejong-wordmark"
                         alt="세종문화회관"
@@ -64,7 +77,8 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                         const active =
                             pathname === item.path || pathname.startsWith(item.path + "/");
                         return (
-                            <Link data-text="navigation"
+                            <Link
+                                data-text="navigation"
                                 key={item.id}
                                 href={item.path}
                                 data-nav={item.id}
@@ -79,14 +93,33 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
 
                 <div data-text="body" className="masthead-actions">
                     {/* [실제 세션의 회원 진입 / Account access for the authenticated session] */}
-                    {isLoggedIn ? <Link data-text="utility" href="/account" className="account-link">마이페이지</Link> : <>
-                        <Link data-text="utility" href="/account/login" className="account-link">로그인</Link>
-                        <Link data-text="utility" href="/account/login" className="account-link signup-link">회원가입</Link>
-                    </>}
+                    {isLoggedIn ? (
+                        <Link data-text="utility" href="/account" className="account-link">
+                            마이페이지
+                        </Link>
+                    ) : (
+                        <>
+                            <Link
+                                data-text="utility"
+                                href="/account/login"
+                                className="account-link"
+                            >
+                                로그인
+                            </Link>
+                            <Link
+                                data-text="utility"
+                                href="/account/login"
+                                className="account-link signup-link"
+                            >
+                                회원가입
+                            </Link>
+                        </>
+                    )}
                     <Link data-text="utility" href="/english" className="english-link" lang="en">
                         EN
                     </Link>
-                    <SystemIconButton data-text="action"
+                    <SystemIconButton
+                        data-text="action"
                         variant={headerVariant === "inverse" ? "inverse-quiet" : "quiet"}
                         ref={searchTrigger}
                         type="button"
@@ -101,7 +134,8 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                     >
                         <Icon name="search" group="header-action" />
                     </SystemIconButton>
-                    <SystemIconButton data-text="action"
+                    <SystemIconButton
+                        data-text="action"
                         variant={headerVariant === "inverse" ? "inverse-quiet" : "quiet"}
                         ref={menuTrigger}
                         type="button"
@@ -135,7 +169,8 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                 aria-labelledby="search-heading"
             >
                 <div className="dialog-top">
-                    <SystemIconButton data-text="action"
+                    <SystemIconButton
+                        data-text="action"
                         type="button"
                         onClick={() => setSearchOpen(false)}
                         aria-label="검색 닫기"
@@ -143,12 +178,18 @@ export default function Header({ variant }: { variant?: HeaderVariant } = {}) {
                         <Icon name="close" size={22} />
                     </SystemIconButton>
                 </div>
-                <h2 data-text="heading" id="search-heading">어떤 예술을 찾고 계세요?</h2>
+                <h2 data-text="heading" id="search-heading">
+                    어떤 예술을 찾고 계세요?
+                </h2>
                 <DeepSearch compact />
                 <div data-text="body" className="search-terms">
                     <span data-text="body">추천 검색어</span>
                     {["일무", "클래식", "주차", "대관"].map((term) => (
-                        <Link data-text="action" key={term} href={`/search?q=${encodeURIComponent(term)}`}>
+                        <Link
+                            data-text="action"
+                            key={term}
+                            href={`/search?q=${encodeURIComponent(term)}`}
+                        >
                             {term}
                         </Link>
                     ))}
