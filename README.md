@@ -142,7 +142,7 @@ npm run build
 node scripts/audit-static-export.ts
 ```
 
-전체 단위 검사 명령과 Windows 예제는 [기여 안내](CONTRIBUTING.md#무엇을-검사하나요--verification)에 있다. 생성물 `out/` 전체와 `sync-out.ts`의 v5 루트 미러를 소스와 함께 보존한다.
+전체 단위 검사 명령과 Windows 예제는 [기여 안내](CONTRIBUTING.md#무엇을-검사하나요--verification)에 있다. 새 `out/`과 v5 루트 미러 파일은 `.gitignore`로 제외한다. 기존 커밋된 정적 산출물은 삭제하거나 추적 해제하지 않는다. [브라우저 검사](v5/docs/optional-browser-checks.md)는 선택사항이다.
 
 ### 실서비스로 가는 경로
 

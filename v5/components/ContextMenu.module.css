@@ -90,6 +90,10 @@
 }
 
 .location {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
     padding: 8px 14px 6px;
     font-size: max(var(--text-min), var(--text-sm, 1rem));
     font-weight: var(--weight-label, 500);
