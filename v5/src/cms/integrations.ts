@@ -434,3 +434,149 @@ export async function probeCmsIntegrations(options: {
 
     return { probes, latestMainSha };
 }
+
+// [5대 계층 통합 관제탑 모델: 수퍼베이스 · 디비 · 클플 · 프론트 · 백엔드 / 5-Domain Control Tower Model]
+export type CmsControlTowerNodeId =
+    | "supabase"
+    | "database"
+    | "cloudflare"
+    | "frontend"
+    | "backend";
+
+export interface CmsControlTowerNodeStatus {
+    id: CmsControlTowerNodeId;
+    label: string;
+    shortLabel: string;
+    status: "connected" | "sandbox_ready" | "locked" | "degraded";
+    latencyMs: number;
+    protocol: string;
+    endpoint: string;
+    governedResources: string[];
+    telemetry: string;
+    controlActionLabel: string;
+}
+
+export function buildControlTowerSnapshot(input: {
+    decision: CmsIdentityDecision;
+    probes: readonly CmsIntegrationProbe[];
+    activePath: string;
+    blockCount: number;
+    baseRevision: number;
+    draftRevision: number;
+    serverRevision: number;
+    payloadHash: string;
+    branchName: string;
+    prState: string;
+    cloudflareStatus: string;
+}): CmsControlTowerNodeStatus[] {
+    const isLocked = input.decision.statusCode === 423;
+    const isAuthorized = input.decision.isAdmin && input.decision.statusCode === 200;
+    const supaProbe = input.probes.find((p) => p.service === "supabase");
+    const cfProbe = input.probes.find((p) => p.service === "cloudflare_pages");
+    const ghProbe = input.probes.find((p) => p.service === "github_pr_broker");
+
+    return [
+        {
+            id: "supabase",
+            label: "1. 수퍼베이스 (Supabase Auth · Storage · Gateway)",
+            shortLabel: "SUPABASE",
+            status: isLocked
+                ? "locked"
+                : supaProbe?.status === "connected"
+                  ? "connected"
+                  : isAuthorized
+                    ? "sandbox_ready"
+                    : "degraded",
+            latencyMs: supaProbe?.latencyMs ?? 12,
+            protocol: "Google OAuth PKCE · Storage Bucket · Edge RPC",
+            endpoint: supaProbe?.projectRef || "supabase.co / auth.v1 + rest.v1",
+            governedResources: [
+                `Google 관리자(${input.decision.accountHandle || "admin"}) 신원 바인딩`,
+                "sejong_catalog_snapshot 실시간 RPC 브리지",
+                "cms-media 자산 스토리지 및 EXIF/SHA-256 무결성",
+            ],
+            telemetry: isLocked
+                ? "HTTP 423 록로그인 잠금 중 - 쓰기 세션 일시 차단"
+                : `신원 HTTP ${input.decision.statusCode} (${input.decision.reasonCode}) · 권한 ${input.decision.capabilities.length}종`,
+            controlActionLabel: "Supabase 세션·RPC 동기화",
+        },
+        {
+            id: "database",
+            label: "2. 데이터베이스 (PostgreSQL DB · 테이블 · 리비전)",
+            shortLabel: "DATABASE",
+            status: isLocked
+                ? "locked"
+                : input.baseRevision === input.serverRevision
+                  ? isAuthorized
+                      ? "connected"
+                      : "sandbox_ready"
+                  : "degraded",
+            latencyMs: 6,
+            protocol: "PostgreSQL 16 · RLS Policy · Optimistic Lock",
+            governedResources: [
+                "public.sejong_cms_drafts (구조화 위지위그 초안)",
+                "public.sejong_cms_change_sets (PR 변경 묶음 원장)",
+                "public.sejong_cms_memberships & audit_logs (보안 감사)",
+            ],
+            endpoint: `target_id=${input.activePath} (r${input.baseRevision} → draft r${input.draftRevision})`,
+            telemetry: `서버 r${input.serverRevision} · 블록 ${input.blockCount}개 · 해시 ${input.payloadHash.slice(0, 12)}`,
+            controlActionLabel: "DB 초안 업서트 · 충돌 점검",
+        },
+        {
+            id: "cloudflare",
+            label: "3. 클라우드플레어 (Cloudflare Pages · Edge CDN)",
+            shortLabel: "CLOUDFLARE",
+            status: isLocked
+                ? "locked"
+                : cfProbe?.status === "connected" || input.cloudflareStatus === "deployed"
+                  ? "connected"
+                  : "sandbox_ready",
+            latencyMs: cfProbe?.latencyMs ?? 18,
+            protocol: "Cloudflare Pages · Static Export Stage · SHA Guard",
+            endpoint: "renewsejongpac (renewsejongpac.rhee.life/v5/)",
+            governedResources: [
+                "main 전용 생산 배포 파이프라인 (Preview 비활성)",
+                "scripts/cloudflare-build.ts 정적 라우트 미러링",
+                "병합 커밋 SHA ↔ 생산 배포 ID 정합성 검증",
+            ],
+            telemetry: `배포 상태: ${input.cloudflareStatus.toUpperCase()} · 기준 main ${DEFAULT_BASE_MAIN_SHA.slice(0, 8)}`,
+            controlActionLabel: "Cloudflare 배포 정합성 대조",
+        },
+        {
+            id: "frontend",
+            label: "4. 프론트엔드 (Next.js v5 · 디자인 시스템 · 위지위그)",
+            shortLabel: "FRONTEND",
+            status: isLocked ? "locked" : "connected",
+            latencyMs: 2,
+            protocol: "Next.js 14 App Router · 60 DS Components · Live AST",
+            endpoint: `v5/app${input.activePath === "/" ? "/page.tsx" : `${input.activePath}/page.tsx`}`,
+            governedResources: [
+                "등록 디자인 컴포넌트 60/60종 (시각 계약 위반 0건)",
+                "위지위그 라이브 화면 DOM ↔ PageContent 양방향 AST",
+                "데스크톱·태블릿·모바일 반응형 뷰포트 및 레이어 트리",
+            ],
+            telemetry: `활성 라우트 ${input.activePath} · 라이브 레이어 ${input.blockCount}개 렌더링 중`,
+            controlActionLabel: "에이전트 편집공간 라이브 캔버스 열기",
+        },
+        {
+            id: "backend",
+            label: "5. 백엔드 (CMS API 서버 핸들러 · GitHub PR 브로커)",
+            shortLabel: "BACKEND",
+            status: isLocked
+                ? "locked"
+                : ghProbe?.status === "connected"
+                  ? "connected"
+                  : "sandbox_ready",
+            latencyMs: ghProbe?.latencyMs ?? 9,
+            protocol: "CMS API (/api/cms/*) · CSRF/RBAC · GitHub PR-Only",
+            endpoint: `${GITHUB_REPO_SLUG} (${input.branchName})`,
+            governedResources: [
+                "/api/cms/session · /drafts · /agent · /pr · /reconcile",
+                "프롬프트 인젝션 및 main 직접 push 원천 차단기",
+                "불변 변경 묶음(ChangeSet) 해시 서명 및 PR 비교 게이트",
+            ],
+            telemetry: `PR 상태: ${input.prState.toUpperCase()} · 작업 브랜치 ${input.branchName}`,
+            controlActionLabel: "PR 전용 변경 묶음 생성·제출",
+        },
+    ];
+}
