@@ -35,11 +35,13 @@ import {
     renderChangeSetGitDiff,
 } from "../src/cms/pr-gateway.ts";
 import {
+    SCOPED_REPO_INDEX,
     detectPromptPolicyViolation,
     executeCmsAgentCodingRun,
 } from "../src/cms/agent-workspace.ts";
 import { handleCmsApiRequest } from "../src/cms/server-handler.ts";
 import {
+    buildControlTowerSnapshot,
     probeCmsIntegrations,
     saveCmsDraftToSupabase,
     submitChangeSetToPrBroker,
@@ -557,4 +559,75 @@ test("A15: /admin and /login use multi-pane studio dashboard layout (4-col KPI s
     assert.ok(loginSource.includes("cms-dashboard-page"));
     assert.ok(loginSource.includes("cms-kpi-grid"));
     assert.ok(loginSource.includes("cms-split-workspace"));
+});
+
+test("A16: CMS governs all 5 Control Tower domains (Supabase, DB, Cloudflare, Frontend, Backend) and implements the wireframe AI Agent Editing Studio (Project Files/Windows, WYSIWYG Live Screen, Agent Chat with Pill Bar, Properties & Layers Panel)", async () => {
+    const decision = verifyAdminIdentity(VALID_ADMIN_IDENTITY);
+    const probesResult = await probeCmsIntegrations({
+        decision,
+        fetcher: async () =>
+            new Response(JSON.stringify({ sha: DEFAULT_BASE_MAIN_SHA, external: { google: true } }), {
+                status: 200,
+                headers: { "content-type": "application/json" },
+            }),
+    });
+
+    const tower = buildControlTowerSnapshot({
+        decision,
+        probes: probesResult.probes,
+        activePath: "/visit",
+        blockCount: 4,
+        baseRevision: 2,
+        draftRevision: 3,
+        serverRevision: 2,
+        payloadHash: "a".repeat(64),
+        branchName: "cms/20261106-visit-update",
+        prState: "draft_bundle",
+        cloudflareStatus: "deployed",
+    });
+    assert.deepEqual(
+        tower.map((node) => node.id),
+        ["supabase", "database", "cloudflare", "frontend", "backend"],
+    );
+    for (const node of tower) {
+        assert.ok(node.governedResources.length >= 3);
+        assert.ok(node.controlActionLabel.length > 0);
+    }
+
+    const domainsInIndex = new Set(SCOPED_REPO_INDEX.map((f) => f.domain).filter(Boolean));
+    for (const domain of ["supabase", "database", "cloudflare", "frontend", "backend"] as const) {
+        assert.ok(domainsInIndex.has(domain), `SCOPED_REPO_INDEX must include domain ${domain}`);
+    }
+
+    const adminSource = readFileSync(resolve(import.meta.dirname, "../app/admin/page.tsx"), "utf8");
+    const cssSource = readFileSync(resolve(import.meta.dirname, "../styles/cms-dashboard.css"), "utf8");
+
+    for (const cls of [
+        "cms-control-tower-shell",
+        "cms-control-tower-grid",
+        "cms-control-tower-card",
+        "cms-agent-studio-frame",
+        "cms-agent-studio-board",
+        "cms-studio-files-pane",
+        "cms-studio-file-windows",
+        "cms-studio-wysiwyg-pane",
+        "cms-studio-wysiwyg-stage",
+        "cms-studio-right-rail",
+        "cms-studio-chat-panel",
+        "cms-studio-chat-pill-bar",
+        "cms-studio-inspector-panel",
+    ]) {
+        assert.ok(adminSource.includes(cls), `admin/page.tsx must include .${cls}`);
+        assert.ok(cssSource.includes(`.${cls}`), `cms-dashboard.css must define .${cls}`);
+    }
+
+    for (const label of [
+        "프로젝트 파일 보기",
+        "파일창들",
+        "위지위그 라이브 화면",
+        "에이전트 채팅 공간",
+        "속성과 레이어 등 패널",
+    ]) {
+        assert.ok(adminSource.includes(label), `admin/page.tsx must include wireframe section "${label}"`);
+    }
 });

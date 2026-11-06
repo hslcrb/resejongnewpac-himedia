@@ -67,6 +67,8 @@ export interface ScopedRepoFile {
     path: string;
     role: string;
     excerpt: string;
+    domain?: "supabase" | "database" | "cloudflare" | "frontend" | "backend";
+    linkedRoute?: string;
 }
 
 export const SCOPED_REPO_INDEX: readonly ScopedRepoFile[] = Object.freeze([
@@ -75,36 +77,88 @@ export const SCOPED_REPO_INDEX: readonly ScopedRepoFile[] = Object.freeze([
         role: "홈 화면 및 빠른 예매·프로그램 탐색 엔트리",
         excerpt:
             'export default function HomePage() {\n    return <SystemSurface variant="panel" padding="lg">세종문화회관 홈</SystemSurface>;\n}',
+        domain: "frontend",
+        linkedRoute: "/",
     },
     {
         path: "v5/app/login/page.tsx",
         role: "Google admin 관리자 검증 및 사용자/CMS·록로그인 이동 선택 게이트",
         excerpt:
             'export default function LoginGatePage() {\n    return <AdminLoginGate mode="login" />;\n}',
+        domain: "frontend",
+        linkedRoute: "/login",
     },
     {
         path: "v5/app/admin/page.tsx",
         role: "실제 CMS · 위지위그 편집 · 대화형 코딩 · PR 전용 워크스페이스 엔트리",
         excerpt:
             'export default function AdminCmsPage() {\n    return <CmsWorkspace />;\n}',
+        domain: "frontend",
+        linkedRoute: "/admin",
     },
     {
         path: "v5/components/CmsWorkspace.tsx",
         role: "통합 CMS 편집기·대화형 코딩 에이전트·PR 콘솔 공유 컴포넌트",
         excerpt:
             'export default function CmsWorkspace() {\n    return <div data-component-id="cms-workspace" data-text="body">CMS 워크스페이스</div>;\n}',
+        domain: "frontend",
+        linkedRoute: "/admin",
     },
     {
         path: "v5/src/catalog/page-content.ts",
         role: "공개 페이지 구조화 블록 원본 정의",
         excerpt:
             'add(["/visit", "/visit/plan"], "교통편과 공연장 위치를 확인하고 관람에 필요한 안내를 준비하세요.", official.transport);',
+        domain: "database",
+        linkedRoute: "/visit",
     },
     {
         path: "v5/src/data/design-tokens.ts",
         role: "단일 색상·타이포그래피·간격 토큰 원본",
         excerpt:
             'export const DESIGN_COLORS = [{ name: "어스 블랙", token: "color-black", hex: "#211F1C", ink: "#FFFEFA" }];',
+        domain: "frontend",
+        linkedRoute: "/design-rules",
+    },
+    {
+        path: "v5/src/cms/integrations.ts",
+        role: "수퍼베이스·디비·클플·프론트·백엔드 5대 계층 관제탑 통신 어댑터",
+        excerpt:
+            'export async function probeCmsIntegrations(options: { decision: CmsIdentityDecision }) {\n    return { probes, latestMainSha };\n}',
+        domain: "supabase",
+        linkedRoute: "/admin",
+    },
+    {
+        path: "v5/src/cms/server-handler.ts",
+        role: "백엔드 CMS API 라우트 핸들러 (/api/cms/session, /drafts, /agent, /pr)",
+        excerpt:
+            'export async function handleCmsApiRequest(req: CmsApiRequest): Promise<CmsApiResponse> {\n    // RBAC + CSRF + PR-Only enforcement\n}',
+        domain: "backend",
+        linkedRoute: "/admin",
+    },
+    {
+        path: "v5/src/cms/pr-gateway.ts",
+        role: "백엔드 GitHub PR 전용 변경 묶음 생성기 및 main 직접 반영 차단 게이트웨이",
+        excerpt:
+            'export function createPrChangeBundle(input: PrChangeBundleInput): CmsChangeSet {\n    assertPrOnlyOperation({ decision: input.decision, targetBranch });\n}',
+        domain: "backend",
+        linkedRoute: "/admin",
+    },
+    {
+        path: "v5/supabase/migrations/20261106_sejong_cms_pr_workspace.sql",
+        role: "PostgreSQL DB 스키마 (sejong_cms_memberships, sejong_cms_drafts, sejong_cms_change_sets, RLS)",
+        excerpt:
+            'CREATE TABLE IF NOT EXISTS public.sejong_cms_drafts (\n    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n    target_id text NOT NULL,\n    document_ast jsonb NOT NULL\n);',
+        domain: "database",
+        linkedRoute: "/admin",
+    },
+    {
+        path: "v5/scripts/cloudflare-build.ts",
+        role: "Cloudflare Pages 정적 빌드 스테이징 및 배포 무결성 감사 스크립트",
+        excerpt:
+            '// Cloudflare Pages production build & static stage verification\nexport async function runCloudflareStageBuild() {}',
+        domain: "cloudflare",
+        linkedRoute: "/",
     },
 ]);
 

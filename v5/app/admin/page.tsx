@@ -51,8 +51,13 @@ import {
     reconcileMergedPrRelease,
     renderChangeSetGitDiff,
 } from "../../src/cms/pr-gateway.ts";
-import { executeCmsAgentCodingRun } from "../../src/cms/agent-workspace.ts";
 import {
+    SCOPED_REPO_INDEX,
+    executeCmsAgentCodingRun,
+} from "../../src/cms/agent-workspace.ts";
+import type { CmsControlTowerNodeId } from "../../src/cms/integrations.ts";
+import {
+    buildControlTowerSnapshot,
     probeCmsIntegrations,
     saveCmsDraftToSupabase,
     submitChangeSetToPrBroker,
@@ -61,6 +66,9 @@ import { supabase } from "../../src/lib/supabase.ts";
 import "../../styles/cms-dashboard.css";
 
 type WorkspacePanelId = "wysiwyg" | "agent" | "pr-release" | "lock-login";
+type StudioInspectorTab = "properties" | "layers" | "control";
+type StudioViewportSize = "desktop" | "tablet" | "mobile";
+type FileDomainFilter = "all" | CmsControlTowerNodeId;
 
 interface AuditLogEntry {
     id: string;
@@ -138,6 +146,20 @@ export default function AdminCmsWorkspacePage() {
         "위지위그 블록 편집기와 대화형 코딩 워크스페이스가 준비되었습니다. 모든 운영 반영은 GitHub PR 전용입니다.",
     );
     const [statusError, setStatusError] = useState<boolean>(false);
+
+    // AI Agent Editing Studio (첨부 도면 4영역 스튜디오 상태: 파일창들 · 위지위그 라이브 화면 · 에이전트 채팅 공간 · 속성과 레이어 패널)
+    const [fileDomainFilter, setFileDomainFilter] = useState<FileDomainFilter>("all");
+    const [fileSearchQuery, setFileSearchQuery] = useState<string>("");
+    const [openFilePaths, setOpenFilePaths] = useState<string[]>([
+        "v5/app/admin/page.tsx",
+        "v5/src/catalog/page-content.ts",
+        "v5/src/cms/integrations.ts",
+    ]);
+    const [activeFilePath, setActiveFilePath] = useState<string>("v5/app/admin/page.tsx");
+    const [selectedLayerId, setSelectedLayerId] = useState<string>("block-1");
+    const [studioViewport, setStudioViewport] = useState<StudioViewportSize>("desktop");
+    const [inspectorTab, setInspectorTab] = useState<StudioInspectorTab>("properties");
+    const [selectedTowerNode, setSelectedTowerNode] = useState<CmsControlTowerNodeId>("supabase");
 
     // Conversational coding agent state
     const [agentPrompt, setAgentPrompt] = useState(
@@ -302,6 +324,111 @@ export default function AdminCmsWorkspacePage() {
         () => detectRevisionConflict(selectedPage.revision, simulatedServerRevision),
         [selectedPage.revision, simulatedServerRevision],
     );
+
+    const selectedLayerIndex = useMemo(() => {
+        const idx = currentAst.nodes.findIndex((n) => n.id === selectedLayerId);
+        return idx >= 0 ? idx : 0;
+    }, [currentAst.nodes, selectedLayerId]);
+
+    const selectedLayerNode = currentAst.nodes[selectedLayerIndex] || currentAst.nodes[0] || null;
+
+    const filteredRepoFiles = useMemo(() => {
+        const q = fileSearchQuery.trim().toLowerCase();
+        return SCOPED_REPO_INDEX.filter((file) => {
+            if (fileDomainFilter !== "all" && file.domain !== fileDomainFilter) {
+                return false;
+            }
+            if (!q) return true;
+            return (
+                file.path.toLowerCase().includes(q) ||
+                file.role.toLowerCase().includes(q)
+            );
+        });
+    }, [fileDomainFilter, fileSearchQuery]);
+
+    const activeRepoFile = useMemo(
+        () =>
+            SCOPED_REPO_INDEX.find((file) => file.path === activeFilePath) ||
+            SCOPED_REPO_INDEX[0],
+        [activeFilePath],
+    );
+
+    const controlTowerNodes = useMemo(
+        () =>
+            buildControlTowerSnapshot({
+                decision: effectiveDecision,
+                probes: integrations,
+                activePath: currentAst.path,
+                blockCount: currentAst.nodes.length,
+                baseRevision: selectedPage.revision,
+                draftRevision,
+                serverRevision: simulatedServerRevision,
+                payloadHash: currentHash,
+                branchName: activeChangeSet?.branchName || branchSlug,
+                prState: activeChangeSet?.prState || "draft_ready",
+                cloudflareStatus: activeChangeSet?.cloudflareStatus || simulatedCfStatus,
+            }),
+        [
+            effectiveDecision,
+            integrations,
+            currentAst.path,
+            currentAst.nodes.length,
+            selectedPage.revision,
+            draftRevision,
+            simulatedServerRevision,
+            currentHash,
+            activeChangeSet,
+            branchSlug,
+            simulatedCfStatus,
+        ],
+    );
+
+    const handleOpenRepoFile = (filePath: string, linkedRoute?: string) => {
+        setActiveFilePath(filePath);
+        setOpenFilePaths((prev) => (prev.includes(filePath) ? prev : [...prev, filePath]));
+        if (linkedRoute && catalog.pages.some((p) => p.path === linkedRoute)) {
+            handleSelectPage(linkedRoute);
+        }
+        setStatusError(false);
+        setStatusBanner(
+            `프로젝트 파일 창에서 ${filePath} 소스를 활성화했습니다.${linkedRoute ? ` (연결 라우트: ${linkedRoute})` : ""}`,
+        );
+    };
+
+    const handleControlTowerAction = async (nodeId: CmsControlTowerNodeId) => {
+        setSelectedTowerNode(nodeId);
+        if (nodeId === "supabase") {
+            const res = await probeCmsIntegrations({ decision: effectiveDecision });
+            setIntegrations(res.probes);
+            setStatusError(false);
+            setStatusBanner(
+                `[관제탑 · 수퍼베이스] Google OAuth(${CMS_ADMIN_HANDLE}) 세션 및 sejong_catalog_snapshot RPC 실시간 통신 점검을 완료했습니다.`,
+            );
+            appendAudit("tower.supabase.sync", "allowed", "Supabase Auth·RPC·Storage 통신 점검 완료");
+        } else if (nodeId === "database") {
+            await handleSaveDraft();
+        } else if (nodeId === "cloudflare") {
+            if (activeChangeSet) {
+                handleReconcileRelease();
+            } else {
+                setStatusError(false);
+                setStatusBanner(
+                    `[관제탑 · 클라우드플레어] renewsejongpac 생산 배포(main SHA ${DEFAULT_BASE_MAIN_SHA.slice(0, 8)}) 및 정적 스테이징 상태가 정상입니다.`,
+                );
+                appendAudit("tower.cloudflare.verify", "allowed", "Cloudflare Pages 배포 상태 확인");
+            }
+        } else if (nodeId === "frontend") {
+            setActivePanel("wysiwyg");
+            setInspectorTab("layers");
+            setStatusError(false);
+            setStatusBanner(
+                `[관제탑 · 프론트엔드] ${currentAst.path} 위지위그 라이브 화면(${currentAst.nodes.length}개 레이어, 등록 컴포넌트 60/60)을 동기화했습니다.`,
+            );
+            appendAudit("tower.frontend.inspect", "allowed", `${currentAst.path} 라이브 캔버스 동기화`);
+        } else {
+            await handleCreatePrBundleFromEditor();
+        }
+    };
 
     const pushAstUpdate = (nextAst: typeof currentAst, reason: string) => {
         if (effectiveDecision.statusCode === 423) {
@@ -683,12 +810,12 @@ export default function AdminCmsWorkspacePage() {
                             </SystemBadge>
                         </div>
                         <h1 data-text="title">
-                            세종문화회관 통합 CMS · 위지위그 · 대화형 코딩 · PR 전용 대시보드
+                            세종문화회관 통합 CMS 관제탑 & AI 에이전트 편집공간 스튜디오
                         </h1>
                         <p data-text="body">
-                            좌측 페이지 트리, 중앙 2열 분할 위지위그 편집기·실시간 렌더러 미리보기, 우측
-                            대화형 코딩 에이전트·PR 게이트웨이 독에서 모든 수정을 GitHub PR 전용으로
-                            관제합니다.
+                            수퍼베이스(Supabase)·데이터베이스(DB)·클라우드플레어(Cloudflare)·프론트엔드·백엔드
+                            5대 계층을 실시간 통신·관장하는 중앙 관제탑과, 좌측 프로젝트 파일창·중앙 위지위그
+                            라이브 화면·우측 에이전트 채팅 공간 및 속성/레이어 패널을 결합한 전문 편집 스튜디오입니다.
                         </p>
                     </div>
                     <div className="cms-topbar-actions" aria-label="상단 빠른 작업 및 목적지 전환">
@@ -810,6 +937,935 @@ export default function AdminCmsWorkspacePage() {
                         </p>
                     </SystemSurface>
                 </section>
+
+                {/* 5대 계층 통합 관제탑: 수퍼베이스 · 디비 · 클플 · 프론트 · 백엔드 실시간 통신·관장 매트릭스 */}
+                <SystemSurface
+                    as="section"
+                    variant="panel"
+                    padding="md"
+                    className="cms-control-tower-shell"
+                    aria-label="수퍼베이스 · 디비 · 클플 · 프론트 · 백엔드 5대 계층 통합 관제탑"
+                >
+                    <div className="cms-toolbar-between">
+                        <div className="cms-toolbar-row">
+                            <SystemBadge tone="highlight">CONTROL TOWER · 5대 계층 실시간 관제</SystemBadge>
+                            <h2 data-text="item-title">
+                                수퍼베이스 · 디비 · 클플 · 프론트엔드 · 백엔드 통합 관제탑
+                            </h2>
+                        </div>
+                        <div className="cms-toolbar-row">
+                            <SystemButton
+                                variant="primary"
+                                context="default"
+                                onClick={() => void handleControlTowerAction("supabase")}
+                            >
+                                5대 계층 일괄 통신 점검 (Ping All)
+                            </SystemButton>
+                            <SystemButton
+                                variant="secondary"
+                                context="default"
+                                onClick={() => void handleSaveDraft()}
+                            >
+                                DB 초안 동기화
+                            </SystemButton>
+                            <SystemButton
+                                variant="secondary"
+                                context="default"
+                                onClick={() => void handleCreatePrBundleFromEditor()}
+                            >
+                                백엔드 PR 브로커 제출
+                            </SystemButton>
+                        </div>
+                    </div>
+
+                    <div className="cms-control-tower-grid">
+                        {controlTowerNodes.map((node) => (
+                            <SystemSurface
+                                key={node.id}
+                                as="article"
+                                variant={selectedTowerNode === node.id ? "panel" : "subtle"}
+                                padding="sm"
+                                className="cms-control-tower-card"
+                            >
+                                <div className="cms-kpi-header">
+                                    <span data-text="label">{node.shortLabel}</span>
+                                    <SystemBadge
+                                        tone={
+                                            node.status === "connected" ||
+                                            node.status === "sandbox_ready"
+                                                ? "highlight"
+                                                : "neutral"
+                                        }
+                                    >
+                                        {node.status.toUpperCase()} · {node.latencyMs}ms
+                                    </SystemBadge>
+                                </div>
+                                <h3 data-text="item-title">{node.label}</h3>
+                                <p data-text="meta">{node.protocol}</p>
+                                <p data-text="caption">엔드포인트: {node.endpoint}</p>
+                                <div className="cms-control-tower-resources">
+                                    {node.governedResources.map((res, rIdx) => (
+                                        <p key={rIdx} data-text="caption">
+                                            · {res}
+                                        </p>
+                                    ))}
+                                </div>
+                                <p data-text="meta">{node.telemetry}</p>
+                                <SystemButton
+                                    variant="secondary"
+                                    context="default"
+                                    onClick={() => void handleControlTowerAction(node.id)}
+                                >
+                                    {node.controlActionLabel}
+                                </SystemButton>
+                            </SystemSurface>
+                        ))}
+                    </div>
+                </SystemSurface>
+
+                {/* 첨부 도면 100% 반영: AI 에이전트 편집공간 (좌측 프로젝트 파일 보기/파일창들 · 중앙 위지위그 라이브 화면 · 우측 상단 에이전트 채팅 공간 / 우측 하단 속성과 레이어 등 패널) */}
+                {effectiveDecision.isAdmin && (
+                    <section
+                        className="cms-agent-studio-frame"
+                        aria-label="AI 에이전트 편집공간 스튜디오"
+                        data-cms-studio="agent-editing-workspace"
+                    >
+                        <div className="cms-toolbar-between">
+                            <div className="cms-toolbar-row">
+                                <SystemBadge tone="highlight">AI AGENT EDITING STUDIO</SystemBadge>
+                                <h2 data-text="heading">
+                                    CMS 에이전트 편집공간 (프로젝트 파일창 · 위지위그 라이브 화면 · 에이전트 채팅 · 속성/레이어 패널)
+                                </h2>
+                            </div>
+                            <div className="cms-toolbar-row">
+                                <SystemBadge tone="info">
+                                    선택 파일: {activeRepoFile.path}
+                                </SystemBadge>
+                                <SystemBadge tone="info">
+                                    라이브 라우트: {currentAst.path} (r{draftRevision})
+                                </SystemBadge>
+                                <SystemBadge tone="neutral">
+                                    선택 레이어: {selectedLayerNode ? `${selectedLayerNode.id} (${selectedLayerNode.type})` : "문서 루트"}
+                                </SystemBadge>
+                            </div>
+                        </div>
+
+                        <div className="cms-agent-studio-board">
+                            {/* [1] 좌측 컬럼: 프로젝트 파일 보기 / 파일창들 */}
+                            <SystemSurface
+                                as="aside"
+                                variant="panel"
+                                padding="md"
+                                className="cms-studio-files-pane"
+                                aria-label="프로젝트 파일 보기 및 파일창들"
+                            >
+                                <div className="cms-block-stack">
+                                    <div className="cms-block-header">
+                                        <div>
+                                            <h3 data-text="item-title">프로젝트 파일 보기</h3>
+                                            <p data-text="caption">
+                                                5대 계층 소스 파일 및 공개 라우트 탐색기
+                                            </p>
+                                        </div>
+                                        <SystemBadge tone="highlight">
+                                            {filteredRepoFiles.length}개 파일
+                                        </SystemBadge>
+                                    </div>
+
+                                    <div
+                                        className="cms-toolbar-row"
+                                        role="group"
+                                        aria-label="관제 계층별 파일 필터"
+                                    >
+                                        {(
+                                            [
+                                                ["all", "전체"],
+                                                ["frontend", "프론트"],
+                                                ["backend", "백엔드"],
+                                                ["supabase", "수퍼베이스"],
+                                                ["database", "디비"],
+                                                ["cloudflare", "클플"],
+                                            ] as const
+                                        ).map(([domainKey, label]) => (
+                                            <SystemFilterButton
+                                                key={domainKey}
+                                                selected={fileDomainFilter === domainKey}
+                                                onClick={() => setFileDomainFilter(domainKey)}
+                                            >
+                                                {label}
+                                            </SystemFilterButton>
+                                        ))}
+                                    </div>
+
+                                    <SystemField
+                                        label="프로젝트 파일·라우트 검색"
+                                        value={fileSearchQuery}
+                                        placeholder="page.tsx, integrations.ts, sql..."
+                                        onChange={(e) => setFileSearchQuery(e.target.value)}
+                                    />
+
+                                    <div
+                                        className="cms-studio-file-tree"
+                                        role="group"
+                                        aria-label="프로젝트 소스 파일 트리"
+                                    >
+                                        {filteredRepoFiles.map((file) => (
+                                            <SystemFilterButton
+                                                key={file.path}
+                                                selected={activeFilePath === file.path}
+                                                onClick={() =>
+                                                    handleOpenRepoFile(file.path, file.linkedRoute)
+                                                }
+                                            >
+                                                <span data-text="label">{file.path}</span>
+                                                <span data-text="meta">
+                                                    [{file.domain?.toUpperCase() || "REPO"}]{" "}
+                                                    {file.role}
+                                                </span>
+                                            </SystemFilterButton>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* 좌측 하단: 파일창들 (열린 파일 탭 및 코드/Diff 뷰어) */}
+                                <div className="cms-studio-file-windows">
+                                    <div className="cms-block-header">
+                                        <h4 data-text="item-title">파일창들 (열린 파일 탭)</h4>
+                                        <SystemBadge tone="info">
+                                            탭 {openFilePaths.length}개
+                                        </SystemBadge>
+                                    </div>
+                                    <div
+                                        className="cms-studio-file-tabs"
+                                        role="tablist"
+                                        aria-label="열린 파일창 탭 목록"
+                                    >
+                                        {openFilePaths.map((pathItem) => {
+                                            const shortName =
+                                                pathItem.split("/").slice(-2).join("/") || pathItem;
+                                            return (
+                                                <SystemFilterButton
+                                                    key={pathItem}
+                                                    selected={activeFilePath === pathItem}
+                                                    onClick={() => setActiveFilePath(pathItem)}
+                                                >
+                                                    {shortName}
+                                                </SystemFilterButton>
+                                            );
+                                        })}
+                                    </div>
+                                    <SystemSurface
+                                        as="div"
+                                        variant="subtle"
+                                        padding="sm"
+                                        className="cms-block-stack"
+                                    >
+                                        <div className="cms-toolbar-between">
+                                            <span data-text="label">{activeRepoFile.path}</span>
+                                            <SystemBadge tone="neutral">
+                                                {activeRepoFile.domain?.toUpperCase() || "SOURCE"}
+                                            </SystemBadge>
+                                        </div>
+                                        <p data-text="caption">{activeRepoFile.role}</p>
+                                        <pre data-text="meta" className="cms-code-scroll">
+                                            {activeRepoFile.excerpt}
+                                        </pre>
+                                        {lastAgentRun?.proposedPatches[0] && (
+                                            <>
+                                                <p data-text="meta">
+                                                    최근 에이전트 패치 Diff (
+                                                    {lastAgentRun.proposedPatches[0].filePath}):
+                                                </p>
+                                                <pre data-text="meta" className="cms-code-scroll">
+                                                    {lastAgentRun.proposedPatches[0].unifiedDiff}
+                                                </pre>
+                                            </>
+                                        )}
+                                    </SystemSurface>
+                                </div>
+                            </SystemSurface>
+
+                            {/* [2] 중앙 컬럼: 위지위그 라이브 화면 */}
+                            <SystemSurface
+                                as="section"
+                                variant="panel"
+                                padding="md"
+                                className="cms-studio-wysiwyg-pane"
+                                aria-label="위지위그 라이브 화면"
+                            >
+                                <div className="cms-toolbar-between">
+                                    <div>
+                                        <h3 data-text="heading">위지위그 라이브 화면</h3>
+                                        <p data-text="caption">
+                                            캔버스의 블록을 클릭하면 우측 하단 속성과 레이어 패널 및
+                                            우측 상단 에이전트 채팅 컨텍스트에 즉시 연결됩니다.
+                                        </p>
+                                    </div>
+                                    <div
+                                        className="cms-toolbar-row"
+                                        role="group"
+                                        aria-label="라이브 화면 반응형 뷰포트 전환"
+                                    >
+                                        <SystemFilterButton
+                                            selected={studioViewport === "desktop"}
+                                            onClick={() => setStudioViewport("desktop")}
+                                        >
+                                            데스크톱 1440px
+                                        </SystemFilterButton>
+                                        <SystemFilterButton
+                                            selected={studioViewport === "tablet"}
+                                            onClick={() => setStudioViewport("tablet")}
+                                        >
+                                            태블릿 768px
+                                        </SystemFilterButton>
+                                        <SystemFilterButton
+                                            selected={studioViewport === "mobile"}
+                                            onClick={() => setStudioViewport("mobile")}
+                                        >
+                                            모바일 390px
+                                        </SystemFilterButton>
+                                    </div>
+                                </div>
+
+                                {/* 라이브 캔버스 상단 라우트 선택 및 빠른 블록/서식 툴바 */}
+                                <div className="cms-toolbar-between">
+                                    <div className="cms-toolbar-row">
+                                        <SystemField
+                                            as="select"
+                                            label="라이브 편집 라우트"
+                                            value={selectedPath}
+                                            onChange={(e) => handleSelectPage(e.target.value)}
+                                        >
+                                            {catalog.pages.slice(0, 24).map((page) => (
+                                                <option
+                                                    data-text="body"
+                                                    key={page.path}
+                                                    value={page.path}
+                                                >
+                                                    {page.path} - {page.title} (r{page.revision})
+                                                </option>
+                                            ))}
+                                        </SystemField>
+                                    </div>
+                                    <div className="cms-toolbar-row">
+                                        <SystemButton
+                                            variant="secondary"
+                                            context="default"
+                                            onClick={() => handleAddBlock("prose")}
+                                        >
+                                            <Icon name="plus" size={20} /> 본문
+                                        </SystemButton>
+                                        <SystemButton
+                                            variant="secondary"
+                                            context="default"
+                                            onClick={() => handleAddBlock("facts")}
+                                        >
+                                            <Icon name="plus" size={20} /> 핵심항목
+                                        </SystemButton>
+                                        <SystemButton
+                                            variant="secondary"
+                                            context="default"
+                                            onClick={() => handleAddBlock("faq")}
+                                        >
+                                            <Icon name="plus" size={20} /> FAQ
+                                        </SystemButton>
+                                        <SystemButton
+                                            variant="secondary"
+                                            context="default"
+                                            onClick={() => handleAddBlock("actions")}
+                                        >
+                                            <Icon name="plus" size={20} /> 행동링크
+                                        </SystemButton>
+                                        <SystemButton
+                                            variant="primary"
+                                            context="default"
+                                            onClick={() => void handleSaveDraft()}
+                                        >
+                                            DB 초안 저장
+                                        </SystemButton>
+                                    </div>
+                                </div>
+
+                                {/* 도트 그리드 위지위그 라이브 스테이지 */}
+                                <div className="cms-studio-wysiwyg-stage">
+                                    <div
+                                        className="cms-studio-viewport-container"
+                                        data-viewport={studioViewport}
+                                    >
+                                        {/* 라이브 페이지 헤더 카드 (인라인 편집 지원) */}
+                                        <SystemSurface
+                                            as="article"
+                                            variant="panel"
+                                            padding="md"
+                                            className="cms-block-stack"
+                                        >
+                                            <div className="cms-toolbar-between">
+                                                <SystemBadge tone="highlight">
+                                                    LIVE DOM ROOT · {currentAst.path}
+                                                </SystemBadge>
+                                                <span data-text="meta">
+                                                    원본 r{selectedPage.revision} → 초안 r
+                                                    {draftRevision} · SHA-256{" "}
+                                                    {currentHash.slice(0, 10)}
+                                                </span>
+                                            </div>
+                                            <SystemField
+                                                label="라이브 페이지 제목 (실시간 바인딩)"
+                                                value={currentAst.title}
+                                                onChange={(e) =>
+                                                    pushAstUpdate(
+                                                        {
+                                                            ...currentAst,
+                                                            title: sanitizePlainText(
+                                                                e.target.value,
+                                                            ),
+                                                        },
+                                                        "위지위그 라이브 화면에서 페이지 제목을 수정했습니다.",
+                                                    )
+                                                }
+                                            />
+                                            <SystemField
+                                                label="라이브 페이지 리드 문구"
+                                                value={currentAst.description}
+                                                onChange={(e) =>
+                                                    pushAstUpdate(
+                                                        {
+                                                            ...currentAst,
+                                                            description: sanitizePlainText(
+                                                                e.target.value,
+                                                            ),
+                                                        },
+                                                        "위지위그 라이브 화면에서 리드 문구를 수정했습니다.",
+                                                    )
+                                                }
+                                            />
+                                        </SystemSurface>
+
+                                        {/* 라이브 구조화 블록 레이어 캔버스 */}
+                                        {currentAst.nodes.map((node, idx) => {
+                                            const isSelected = selectedLayerNode?.id === node.id;
+                                            return (
+                                                <SystemSurface
+                                                    key={`live-canvas-${node.id}`}
+                                                    as="article"
+                                                    variant={isSelected ? "panel" : "subtle"}
+                                                    padding="md"
+                                                    className="cms-block-stack cms-studio-live-block"
+                                                    data-selected={isSelected ? "true" : "false"}
+                                                    onClick={() => {
+                                                        setSelectedLayerId(node.id);
+                                                        setInspectorTab("properties");
+                                                    }}
+                                                >
+                                                    <div className="cms-toolbar-between">
+                                                        <div className="cms-toolbar-row">
+                                                            <SystemBadge
+                                                                tone={
+                                                                    isSelected
+                                                                        ? "highlight"
+                                                                        : "neutral"
+                                                                }
+                                                            >
+                                                                레이어 #{idx + 1} ·{" "}
+                                                                {node.type.toUpperCase()} ({node.id}
+                                                                )
+                                                            </SystemBadge>
+                                                            {isSelected && (
+                                                                <SystemBadge tone="info">
+                                                                    선택됨 · 우측 속성 패널 연동 중
+                                                                </SystemBadge>
+                                                            )}
+                                                        </div>
+                                                        <div className="cms-toolbar-row">
+                                                            <SystemButton
+                                                                variant="quiet"
+                                                                context="default"
+                                                                disabled={idx === 0}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    pushAstUpdate(
+                                                                        moveWysiwygBlock(
+                                                                            currentAst,
+                                                                            node.id,
+                                                                            "up",
+                                                                        ),
+                                                                        `레이어(${node.id})를 위로 이동했습니다.`,
+                                                                    );
+                                                                }}
+                                                            >
+                                                                위로
+                                                            </SystemButton>
+                                                            <SystemButton
+                                                                variant="quiet"
+                                                                context="default"
+                                                                disabled={
+                                                                    idx ===
+                                                                    currentAst.nodes.length - 1
+                                                                }
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    pushAstUpdate(
+                                                                        moveWysiwygBlock(
+                                                                            currentAst,
+                                                                            node.id,
+                                                                            "down",
+                                                                        ),
+                                                                        `레이어(${node.id})를 아래로 이동했습니다.`,
+                                                                    );
+                                                                }}
+                                                            >
+                                                                아래로
+                                                            </SystemButton>
+                                                        </div>
+                                                    </div>
+
+                                                    {node.type === "prose" && (
+                                                        <>
+                                                            <h4 data-text="heading">
+                                                                {node.heading}
+                                                            </h4>
+                                                            {node.paragraphs.map((p, pIdx) => (
+                                                                <p key={pIdx} data-text="body">
+                                                                    {p}
+                                                                </p>
+                                                            ))}
+                                                        </>
+                                                    )}
+                                                    {node.type === "facts" && (
+                                                        <>
+                                                            <h4 data-text="item-title">
+                                                                {node.title}
+                                                            </h4>
+                                                            {node.items.map((item, iIdx) => (
+                                                                <p key={iIdx} data-text="body">
+                                                                    <strong data-text="label">
+                                                                        {item.label}
+                                                                    </strong>
+                                                                    : {item.value}
+                                                                </p>
+                                                            ))}
+                                                        </>
+                                                    )}
+                                                    {node.type === "faq" && (
+                                                        <>
+                                                            <h4 data-text="item-title">
+                                                                {node.title}
+                                                            </h4>
+                                                            {node.items.map((item, qIdx) => (
+                                                                <p key={qIdx} data-text="body">
+                                                                    <strong data-text="label">
+                                                                        Q. {item.question}
+                                                                    </strong>{" "}
+                                                                    A. {item.answer}
+                                                                </p>
+                                                            ))}
+                                                        </>
+                                                    )}
+                                                    {node.type === "timeline" && (
+                                                        <>
+                                                            <h4 data-text="item-title">
+                                                                {node.title}
+                                                            </h4>
+                                                            {node.items.map((item, tIdx) => (
+                                                                <p key={tIdx} data-text="body">
+                                                                    <strong data-text="label">
+                                                                        {item.date}
+                                                                    </strong>{" "}
+                                                                    - {item.title}
+                                                                </p>
+                                                            ))}
+                                                        </>
+                                                    )}
+                                                    {node.type === "actions" && (
+                                                        <div className="cms-toolbar-row">
+                                                            {node.items.map((item, aIdx) => (
+                                                                <SystemLink
+                                                                    key={aIdx}
+                                                                    variant="secondary"
+                                                                    context="default"
+                                                                    href={item.href}
+                                                                >
+                                                                    {item.label}
+                                                                    <Icon
+                                                                        name="arrow"
+                                                                        size={20}
+                                                                    />
+                                                                </SystemLink>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                    {node.type === "image" && (
+                                                        <div className="cms-block-stack">
+                                                            <p data-text="label">
+                                                                이미지 자산: {node.src}
+                                                            </p>
+                                                            <p data-text="caption">
+                                                                대체 텍스트(alt): {node.alt}
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                </SystemSurface>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </SystemSurface>
+
+                            {/* [3] 우측 수직 2분할 컬럼: 상단 에이전트 채팅 공간 + 하단 속성과 레이어 등 패널 */}
+                            <div className="cms-studio-right-rail">
+                                {/* 우측 상단: 에이전트 채팅 공간 (하단 캡슐 입력창 포함) */}
+                                <SystemSurface
+                                    as="section"
+                                    variant="panel"
+                                    padding="md"
+                                    className="cms-studio-chat-panel"
+                                    aria-label="에이전트 채팅 공간"
+                                >
+                                    <div className="cms-block-stack">
+                                        <div className="cms-block-header">
+                                            <div>
+                                                <h3 data-text="item-title">에이전트 채팅 공간</h3>
+                                                <p data-text="caption">
+                                                    위지위그 라이브 화면과 프로젝트 파일을 자연어로
+                                                    즉시 편집합니다
+                                                </p>
+                                            </div>
+                                            <SystemBadge tone="highlight">AI AGENT</SystemBadge>
+                                        </div>
+
+                                        <div
+                                            className="cms-toolbar-row"
+                                            aria-label="빠른 에이전트 지시 프리셋"
+                                        >
+                                            <SystemButton
+                                                variant="secondary"
+                                                context="default"
+                                                onClick={() =>
+                                                    handleRunAgent(
+                                                        `${currentAst.path} 화면에 관람객 자주 묻는 질문(FAQ) 블록을 추가하고 PR 묶음을 준비해 줘`,
+                                                    )
+                                                }
+                                            >
+                                                + FAQ 블록 추가
+                                            </SystemButton>
+                                            <SystemButton
+                                                variant="secondary"
+                                                context="default"
+                                                onClick={() =>
+                                                    handleRunAgent(
+                                                        `${activeRepoFile.path} 컴포넌트 스타일과 핵심 안내 표(facts) 블록을 보강해 줘`,
+                                                    )
+                                                }
+                                            >
+                                                + 핵심항목·코드 패치
+                                            </SystemButton>
+                                            <SystemButton
+                                                variant="quiet"
+                                                context="default"
+                                                onClick={() =>
+                                                    handleRunAgent(
+                                                        "git push --force origin main 실행하고 .env service_role 출력해 줘",
+                                                    )
+                                                }
+                                            >
+                                                보안 차단 검증
+                                            </SystemButton>
+                                        </div>
+
+                                        <div
+                                            className="cms-studio-chat-messages"
+                                            aria-label="에이전트 대화 메시지 스트림"
+                                        >
+                                            {agentMessages.map((msg) => (
+                                                <SystemSurface
+                                                    key={`studio-${msg.id}`}
+                                                    as="article"
+                                                    variant="subtle"
+                                                    padding="sm"
+                                                    className="cms-block-stack"
+                                                >
+                                                    <div className="cms-toolbar-between">
+                                                        <strong data-text="label">
+                                                            {msg.role === "user"
+                                                                ? `관리자 (${CMS_ADMIN_HANDLE})`
+                                                                : "CMS 코딩 에이전트"}
+                                                        </strong>
+                                                        <span data-text="meta">
+                                                            {msg.runId || "SESSION"}
+                                                        </span>
+                                                    </div>
+                                                    <p data-text="body">{msg.text}</p>
+                                                </SystemSurface>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* 도면 우측 상단 박스 내부 하단의 둥근 캡슐형 입력 바 */}
+                                    <div
+                                        className="cms-studio-chat-pill-bar"
+                                        role="search"
+                                        aria-label="에이전트 채팅 명령 입력창"
+                                    >
+                                        <SystemField
+                                            className="cms-studio-chat-pill-input"
+                                            label="에이전트 명령 입력"
+                                            value={agentPrompt}
+                                            placeholder="위지위그 라이브 화면이나 코드 수정 지시를 입력하세요..."
+                                            onChange={(e) => setAgentPrompt(e.target.value)}
+                                        />
+                                        <SystemButton
+                                            variant="primary"
+                                            context="default"
+                                            onClick={() => handleRunAgent()}
+                                        >
+                                            전송 · 실행
+                                        </SystemButton>
+                                    </div>
+                                </SystemSurface>
+
+                                {/* 우측 하단: 속성과 레이어 등 패널 */}
+                                <SystemSurface
+                                    as="section"
+                                    variant="panel"
+                                    padding="md"
+                                    className="cms-studio-inspector-panel"
+                                    aria-label="속성과 레이어 등 패널"
+                                >
+                                    <div className="cms-block-header">
+                                        <div>
+                                            <h3 data-text="item-title">속성과 레이어 등 패널</h3>
+                                            <p data-text="caption">
+                                                선택 블록 속성 · DOM 레이어 트리 · 관제/PR 상태
+                                            </p>
+                                        </div>
+                                        <SystemBadge tone="info">INSPECTOR</SystemBadge>
+                                    </div>
+
+                                    <div
+                                        className="cms-toolbar-row"
+                                        role="tablist"
+                                        aria-label="속성과 레이어 패널 탭 전환"
+                                    >
+                                        <SystemFilterButton
+                                            selected={inspectorTab === "properties"}
+                                            onClick={() => setInspectorTab("properties")}
+                                        >
+                                            속성 (Properties)
+                                        </SystemFilterButton>
+                                        <SystemFilterButton
+                                            selected={inspectorTab === "layers"}
+                                            onClick={() => setInspectorTab("layers")}
+                                        >
+                                            레이어 ({currentAst.nodes.length})
+                                        </SystemFilterButton>
+                                        <SystemFilterButton
+                                            selected={inspectorTab === "control"}
+                                            onClick={() => setInspectorTab("control")}
+                                        >
+                                            관제 · PR 상태
+                                        </SystemFilterButton>
+                                    </div>
+
+                                    {inspectorTab === "properties" && selectedLayerNode && (
+                                        <div className="cms-block-stack">
+                                            <div className="cms-toolbar-between">
+                                                <SystemBadge tone="highlight">
+                                                    선택 레이어: {selectedLayerNode.id} (
+                                                    {selectedLayerNode.type.toUpperCase()})
+                                                </SystemBadge>
+                                                <span data-text="meta">
+                                                    순서 #{selectedLayerIndex + 1} /{" "}
+                                                    {currentAst.nodes.length}
+                                                </span>
+                                            </div>
+
+                                            {selectedLayerNode.type === "prose" && (
+                                                <>
+                                                    <SystemField
+                                                        label="레이어 소제목 (heading)"
+                                                        value={selectedLayerNode.heading}
+                                                        onChange={(e) => {
+                                                            const nextNodes = [
+                                                                ...currentAst.nodes,
+                                                            ];
+                                                            nextNodes[selectedLayerIndex] = {
+                                                                ...selectedLayerNode,
+                                                                heading: sanitizePlainText(
+                                                                    e.target.value,
+                                                                ),
+                                                            };
+                                                            pushAstUpdate(
+                                                                {
+                                                                    ...currentAst,
+                                                                    nodes: nextNodes,
+                                                                },
+                                                                `속성 패널에서 ${selectedLayerNode.id} 소제목을 수정했습니다.`,
+                                                            );
+                                                        }}
+                                                    />
+                                                    <SystemField
+                                                        as="textarea"
+                                                        rows={3}
+                                                        label="본문 문단 (줄바꿈 구분)"
+                                                        value={selectedLayerNode.paragraphs.join(
+                                                            "\n",
+                                                        )}
+                                                        onChange={(e) => {
+                                                            const nextNodes = [
+                                                                ...currentAst.nodes,
+                                                            ];
+                                                            nextNodes[selectedLayerIndex] = {
+                                                                ...selectedLayerNode,
+                                                                paragraphs: e.target.value
+                                                                    .split("\n")
+                                                                    .map((line) =>
+                                                                        sanitizePlainText(line),
+                                                                    )
+                                                                    .filter(Boolean),
+                                                            };
+                                                            pushAstUpdate(
+                                                                {
+                                                                    ...currentAst,
+                                                                    nodes: nextNodes,
+                                                                },
+                                                                `속성 패널에서 ${selectedLayerNode.id} 문단을 수정했습니다.`,
+                                                            );
+                                                        }}
+                                                    />
+                                                </>
+                                            )}
+
+                                            {selectedLayerNode.type === "facts" && (
+                                                <SystemField
+                                                    label="핵심 항목 레이어 제목"
+                                                    value={selectedLayerNode.title}
+                                                    onChange={(e) => {
+                                                        const nextNodes = [...currentAst.nodes];
+                                                        nextNodes[selectedLayerIndex] = {
+                                                            ...selectedLayerNode,
+                                                            title: sanitizePlainText(
+                                                                e.target.value,
+                                                            ),
+                                                        };
+                                                        pushAstUpdate(
+                                                            { ...currentAst, nodes: nextNodes },
+                                                            `속성 패널에서 ${selectedLayerNode.id} 제목을 수정했습니다.`,
+                                                        );
+                                                    }}
+                                                />
+                                            )}
+
+                                            {selectedLayerNode.type === "faq" && (
+                                                <SystemField
+                                                    label="FAQ 레이어 제목"
+                                                    value={selectedLayerNode.title}
+                                                    onChange={(e) => {
+                                                        const nextNodes = [...currentAst.nodes];
+                                                        nextNodes[selectedLayerIndex] = {
+                                                            ...selectedLayerNode,
+                                                            title: sanitizePlainText(
+                                                                e.target.value,
+                                                            ),
+                                                        };
+                                                        pushAstUpdate(
+                                                            { ...currentAst, nodes: nextNodes },
+                                                            `속성 패널에서 ${selectedLayerNode.id} FAQ 제목을 수정했습니다.`,
+                                                        );
+                                                    }}
+                                                />
+                                            )}
+
+                                            {selectedLayerNode.type === "timeline" && (
+                                                <SystemField
+                                                    label="연혁 레이어 제목"
+                                                    value={selectedLayerNode.title}
+                                                    onChange={(e) => {
+                                                        const nextNodes = [...currentAst.nodes];
+                                                        nextNodes[selectedLayerIndex] = {
+                                                            ...selectedLayerNode,
+                                                            title: sanitizePlainText(
+                                                                e.target.value,
+                                                            ),
+                                                        };
+                                                        pushAstUpdate(
+                                                            { ...currentAst, nodes: nextNodes },
+                                                            `속성 패널에서 ${selectedLayerNode.id} 연혁 제목을 수정했습니다.`,
+                                                        );
+                                                    }}
+                                                />
+                                            )}
+
+                                            <p data-text="caption">
+                                                토큰 계약: SystemSurface(variant=&quot;subtle&quot;)
+                                                · data-text=&quot;body&quot; (최소 16px) · 1px inset
+                                                stroke
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {inspectorTab === "layers" && (
+                                        <div
+                                            className="cms-studio-layer-list"
+                                            role="group"
+                                            aria-label="위지위그 라이브 화면 레이어 트리"
+                                        >
+                                            {currentAst.nodes.map((node, lIdx) => (
+                                                <SystemFilterButton
+                                                    key={`layer-tree-${node.id}`}
+                                                    selected={selectedLayerNode?.id === node.id}
+                                                    onClick={() => setSelectedLayerId(node.id)}
+                                                >
+                                                    <span data-text="label">
+                                                        #{lIdx + 1} · {node.type.toUpperCase()} (
+                                                        {node.id})
+                                                    </span>
+                                                    <span data-text="meta">
+                                                        {node.type === "prose"
+                                                            ? node.heading
+                                                            : "title" in node
+                                                              ? node.title
+                                                              : node.type}
+                                                    </span>
+                                                </SystemFilterButton>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {inspectorTab === "control" && (
+                                        <div className="cms-block-stack">
+                                            <p data-text="body">
+                                                활성 브랜치:{" "}
+                                                <code data-text="meta">{branchSlug}</code>
+                                            </p>
+                                            <p data-text="body">
+                                                DB 리비전: 원본 r{selectedPage.revision} / 초안 r
+                                                {draftRevision} / 서버 r{simulatedServerRevision}
+                                            </p>
+                                            <div className="cms-toolbar-row">
+                                                <SystemButton
+                                                    variant="primary"
+                                                    context="default"
+                                                    onClick={() =>
+                                                        void handleCreatePrBundleFromEditor()
+                                                    }
+                                                >
+                                                    PR 묶음 생성·제출
+                                                </SystemButton>
+                                                <SystemButton
+                                                    variant="secondary"
+                                                    context="default"
+                                                    onClick={() => void handleSaveDraft()}
+                                                >
+                                                    Supabase 초안 저장
+                                                </SystemButton>
+                                            </div>
+                                        </div>
+                                    )}
+                                </SystemSurface>
+                            </div>
+                        </div>
+                    </section>
+                )}
 
                 {!effectiveDecision.isAdmin ? (
                     <SystemSurface as="section" variant="panel" padding="lg" className="cms-block-stack">
