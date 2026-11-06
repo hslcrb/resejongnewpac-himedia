@@ -8,7 +8,7 @@ export interface BookingState {
     receipt: BookingReservation | null; accepted: boolean; busy: boolean; uncertain: boolean;
     error: string; now: number; uncertainAction: "hold" | "confirm" | "cancel" | null;
 }
-const initial = (): BookingState => ({ catalog: null, loading: false, step: "selection", date: "", programId: "", sessionId: "", participants: 1,
+const initial = (): BookingState => ({ catalog: null, loading: true, step: "selection", date: "", programId: "", sessionId: "", participants: 1,
     inventory: null, inventoryLoading: false, seatIds: [], receipt: null, accepted: false, busy: false, uncertain: false, error: "", now: 0, uncertainAction: null });
 
 /** React 밖에서도 검증 가능한 상태 관리자. 서버 응답 전에는 성공을 만들지 않습니다. */
@@ -23,7 +23,7 @@ export class BookingController {
     private lifetime = 0;
     private offset = 0;
     private keys = new Map<string, string>();
-    constructor(gateway: BookingGateway, clock = Date.now, key = () => crypto.randomUUID()) {
+    constructor(gateway: BookingGateway, clock: () => number = Date.now, key: () => string = () => crypto.randomUUID()) {
         this.gateway = gateway; this.clock = clock; this.key = key;
     }
     getSnapshot = (): BookingState => this.state;
@@ -118,7 +118,7 @@ export class BookingController {
     async confirm(): Promise<void> {
         const s = this.state;
         if (s.step !== "review" || !s.receipt || s.busy || (s.uncertain && s.uncertainAction !== "confirm")) return;
-        if (remainingSeconds(s.receipt, this.clock() + this.offset) === 0) { this.update({ error: "좌석 보류 시간이 끝났습니다. 좌석을 다시 선택해 주세요." }); return; }
+        if (remainingSeconds(s.receipt, this.clock() + this.offset) === 0 && !(s.uncertain && s.uncertainAction === "confirm")) { this.update({ error: "좌석 보류 시간이 끝났습니다. 좌석을 다시 선택해 주세요." }); return; }
         if (!s.accepted) { this.update({ error: "선택 내용을 확인한 뒤 확인란을 선택해 주세요." }); return; }
         const reservationId = s.receipt.id, requestKey = this.requestKey(`confirm:${reservationId}`);
         await this.mutate("confirm", () => this.gateway.confirm({ reservationId, requestKey }), receipt => this.update({ receipt, step: "complete" }));
@@ -141,6 +141,6 @@ export class BookingController {
             if (this.state.receipt) return;
         }
         this.invalidate(); const catalog = this.state.catalog;
-        this.update({ ...initial(), catalog, now: this.clock() + this.offset });
+        this.update({ ...initial(), catalog, loading: false, now: this.clock() + this.offset });
     }
 }

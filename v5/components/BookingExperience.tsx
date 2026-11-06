@@ -128,7 +128,7 @@ export default function BookingExperience({ gateway }: { gateway?: BookingGatewa
                     <SystemCheckbox checked={state.accepted} disabled={locked || !remaining} onChange={event => controller.setAccepted(event.target.checked)} label="관람 일정과 인원, 좌석을 확인했습니다." />
                     <div className={styles.actions}>
                         <SystemButton variant="secondary" disabled={state.busy || (state.uncertain && state.uncertainAction !== "cancel")} onClick={() => void controller.back()}>보류 해제 후 좌석 변경</SystemButton>
-                        <SystemButton disabled={state.busy || !state.accepted || !remaining || (state.uncertain && state.uncertainAction !== "confirm")} onClick={() => void controller.confirm()}>{state.busy ? "처리 중…" : state.uncertain ? "접수 결과 다시 확인" : demo ? "체험 완료하기" : "미결제 예약 접수"}</SystemButton>
+                        <SystemButton disabled={state.busy || !state.accepted || (!remaining && !(state.uncertain && state.uncertainAction === "confirm")) || (state.uncertain && state.uncertainAction !== "confirm")} onClick={() => void controller.confirm()}>{state.busy ? "처리 중…" : state.uncertain ? "접수 결과 다시 확인" : demo ? "체험 완료하기" : "미결제 예약 접수"}</SystemButton>
                     </div>
                 </>}
                 {state.step === "complete" && receipt && <>
