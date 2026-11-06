@@ -48,7 +48,7 @@ const definitions: readonly ComponentDefinition[] = [
     { id: "control-group", name: "SystemControlGroup", source: "components/SystemControlGroup.tsx", exportName: "SystemControlGroup", kind: "structure", guide: "components/navigation", purpose: "버튼과 링크의 폭을 퍼센트로 나누고 줄바꿈과 같은 행의 높이를 공유" },
     { id: "icon-button", name: "SystemIconButton", source: "components/SystemPrimitives.tsx", exportName: "SystemIconButton", kind: "ui", guide: "components/registry", purpose: "원형 48px 아이콘 조작" },
     { id: "filter-button", name: "SystemFilterButton", source: "components/SystemPrimitives.tsx", exportName: "SystemFilterButton", kind: "ui", guide: "components/navigation", purpose: "같은 목록에 조건을 적용하는 선택 버튼" },
-    { id: "field", name: "SystemField", source: "components/SystemPrimitives.tsx", exportName: "SystemField", kind: "ui", guide: "components/registry", purpose: "레이블·도움말·오류를 연결하는 입력", nativeControls: ["input", "select", "textarea"] },
+    { id: "field", name: "SystemField", source: "components/SystemPrimitives.tsx", exportName: "SystemField", kind: "ui", guide: "components/fields", purpose: "레이블·도움말·오류를 연결하는 입력", nativeControls: ["input", "select", "textarea"] },
     { id: "checkbox", name: "SystemCheckbox", source: "components/SystemPrimitives.tsx", exportName: "SystemCheckbox", kind: "ui", guide: "components/registry", purpose: "동의와 복수 선택을 위한 네이티브 체크박스", nativeControls: ["input"] },
     { id: "badge", name: "SystemBadge", source: "components/SystemPrimitives.tsx", exportName: "SystemBadge", kind: "ui", guide: "components/feedback", purpose: "분류와 상태 표시" },
     { id: "notice", name: "SystemNotice", source: "components/SystemPrimitives.tsx", exportName: "SystemNotice", kind: "ui", guide: "components/feedback", purpose: "입력 오류와 처리 결과" },
