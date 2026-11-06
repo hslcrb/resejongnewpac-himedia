@@ -75,6 +75,7 @@ export const COMPONENT_USAGE = {
             "app/programs/[id]/ProgramDetailClient.tsx#ProgramDetailClient",
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
+            "components/BookingExperience.tsx#BookingExperience",
             "components/ProgramCard.tsx#ProgramCard"
         ],
         "guideUses": [
@@ -119,6 +120,13 @@ export const COMPONENT_USAGE = {
             "components/HomeBookingControls.tsx#BookingCalendar"
         ]
     },
+    "booking-experience": {
+        "status": "product",
+        "productUses": [
+            "app/booking/experience/page.tsx#BookingExperiencePage"
+        ],
+        "guideUses": []
+    },
     "button": {
         "status": "product",
         "productUses": [
@@ -134,6 +142,7 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
             "components/AiChatWidget.tsx#AiChatWidget",
+            "components/BookingExperience.tsx#BookingExperience",
             "components/CompletedPage.tsx#CardsSection",
             "components/CompletedPage.tsx#CompletedPage",
             "components/CompletedPage.tsx#VenueComparison",
@@ -188,11 +197,13 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#spacePanel",
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
+            "components/BookingExperience.tsx#BookingExperience",
             "components/CatalogPage.tsx#CatalogPage",
             "components/CatalogPage.tsx#blocks",
             "components/CompletedPage.tsx#RelatedPrograms",
             "components/CompletedPage.tsx#VenueComparison",
             "components/HeroSlide.tsx#HeroSlide",
+            "components/HomePathways.tsx#HomePathways",
             "components/IntroductionExperience.tsx#IntroductionExperience",
             "components/PageHeading.tsx#PageHeading",
             "components/ServiceGoods.tsx#ServiceGoods",
@@ -206,6 +217,7 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
             "components/HeroSlide.tsx#HeroSlide",
+            "components/HomePathways.tsx#HomePathways",
             "components/PageHeading.tsx#PageHeading"
         ]
     },
@@ -229,6 +241,7 @@ export const COMPONENT_USAGE = {
         "status": "product",
         "productUses": [
             "app/account/signup/page.tsx#SignupPage",
+            "components/BookingExperience.tsx#BookingExperience",
             "components/CompletedPage.tsx#VenueComparison",
             "components/ServiceRequestForm.tsx#ServiceRequestForm"
         ],
@@ -330,6 +343,7 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#AccountExperience",
             "components/AccountExperience.tsx#profilePanel",
             "components/AccountPanels.tsx#AccountDiary",
+            "components/BookingExperience.tsx#BookingExperience",
             "components/CatalogPage.tsx#CatalogPage",
             "components/CompletedPage.tsx#CardsSection",
             "components/CompletedPage.tsx#RentalCalendar",
@@ -591,6 +605,7 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#AccountExperience",
             "components/AccountExperience.tsx#profilePanel",
             "components/AccountPanels.tsx#AccountDiary",
+            "components/BookingExperience.tsx#BookingExperience",
             "components/CatalogPage.tsx#CatalogPage",
             "components/ServiceGoods.tsx#ServiceGoods",
             "components/ServiceRequestForm.tsx#ServiceRequestForm"
@@ -737,6 +752,7 @@ export const COMPONENT_USAGE = {
             "components/AiChatWidget.tsx#AiChatWidget",
             "components/AreaExperience.tsx#AreaExperience",
             "components/BookingDatePreview.tsx#BookingDatePreview",
+            "components/BookingExperience.tsx#BookingExperience",
             "components/CatalogPage.tsx#CatalogPage",
             "components/CatalogPage.tsx#blocks",
             "components/CompletedPage.tsx#CompletedPage",
@@ -783,8 +799,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 59,
-    "product": 59,
+    "total": 60,
+    "product": 60,
     "documentationOnly": 0,
     "unused": 0
 } as const;
