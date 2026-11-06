@@ -785,7 +785,7 @@ export default function AdminCmsWorkspacePage() {
                                         onChange={(e) => handleSelectPage(e.target.value)}
                                     >
                                         {catalog.pages.slice(0, 24).map((page) => (
-                                            <option key={page.path} value={page.path}>
+                                            <option data-text="body" key={page.path} value={page.path}>
                                                 {page.path} - {page.title} (r{page.revision})
                                             </option>
                                         ))}
@@ -1449,11 +1449,13 @@ export default function AdminCmsWorkspacePage() {
                                                     )
                                                 }
                                             >
-                                                <option value="MERGED">MERGED (병합 완료)</option>
-                                                <option value="OPEN">
+                                                <option data-text="body" value="MERGED">
+                                                    MERGED (병합 완료)
+                                                </option>
+                                                <option data-text="body" value="OPEN">
                                                     OPEN (미병합 - 발행 차단 검증)
                                                 </option>
-                                                <option value="CLOSED">
+                                                <option data-text="body" value="CLOSED">
                                                     CLOSED (닫힘 - 발행 차단 검증)
                                                 </option>
                                             </SystemField>
@@ -1476,13 +1478,13 @@ export default function AdminCmsWorkspacePage() {
                                                     )
                                                 }
                                             >
-                                                <option value="deployed">
+                                                <option data-text="body" value="deployed">
                                                     deployed (생산 배포 성공)
                                                 </option>
-                                                <option value="building">
+                                                <option data-text="body" value="building">
                                                     building (빌드 중 - 발행 보류 검증)
                                                 </option>
-                                                <option value="failed">
+                                                <option data-text="body" value="failed">
                                                     failed (배포 실패 - 발행 차단 검증)
                                                 </option>
                                             </SystemField>
