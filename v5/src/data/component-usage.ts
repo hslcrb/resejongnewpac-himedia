@@ -276,7 +276,6 @@ export const COMPONENT_USAGE = {
     "control-group": {
         "status": "product",
         "productUses": [
-            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/login/page.tsx#CmsLoginGatePage",
             "components/CatalogPage.tsx#CatalogPage",
             "components/PageHeading.tsx#PageHeading"

@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import test from "node:test";
 import {
     CMS_ADMIN_DESTINATIONS,
@@ -527,4 +529,32 @@ test("A12-A14: PR-only gateway blocks direct main writes, unsafe paths, unmerged
             }),
     });
     assert.equal(probesResult.probes.length, 5);
+});
+
+test("A15: /admin and /login use multi-pane studio dashboard layout (4-col KPI strip, 3-col workbench, split editor/preview, right inspector dock)", () => {
+    const adminSource = readFileSync(resolve(import.meta.dirname, "../app/admin/page.tsx"), "utf8");
+    const loginSource = readFileSync(resolve(import.meta.dirname, "../app/login/page.tsx"), "utf8");
+    const cssSource = readFileSync(resolve(import.meta.dirname, "../styles/cms-dashboard.css"), "utf8");
+
+    for (const cls of [
+        "cms-dashboard-page",
+        "cms-dashboard-shell",
+        "cms-topbar",
+        "cms-kpi-grid",
+        "cms-workbench",
+        "cms-sidebar",
+        "cms-page-tree-list",
+        "cms-main-stage",
+        "cms-split-workspace",
+        "cms-editor-column",
+        "cms-preview-column",
+        "cms-inspector-dock",
+    ]) {
+        assert.ok(adminSource.includes(cls), `admin/page.tsx must include .${cls}`);
+        assert.ok(cssSource.includes(`.${cls}`), `cms-dashboard.css must define .${cls}`);
+    }
+
+    assert.ok(loginSource.includes("cms-dashboard-page"));
+    assert.ok(loginSource.includes("cms-kpi-grid"));
+    assert.ok(loginSource.includes("cms-split-workspace"));
 });
