@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Icon from "./Icon";
 import { SystemText } from "./SystemText";
+import { SystemLink } from "./SystemPrimitives";
 import "../styles/home-pathways.css";
 
 export const HOME_PATHWAY_ICON_SIZE = 32;
@@ -29,6 +30,9 @@ export default function HomePathways({ id = "home-pathways", className = "" }: {
                     <Icon name="arrow" size={HOME_PATHWAY_ARROW_SIZE} className="home-pathway-arrow" />
                 </span>
             </Link>)}
+        </div>
+        <div className="page-layout-actions">
+            <SystemLink href="/booking/experience/" variant="secondary">관람예약 체험하기</SystemLink>
         </div>
     </nav>;
 }
