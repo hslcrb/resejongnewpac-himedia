@@ -102,7 +102,8 @@ export default function AdminCmsWorkspacePage() {
     const { catalog } = useCatalog();
     const [activePanel, setActivePanel] = useState<WorkspacePanelId>("wysiwyg");
     const [sessionLocked, setSessionLocked] = useState(false);
-    const [sandboxInspectionMode, setSandboxInspectionMode] = useState(true);
+    const [sandboxInspectionMode, setSandboxInspectionMode] = useState(false);
+    const [authenticatedUserId, setAuthenticatedUserId] = useState<string | null>(null);
     const [realDecision, setRealDecision] = useState<CmsIdentityDecision>(() =>
         verifySupabaseUserAsAdmin(null),
     );
@@ -235,6 +236,7 @@ export default function AdminCmsWorkspacePage() {
             if (supabase) {
                 const { data } = await supabase.auth.getUser();
                 if (data.user) {
+                    setAuthenticatedUserId(data.user.id);
                     const { data: memberRow } = await supabase
                         .from("sejong_cms_memberships")
                         .select(
@@ -560,14 +562,19 @@ export default function AdminCmsWorkspacePage() {
     };
 
     const handleSaveDraft = async () => {
+        if (!realDecision.isAdmin || !authenticatedUserId) {
+            setStatusError(true);
+            setStatusBanner("실제 인증된 Google 관리자 계정으로 로그인해야 DB에 저장할 수 있습니다.");
+            return;
+        }
         if (!astValidation.valid) {
             setStatusError(true);
             setStatusBanner(`초안 검증 실패: ${astValidation.issues.join(" / ")}`);
             return;
         }
         const saved = await saveCmsDraftToSupabase({
-            decision: effectiveDecision,
-            userId: "00000000-0000-4000-8000-00005ea35652",
+            decision: realDecision,
+            userId: authenticatedUserId,
             documentAst: currentAst,
             baseRevision: selectedPage.revision,
             draftRevision,
