@@ -1,6 +1,10 @@
 import { createServer } from "node:http";
 import { handleCmsApiRequest } from "../src/cms/server-handler.ts";
 import type { CmsIdentityVerificationInput } from "../src/cms/contracts.ts";
+import { cmsEdgeConfig, createCmsStore, readCmsEnv } from "../src/cms/cms-runtime.ts";
+import { handleDesignerApiRequest } from "../src/cms/designer-api.ts";
+import { resolveCmsRouteAuth } from "../src/cms/route-auth.ts";
+import { createCmsMcpServer, handleMcpHttpBody } from "../src/mcp/cms-mcp-server.ts";
 
 const port = Number(process.env.CMS_PORT || 8788);
 const allowedOrigin = process.env.ALLOWED_ORIGIN || "";
@@ -65,6 +69,55 @@ if (process.argv[1] && process.argv[1].endsWith("cms-server.ts")) {
             String(req.headers["x-cms-session-locked"] || ""),
         );
         const url = new URL(req.url || "/", "http://127.0.0.1");
+
+        // [시각 디자이너 · MCP 엔드포인트 / Visual designer and MCP endpoints]
+        if (url.pathname === "/api/cms/designer" || url.pathname === "/api/cms/mcp") {
+            const headers = new Headers(req.headers as Record<string, string>);
+            const env = readCmsEnv();
+            const auth = await resolveCmsRouteAuth(headers, {
+                supabaseUrl: env.supabaseUrl,
+                anonKey: env.anonKey,
+                mcpAccessToken: env.mcpAccessToken,
+            });
+            const { store } = createCmsStore(env, auth.source === "supabase_session" ? auth.bearer : null);
+            if (url.pathname === "/api/cms/mcp") {
+                if (req.method === "GET") {
+                    res.writeHead(200, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
+                    res.end(JSON.stringify({
+                        server: "sejong-cms-visual",
+                        transport: "http-json-rpc",
+                        tools: createCmsMcpServer({ store }).listTools().map((tool) => tool.name),
+                    }));
+                    return;
+                }
+                if (!auth.mcp) {
+                    res.writeHead(401, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
+                    res.end(JSON.stringify({ jsonrpc: "2.0", id: null, error: { code: -32001, message: "MCP 인증이 필요합니다." } }));
+                    return;
+                }
+                const server = createCmsMcpServer({ store, edge: cmsEdgeConfig(env) });
+                const response = await handleMcpHttpBody(server, auth.mcp, parsedBody);
+                res.writeHead(response.status, { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" });
+                res.end(response.payload === null ? undefined : JSON.stringify(response.payload));
+                return;
+            }
+            const result = await handleDesignerApiRequest(
+                {
+                    method: req.method || "GET",
+                    pathname: url.pathname,
+                    search: url.search,
+                    origin: req.headers.origin,
+                    csrfToken: String(req.headers["x-cms-csrf"] || ""),
+                    identity: auth.identity,
+                    body: parsedBody,
+                },
+                { store, edge: cmsEdgeConfig(env), requireCsrf: process.env.CMS_REQUIRE_CSRF !== "false" },
+            );
+            res.writeHead(result.status, result.headers);
+            res.end(JSON.stringify(result.body));
+            return;
+        }
+
         const result = await handleCmsApiRequest(
             {
                 method: req.method || "GET",
