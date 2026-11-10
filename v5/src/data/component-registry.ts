@@ -63,6 +63,15 @@ const definitions: readonly ComponentDefinition[] = [
         purpose: "관리자 CMS에서 페이지 AST의 제목·본문·정보를 실제 문서 맥락에서 직접 편집하는 WYSIWYG 캔버스",
     },
     {
+        id: "cms-visual-designer",
+        name: "CmsVisualDesigner",
+        source: "components/CmsVisualDesigner.tsx",
+        exportName: "default",
+        kind: "structure",
+        guide: "components/registry",
+        purpose: "실제 공개 사이트 DOM을 시각적으로 선택·이동·속성 수정하고 안전한 초안으로 저장하는 관리자 전용 에디터",
+    },
+    {
         id: "page-heading",
         name: "PageHeading",
         source: "components/PageHeading.tsx",
