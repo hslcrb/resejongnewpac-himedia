@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import Icon from "../../components/Icon";
+import CmsInlineCanvas from "../../components/CmsInlineCanvas";
 import {
     SystemBadge,
     SystemButton,
@@ -143,7 +144,7 @@ export default function AdminCmsWorkspacePage() {
     const [newImageAlt, setNewImageAlt] = useState("세종문화회관 중앙 계단과 광화문 광장 전경");
     const [newImageCaption, setNewImageCaption] = useState("세종문화회관 외부 전경");
     const [statusBanner, setStatusBanner] = useState<string>(
-        "위지위그 블록 편집기와 대화형 코딩 워크스페이스가 준비되었습니다. 모든 운영 반영은 GitHub PR 전용입니다.",
+        "위지위그 블록 편집기와 대화형 코딩 워크스페이스가 준비되었습니다. 운영 게시 전 별도 검토가 필요합니다. DB 초안 저장은 별도로 진행하세요.",
     );
     const [statusError, setStatusError] = useState<boolean>(false);
 
@@ -1197,7 +1198,7 @@ export default function AdminCmsWorkspacePage() {
                                     <div>
                                         <h3 data-text="heading">위지위그 라이브 화면</h3>
                                         <p data-text="caption">
-                                            캔버스의 블록을 클릭하면 우측 하단 속성과 레이어 패널 및
+                                            제목이나 문단을 클릭하면 직접 입력할 수 있습니다. 다른 곳을 클릭하면 초안에 반영됩니다. 우측 하단 속성과 레이어 패널 및
                                             우측 상단 에이전트 채팅 컨텍스트에 즉시 연결됩니다.
                                         </p>
                                     </div>
@@ -1292,221 +1293,11 @@ export default function AdminCmsWorkspacePage() {
                                         className="cms-studio-viewport-container"
                                         data-viewport={studioViewport}
                                     >
-                                        {/* 라이브 페이지 헤더 카드 (인라인 편집 지원) */}
-                                        <SystemSurface
-                                            as="article"
-                                            variant="panel"
-                                            padding="md"
-                                            className="cms-block-stack"
-                                        >
-                                            <div className="cms-toolbar-between">
-                                                <SystemBadge tone="highlight">
-                                                    LIVE DOM ROOT · {currentAst.path}
-                                                </SystemBadge>
-                                                <span data-text="meta">
-                                                    원본 r{selectedPage.revision} → 초안 r
-                                                    {draftRevision} · SHA-256{" "}
-                                                    {currentHash.slice(0, 10)}
-                                                </span>
-                                            </div>
-                                            <SystemField
-                                                label="라이브 페이지 제목 (실시간 바인딩)"
-                                                value={currentAst.title}
-                                                onChange={(e) =>
-                                                    pushAstUpdate(
-                                                        {
-                                                            ...currentAst,
-                                                            title: sanitizePlainText(
-                                                                e.target.value,
-                                                            ),
-                                                        },
-                                                        "위지위그 라이브 화면에서 페이지 제목을 수정했습니다.",
-                                                    )
-                                                }
-                                            />
-                                            <SystemField
-                                                label="라이브 페이지 리드 문구"
-                                                value={currentAst.description}
-                                                onChange={(e) =>
-                                                    pushAstUpdate(
-                                                        {
-                                                            ...currentAst,
-                                                            description: sanitizePlainText(
-                                                                e.target.value,
-                                                            ),
-                                                        },
-                                                        "위지위그 라이브 화면에서 리드 문구를 수정했습니다.",
-                                                    )
-                                                }
-                                            />
-                                        </SystemSurface>
-
-                                        {/* 라이브 구조화 블록 레이어 캔버스 */}
-                                        {currentAst.nodes.map((node, idx) => {
-                                            const isSelected = selectedLayerNode?.id === node.id;
-                                            return (
-                                                <SystemSurface
-                                                    key={`live-canvas-${node.id}`}
-                                                    as="article"
-                                                    variant={isSelected ? "panel" : "subtle"}
-                                                    padding="md"
-                                                    className="cms-block-stack cms-studio-live-block"
-                                                    data-selected={isSelected ? "true" : "false"}
-                                                    onClick={() => {
-                                                        setSelectedLayerId(node.id);
-                                                        setInspectorTab("properties");
-                                                    }}
-                                                >
-                                                    <div className="cms-toolbar-between">
-                                                        <div className="cms-toolbar-row">
-                                                            <SystemBadge
-                                                                tone={
-                                                                    isSelected
-                                                                        ? "highlight"
-                                                                        : "neutral"
-                                                                }
-                                                            >
-                                                                레이어 #{idx + 1} ·{" "}
-                                                                {node.type.toUpperCase()} ({node.id}
-                                                                )
-                                                            </SystemBadge>
-                                                            {isSelected && (
-                                                                <SystemBadge tone="info">
-                                                                    선택됨 · 우측 속성 패널 연동 중
-                                                                </SystemBadge>
-                                                            )}
-                                                        </div>
-                                                        <div className="cms-toolbar-row">
-                                                            <SystemButton
-                                                                variant="quiet"
-                                                                context="default"
-                                                                disabled={idx === 0}
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    pushAstUpdate(
-                                                                        moveWysiwygBlock(
-                                                                            currentAst,
-                                                                            node.id,
-                                                                            "up",
-                                                                        ),
-                                                                        `레이어(${node.id})를 위로 이동했습니다.`,
-                                                                    );
-                                                                }}
-                                                            >
-                                                                위로
-                                                            </SystemButton>
-                                                            <SystemButton
-                                                                variant="quiet"
-                                                                context="default"
-                                                                disabled={
-                                                                    idx ===
-                                                                    currentAst.nodes.length - 1
-                                                                }
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    pushAstUpdate(
-                                                                        moveWysiwygBlock(
-                                                                            currentAst,
-                                                                            node.id,
-                                                                            "down",
-                                                                        ),
-                                                                        `레이어(${node.id})를 아래로 이동했습니다.`,
-                                                                    );
-                                                                }}
-                                                            >
-                                                                아래로
-                                                            </SystemButton>
-                                                        </div>
-                                                    </div>
-
-                                                    {node.type === "prose" && (
-                                                        <>
-                                                            <h4 data-text="heading">
-                                                                {node.heading}
-                                                            </h4>
-                                                            {node.paragraphs.map((p, pIdx) => (
-                                                                <p key={pIdx} data-text="body">
-                                                                    {p}
-                                                                </p>
-                                                            ))}
-                                                        </>
-                                                    )}
-                                                    {node.type === "facts" && (
-                                                        <>
-                                                            <h4 data-text="item-title">
-                                                                {node.title}
-                                                            </h4>
-                                                            {node.items.map((item, iIdx) => (
-                                                                <p key={iIdx} data-text="body">
-                                                                    <strong data-text="label">
-                                                                        {item.label}
-                                                                    </strong>
-                                                                    : {item.value}
-                                                                </p>
-                                                            ))}
-                                                        </>
-                                                    )}
-                                                    {node.type === "faq" && (
-                                                        <>
-                                                            <h4 data-text="item-title">
-                                                                {node.title}
-                                                            </h4>
-                                                            {node.items.map((item, qIdx) => (
-                                                                <p key={qIdx} data-text="body">
-                                                                    <strong data-text="label">
-                                                                        Q. {item.question}
-                                                                    </strong>{" "}
-                                                                    A. {item.answer}
-                                                                </p>
-                                                            ))}
-                                                        </>
-                                                    )}
-                                                    {node.type === "timeline" && (
-                                                        <>
-                                                            <h4 data-text="item-title">
-                                                                {node.title}
-                                                            </h4>
-                                                            {node.items.map((item, tIdx) => (
-                                                                <p key={tIdx} data-text="body">
-                                                                    <strong data-text="label">
-                                                                        {item.date}
-                                                                    </strong>{" "}
-                                                                    - {item.title}
-                                                                </p>
-                                                            ))}
-                                                        </>
-                                                    )}
-                                                    {node.type === "actions" && (
-                                                        <div className="cms-toolbar-row">
-                                                            {node.items.map((item, aIdx) => (
-                                                                <SystemLink
-                                                                    key={aIdx}
-                                                                    variant="secondary"
-                                                                    context="default"
-                                                                    href={item.href}
-                                                                >
-                                                                    {item.label}
-                                                                    <Icon
-                                                                        name="arrow"
-                                                                        size={20}
-                                                                    />
-                                                                </SystemLink>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                    {node.type === "image" && (
-                                                        <div className="cms-block-stack">
-                                                            <p data-text="label">
-                                                                이미지 자산: {node.src}
-                                                            </p>
-                                                            <p data-text="caption">
-                                                                대체 텍스트(alt): {node.alt}
-                                                            </p>
-                                                        </div>
-                                                    )}
-                                                </SystemSurface>
-                                            );
-                                        })}
+                                        {/* 실제 페이지형 인라인 콘텐츠 캔버스 */}
+                                        <CmsInlineCanvas
+                                            ast={currentAst}
+                                            onChange={(next) => pushAstUpdate(next, "캔버스에서 페이지 내용을 직접 수정했습니다.")}
+                                        />
                                     </div>
                                 </div>
                             </SystemSurface>
