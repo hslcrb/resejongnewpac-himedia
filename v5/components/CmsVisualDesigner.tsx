@@ -57,7 +57,7 @@ type Original = {
 };
 const EDITABLE_TAGS = new Set(["P", "H1", "H2", "H3", "H4", "SPAN", "STRONG", "EM", "SMALL", "LABEL", "BUTTON", "A", "LI", "FIGCAPTION", "TD", "TH", "TIME"]);
 const LAYER_TAGS = new Set(["HEADER", "FOOTER", "MAIN", "SECTION", "ARTICLE", "NAV", "DIV", "H1", "H2", "H3", "P", "A", "BUTTON", "IMG", "UL", "LI", "FIGURE", "SPAN", "SVG"]);
-const BODY_PREVIEW_STYLE = '[data-cms-visual-selected="true"]{outline:2px solid var(--color-blue,#3477c9)!important;outline-offset:-2px!important}[data-cms-visual-hover="true"]:not([data-cms-visual-selected]){outline:1px dashed var(--color-blue,#3477c9)!important;outline-offset:-1px!important}';
+const BODY_PREVIEW_STYLE = '[data-cms-visual-selected="true"]{outline:2px solid var(--text-primary)!important;outline-offset:-2px!important}[data-cms-visual-hover="true"]:not([data-cms-visual-selected]){outline:1px dashed var(--text-primary)!important;outline-offset:-1px!important}';
 const STYLE_GROUPS = [
     { name: "타이포그래피", keys: ["color", "font-size", "font-weight", "text-align", "line-height", "letter-spacing"] },
     { name: "크기·배치", keys: ["width", "height", "max-width", "min-height", "display", "flex-direction", "justify-content", "align-items", "translate"] },
@@ -105,10 +105,17 @@ function collectLayers(doc: Document): Layer[] {
 function resolveElement(doc: Document, selector: string): HTMLElement | null {
     try {
         const element = doc.querySelector(selector);
-        return element instanceof HTMLElement ? element : null;
+        return element && element.namespaceURI === "http://www.w3.org/1999/xhtml" ? element as HTMLElement : null;
     } catch {
         return null;
     }
+}
+function htmlTarget(event: Event): HTMLElement | null {
+    let element = event.target as Element | null;
+    while (element && element.namespaceURI !== "http://www.w3.org/1999/xhtml") {
+        element = element.parentElement;
+    }
+    return element && element.nodeType === 1 ? element as HTMLElement : null;
 }
 function saveOriginal(map: Map<HTMLElement, Original>, el: HTMLElement): void {
     if (map.has(el)) return;
@@ -157,9 +164,9 @@ function applyVisualDraft(doc: Document, draft: VisualDraftDocument, originals: 
         if (!el) continue;
         if (!el.hasAttribute("data-cms-added")) saveOriginal(originals, el);
         if (patch.text !== undefined && el.children.length === 0 && EDITABLE_TAGS.has(el.tagName)) el.textContent = patch.text;
-        if (patch.src && el instanceof HTMLImageElement) el.setAttribute("src", patch.src);
-        if (patch.alt !== undefined && el instanceof HTMLImageElement) el.setAttribute("alt", patch.alt);
-        if (patch.href && el instanceof HTMLAnchorElement) el.setAttribute("href", patch.href);
+        if (patch.src && el.tagName === "IMG") el.setAttribute("src", patch.src);
+        if (patch.alt !== undefined && el.tagName === "IMG") el.setAttribute("alt", patch.alt);
+        if (patch.href && el.tagName === "A") el.setAttribute("href", patch.href);
         if (patch.hidden !== undefined) el.hidden = patch.hidden;
         for (const [name, value] of Object.entries(patch.style || {})) {
             const safe = sanitizeVisualStyle(name, value);
@@ -173,8 +180,8 @@ function selectionSnapshot(doc: Document, selector: string): SelectionInfo | nul
     const styles = doc.defaultView?.getComputedStyle(el);
     const computed: Record<string, string> = {};
     for (const field of VISUAL_STYLE_FIELDS) computed[field.key] = styles?.getPropertyValue(field.key).trim() || "";
-    const isImage = el instanceof HTMLImageElement;
-    const isLink = el instanceof HTMLAnchorElement;
+    const isImage = el.tagName === "IMG";
+    const isLink = el.tagName === "A";
     return {
         selector, tag: el.tagName.toLowerCase(), text: el.textContent || "",
         src: isImage ? el.getAttribute("src") || "" : "",
@@ -299,13 +306,13 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
 
         if (mode === "preview") return;
         const pointerOver = (event: PointerEvent) => {
-            const el = event.target instanceof HTMLElement ? event.target : (event.target as Element | null)?.closest("div,span,p,section");
+            const el = htmlTarget(event);
             if (!el || el === doc.body) return;
             doc.querySelector("[data-cms-visual-hover]")?.removeAttribute("data-cms-visual-hover");
             el.setAttribute("data-cms-visual-hover", "true");
         };
         const click = (event: MouseEvent) => {
-            const el = event.target instanceof HTMLElement ? event.target : (event.target as Element | null)?.closest("div,span,p,section");
+            const el = htmlTarget(event);
             if (!el || el === doc.body) return;
             event.preventDefault();
             event.stopImmediatePropagation();
@@ -313,7 +320,7 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
         };
         const pointerDown = (event: PointerEvent) => {
             if (mode !== "move") return;
-            const el = event.target instanceof HTMLElement ? event.target : (event.target as Element | null)?.closest("div,span,p,section");
+            const el = htmlTarget(event);
             if (!el || el === doc.body) return;
             event.preventDefault();
             const selector = selectorFor(el);
@@ -589,7 +596,11 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                                                         const old = current.patches.find((p) => p.selector === selection.selector);
                                                         const style = { ...old?.style };
                                                         delete (style as Record<string, string>)[key];
-                                                        return upsertVisualPatch(current, selection.selector, { style });
+                                                        return {
+                                                            ...current,
+                                                            patches: current.patches.map((patch) =>
+                                                                patch.selector === selection.selector ? { ...patch, style } : patch),
+                                                        };
                                                     });
                                                 }
                                             }} />;
