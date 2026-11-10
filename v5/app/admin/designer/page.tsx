@@ -66,6 +66,7 @@ export default function CmsVisualDesignerPage() {
         return (
             <main className="cms-visual-auth-gate" data-text="body">
                 <h1 data-text="title">SEJONG / VISUAL STUDIO</h1>
+                <p data-text="body">피그마형 3단 캔버스에서 실제 페이지의 구조·스타일·콘텐츠를 편집하고, 발행 리비전을 확정합니다.</p>
                 {status === "loading"
                     ? <p data-text="body">관리자 Google 세션과 Supabase 멤버십을 검증하고 있습니다.</p>
                     : <SystemNotice error title="편집 권한 확인 필요">{detail}</SystemNotice>}
