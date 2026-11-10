@@ -68,6 +68,7 @@ async function fetchMembership(
     user: { id: string; email?: string | null; email_confirmed_at?: string | null; app_metadata?: { provider?: string }; identities?: CmsIdentityVerificationInput["identities"]; user_metadata?: Record<string, unknown> },
     options: CmsRouteAuthOptions,
     fetcher: typeof fetch,
+    bearer: string,
 ): Promise<CmsIdentityDecision> {
     const base = (options.supabaseUrl || "").replace(/\/$/, "");
     const key = options.anonKey || "";
@@ -76,7 +77,8 @@ async function fetchMembership(
         const response = await fetcher(
             `${base}/rest/v1/sejong_cms_memberships?select=*&user_id=eq.${encodeURIComponent(user.id)}&limit=1`,
             {
-                headers: { apikey: key, Authorization: `Bearer ${key}`, Accept: "application/json" },
+                // RLS 정책은 authenticated 역할에만 열려 있으므로 사용자 토큰으로 멤버십을 조회합니다.
+                headers: { apikey: key, Authorization: `Bearer ${bearer}`, Accept: "application/json" },
                 cache: "no-store",
             },
         );
@@ -145,7 +147,7 @@ export async function resolveCmsRouteAuth(
             user_metadata?: Record<string, unknown>;
         };
         if (!user?.id) return { identity: null, mcp: null, source: "none" as const, bearer };
-        const identity = await fetchMembership({ ...user, id: user.id }, options, fetcher);
+        const identity = await fetchMembership({ ...user, id: user.id }, options, fetcher, bearer);
         return {
             identity,
             mcp: identity.isAdmin ? mcpAuthFromIdentity(identity) : null,

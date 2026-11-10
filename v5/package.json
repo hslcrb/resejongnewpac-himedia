@@ -27,7 +27,7 @@
     "test:responsive:self": "node tests/responsive-site-browser.ts --self-test",
     "test:home:date:browser": "node tests/home-date-browser.ts",
     "test:cms": "node --test tests/cms-agent-workspace.test.ts tests/cloudflare-stage.test.ts",
-    "test:cms:visual": "node --experimental-strip-types --test tests/cms-visual-document.test.ts tests/cms-mcp-server.test.ts tests/cms-designer-api.test.ts"
+    "test:cms:visual": "node --experimental-strip-types --test tests/cms-visual-document.test.ts tests/cms-mcp-server.test.ts tests/cms-designer-api.test.ts tests/cms-route-auth.test.ts"
   },
   "dependencies": {
     "@gsap/react": "2.1.2",
