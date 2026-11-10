@@ -840,6 +840,9 @@ export default function AdminCmsWorkspacePage() {
                         <SystemLink variant="quiet" context="default" href="/login">
                             로그인 게이트(/login)
                         </SystemLink>
+                        <SystemLink variant="primary" context="default" href="/admin/designer">
+                            전체 사이트 시각 편집기
+                        </SystemLink>
                         {!realDecision.isAdmin && (
                             <SystemButton
                                 variant="secondary"
