@@ -25,6 +25,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
         revertOnUpdate: true,
     });
     const documentation = pathname.replace(/\/$/, "").endsWith("/design-rules");
+    const designer = pathname.replace(/\/$/, "").endsWith("/admin/designer");
     useEffect(() => {
         const path = pathname.replace(/^\/v5(?=\/|$)/, "").replace(/\/$/, "") || "/";
         const accountState =
@@ -47,6 +48,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
             );
         });
     }, [pathname]);
+    if (designer) return <>{children}</>;
     if (documentation) {
         return (
             <>
