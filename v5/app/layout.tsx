@@ -47,6 +47,7 @@ import "../styles/icons.css";
 import "../styles/ai-chat.css";
 import "../styles/deep-search.css";
 import "../styles/cms-dashboard.css";
+import "../styles/cms-visual-designer.css";
 
 export const metadata = {
     title: "세종문화회관 | 공연·전시·교육",
