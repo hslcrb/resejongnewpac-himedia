@@ -10,7 +10,8 @@ function TextEdit({ text, label, as: Tag = "span", multiline = false, save }: {
 }) {
     const [focused, setFocused] = useState(false);
     return (
-        <Tag contentEditable suppressContentEditableWarning role="textbox" aria-label={label}
+        <Tag data-text={Tag === "h2" || Tag === "h3" ? "heading" : Tag === "strong" ? "label" : "body"}
+            contentEditable suppressContentEditableWarning role="textbox" aria-label={label}
             aria-multiline={multiline} tabIndex={0} spellCheck
             data-cms-inline="true" data-editing={focused}
             onFocus={() => setFocused(true)}
@@ -113,8 +114,8 @@ export default function CmsInlineCanvas({ ast, onChange }: {
                                 save={caption => updateNode(node.id, n => n.type === "image" ? { ...n, caption } : n)} />
                         </figcaption>
                     </figure>}
-                    {node.type === "map" && <p>{node.label} · {node.address}</p>}
-                    {node.type === "downloads" && <p>{node.title} · {node.items.length}개 자료</p>}
+                    {node.type === "map" && <p data-text="body">{node.label} · {node.address}</p>}
+                    {node.type === "downloads" && <p data-text="body">{node.title} · {node.items.length}개 자료</p>}
                 </section>
             ))}
         </article>

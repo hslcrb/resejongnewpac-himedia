@@ -54,6 +54,15 @@ export type ComponentDefinition = {
 const definitions: readonly ComponentDefinition[] = [
     { id: "booking-experience", name: "BookingExperience", source: "components/BookingExperience.tsx", exportName: "default", kind: "structure", guide: "components/registry", purpose: "일정·인원·좌석·확인·완료와 오류 복구를 공통 UI로 조합하며 체험·실제 RPC 공급자를 분리하는 예약 흐름", previewRoute: "/v5/booking/experience/" },
     {
+        id: "cms-inline-canvas",
+        name: "CmsInlineCanvas",
+        source: "components/CmsInlineCanvas.tsx",
+        exportName: "default",
+        kind: "structure",
+        guide: "components/registry",
+        purpose: "관리자 CMS에서 페이지 AST의 제목·본문·정보를 실제 문서 맥락에서 직접 편집하는 WYSIWYG 캔버스",
+    },
+    {
         id: "page-heading",
         name: "PageHeading",
         source: "components/PageHeading.tsx",
