@@ -75,6 +75,7 @@ type Editing = { element: HTMLElement; selector: string; original: string };
 
 const EDITABLE_TAGS = new Set(["P", "H1", "H2", "H3", "H4", "SPAN", "STRONG", "EM", "SMALL", "LABEL", "BUTTON", "A", "LI", "FIGCAPTION", "TD", "TH", "TIME"]);
 const BODY_PREVIEW_STYLE = [
+    '[data-v5-entry-intro]{display:none!important}',
     '[data-cms-visual-selected="true"]{outline:2px solid var(--accent-primary, #6b5b4a)!important;outline-offset:-2px!important}',
     '[data-cms-visual-hover="true"]:not([data-cms-visual-selected]){outline:1px dashed var(--text-secondary, #6b5b4a)!important;outline-offset:-1px!important}',
     '[data-cms-editing="true"]{outline:2px solid var(--text-primary, #211f1c)!important;cursor:text!important}',
@@ -296,9 +297,9 @@ export default function CmsVisualDesigner({
     accessMessage?: string;
 }) {
     const { catalog } = useCatalog();
-    const [path, setPath] = useState("/");
-    const [manualPath, setManualPath] = useState("/");
-    const [history, setHistory] = useState<VisualHistory>(() => createVisualHistory(emptyVisualDocument("/")));
+    const [path, setPath] = useState("/visit");
+    const [manualPath, setManualPath] = useState("/visit");
+    const [history, setHistory] = useState<VisualHistory>(() => createVisualHistory(emptyVisualDocument("/visit")));
     const [revision, setRevision] = useState(0);
     const [publishedRevision, setPublishedRevision] = useState(0);
     const [dirty, setDirty] = useState(false);
@@ -601,6 +602,30 @@ export default function CmsVisualDesigner({
     useEffect(() => {
         refreshOverlay();
     }, [refreshOverlay, zoom, viewport]);
+
+    // 2-b) React 하이드레이션 전에 iframe 로드가 이미 끝난 경우에도 캔버스를 연결합니다.
+    // (이 경우 load 이벤트를 놓쳐 레이어·선택기능이 비어 보이는 문제를 막습니다.)
+    useEffect(() => {
+        const frame = iframeRef.current;
+        if (!frame) return;
+        let cancelled = false;
+        const mark = () => {
+            const doc = frame.contentDocument;
+            if (!cancelled && doc?.readyState === "complete" && doc.body) {
+                setFrameReady(true);
+                return true;
+            }
+            return false;
+        };
+        if (mark()) return;
+        const timer = window.setInterval(() => {
+            if (mark()) window.clearInterval(timer);
+        }, 400);
+        return () => {
+            cancelled = true;
+            window.clearInterval(timer);
+        };
+    }, [path]);
 
     const setPatch = (change: Parameters<typeof upsertVisualPatch>[2]) => {
         if (!selection) return;
