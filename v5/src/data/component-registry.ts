@@ -54,15 +54,6 @@ export type ComponentDefinition = {
 const definitions: readonly ComponentDefinition[] = [
     { id: "booking-experience", name: "BookingExperience", source: "components/BookingExperience.tsx", exportName: "default", kind: "structure", guide: "components/registry", purpose: "일정·인원·좌석·확인·완료와 오류 복구를 공통 UI로 조합하며 체험·실제 RPC 공급자를 분리하는 예약 흐름", previewRoute: "/v5/booking/experience/" },
     {
-        id: "cms-inline-canvas",
-        name: "CmsInlineCanvas",
-        source: "components/CmsInlineCanvas.tsx",
-        exportName: "default",
-        kind: "structure",
-        guide: "components/registry",
-        purpose: "관리자 CMS에서 페이지 AST의 제목·본문·정보를 실제 문서 맥락에서 직접 편집하는 WYSIWYG 캔버스",
-    },
-    {
         id: "cms-visual-designer",
         name: "CmsVisualDesigner",
         source: "components/CmsVisualDesigner.tsx",
@@ -775,5 +766,56 @@ export const CONTROL_EXCEPTIONS = [
         part: "violet-toggle",
         owner: "VioletQuickMenu",
         reason: "회전·포인터 캡처와 유동 재질을 공유하는 퀵메뉴의 전용 원형 조작",
+    },
+    // [피그마형 캔버스의 전용 조작 / Canvas-specific controls in the visual designer]
+    // 캔버스 안의 요소 자체를 조작 대상으로 삼므로 공용 버튼 변형 대신 전용 표현을 씁니다.
+    {
+        source: "components/CmsVisualDesigner.tsx",
+        tag: "button",
+        part: "palette-item",
+        owner: "CmsVisualDesigner",
+        reason: "끌어서 캔버스로 옮기는 컴포넌트 팔레트 타일(드래그 소스)",
+    },
+    {
+        source: "components/CmsVisualDesigner.tsx",
+        tag: "button",
+        part: "layer-toggle",
+        owner: "CmsVisualDesigner",
+        reason: "레이어 트리 접기·펼치기만 담당하는 12px 화살표 조작",
+    },
+    {
+        source: "components/CmsVisualDesigner.tsx",
+        tag: "button",
+        part: "layer-select",
+        owner: "CmsVisualDesigner",
+        reason: "들여쓰기된 레이어 행 전체를 선택 대상으로 쓰는 트리 항목",
+    },
+    {
+        source: "components/CmsVisualDesigner.tsx",
+        tag: "button",
+        part: "color-swatch",
+        owner: "CmsVisualDesigner",
+        reason: "색상 토큰 자체를 견본으로 보여주는 색상 칩",
+    },
+    {
+        source: "components/CmsVisualDesigner.tsx",
+        tag: "button",
+        part: "spacing-chip",
+        owner: "CmsVisualDesigner",
+        reason: "간격 값을 한 번에 적용하는 숫자 칩",
+    },
+    {
+        source: "components/CmsVisualDesigner.tsx",
+        tag: "input",
+        part: "opacity-range",
+        owner: "CmsVisualDesigner",
+        reason: "불투명도 0~1을 연속 조절하는 슬라이더",
+    },
+    {
+        source: "components/CmsVisualDesigner.tsx",
+        tag: "input",
+        part: "draft-file-input",
+        owner: "CmsVisualDesigner",
+        reason: "JSON 초안 파일을 고르는 파일 선택 입력",
     },
 ] as const;
