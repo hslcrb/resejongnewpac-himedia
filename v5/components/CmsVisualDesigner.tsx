@@ -267,7 +267,34 @@ function downloadDraft(doc: VisualDraftDocument): void {
     URL.revokeObjectURL(url);
 }
 
-export default function CmsVisualDesigner({ userId }: { userId: string }) {
+// [세션은 DB 저장 권한만 결정 / The session only unlocks DB save]
+// 세션이 없어도 캔버스는 그대로 열리고, 편집 결과는 브라우저 로컬 초안으로 보관됩니다.
+export type CmsDesignerAccess = "checking" | "admin" | "guest" | "offline";
+
+const LOCAL_DRAFT_PREFIX = "sejong-cms-visual-draft:";
+
+function readLocalDraft(path: string): VisualDraftDocument | null {
+    if (typeof window === "undefined") return null;
+    try {
+        const raw = window.localStorage.getItem(LOCAL_DRAFT_PREFIX + path);
+        if (!raw) return null;
+        return sanitizeVisualDocument(JSON.parse(raw), path);
+    } catch {
+        return null;
+    }
+}
+
+export default function CmsVisualDesigner({
+    userId = "",
+    access = "guest",
+    accessHandle = "",
+    accessMessage = "",
+}: {
+    userId?: string;
+    access?: CmsDesignerAccess;
+    accessHandle?: string;
+    accessMessage?: string;
+}) {
     const { catalog } = useCatalog();
     const [path, setPath] = useState("/");
     const [manualPath, setManualPath] = useState("/");
@@ -292,6 +319,7 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
     const [filter, setFilter] = useState("");
     const [dragPreset, setDragPreset] = useState<VisualPresetId | null>(null);
     const [overlay, setOverlay] = useState<Overlay | null>(null);
+    const [agentPrompt, setAgentPrompt] = useState("");
     const [snapshot, setSnapshot] = useState<CmsPageSnapshot | null>(null);
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const stageRef = useRef<HTMLDivElement>(null);
@@ -346,12 +374,19 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
         setDirty(false);
         setTreeSyncedAt("");
         setLoading(true);
+        const stored = readLocalDraft(path);
         const load = async () => {
             if (!supabase) {
                 if (live) {
                     setLoading(false);
-                    setIsError(true);
-                    setStatus("Supabase 연결이 설정되지 않았습니다. 편집은 가능하지만 DB 저장은 불가능합니다.");
+                    if (stored) {
+                        setHistory(createVisualHistory(stored));
+                        setIsError(false);
+                        setStatus(path + "의 브라우저 로컬 초안을 열었습니다. DB 저장은 관리자 로그인 후 가능합니다.");
+                    } else {
+                        setIsError(false);
+                        setStatus("DB 연결 설정이 없어 로컬 모드로 동작합니다. 편집·미리보기는 그대로 가능합니다.");
+                    }
                 }
                 return;
             }
@@ -382,9 +417,13 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                     setIsError(true);
                     setStatus("저장된 문서 정화 오류: " + String(err));
                 }
+            } else if (stored) {
+                setHistory(createVisualHistory(stored));
+                setIsError(false);
+                setStatus(path + "의 브라우저 로컬 초안을 열었습니다. DB에는 아직 저장되지 않은 초안입니다.");
             } else {
                 setIsError(false);
-                setStatus(path + "에는 아직 시각 초안이 없습니다. 새 초안을 만들 수 있습니다.");
+                setStatus(path + "에는 아직 시각 초안이 없습니다. 캔버스에서 바로 편집을 시작하세요.");
             }
         };
         void load();
@@ -392,6 +431,16 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
             live = false;
         };
     }, [path]);
+
+    // 1-b) 브라우저 로컬 초안 자동 보관 / Keep an offline browser copy of the draft
+    useEffect(() => {
+        if (!frameReady) return;
+        try {
+            window.localStorage.setItem(LOCAL_DRAFT_PREFIX + path, JSON.stringify(history.present));
+        } catch {
+            /* 저장 공간이 없으면 건너뜁니다. / Skip when storage is unavailable. */
+        }
+    }, [frameReady, history.present, path]);
 
     // 2) 캔버스 주입·선택·이동·인라인 편집·오버레이
     useEffect(() => {
@@ -632,8 +681,12 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
 
     const save = async () => {
         if (!supabase || loading || !userId) {
-            setIsError(true);
-            setStatus("관리자 세션 또는 DB 연결이 준비되지 않았습니다.");
+            setIsError(false);
+            setStatus(
+                userId
+                    ? "DB 연결이 준비되지 않았습니다. 편집한 내용은 이 브라우저에 안전하게 보관됩니다."
+                    : "편집한 내용은 이 브라우저에 자동 보관됩니다. DB 초안 저장은 관리자 Google 로그인 후 사용할 수 있습니다.",
+            );
             return;
         }
         setIsSaving(true);
@@ -682,8 +735,12 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
 
     const publish = async () => {
         if (!supabase || revision === 0) {
-            setIsError(true);
-            setStatus("먼저 초안을 DB에 저장해야 발행할 수 있습니다.");
+            setIsError(false);
+            setStatus(
+                revision === 0
+                    ? "먼저 DB 초안을 저장해야 발행할 수 있습니다. 지금 편집은 브라우저 로컬 초안으로 보관됩니다."
+                    : "발행에는 DB 연결과 관리자 로그인이 필요합니다. 편집 내용은 브라우저에 보관되어 있습니다.",
+            );
             return;
         }
         if (dirty) {
@@ -724,6 +781,25 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
             setIsPublishing(false);
         }
     };
+
+    // [단축키: 되돌리기·다시 실행·DB 저장 / Shortcuts: undo, redo, save]
+    useEffect(() => {
+        const onKey = (event: KeyboardEvent) => {
+            if (!(event.metaKey || event.ctrlKey)) return;
+            const key = event.key.toLowerCase();
+            if (key === "z") {
+                event.preventDefault();
+                if (event.shiftKey) setHistory(redoVisualHistory);
+                else setHistory(undoVisualHistory);
+                setDirty(true);
+            } else if (key === "s") {
+                event.preventDefault();
+                void save();
+            }
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    }, []);
 
     const syncTree = async () => {
         const frameDoc = iframeRef.current?.contentDocument;
@@ -794,6 +870,47 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
     const visibleLayers = layers.filter((layer) => !filter || layer.label.toLowerCase().includes(filter.toLowerCase()));
     const stageWidth = viewport === "desktop" ? "100%" : viewport === "tablet" ? "768px" : "390px";
     const changes = countVisualChanges(history.present);
+
+    const agentRequest = useMemo(() => {
+        const lines = [
+            "[세종문화회관 CMS 요청]",
+            "페이지: " + path,
+            "선택 요소: " + (selection ? selection.tag + " · " + selection.selector : "없음"),
+        ];
+        if (selection?.text) {
+            lines.push("요소 텍스트: " + selection.text.replace(/\s+/g, " ").trim().slice(0, 120));
+        }
+        lines.push(
+            "초안 변경: 수정 " + changes.patches + " · 삽입 " + changes.additions + " · 숨김 " + changes.hidden,
+            "체크섬: " + visualDocumentChecksum(history.present).slice(0, 16),
+            "요청: " + (agentPrompt.trim() || "현재 선택 요소를 사이트 디자인 시스템에 맞게 정리해 줘"),
+        );
+        return lines.join("\n");
+    }, [agentPrompt, changes.additions, changes.hidden, changes.patches, history.present, path, selection]);
+
+    const copyAgentRequest = async () => {
+        try {
+            await navigator.clipboard.writeText(agentRequest);
+            setIsError(false);
+            setStatus("에이전트 요청문을 클립보드에 복사했습니다. MCP 에이전트 대화에 붙여넣어 실행하세요.");
+        } catch {
+            setIsError(false);
+            setStatus("브라우저가 클립보드 복사를 허용하지 않았습니다. 요청 내용을 직접 선택해 복사해 주세요.");
+        }
+    };
+
+    const clearLocalDraft = () => {
+        try {
+            window.localStorage.removeItem(LOCAL_DRAFT_PREFIX + path);
+        } catch {
+            /* 저장 공간을 쓸 수 없어도 편집은 계속됩니다. */
+        }
+        setHistory(createVisualHistory(emptyVisualDocument(path)));
+        setSelection(null);
+        setDirty(false);
+        setIsError(false);
+        setStatus(path + "의 브라우저 로컬 초안을 비우고 원본 페이지 상태로 되돌렸습니다.");
+    };
     const selectionIsContainer = Boolean(
         selection && ["main", "section", "article", "div", "ul", "form", "header", "footer", "figure"].includes(selection.tag),
     );
@@ -802,14 +919,24 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
         <div className="cms-visual-designer" data-text="body" data-component-id="cms-visual-designer">
             <header className="cms-visual-topbar">
                 <div className="cms-visual-brand">
-                    <strong data-text="heading">SEJONG / VISUAL STUDIO</strong>
-                    <span data-text="meta">실제 사이트 직접 편집 · 피그마형 3단 캔버스 · 비공개 초안</span>
+                    <strong data-text="heading">세종문화회관 · 비주얼 스튜디오</strong>
+                    <span data-text="meta">실제 사이트를 그대로 보며 클릭·더블클릭으로 고치는 피그마형 편집 캔버스</span>
                 </div>
                 <div className="cms-visual-top-actions">
-                    <SystemBadge tone={dirty ? "info" : "neutral"}>
-                        {dirty ? "저장되지 않은 변경" : "초안 동기화됨"} · r{revision} / 발행 r{publishedRevision}
+                    <SystemBadge tone={access === "admin" ? "info" : "neutral"} title={accessMessage}>
+                        {access === "admin"
+                            ? "관리자 연결 · DB 저장 가능" + (accessHandle ? " (" + accessHandle + ")" : "")
+                            : access === "checking"
+                              ? "세션 확인 중"
+                              : "샌드박스 편집 · 브라우저 보관"}
                     </SystemBadge>
-                    <SystemLink href="/admin" variant="quiet">CMS 관제탑</SystemLink>
+                    <SystemBadge tone={dirty ? "highlight" : "neutral"}>
+                        {dirty ? "저장되지 않은 변경" : "변경 없음"} · r{revision} / 발행 r{publishedRevision}
+                    </SystemBadge>
+                    <SystemLink href="/" variant="quiet">사이트 보기</SystemLink>
+                    {access === "admin" ? null : (
+                        <SystemLink href="/login" variant="quiet">관리자 로그인</SystemLink>
+                    )}
                     <SystemButton variant="secondary" disabled={!history.past.length} onClick={() => { setHistory(undoVisualHistory); setDirty(true); }}>실행 취소</SystemButton>
                     <SystemButton variant="secondary" disabled={!history.future.length} onClick={() => { setHistory(redoVisualHistory); setDirty(true); }}>다시 실행</SystemButton>
                     <SystemButton variant="secondary" onClick={() => downloadDraft(history.present)}>JSON 내보내기</SystemButton>
@@ -821,9 +948,12 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                     </SystemButton>
                 </div>
             </header>
+            {accessMessage ? (
+                <p className="cms-visual-access-note" data-text="caption" data-access={access}>{accessMessage}</p>
+            ) : null}
             <section className="cms-visual-navigation" aria-label="편집 위치 및 도구">
                 <SystemField label="페이지 목록" as="select" value={path} onChange={(e) => navigate(e.target.value)}>
-                    {routes.map((route) => <option key={route} value={route}>{route}</option>)}
+                    {routes.map((route) => <option key={route} value={route} data-text="body">{route}</option>)}
                 </SystemField>
                 <div className="cms-visual-route-input">
                     <SystemField label="직접 경로" value={manualPath} onChange={(e) => setManualPath(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") navigate(manualPath); }} />
@@ -846,7 +976,7 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                     <SystemFilterButton selected={zoom === 100} onClick={() => setZoom(100)}>100%</SystemFilterButton>
                 </div>
             </section>
-            <div className="cms-visual-status" role={isError ? "alert" : "status"} data-error={isError}>{status}</div>
+            <div className="cms-visual-status" role={isError ? "alert" : "status"} data-error={isError} data-text="body">{status}</div>
             <div className="cms-visual-workspace">
                 <aside className="cms-visual-left" aria-label="페이지, 컴포넌트 팔레트, 레이어">
                     <div className="cms-visual-pane-heading">
@@ -861,6 +991,7 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                                 role="listitem"
                                 className="cms-visual-palette-item"
                                 data-text="body"
+                                data-system-part="palette-item"
                                 draggable
                                 onDragStart={() => setDragPreset(preset.id)}
                                 onDragEnd={() => setDragPreset(null)}
@@ -868,8 +999,8 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                                 title={preset.description}
                             >
                                 <span className="cms-visual-palette-glyph" aria-hidden="true" data-glyph={preset.id} />
-                                <span className="cms-visual-palette-label">{preset.label}</span>
-                                <span className="cms-visual-palette-tag">{preset.tag}</span>
+                                <span className="cms-visual-palette-label" data-text="body">{preset.label}</span>
+                                <span className="cms-visual-palette-tag" data-text="meta">{preset.tag}</span>
                             </button>
                         ))}
                     </div>
@@ -897,6 +1028,8 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                                 <button
                                     type="button"
                                     className="cms-visual-layer-toggle"
+                                    data-text="action"
+                                    data-system-part="layer-toggle"
                                     aria-label={collapsed.has(layer.selector) ? "펼치기" : "접기"}
                                     disabled={!layer.children}
                                     onClick={() => {
@@ -914,13 +1047,14 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                                     type="button"
                                     className="cms-visual-layer"
                                     data-layer-selector={layer.selector}
+                                    data-system-part="layer-select"
                                     data-selected={selection?.selector === layer.selector}
                                     data-added={layer.added}
                                     title={layer.selector}
                                     onClick={() => { selectBySelector(layer.selector); setMode("select"); }}
                                 >
-                                    <span className="cms-visual-layer-tag">{layer.tag}</span>
-                                    <span className="cms-visual-layer-label">{layer.label}</span>
+                                    <span className="cms-visual-layer-tag" data-text="meta">{layer.tag}</span>
+                                    <span className="cms-visual-layer-label" data-text="body">{layer.label}</span>
                                 </button>
                             </div>
                         ))}
@@ -955,7 +1089,7 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                             />
                             {overlay ? (
                                 <div className="cms-visual-measure" style={{ left: overlay.left, top: overlay.top, width: overlay.width, height: overlay.height }} aria-hidden="true">
-                                    <span className="cms-visual-measure-label">{overlay.label}</span>
+                                    <span className="cms-visual-measure-label" data-text="meta">{overlay.label}</span>
                                 </div>
                             ) : null}
                         </div>
@@ -1060,6 +1194,7 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                                                             {COLOR_TOKENS.map((token) => (
                                                                 <button key={token.value} type="button" className="cms-visual-swatch" title={token.label}
                                                                     aria-label={token.label + " 색상 토큰"}
+                                                                    data-system-part="color-swatch"
                                                                     style={{ background: token.value }}
                                                                     onClick={() => setPatch({ style: { [key]: token.value } })} />
                                                             ))}
@@ -1073,6 +1208,7 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                                                     <div key={key} className="cms-visual-field-block">
                                                         <span className="cms-visual-field-label" data-text="label">{field.label} · {Number.isFinite(numeric) ? Math.round(numeric * 100) : 100}%</span>
                                                         <input className="cms-visual-range" type="range" min={0} max={1} step={0.05}
+                                                            data-system-part="opacity-range"
                                                             value={Number.isFinite(numeric) ? numeric : 1}
                                                             onChange={(e) => setPatch({ style: { opacity: e.target.value } })} />
                                                     </div>
@@ -1092,6 +1228,7 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                                             <div className="cms-visual-quick-scale">
                                                 {SPACING_SCALE.map((step) => (
                                                     <button key={step} type="button" className="cms-visual-chip" data-text="meta"
+                                                        data-system-part="spacing-chip"
                                                         onClick={() => setPatch({ style: { padding: step } })}>{step}</button>
                                                 ))}
                                             </div>
@@ -1102,6 +1239,27 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                             <p data-text="caption">속성은 캔버스에 즉시 적용되지만, DB 초안 저장 전에는 다른 기기와 공유되지 않습니다.</p>
                         </div>
                     )}
+                    <section className="cms-visual-agent-dock" aria-label="코딩 에이전트 독">
+                        <div className="cms-visual-pane-heading">
+                            <h2 data-text="item-title">에이전트</h2>
+                            <span data-text="meta">MCP · 코드 수정</span>
+                        </div>
+                        <SystemField
+                            as="textarea"
+                            rows={3}
+                            label="요청 내용"
+                            value={agentPrompt}
+                            onChange={(e) => setAgentPrompt(e.target.value)}
+                            placeholder="예: 이 영역을 관람 안내 카드 3개로 정리하고 간격을 24px로 맞취 줘"
+                        />
+                        <p data-text="caption">
+                            페이지·선택 요소·변경 내역을 합친 요청문을 만들어 복사합니다. 실제 소스 반영은 이 저장소에서 동작하는 MCP
+                            에이전트가 수행합니다.
+                        </p>
+                        <SystemButton variant="secondary" onClick={() => void copyAgentRequest()}>
+                            요청문 복사
+                        </SystemButton>
+                    </section>
                     <div className="cms-visual-import">
                         <span data-text="label">이력 · 백업 · 트리</span>
                         <p data-text="caption">
@@ -1112,8 +1270,11 @@ export default function CmsVisualDesigner({ userId }: { userId: string }) {
                             {treeSyncedAt ? " · DB 동기화 " + new Date(treeSyncedAt).toLocaleTimeString("ko-KR") : " · 아직 DB에 저장하지 않음"}
                         </p>
                         <label data-text="label" htmlFor="cms-visual-import-file">기존 JSON 초안 가져오기</label>
-                        <input data-text="body" id="cms-visual-import-file" type="file" accept=".json,application/json" onChange={(e) => void onImport(e)} />
+                        <input data-text="body" id="cms-visual-import-file" type="file" accept=".json,application/json" data-system-part="draft-file-input" onChange={(e) => void onImport(e)} />
                         <p data-text="caption">운영 게시는 발행 RPC로 확정되며, KV·캐시 반영은 MCP/API 발행 파이프라인에서 수행됩니다.</p>
+                        <SystemButton variant="quiet" onClick={clearLocalDraft}>
+                            브라우저 초안 비우기
+                        </SystemButton>
                     </div>
                 </aside>
             </div>

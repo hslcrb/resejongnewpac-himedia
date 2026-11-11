@@ -25,12 +25,13 @@ export default function SiteShell({ children }: { children: ReactNode }) {
         revertOnUpdate: true,
     });
     const documentation = pathname.replace(/\/$/, "").endsWith("/design-rules");
-    const designer = pathname.replace(/\/$/, "").endsWith("/admin/designer");
+    // [관리자·디자이너는 사이트 셸 없이 전체 화면 캔버스 / Admin routes render the canvas without site chrome]
+    const canvasRoute = /\/admin(?:\/|$)/.test(pathname.replace(/\/$/, ""));
     useEffect(() => {
         const path = pathname.replace(/^\/v5(?=\/|$)/, "").replace(/\/$/, "") || "/";
         const accountState =
             /^\/account(?:\/|$)/.test(path) && !/^\/account\/(?:login|signup|recovery)$/.test(path);
-        if (path === "/" || path === "/design-rules" || accountState) return;
+        if (path === "/" || path === "/design-rules" || accountState || /^\/admin(?:\/|$)/.test(path)) return;
         return trackScrollFragments(() => {
             const content = document.getElementById("main");
             const footer = document.getElementById("footer");
@@ -48,7 +49,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
             );
         });
     }, [pathname]);
-    if (designer) return <>{children}</>;
+    if (canvasRoute) return <>{children}</>;
     if (documentation) {
         return (
             <>

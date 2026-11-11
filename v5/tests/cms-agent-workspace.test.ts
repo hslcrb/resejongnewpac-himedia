@@ -533,101 +533,64 @@ test("A12-A14: PR-only gateway blocks direct main writes, unsafe paths, unmerged
     assert.equal(probesResult.probes.length, 5);
 });
 
-test("A15: /admin and /login use multi-pane studio dashboard layout (4-col KPI strip, 3-col workbench, split editor/preview, right inspector dock)", () => {
+test("A15: /admin 진입 즉시 피그마형 3단 캔버스가 열리고 관제탑·모의 401 게이트가 없다", () => {
     const adminSource = readFileSync(resolve(import.meta.dirname, "../app/admin/page.tsx"), "utf8");
-    const loginSource = readFileSync(resolve(import.meta.dirname, "../app/login/page.tsx"), "utf8");
-    const cssSource = readFileSync(resolve(import.meta.dirname, "../styles/cms-dashboard.css"), "utf8");
+    const designerSource = readFileSync(resolve(import.meta.dirname, "../app/admin/designer/page.tsx"), "utf8");
+    const componentSource = readFileSync(resolve(import.meta.dirname, "../components/CmsVisualDesigner.tsx"), "utf8");
+    const shellSource = readFileSync(resolve(import.meta.dirname, "../components/SiteShell.tsx"), "utf8");
+    const cssSource = readFileSync(resolve(import.meta.dirname, "../styles/cms-visual-designer.css"), "utf8");
 
-    for (const cls of [
-        "cms-dashboard-page",
-        "cms-dashboard-shell",
-        "cms-topbar",
-        "cms-kpi-grid",
-        "cms-workbench",
-        "cms-sidebar",
-        "cms-page-tree-list",
-        "cms-main-stage",
-        "cms-split-workspace",
-        "cms-editor-column",
-        "cms-preview-column",
-        "cms-inspector-dock",
-    ]) {
-        assert.ok(adminSource.includes(cls), `admin/page.tsx must include .${cls}`);
-        assert.ok(cssSource.includes(`.${cls}`), `cms-dashboard.css must define .${cls}`);
+    // 두 관리자 주소 모두 같은 캔버스를 전체 화면으로 연다.
+    for (const source of [adminSource, designerSource]) {
+        assert.ok(source.includes("CmsVisualDesigner"), "admin route must render CmsVisualDesigner");
+        assert.ok(source.includes("useCmsAdminSession"), "admin route must read the optional admin session");
+        assert.ok(source.includes("userId={session.userId}"), "admin route must pass the session userId");
     }
 
-    assert.ok(loginSource.includes("cms-dashboard-page"));
-    assert.ok(loginSource.includes("cms-kpi-grid"));
-    assert.ok(loginSource.includes("cms-split-workspace"));
+    // 화면을 가로막던 관제탑·모의 HTTP 401 게이트·지표 블록은 제거한다.
+    for (const removed of ["관제탑", "HTTP 401", "cms-kpi-grid", "cms-control-tower-shell", "록로그인"]) {
+        assert.ok(!adminSource.includes(removed), `admin/page.tsx must not contain "${removed}"`);
+    }
+    assert.ok(!componentSource.includes("관제탑"));
+
+    // 사이트 헤더·푸터 없이 캔버스가 화면 전체를 쓴다.
+    assert.ok(shellSource.includes("canvasRoute"), "SiteShell must bypass chrome for /admin routes");
+    assert.ok(cssSource.includes("height: 100dvh"), "designer CSS must fill the viewport");
+
+    for (const cls of [
+        "cms-visual-workspace",
+        "cms-visual-left",
+        "cms-visual-center",
+        "cms-visual-right",
+        "cms-visual-palette",
+        "cms-visual-inspector",
+        "cms-visual-agent-dock",
+    ]) {
+        assert.ok(componentSource.includes(cls), `CmsVisualDesigner must include .${cls}`);
+        assert.ok(cssSource.includes(`.${cls}`), `cms-visual-designer.css must define .${cls}`);
+    }
 });
 
-test("A16: CMS governs all 5 Control Tower domains (Supabase, DB, Cloudflare, Frontend, Backend) and implements the wireframe AI Agent Editing Studio (Project Files/Windows, WYSIWYG Live Screen, Agent Chat with Pill Bar, Properties & Layers Panel)", async () => {
-    const decision = verifyAdminIdentity(VALID_ADMIN_IDENTITY);
-    const probesResult = await probeCmsIntegrations({
-        decision,
-        fetcher: async () =>
-            new Response(JSON.stringify({ sha: DEFAULT_BASE_MAIN_SHA, external: { google: true } }), {
-                status: 200,
-                headers: { "content-type": "application/json" },
-            }),
-    });
+test("A16: 캔버스는 8종 컴포넌트·더블클릭 인라인 편집·반응형 뷰포트·세션 없는 샌드박스 편집을 제공한다", () => {
+    const componentSource = readFileSync(resolve(import.meta.dirname, "../components/CmsVisualDesigner.tsx"), "utf8");
+    const documentSource = readFileSync(resolve(import.meta.dirname, "../src/cms/visual-document.ts"), "utf8");
 
-    const tower = buildControlTowerSnapshot({
-        decision,
-        probes: probesResult.probes,
-        activePath: "/visit",
-        blockCount: 4,
-        baseRevision: 2,
-        draftRevision: 3,
-        serverRevision: 2,
-        payloadHash: "a".repeat(64),
-        branchName: "cms/20261106-visit-update",
-        prState: "draft_bundle",
-        cloudflareStatus: "deployed",
-    });
-    assert.deepEqual(
-        tower.map((node) => node.id),
-        ["supabase", "database", "cloudflare", "frontend", "backend"],
-    );
-    for (const node of tower) {
-        assert.ok(node.governedResources.length >= 3);
-        assert.ok(node.controlActionLabel.length > 0);
+    // 요구한 8종 컴포넌트 팔레트
+    for (const id of ["heading", "text", "button", "link", "image", "container", "card", "banner"]) {
+        assert.ok(documentSource.includes(`id: "${id}"`), `VISUAL_PRESETS must define ${id}`);
+    }
+    assert.ok(componentSource.includes("VISUAL_PRESETS.map"));
+
+    // 실제 사이트 라이브 렌더링 + 더블클릭 인라인 편집 + 반응형 뷰포트
+    assert.ok(componentSource.includes('src={"/v5" + (path === "/" ? "/" : path + "/")}'));
+    assert.ok(componentSource.includes('addEventListener("dblclick"'));
+    assert.ok(componentSource.includes("contenteditable"));
+    for (const viewport of ["PC", "태블릿", "모바일"]) {
+        assert.ok(componentSource.includes(viewport), `designer must offer the ${viewport} viewport`);
     }
 
-    const domainsInIndex = new Set(SCOPED_REPO_INDEX.map((f) => f.domain).filter(Boolean));
-    for (const domain of ["supabase", "database", "cloudflare", "frontend", "backend"] as const) {
-        assert.ok(domainsInIndex.has(domain), `SCOPED_REPO_INDEX must include domain ${domain}`);
-    }
-
-    const adminSource = readFileSync(resolve(import.meta.dirname, "../app/admin/page.tsx"), "utf8");
-    const cssSource = readFileSync(resolve(import.meta.dirname, "../styles/cms-dashboard.css"), "utf8");
-
-    for (const cls of [
-        "cms-control-tower-shell",
-        "cms-control-tower-grid",
-        "cms-control-tower-card",
-        "cms-agent-studio-frame",
-        "cms-agent-studio-board",
-        "cms-studio-files-pane",
-        "cms-studio-file-windows",
-        "cms-studio-wysiwyg-pane",
-        "cms-studio-wysiwyg-stage",
-        "cms-studio-right-rail",
-        "cms-studio-chat-panel",
-        "cms-studio-chat-pill-bar",
-        "cms-studio-inspector-panel",
-    ]) {
-        assert.ok(adminSource.includes(cls), `admin/page.tsx must include .${cls}`);
-        assert.ok(cssSource.includes(`.${cls}`), `cms-dashboard.css must define .${cls}`);
-    }
-
-    for (const label of [
-        "프로젝트 파일 보기",
-        "파일창들",
-        "위지위그 라이브 화면",
-        "에이전트 채팅 공간",
-        "속성과 레이어 등 패널",
-    ]) {
-        assert.ok(adminSource.includes(label), `admin/page.tsx must include wireframe section "${label}"`);
-    }
+    // 세션이 없어도 캔버스가 막히지 않고, 초안은 브라우저에 보관된다.
+    assert.ok(componentSource.includes("sejong-cms-visual-draft:"));
+    assert.ok(componentSource.includes("readLocalDraft"));
+    assert.ok(!componentSource.includes("status !== \"allowed\""));
 });

@@ -1,8 +1,8 @@
 /* [피그마형 실제 사이트 비주얼 에디터 / Figma-like real-site visual editor]
    공통 디자인 시스템의 색상·타이포그래피·컨트롤 토큰을 재사용합니다. */
 .cms-visual-designer {
-    display: grid;
-    grid-template-rows: auto auto auto minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100dvh;
     min-height: 560px;
@@ -11,6 +11,24 @@
     color: var(--text-primary);
     font-size: max(var(--text-min), 16px);
 }
+/* [세션 안내 / Session note: the canvas stays open in every mode] */
+.cms-visual-access-note {
+    padding: var(--space-2) var(--space-4);
+    margin: 0;
+    color: var(--text-secondary);
+    background: var(--surface-subtle);
+    box-shadow: inset 0 -1px var(--border-default);
+}
+.cms-visual-access-note[data-access="admin"] { color: var(--text-primary); }
+.cms-visual-agent-dock {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding-top: var(--space-3);
+    box-shadow: inset 0 1px var(--border-default);
+}
+.cms-visual-agent-dock p { margin-block: 0; }
+.cms-visual-agent-dock .ds-button { align-self: flex-start; }
 .cms-visual-topbar {
     display: flex;
     flex-wrap: wrap;
@@ -62,6 +80,7 @@
 .cms-visual-workspace {
     display: grid;
     grid-template-columns: minmax(240px, 290px) minmax(0, 1fr) minmax(270px, 330px);
+    flex: 1 1 auto;
     min-height: 0;
     overflow: hidden;
 }
@@ -237,7 +256,7 @@
     .cms-visual-style-fields { grid-template-columns: 1fr; }
 }
 @media (max-width: 860px) {
-    .cms-visual-designer { height: auto; min-height: 100dvh; overflow: visible; grid-template-rows: auto auto auto auto; }
+    .cms-visual-designer { height: auto; min-height: 100dvh; overflow: visible; }
     .cms-visual-workspace { grid-template-columns: minmax(0, 1fr); overflow: visible; }
     .cms-visual-left, .cms-visual-right { max-height: 320px; overflow-y: auto; box-shadow: inset 0 -1px var(--border-default); }
     .cms-visual-center { min-height: 650px; }
@@ -323,7 +342,7 @@
     width: 20px;
     height: 28px;
     border: 0;
-    background: transparent;
+    background: var(--color-transparent);
     color: var(--text-secondary);
     cursor: pointer;
     font-size: max(var(--text-min), 16px);
@@ -338,7 +357,7 @@
     padding-inline: var(--space-2);
     border: 0;
     border-radius: var(--radius-control);
-    background: transparent;
+    background: var(--color-transparent);
     color: var(--text-primary);
     text-align: left;
     cursor: pointer;
@@ -392,7 +411,7 @@
     background: var(--surface-default);
     box-shadow: inset 0 1px var(--border-default);
 }
-.cms-visual-help-row .cms-visual-help { flex: 1 1 auto; padding: 0; box-shadow: none; background: transparent; }
+.cms-visual-help-row .cms-visual-help { flex: 1 1 auto; padding: 0; box-shadow: none; background: var(--color-transparent); }
 .cms-visual-field-block { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
 .cms-visual-field-label { color: var(--text-secondary); font-size: max(var(--text-min), 16px); }
 .cms-visual-segments { display: flex; flex-wrap: wrap; gap: var(--space-1); }

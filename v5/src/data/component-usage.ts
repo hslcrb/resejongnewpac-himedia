@@ -71,13 +71,13 @@ export const COMPONENT_USAGE = {
     "badge": {
         "status": "product",
         "productUses": [
-            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/login/page.tsx#CmsLoginGatePage",
             "app/page.tsx#HomePage",
             "app/programs/[id]/ProgramDetailClient.tsx#ProgramDetailClient",
             "components/AccountPanels.tsx#AccountMembershipCard",
             "components/AccountPanels.tsx#AccountTicket",
             "components/BookingExperience.tsx#BookingExperience",
+            "components/CmsVisualDesigner.tsx#CmsVisualDesigner",
             "components/ProgramCard.tsx#ProgramCard"
         ],
         "guideUses": [
@@ -135,7 +135,6 @@ export const COMPONENT_USAGE = {
             "app/account/login/page.tsx#LoginPage",
             "app/account/recovery/page.tsx#RecoveryPage",
             "app/account/signup/page.tsx#SignupPage",
-            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
             "app/login/page.tsx#CmsLoginGatePage",
             "app/page.tsx#HomePage",
@@ -147,6 +146,7 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountTicket",
             "components/AiChatWidget.tsx#AiChatWidget",
             "components/BookingExperience.tsx#BookingExperience",
+            "components/CmsVisualDesigner.tsx#CmsVisualDesigner",
             "components/CompletedPage.tsx#CardsSection",
             "components/CompletedPage.tsx#CompletedPage",
             "components/CompletedPage.tsx#VenueComparison",
@@ -190,7 +190,6 @@ export const COMPONENT_USAGE = {
         "status": "product",
         "productUses": [
             "app/account/callback/page.tsx#AccountCallbackPage",
-            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
             "app/login/page.tsx#CmsLoginGatePage",
             "app/not-found.tsx#NotFound",
@@ -206,6 +205,7 @@ export const COMPONENT_USAGE = {
             "components/BookingExperience.tsx#BookingExperience",
             "components/CatalogPage.tsx#CatalogPage",
             "components/CatalogPage.tsx#blocks",
+            "components/CmsVisualDesigner.tsx#CmsVisualDesigner",
             "components/CompletedPage.tsx#RelatedPrograms",
             "components/CompletedPage.tsx#VenueComparison",
             "components/HeroSlide.tsx#HeroSlide",
@@ -256,6 +256,14 @@ export const COMPONENT_USAGE = {
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample",
             "app/design-rules/page.tsx#renderChapter"
         ]
+    },
+    "cms-visual-designer": {
+        "status": "product",
+        "productUses": [
+            "app/admin/designer/page.tsx#CmsVisualDesignerPage",
+            "app/admin/page.tsx#AdminCmsWorkspacePage"
+        ],
+        "guideUses": []
     },
     "completed-page": {
         "status": "product",
@@ -344,7 +352,6 @@ export const COMPONENT_USAGE = {
             "app/account/login/page.tsx#LoginPage",
             "app/account/recovery/page.tsx#RecoveryPage",
             "app/account/signup/page.tsx#SignupPage",
-            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
             "app/page.tsx#HomePage",
             "app/programs/page.tsx#ProgramsPage",
@@ -353,6 +360,7 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountDiary",
             "components/BookingExperience.tsx#BookingExperience",
             "components/CatalogPage.tsx#CatalogPage",
+            "components/CmsVisualDesigner.tsx#CmsVisualDesigner",
             "components/CompletedPage.tsx#CardsSection",
             "components/CompletedPage.tsx#RentalCalendar",
             "components/CompletedPage.tsx#SiteMap",
@@ -377,11 +385,11 @@ export const COMPONENT_USAGE = {
     "filter-button": {
         "status": "product",
         "productUses": [
-            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/page.tsx#HomePage",
             "app/programs/page.tsx#ProgramsPage",
             "components/AccountExperience.tsx#AccountExperience",
             "components/AccountExperience.tsx#bookingsPanel",
+            "components/CmsVisualDesigner.tsx#CmsVisualDesigner",
             "components/CompletedPage.tsx#CardsSection"
         ],
         "guideUses": [
@@ -517,7 +525,6 @@ export const COMPONENT_USAGE = {
         "productUses": [
             "app/account/login/page.tsx#LoginPage",
             "app/account/signup/page.tsx#SignupPage",
-            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/login/page.tsx#CmsLoginGatePage",
             "app/page.tsx#HomePage",
             "components/AccountExperience.tsx#bookingsPanel",
@@ -611,7 +618,6 @@ export const COMPONENT_USAGE = {
             "app/account/login/page.tsx#LoginPage",
             "app/account/recovery/page.tsx#RecoveryPage",
             "app/account/signup/page.tsx#SignupPage",
-            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
             "app/login/page.tsx#CmsLoginGatePage",
             "app/programs/[id]/ProgramDetailClient.tsx#ProgramDetailClient",
@@ -620,6 +626,7 @@ export const COMPONENT_USAGE = {
             "components/AccountPanels.tsx#AccountDiary",
             "components/BookingExperience.tsx#BookingExperience",
             "components/CatalogPage.tsx#CatalogPage",
+            "components/CmsVisualDesigner.tsx#CmsVisualDesigner",
             "components/ServiceGoods.tsx#ServiceGoods",
             "components/ServiceRequestForm.tsx#ServiceRequestForm"
         ],
@@ -758,7 +765,6 @@ export const COMPONENT_USAGE = {
             "app/account/login/page.tsx#LoginPage",
             "app/account/recovery/page.tsx#RecoveryPage",
             "app/account/signup/page.tsx#SignupPage",
-            "app/admin/page.tsx#AdminCmsWorkspacePage",
             "app/booking/[id]/BookingClient.tsx#BookingClient",
             "app/login/page.tsx#CmsLoginGatePage",
             "app/not-found.tsx#NotFound",
@@ -814,8 +820,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 60,
-    "product": 60,
+    "total": 61,
+    "product": 61,
     "documentationOnly": 0,
     "unused": 0
 } as const;
