@@ -399,10 +399,22 @@ export default function CmsVisualDesigner({
             if (!live) return;
             setLoading(false);
             if (error) {
+                // [마이그레이션 전 상태도 작업을 막지 않음 / A missing table does not block the canvas]
+                const notReady = /schema cache|does not exist|PGRST205|42P01/i.test(error.message);
+                if (notReady) {
+                    setIsError(false);
+                    if (stored) {
+                        setHistory(createVisualHistory(stored));
+                        setStatus(path + "의 브라우저 로컬 초안을 열었습니다. DB 초안 테이블은 아직 준비되지 않았습니다.");
+                    } else {
+                        setStatus(
+                            "DB 초안 테이블이 아직 준비되지 않아 브라우저 로컬 모드로 작업합니다. 편집 내용은 이 브라우저에 보관됩니다.",
+                        );
+                    }
+                    return;
+                }
                 setIsError(true);
-                setStatus(
-                    "시각 초안 조회 실패: " + error.message + " (마이그레이션 20261111_cms_visual_wysiwyg_mcp.sql 적용과 RLS를 확인하세요)",
-                );
+                setStatus("시각 초안 조회 실패: " + error.message);
                 return;
             }
             if (data) {
@@ -1089,7 +1101,10 @@ export default function CmsVisualDesigner({
                     <div className="cms-visual-canvas-meta">
                         <span data-text="label">{"/v5" + (path === "/" ? "/" : path + "/")}</span>
                         <span data-text="meta">
-                            {viewport === "desktop" ? "반응형 · 100%" : stageWidth} · {zoom}% · 수정 {changes.patches} · 삽입 {changes.additions} · 숨김 {changes.hidden}
+                            {frameReady
+                                ? (viewport === "desktop" ? "반응형 · 100%" : stageWidth) +
+                                  " · " + zoom + "% · 수정 " + changes.patches + " · 삽입 " + changes.additions + " · 숨김 " + changes.hidden
+                                : "실제 사이트 화면을 불러오는 중…"}
                         </span>
                     </div>
                     {selection ? (
