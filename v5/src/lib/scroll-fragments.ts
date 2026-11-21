@@ -25,14 +25,20 @@ export function trackScrollFragments(
         cancelAnimationFrame(frame);
     };
     const onKey = (event: KeyboardEvent) => {
-        const target = event.target as HTMLElement | null;
+        if (event.defaultPrevented || event.altKey || event.isComposing) return;
+        if (!["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key))
+            return;
+        const target = (event.composedPath()[0] ?? event.target) as HTMLElement | null;
+        const control = target?.closest ? target : (event.target as HTMLElement | null);
+        // 편집·컨트롤 조작을 페이지 스크롤로 오인하지 않음 / Ignore editing and widget navigation.
         if (
-            !["PageDown", "PageUp", "Home", "End"].includes(event.key) &&
-            target?.closest("input, textarea, select, button, [contenteditable=true]")
+            control?.isContentEditable ||
+            control?.closest?.(
+                'input, textarea, select, button, [role="textbox"], [role="combobox"], [role="slider"], [role="spinbutton"]',
+            )
         )
             return;
-        if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key))
-            intent();
+        intent();
     };
     const onPointerDown = (event: PointerEvent) => {
         if (event.target === document.documentElement || event.target === document.body) {
