@@ -1,9 +1,13 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import type { CatalogSnapshot } from "./types.ts";
 import { CATALOG_SNAPSHOT } from "./snapshot.ts";
 import { createCatalogRepository } from "./repository.ts";
 import { limitCatalogToExport } from "./static-routes.ts";
+const catalogRepository = createCatalogRepository(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
+);
 type CatalogState = {
     catalog: CatalogSnapshot;
     error: string;
@@ -20,13 +24,10 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     const [catalog, setCatalog] = useState(CATALOG_SNAPSHOT);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
-    async function refresh() {
+    const refresh = useCallback(async () => {
         setLoading(true);
         try {
-            const next = await createCatalogRepository(
-                process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-                process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "",
-            ).loadPublishedCatalog();
+            const next = await catalogRepository.loadPublishedCatalog();
             // Static exports can refresh existing routes; newly published IDs need a rebuild.
             setCatalog(limitCatalogToExport(next, CATALOG_SNAPSHOT));
             setError("");
@@ -35,10 +36,10 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
         } finally {
             setLoading(false);
         }
-    }
+    }, []);
     useEffect(() => {
         void refresh();
-    }, []);
+    }, [refresh]);
     return (
         <CatalogContext.Provider value={{ catalog, error, loading, refresh }}>
             {children}
