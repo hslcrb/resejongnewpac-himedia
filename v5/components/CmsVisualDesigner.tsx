@@ -16,6 +16,8 @@ import {
     VISUAL_STYLE_FIELDS,
     VISUAL_STYLE_GROUPS,
     addVisualElement,
+    autosaveVisualDraft,
+    visualLocalDraftKey,
     countVisualChanges,
     createVisualHistory,
     emptyVisualDocument,
@@ -272,12 +274,11 @@ function downloadDraft(doc: VisualDraftDocument): void {
 // 세션이 없어도 캔버스는 그대로 열리고, 편집 결과는 브라우저 로컬 초안으로 보관됩니다.
 export type CmsDesignerAccess = "checking" | "admin" | "guest" | "offline";
 
-const LOCAL_DRAFT_PREFIX = "sejong-cms-visual-draft:";
 
 function readLocalDraft(path: string): VisualDraftDocument | null {
     if (typeof window === "undefined") return null;
     try {
-        const raw = window.localStorage.getItem(LOCAL_DRAFT_PREFIX + path);
+        const raw = window.localStorage.getItem(visualLocalDraftKey(path));
         if (!raw) return null;
         return sanitizeVisualDocument(JSON.parse(raw), path);
     } catch {
@@ -448,12 +449,8 @@ export default function CmsVisualDesigner({
     // 1-b) 브라우저 로컬 초안 자동 보관 / Keep an offline browser copy of the draft
     useEffect(() => {
         if (!frameReady) return;
-        try {
-            window.localStorage.setItem(LOCAL_DRAFT_PREFIX + path, JSON.stringify(history.present));
-        } catch {
-            /* 저장 공간이 없으면 건너뜁니다. / Skip when storage is unavailable. */
-        }
-    }, [frameReady, history.present, path]);
+        autosaveVisualDraft(() => window.localStorage, path, history.present, dirty);
+    }, [dirty, frameReady, history.present, path]);
 
     // 2) 캔버스 주입·선택·이동·인라인 편집·오버레이
     useEffect(() => {
@@ -938,7 +935,7 @@ export default function CmsVisualDesigner({
 
     const clearLocalDraft = () => {
         try {
-            window.localStorage.removeItem(LOCAL_DRAFT_PREFIX + path);
+            window.localStorage.removeItem(visualLocalDraftKey(path));
         } catch {
             /* 저장 공간을 쓸 수 없어도 편집은 계속됩니다. */
         }

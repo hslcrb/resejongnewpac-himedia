@@ -199,6 +199,23 @@ export interface VisualDraftDocument {
     updatedAt?: string;
 }
 
+export const visualLocalDraftKey = (path: string) => "sejong-cms-visual-draft:" + path;
+
+export function autosaveVisualDraft(
+    getStorage: () => Pick<Storage, "setItem">,
+    path: string,
+    draft: VisualDraftDocument,
+    dirty: boolean,
+): void {
+    // 화면 전환·초기 로딩 중 저장본을 보존 / Never replace a draft with navigation or load state.
+    if (!dirty || draft.path !== path) return;
+    try {
+        getStorage().setItem(visualLocalDraftKey(path), JSON.stringify(draft));
+    } catch {
+        // 저장소 제한이 편집을 막으면 안 됨 / Editing remains available if storage is blocked.
+    }
+}
+
 export type VisualHistory = {
     past: VisualDraftDocument[];
     present: VisualDraftDocument;
