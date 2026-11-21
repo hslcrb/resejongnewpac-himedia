@@ -24,13 +24,20 @@ async function browserKey(): Promise<CryptoKey> {
             "encrypt",
             "decrypt",
         ]);
-        await new Promise<void>((resolve, reject) => {
+        return await new Promise<CryptoKey>((resolve, reject) => {
             const tx = db.transaction("keys", "readwrite");
-            tx.objectStore("keys").put(key, "guest");
-            tx.oncomplete = () => resolve();
-            tx.onerror = () => reject(tx.error);
+            const store = tx.objectStore("keys");
+            let effectiveKey = key;
+            // 키 생성 중 먼저 저장된 키를 보존 / Keep any key created by another tab meanwhile.
+            const current = store.get("guest");
+            current.onsuccess = () => {
+                const storedKey = current.result as CryptoKey | undefined;
+                if (storedKey) effectiveKey = storedKey;
+                else store.put(key, "guest");
+            };
+            tx.oncomplete = () => resolve(effectiveKey);
+            tx.onabort = () => reject(tx.error ?? new Error("Guest chat key transaction aborted."));
         });
-        return key;
     } finally {
         db.close();
     }
