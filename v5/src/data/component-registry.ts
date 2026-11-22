@@ -81,6 +81,15 @@ const definitions: readonly ComponentDefinition[] = [
         purpose: "시각 편집기의 레이어·캔버스·속성 영역을 반응형으로 배치",
     },
     {
+        id: "cms-studio-toolbar",
+        name: "StudioToolbar",
+        source: "components/cms-studio/StudioToolbar.tsx",
+        exportName: "StudioToolbar",
+        kind: "structure",
+        guide: "components/registry",
+        purpose: "문서 경로, 작업 도구, 기기 아트보드, 배율과 원본 보기의 공통 조작",
+    },
+    {
         id: "page-heading",
         name: "PageHeading",
         source: "components/PageHeading.tsx",

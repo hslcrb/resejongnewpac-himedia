@@ -161,7 +161,8 @@ export const COMPONENT_USAGE = {
             "components/ServiceGoods.tsx#ServiceGoods",
             "components/ServiceRequestForm.tsx#ServiceRequestForm",
             "components/SystemPrimitives.tsx#SystemFilterButton",
-            "components/SystemPrimitives.tsx#SystemIconButton"
+            "components/SystemPrimitives.tsx#SystemIconButton",
+            "components/cms-studio/StudioToolbar.tsx#StudioToolbar"
         ],
         "guideUses": [
             "app/design-rules/_documentation/CodeBlock.tsx#CodeBlock",
@@ -258,6 +259,13 @@ export const COMPONENT_USAGE = {
         ]
     },
     "cms-studio-field": {
+        "status": "product",
+        "productUses": [
+            "components/CmsVisualDesigner.tsx#CmsVisualDesigner"
+        ],
+        "guideUses": []
+    },
+    "cms-studio-toolbar": {
         "status": "product",
         "productUses": [
             "components/CmsVisualDesigner.tsx#CmsVisualDesigner"
@@ -383,7 +391,8 @@ export const COMPONENT_USAGE = {
             "components/HomeBookingControls.tsx#BookingCalendar",
             "components/ServiceGoods.tsx#ServiceGoods",
             "components/ServiceRequestForm.tsx#ServiceRequestForm",
-            "components/cms-studio/StudioField.tsx#StudioField"
+            "components/cms-studio/StudioField.tsx#StudioField",
+            "components/cms-studio/StudioToolbar.tsx#StudioToolbar"
         ],
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
@@ -406,6 +415,7 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#bookingsPanel",
             "components/CmsVisualDesigner.tsx#CmsVisualDesigner",
             "components/CompletedPage.tsx#CardsSection",
+            "components/cms-studio/StudioToolbar.tsx#StudioToolbar",
             "components/cms-studio/StudioWorkspace.tsx#StudioWorkspace"
         ],
         "guideUses": [
@@ -836,8 +846,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 63,
-    "product": 63,
+    "total": 64,
+    "product": 64,
     "documentationOnly": 0,
     "unused": 0
 } as const;

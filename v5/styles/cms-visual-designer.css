@@ -477,3 +477,23 @@
 
 .cms-visual-viewport iframe[hidden] { display: none; }
 .cms-visual-frame-fallback { padding: var(--space-4); }
+
+/* 아트보드에 실제 변환 후의 크기만 예약 / Reserve transformed size without changing the viewport. */
+.cms-studio-artboard-shell { position: relative; flex: 0 0 auto; }
+.cms-studio-artboard-shell > .cms-visual-viewport {
+    position: absolute;
+    inset: 0 auto auto 0;
+    min-height: 0;
+    transform-origin: top left;
+}
+.cms-studio-toolbar { align-items: center; justify-content: space-between; }
+.cms-studio-toolbar .ds-field { flex: 0 1 auto; min-width: 0; }
+.cms-studio-page { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); min-width: 0; }
+.cms-studio-path summary, .cms-studio-advanced > summary {
+    cursor: pointer;
+    padding: var(--space-2);
+    border-radius: var(--radius-control);
+}
+.cms-studio-path[open] .cms-visual-route-input { margin-block-start: var(--space-2); }
+.cms-studio-advanced { box-shadow: inset 0 1px var(--border-default); padding-block: var(--space-2); }
+.cms-studio-advanced[open] > summary { margin-block-end: var(--space-3); }

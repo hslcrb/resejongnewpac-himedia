@@ -582,12 +582,16 @@ test("A16: 캔버스는 8종 컴포넌트·더블클릭 인라인 편집·반응
     }
     assert.ok(componentSource.includes("VISUAL_PRESETS.map"));
 
+    const toolbarSource = readFileSync(resolve(import.meta.dirname, "../components/cms-studio/StudioToolbar.tsx"), "utf8");
+    const artboardsSource = readFileSync(resolve(import.meta.dirname, "../src/cms/studio-artboard.ts"), "utf8");
+    assert.ok(toolbarSource.includes("STUDIO_ARTBOARDS"));
+
     // 실제 사이트 라이브 렌더링 + 더블클릭 인라인 편집 + 반응형 뷰포트
     assert.ok(componentSource.includes('src={"/v5" + (path === "/" ? "/" : path + "/")}'));
     assert.ok(componentSource.includes('addEventListener("dblclick"'));
     assert.ok(componentSource.includes("contenteditable"));
     for (const viewport of ["PC", "태블릿", "모바일"]) {
-        assert.ok(componentSource.includes(viewport), `designer must offer the ${viewport} viewport`);
+        assert.ok(artboardsSource.includes(viewport), `designer must offer the ${viewport} viewport`);
     }
 
     // 세션이 없어도 캔버스가 막히지 않고, 초안은 브라우저에 보관된다.
