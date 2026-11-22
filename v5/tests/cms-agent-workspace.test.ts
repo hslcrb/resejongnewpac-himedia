@@ -537,6 +537,7 @@ test("A15: /admin 진입 즉시 피그마형 3단 캔버스가 열리고 관제�
     const adminSource = readFileSync(resolve(import.meta.dirname, "../app/admin/page.tsx"), "utf8");
     const designerSource = readFileSync(resolve(import.meta.dirname, "../app/admin/designer/page.tsx"), "utf8");
     const componentSource = readFileSync(resolve(import.meta.dirname, "../components/CmsVisualDesigner.tsx"), "utf8");
+    const workspaceSource = readFileSync(resolve(import.meta.dirname, "../components/cms-studio/StudioWorkspace.tsx"), "utf8");
     const shellSource = readFileSync(resolve(import.meta.dirname, "../components/SiteShell.tsx"), "utf8");
     const cssSource = readFileSync(resolve(import.meta.dirname, "../styles/cms-visual-designer.css"), "utf8");
 
@@ -566,7 +567,7 @@ test("A15: /admin 진입 즉시 피그마형 3단 캔버스가 열리고 관제�
         "cms-visual-inspector",
         "cms-visual-agent-dock",
     ]) {
-        assert.ok(componentSource.includes(cls), `CmsVisualDesigner must include .${cls}`);
+        assert.ok((componentSource + workspaceSource).includes(cls), `The editor or workspace must include .${cls}`);
         assert.ok(cssSource.includes(`.${cls}`), `cms-visual-designer.css must define .${cls}`);
     }
 });
