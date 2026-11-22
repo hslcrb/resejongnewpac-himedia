@@ -20,12 +20,13 @@ import { moveStudioLayer, studioAddedId, studioSiblingIds } from "../src/cms/stu
 import { revealStudioScrollParents } from "../src/cms/studio-nested-reveal.ts";
 import { revealStudioAxis, studioStageTarget } from "../src/cms/studio-reveal.ts";
 import { flattenStudioLayers } from "../src/cms/studio-layers.ts";
+import { createSupabaseCmsStore, type CmsSupabaseLike } from "../src/cms/supabase-cms-adapter.ts";
+import { isCmsFailure } from "../src/cms/cms-store.ts";
 import { useCatalog } from "../src/catalog/CatalogProvider";
 import { supabase } from "../src/lib/supabase.ts";
 import {
     CMS_ADMIN_RPC,
     CMS_PAGE_SNAPSHOTS_TABLE,
-    CMS_PUBLISH_RPC,
     CMS_VISUAL_DOCUMENTS_TABLE,
 } from "../src/cms/cms-tables.ts";
 import { capturePageTree, visualSelectorFor } from "../src/cms/page-tree-capture.ts";
@@ -822,14 +823,11 @@ export default function CmsVisualDesigner({
         setIsPublishing(true);
         try {
             if (!(await checkAdmin())) throw new Error("서버의 활성 CMS 관리자 검증에 실패했습니다.");
-            const { data, error } = await supabase.rpc(CMS_PUBLISH_RPC, {
-                p_path: path,
-                p_expected_revision: revision,
-                p_note: note.slice(0, 500),
+            const result = await createSupabaseCmsStore(supabase as unknown as CmsSupabaseLike).publishVisualDraft({
+                path, expectedRevision: revision, note, actorId: userId,
             });
-            if (error) throw error;
-            const row = (data || {}) as { published_revision?: number };
-            const nextPublished = Number(row.published_revision) || publishedRevision + 1;
+            if (isCmsFailure(result)) throw new Error(result.message);
+            const nextPublished = result.data.publishedRevision;
             setPublishedRevision(nextPublished);
             setIsError(false);
             setStatus(
