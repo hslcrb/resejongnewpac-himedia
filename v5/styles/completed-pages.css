@@ -93,7 +93,7 @@
 .completed-filters { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .completed-card-list { list-style: none; margin: 0; padding: 0; }
 .completed-card-list > li { min-width: 0; box-shadow: inset 0 var(--stroke-width) 0 var(--surface-border-subtle); }
-.completed-list-entry { display: flex; align-items: start; gap: var(--space-6); min-width: 0; padding-block: var(--space-6); color: inherit; text-decoration: none; }
+.completed-list-entry { display: flex; align-items: flex-start; gap: var(--space-6); min-width: 0; padding-block: var(--space-6); color: inherit; text-decoration: none; }
 .completed-list-entry:hover:not(:active) { text-decoration: none; }
 .completed-list-entry:hover:not(:active) h3 { text-decoration: underline; text-underline-offset: 0.22em; }
 .completed-list-copy { min-width: 0; flex: 1; display: grid; gap: var(--space-3); }
