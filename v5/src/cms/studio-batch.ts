@@ -35,6 +35,14 @@ export function setStudioLayersHidden(doc: VisualDraftDocument, selectors: reado
     return applyBatch(doc, [...new Set(selectors)].map(selector => ({ selector, hidden })));
 }
 
+export function studioLayerTranslation(value: string, x: number, y: number): string | null {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+    const previous = /^(?<x>-?\d+(?:\.\d+)?)px(?:\s+(?<y>-?\d+(?:\.\d+)?)px)?$/.exec(value)?.groups;
+    if (!previous && value !== "" && value !== "none") return null;
+    const sum = (start: string | undefined, delta: number) => Math.round((Number(start ?? 0) + delta) * 100) / 100;
+    return sanitizeVisualStyle("translate", `${sum(previous?.x, x)}px ${sum(previous?.y, y)}px`);
+}
+
 type StudioNudgeTarget = { selector: string; translate: string; coveredByAncestor?: boolean };
 
 export function nudgeStudioLayers(doc: VisualDraftDocument, targets: readonly StudioNudgeTarget[], x: number, y: number) {
@@ -45,10 +53,7 @@ export function nudgeStudioLayers(doc: VisualDraftDocument, targets: readonly St
         if (!isSafeVisualSelector(item.selector)) return null;
         if (item.coveredByAncestor) continue;
         const value = translations.get(item.selector) ?? item.translate;
-        const previous = /^(?<x>-?\d+(?:\.\d+)?)px(?:\s+(?<y>-?\d+(?:\.\d+)?)px)?$/.exec(value)?.groups;
-        if (!previous && value !== "" && value !== "none") return null;
-        const sum = (start: string | undefined, delta: number) => Math.round((Number(start ?? 0) + delta) * 100) / 100;
-        const translate = sanitizeVisualStyle("translate", `${sum(previous?.x, x)}px ${sum(previous?.y, y)}px`);
+        const translate = studioLayerTranslation(value, x, y);
         if (!translate) return null;
         edits.push({ selector: item.selector, style: { translate } });
     }
