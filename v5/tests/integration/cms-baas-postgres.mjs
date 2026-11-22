@@ -32,6 +32,7 @@ try {
     assert.ok(allowedHandle, "fixture must follow the migration's explicit account policy");
     await db.exec(members);
     await db.exec(await read("20261111_cms_visual_wysiwyg_mcp.sql"));
+    if (!process.argv.includes("--baseline")) await db.exec(await read("20261123010000_cms_publish_session_and_retry.sql"));
     const email = allowedHandle + "@gmail.com";
     await db.query("insert into auth.users values ($1), ($2)", [admin, guest]);
     await db.query("insert into auth.identities values ($1, 'google', 'test-subject', $2::jsonb)",
@@ -59,9 +60,15 @@ try {
     assert.deepEqual(updated.rows, [{ revision: 2 }]);
     assert.deepEqual(stale.rows, []);
     await assert.rejects(publish(1), error => error.code === "40001");
+    await assert.rejects(result("select public.sejong_cms_publish_visual_draft($1, 2, 'test', $2::uuid)", [path, guest]), error => error.code === "42501");
     const { receipt } = await publish(2);
     assert.equal(receipt.published_revision, 1);
     assert.equal(receipt.published_by, admin);
+    const retried = await result("select public.sejong_cms_publish_visual_draft($1, 2, 'different note') as receipt", [path]);
+    assert.deepEqual(retried.receipt, receipt);
+    const count = await result("select count(*)::integer as total from public.sejong_cms_visual_revisions where target_path=$1", [path]);
+    assert.equal(count.total, 1);
+    console.log("PASS: audit actor cannot be overridden; retries return the first receipt without duplicating history");
     assert.deepEqual(await result("select revision, status, published_revision from public.sejong_cms_visual_documents where target_path=$1", [path]),
         { revision: 2, status: "published", published_revision: 1 });
     assert.deepEqual(await result("select revision, published_revision from public.sejong_cms_visual_revisions where target_path=$1", [path]),
@@ -76,6 +83,18 @@ try {
     assert.deepEqual(await result("select revision, status, published_revision from public.sejong_cms_visual_documents where target_path=$1", [path]),
         { revision: 3, status: "draft", published_revision: 1 });
     console.log("PASS: a history write failure rolls back the draft publication");
+    await db.exec(`
+        reset role;
+        delete from public.sejong_cms_visual_revisions where published_revision = 2;
+        create function public.test_reject_publication() returns trigger language plpgsql as
+            $$ begin raise exception 'fixture rejects publication' using errcode = '23514'; end $$;
+        create trigger test_reject_publication before update of status on public.sejong_cms_visual_documents
+            for each row when (new.status = 'published') execute function public.test_reject_publication();
+    `);
+    await as(admin);
+    await assert.rejects(publish(3), error => error.code === "23514");
+    assert.equal((await result("select count(*)::integer as total from public.sejong_cms_visual_revisions where target_path=$1", [path])).total, 1);
+    console.log("PASS: a failure after history insertion rolls back the new history row");
 } finally {
     await db.close();
 }
