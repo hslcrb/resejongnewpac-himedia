@@ -1,7 +1,7 @@
-import { isSafeVisualSelector, sanitizeVisualDocument, sanitizeVisualStyle } from "./visual-document.ts";
+import { isSafeVisualSelector, sanitizeVisualDocument, sanitizeVisualStyle, visualGroupMemberLimit } from "./visual-document.ts";
 import type { VisualDraftDocument, VisualElementPatch } from "./visual-document.ts";
 
-export const studioSelectionLimit = 50;
+export const studioSelectionLimit = visualGroupMemberLimit;
 
 export function toggleStudioSelection<T>(
     current: readonly T[], target: T, extend: boolean, key: (item: T) => string = item => String(item),
@@ -58,4 +58,51 @@ export function nudgeStudioLayers(doc: VisualDraftDocument, targets: readonly St
         edits.push({ selector: item.selector, style: { translate } });
     }
     return applyBatch(doc, edits);
+}
+
+export type StudioAlignment = "left" | "center-x" | "right" | "top" | "center-y" | "bottom";
+type StudioAlignmentTarget = { selector: string; translate: string; left: number; top: number; right: number; bottom: number };
+
+export function alignStudioLayers(doc: VisualDraftDocument, targets: readonly StudioAlignmentTarget[], alignment: StudioAlignment) {
+    if (targets.length < 2 || targets.length > studioSelectionLimit) return null;
+    const selectors = new Set<string>();
+    for (const { selector, left, top, right, bottom } of targets) {
+        if (!isSafeVisualSelector(selector) || selectors.has(selector) ||
+            ![left, top, right, bottom].every(Number.isFinite) || left >= right || top >= bottom) return null;
+        selectors.add(selector);
+    }
+    const horizontal = alignment === "left" || alignment === "center-x" || alignment === "right";
+    const start = (target: StudioAlignmentTarget) => horizontal ? target.left : target.top;
+    const end = (target: StudioAlignmentTarget) => horizontal ? target.right : target.bottom;
+    const alignStart = alignment === "left" || alignment === "top";
+    const alignEnd = alignment === "right" || alignment === "bottom";
+    const min = Math.min(...targets.map(start));
+    const max = Math.max(...targets.map(end));
+    // 선택 전체의 외곽선을 기준으로 정렬합니다. / Align against the selection's bounding box.
+    const anchor = alignStart ? min : alignEnd ? max : min + (max - min) / 2;
+    const prior = new Map(doc.patches.map(patch => [patch.selector, patch.style?.translate]));
+    const edits: VisualElementPatch[] = [];
+    for (const target of targets) {
+        const layerAnchor = alignStart ? start(target) : alignEnd ? end(target) : start(target) + (end(target) - start(target)) / 2;
+        const delta = Math.round((anchor - layerAnchor) * 100) / 100;
+        if (!delta) continue;
+        const translate = studioLayerTranslation(prior.get(target.selector) ?? target.translate,
+            horizontal ? delta : 0, horizontal ? 0 : delta);
+        if (!translate) return null;
+        edits.push({ selector: target.selector, style: { translate } });
+    }
+    return applyBatch(doc, edits);
+}
+
+export function groupStudioLayers(doc: VisualDraftDocument, selectors: readonly string[], id: string) {
+    if (doc.groups?.some(group => group.id === id)) return null;
+    const next = sanitizeVisualDocument({ ...doc, groups: [...(doc.groups ?? []), { id, selectors }] }, doc.path);
+    const created = next.groups?.find(group => group.id === id);
+    // 일부만 그룹에 넣지 않습니다. / Group creation is all-or-nothing.
+    return created && selectors.length === created.selectors.length ? next : null;
+}
+
+export function ungroupStudioLayers(doc: VisualDraftDocument, id: string) {
+    if (!doc.groups?.some(group => group.id === id)) return null;
+    return sanitizeVisualDocument({ ...doc, groups: doc.groups.filter(group => group.id !== id) }, doc.path);
 }

@@ -15,7 +15,10 @@ export function decodePublicVisualSnapshot(value: unknown, pathname: string): Pu
         typeof checksum !== "string" || !/^[a-f0-9]{64}$/.test(checksum) || !raw.document ||
         typeof raw.document !== "object" || Array.isArray(raw.document)) return null;
     try {
-        const document = sanitizeVisualDocument(raw.document, path);
+        const input = raw.document as Record<string, unknown>;
+        // 공개 RPC의 편집기 데이터 제외 규칙을 클라이언트에서도 유지합니다.
+        const { schemaVersion, path: documentPath, patches, additions } = input;
+        const document = sanitizeVisualDocument({ schemaVersion, path: documentPath, patches, additions }, path);
         if (visualDocumentChecksum(document) !== checksum) return null;
         return { path, publishedRevision: revision, checksum, document };
     } catch {
