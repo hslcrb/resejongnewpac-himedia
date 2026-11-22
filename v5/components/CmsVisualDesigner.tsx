@@ -10,6 +10,8 @@ import {
     CMS_VISUAL_DOCUMENTS_TABLE,
 } from "../src/cms/cms-tables.ts";
 import { capturePageTree, visualSelectorFor } from "../src/cms/page-tree-capture.ts";
+import { moveStudioDrag, startStudioDrag, studioShortcut } from "../src/cms/studio-interactions.ts";
+import type { StudioDrag, StudioShortcut } from "../src/cms/studio-interactions.ts";
 import type { CmsPageSnapshot, CmsPageTreeNode } from "../src/cms/page-tree.ts";
 import {
     VISUAL_PRESETS,
@@ -327,7 +329,20 @@ export default function CmsVisualDesigner({
     const stageRef = useRef<HTMLDivElement>(null);
     const originals = useRef<Map<HTMLElement, Original>>(new Map());
     const editingRef = useRef<Editing | null>(null);
-    const dragRef = useRef<{ element: HTMLElement; selector: string; startX: number; startY: number; baseX: number; baseY: number } | null>(null);
+    const dragRef = useRef<{ element: HTMLElement; selector: string; gesture: StudioDrag; value: string; priority: string } | null>(null);
+    const shortcutRef = useRef<(action: StudioShortcut) => boolean>(() => false);
+    const cancelDrag = useCallback((pointerId?: number) => {
+        const drag = dragRef.current;
+        if (!drag || (pointerId != null && drag.gesture.pointerId !== pointerId)) return false;
+        dragRef.current = null;
+        if (drag.value) drag.element.style.setProperty("translate", drag.value, drag.priority);
+        else drag.element.style.removeProperty("translate");
+        if (drag.element.hasPointerCapture?.(drag.gesture.pointerId)) drag.element.releasePointerCapture(drag.gesture.pointerId);
+        return true;
+    }, []);
+    // 패널 선택이 갱신되어도 제스처는 이어지고, 도구나 페이지를 바꿀 때만 취소합니다.
+    // Preserve the gesture across selection updates; cancel when the tool or page changes.
+    useEffect(() => () => { cancelDrag(); }, [cancelDrag, mode, path]);
 
     const mutate = useCallback((updater: (doc: VisualDraftDocument) => VisualDraftDocument) => {
         setHistory((current) => pushVisualHistory(current, updater(current.present)));
@@ -346,15 +361,14 @@ export default function CmsVisualDesigner({
             return;
         }
         const rect = el.getBoundingClientRect();
-        const scale = zoom / 100;
         setOverlay({
-            left: rect.left * scale,
-            top: rect.top * scale,
-            width: Math.max(rect.width * scale, 2),
-            height: Math.max(rect.height * scale, 2),
+            left: rect.left,
+            top: rect.top,
+            width: Math.max(rect.width, 2),
+            height: Math.max(rect.height, 2),
             label: selection.tag + " · " + Math.round(rect.width) + "×" + Math.round(rect.height),
         });
-    }, [selection, zoom]);
+    }, [selection]);
 
     const selectBySelector = useCallback((selector: string) => {
         const doc = iframeRef.current?.contentDocument;
@@ -535,14 +549,16 @@ export default function CmsVisualDesigner({
             setStatus("텍스트를 직접 수정하고 Enter 또는 바깥을 클릭하면 초안에 반영됩니다. Esc는 취소입니다.");
         };
         const keyDown = (event: KeyboardEvent) => {
-            if (!editingRef.current) return;
-            if (event.key === "Enter") {
+            if (event.isComposing || event.keyCode === 229) return;
+            if (editingRef.current && (event.key === "Enter" || event.key === "Escape")) {
                 event.preventDefault();
-                commitEditing();
-            } else if (event.key === "Escape") {
-                event.preventDefault();
-                commitEditing(true);
+                event.stopPropagation();
+                commitEditing(event.key === "Escape");
+                return;
             }
+            const target = htmlTarget(event);
+            const action = studioShortcut(event, Boolean(target?.closest("input,textarea,select,[contenteditable]:not([contenteditable=false])")));
+            if (action && shortcutRef.current(action)) event.preventDefault();
         };
         const blur = (event: Event) => {
             if (!editingRef.current) return;
@@ -551,38 +567,42 @@ export default function CmsVisualDesigner({
             commitEditing();
         };
         const pointerDown = (event: PointerEvent) => {
-            if (mode !== "move") return;
+            if (mode !== "move" || event.button !== 0 || !event.isPrimary || dragRef.current) return;
             const el = htmlTarget(event);
             if (!el || el === doc.body) return;
             event.preventDefault();
             const selector = visualSelectorFor(el);
-            const previous = history.present.patches.find((p) => p.selector === selector)?.style?.translate || "";
-            const match = previous.match(/^(-?\d+(?:\.\d+)?)px\s+(-?\d+(?:\.\d+)?)px$/);
+            const value = el.style.getPropertyValue("translate");
             dragRef.current = {
                 element: el,
                 selector,
-                startX: event.clientX,
-                startY: event.clientY,
-                baseX: match ? Number(match[1]) : 0,
-                baseY: match ? Number(match[2]) : 0,
+                value,
+                priority: el.style.getPropertyPriority("translate"),
+                gesture: startStudioDrag(event.pointerId, { x: event.clientX, y: event.clientY }, value),
             };
+            try { el.setPointerCapture?.(event.pointerId); } catch { /* Pointer already ended. */ }
             selectBySelector(selector);
         };
         const pointerMove = (event: PointerEvent) => {
             const drag = dragRef.current;
-            if (!drag) return;
-            const x = Math.round(drag.baseX + event.clientX - drag.startX);
-            const y = Math.round(drag.baseY + event.clientY - drag.startY);
-            drag.element.style.setProperty("translate", x + "px " + y + "px");
+            if (!drag || drag.gesture.pointerId !== event.pointerId) return;
+            const value = moveStudioDrag(drag.gesture, event.pointerId, { x: event.clientX, y: event.clientY });
+            if (value) drag.element.style.setProperty("translate", value);
+            else if (drag.value) drag.element.style.setProperty("translate", drag.value, drag.priority);
+            else drag.element.style.removeProperty("translate");
             refreshOverlay();
         };
         const pointerUp = (event: PointerEvent) => {
             const drag = dragRef.current;
-            if (!drag) return;
-            dragRef.current = null;
-            const x = Math.round(drag.baseX + event.clientX - drag.startX);
-            const y = Math.round(drag.baseY + event.clientY - drag.startY);
-            mutate((current) => upsertVisualPatch(current, drag.selector, { style: { translate: x + "px " + y + "px" } }));
+            if (!drag || drag.gesture.pointerId !== event.pointerId) return;
+            const value = moveStudioDrag(drag.gesture, event.pointerId, { x: event.clientX, y: event.clientY });
+            cancelDrag(event.pointerId);
+            if (value && value !== drag.value) {
+                mutate((current) => upsertVisualPatch(current, drag.selector, { style: { translate: value } }));
+            } else refreshOverlay();
+        };
+        const pointerCancel = (event: PointerEvent) => {
+            if (cancelDrag(event.pointerId)) refreshOverlay();
         };
         doc.addEventListener("pointerover", pointerOver, true);
         doc.addEventListener("click", click, true);
@@ -592,6 +612,8 @@ export default function CmsVisualDesigner({
         doc.addEventListener("pointerdown", pointerDown, true);
         doc.addEventListener("pointermove", pointerMove, true);
         doc.addEventListener("pointerup", pointerUp, true);
+        doc.addEventListener("pointercancel", pointerCancel, true);
+        doc.addEventListener("lostpointercapture", pointerCancel, true);
         doc.addEventListener("scroll", refreshOverlay, true);
         doc.defaultView?.addEventListener("resize", refreshOverlay);
         return () => {
@@ -603,10 +625,12 @@ export default function CmsVisualDesigner({
             doc.removeEventListener("pointerdown", pointerDown, true);
             doc.removeEventListener("pointermove", pointerMove, true);
             doc.removeEventListener("pointerup", pointerUp, true);
+            doc.removeEventListener("pointercancel", pointerCancel, true);
+            doc.removeEventListener("lostpointercapture", pointerCancel, true);
             doc.removeEventListener("scroll", refreshOverlay, true);
             doc.defaultView?.removeEventListener("resize", refreshOverlay);
         };
-    }, [collapsed, frameReady, history.present, mode, mutate, path, refreshOverlay, selectBySelector, selection, viewport]);
+    }, [cancelDrag, collapsed, frameReady, history.present, mode, mutate, path, refreshOverlay, selectBySelector, selection, viewport]);
 
     useEffect(() => {
         refreshOverlay();
@@ -703,6 +727,36 @@ export default function CmsVisualDesigner({
         }
         setSelection(null);
     };
+
+    useEffect(() => {
+        shortcutRef.current = (action) => {
+            if (action === "cancel") {
+                const hadDrag = cancelDrag();
+                if (hadDrag) refreshOverlay();
+                if (selection) setSelection(null);
+                if (mode === "preview") setMode("select");
+                return hadDrag || Boolean(selection) || mode === "preview";
+            }
+            if (loading || mode === "preview") return false;
+            if (action === "undo" || action === "redo") {
+                if (!(action === "undo" ? history.past.length : history.future.length)) return false;
+                setHistory(action === "undo" ? undoVisualHistory : redoVisualHistory);
+                setDirty(true);
+            } else if (action === "remove") {
+                if (!selection) return false;
+                deleteSelected();
+            } else setMode(action);
+            return true;
+        };
+        const onKey = (event: KeyboardEvent) => {
+            if (event.defaultPrevented || event.keyCode === 229) return;
+            const target = event.target instanceof Element ? event.target : null;
+            const action = studioShortcut(event, Boolean(target?.closest("input,textarea,select,button,[contenteditable]:not([contenteditable=false])")));
+            if (action && shortcutRef.current(action)) event.preventDefault();
+        };
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+    });
 
     const checkAdmin = async (): Promise<boolean> => {
         if (!supabase || !userId) return false;
