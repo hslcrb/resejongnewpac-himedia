@@ -81,3 +81,32 @@ test('uncertain cancellation cannot be replaced by confirmation',async()=>{
     gateway.cancel=async()=>{throw new Error('reply lost');};let confirmed=0;const original=gateway.confirm;
     gateway.confirm=async input=>{confirmed++;return original(input);};await controller.back();await controller.confirm();assert.equal(confirmed,0);assert.equal(controller.getSnapshot().uncertainAction,'cancel');
 });
+
+test("hold, confirmation and cancellation publish only complete state transitions", async () => {
+    const { controller } = setup();
+    await choose(controller);
+    const states: ReturnType<typeof controller.getSnapshot>[] = [];
+    const unsubscribe = controller.subscribe(() => states.push(controller.getSnapshot()));
+    try {
+        await controller.review();
+        assert.deepEqual(states.map((s) => [s.busy, s.step, s.receipt?.status ?? null]), [
+            [true, "seats", null],
+            [false, "review", "held"],
+        ]);
+        controller.setAccepted(true);
+        states.length = 0;
+        await controller.confirm();
+        assert.deepEqual(states.map((s) => [s.busy, s.step, s.receipt?.status ?? null]), [
+            [true, "review", "held"],
+            [false, "complete", "reserved_unpaid"],
+        ]);
+        states.length = 0;
+        await controller.restart();
+        assert.deepEqual(states.map((s) => [s.busy, s.step, s.receipt?.status ?? null]), [
+            [true, "complete", "reserved_unpaid"],
+            [false, "selection", null],
+        ]);
+    } finally {
+        unsubscribe();
+    }
+});

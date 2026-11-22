@@ -235,22 +235,14 @@ export class BookingController {
     private async mutate(
         action: "hold" | "confirm" | "cancel",
         operation: () => Promise<BookingReservation>,
-        success: (receipt: BookingReservation) => void,
+        success: (receipt: BookingReservation) => Partial<BookingState>,
     ): Promise<void> {
         if (this.state.busy || !this.alive) return;
         const life = this.lifetime;
         this.update({ busy: true, error: "" });
+        let receipt: BookingReservation;
         try {
-            const receipt = await operation();
-            if (!this.alive || life !== this.lifetime) return;
-            this.offset = Date.parse(receipt.serverNow) - this.clock();
-            this.update({
-                busy: false,
-                uncertain: false,
-                uncertainAction: null,
-                now: this.clock() + this.offset,
-            });
-            success(receipt);
+            receipt = await operation();
         } catch (error) {
             if (!this.alive || life !== this.lifetime) return;
             const uncertain =
@@ -267,7 +259,18 @@ export class BookingController {
                 uncertainAction: uncertain ? action : null,
                 error: bookingErrorMessage(error),
             });
+            return;
         }
+        if (!this.alive || life !== this.lifetime) return;
+        this.offset = Date.parse(receipt.serverNow) - this.clock();
+        // 처리 완료와 화면 전환을 한 번에 알림 / Publish completion and navigation atomically.
+        this.update({
+            ...success(receipt),
+            busy: false,
+            uncertain: false,
+            uncertainAction: null,
+            now: this.clock() + this.offset,
+        });
     }
     async review(): Promise<void> {
         const s = this.state;
@@ -286,12 +289,11 @@ export class BookingController {
         await this.mutate(
             "hold",
             () => this.gateway.hold(input),
-            (receipt) =>
-                this.update({
-                    receipt,
-                    accepted: false,
-                    step: receipt.status === "reserved_unpaid" ? "complete" : "review",
-                }),
+            (receipt) => ({
+                receipt,
+                accepted: false,
+                step: receipt.status === "reserved_unpaid" ? "complete" : "review",
+            }),
         );
     }
     async confirm(): Promise<void> {
@@ -319,7 +321,7 @@ export class BookingController {
         await this.mutate(
             "confirm",
             () => this.gateway.confirm({ reservationId, requestKey }),
-            (receipt) => this.update({ receipt, step: "complete" }),
+            (receipt) => ({ receipt, step: "complete" }),
         );
     }
     async back(): Promise<void> {
@@ -335,7 +337,7 @@ export class BookingController {
                 () => this.gateway.cancel(this.state.receipt!.id),
                 () => {
                     this.invalidate();
-                    this.update({ receipt: null, accepted: false, step: "seats", seatIds: [] });
+                    return { receipt: null, accepted: false, step: "seats", seatIds: [] };
                 },
             );
             if (!this.state.receipt) await this.refreshInventory();
@@ -351,16 +353,15 @@ export class BookingController {
                 (this.state.uncertainAction !== "cancel" || !this.state.receipt))
         )
             return;
-        if (this.state.receipt) {
-            await this.mutate(
-                "cancel",
-                () => this.gateway.cancel(this.state.receipt!.id),
-                () => this.update({ receipt: null }),
-            );
-            if (this.state.receipt) return;
+        const resetState = () => {
+            this.invalidate();
+            return { ...initial(), catalog: this.state.catalog, loading: false };
+        };
+        const receipt = this.state.receipt;
+        if (receipt) {
+            await this.mutate("cancel", () => this.gateway.cancel(receipt.id), resetState);
+            return;
         }
-        this.invalidate();
-        const catalog = this.state.catalog;
-        this.update({ ...initial(), catalog, loading: false, now: this.clock() + this.offset });
+        this.update({ ...resetState(), now: this.clock() + this.offset });
     }
 }
