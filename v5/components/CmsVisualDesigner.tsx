@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StudioField } from "./cms-studio/StudioField";
 import { StudioWorkspace } from "./cms-studio/StudioWorkspace";
+import type { StudioPanel } from "./cms-studio/StudioWorkspace";
 import { StudioResizeHandle } from "./cms-studio/StudioResizeHandle";
 import type { StudioBox } from "../src/cms/studio-resize.ts";
 import { StudioToolbar } from "./cms-studio/StudioToolbar";
@@ -16,6 +17,8 @@ import type { StudioRecovery } from "../src/cms/studio-recovery.ts";
 import { createStudioWrites } from "../src/cms/studio-writes.ts";
 import { readStudioFrame } from "../src/cms/studio-frame.ts";
 import { moveStudioLayer, studioAddedId, studioSiblingIds } from "../src/cms/studio-layer-order.ts";
+import { revealStudioScrollParents } from "../src/cms/studio-nested-reveal.ts";
+import { revealStudioAxis, studioStageTarget } from "../src/cms/studio-reveal.ts";
 import { flattenStudioLayers } from "../src/cms/studio-layers.ts";
 import { useCatalog } from "../src/catalog/CatalogProvider";
 import { supabase } from "../src/lib/supabase.ts";
@@ -150,6 +153,8 @@ export default function CmsVisualDesigner({
     const [frameBlocked, setFrameBlocked] = useState(false);
     const [frameEpoch, setFrameEpoch] = useState(0);
     const [frameVersion, setFrameVersion] = useState(0);
+    const [panel, setPanel] = useState<StudioPanel>("canvas");
+    const [reveal, setReveal] = useState<{ selector: string; path: string } | null>(null);
     const [mode, setMode] = useState<StudioMode>("select");
     const [viewport, setViewport] = useState<Viewport>("desktop");
     const [zoom, setZoom] = useState<StudioZoom>("fit");
@@ -233,6 +238,37 @@ export default function CmsVisualDesigner({
         if (!doc) return;
         setSelection(selectionSnapshot(doc, selector));
     }, [getFrameDocument]);
+
+    useEffect(() => {
+        if (!reveal || panel !== "canvas" || reveal.path !== path) return;
+        const request = window.requestAnimationFrame(() => {
+            const doc = getFrameDocument();
+            const stage = stageRef.current;
+            const frame = iframeRef.current;
+            const target = doc && resolveElement(doc, reveal.selector);
+            const view = doc?.defaultView;
+            setReveal(null);
+            if (!target || !view || !stage || !frame || !target.getClientRects().length) {
+                setStatus("현재 아트보드에서 이 레이어를 표시할 수 없습니다.");
+                return;
+            }
+            revealStudioScrollParents(target, view, doc.scrollingElement);
+            const before = target.getBoundingClientRect();
+            const innerX = revealStudioAxis(before.left, before.width, view.innerWidth);
+            const innerY = revealStudioAxis(before.top, before.height, view.innerHeight);
+            if (innerX || innerY) view.scrollBy({ left: innerX, top: innerY, behavior: "instant" });
+            const bounds = stage.getBoundingClientRect();
+            const projected = studioStageTarget(target.getBoundingClientRect(), frame.getBoundingClientRect(), view.innerWidth, view.innerHeight);
+            if (projected) {
+                const left = revealStudioAxis(projected.left - bounds.left - stage.clientLeft, projected.width, stage.clientWidth);
+                const top = revealStudioAxis(projected.top - bounds.top - stage.clientTop, projected.height, stage.clientHeight);
+                if (left || top) stage.scrollBy({ left, top, behavior: "instant" });
+            }
+            stage.focus({ preventScroll: true });
+            refreshOverlay();
+        });
+        return () => window.cancelAnimationFrame(request);
+    }, [getFrameDocument, panel, path, refreshOverlay, reveal]);
 
     // 서버 리비전과 출처가 같은 로컬 작업만 복구할 수 있습니다.
     // Reopen local edits only against the remote revision they were based on.
@@ -971,7 +1007,7 @@ export default function CmsVisualDesigner({
                 {storageWarning ? "브라우저 저장 공간에 작업본을 백업하지 못했습니다. JSON으로 내보내세요." : status}
                 {recoveryConflict ? <SystemButton variant="quiet" onClick={() => downloadDraft(recoveryConflict)}>이전 브라우저 초안 내보내기</SystemButton> : null}
             </div>
-            <StudioWorkspace layers={<>
+            <StudioWorkspace panel={panel} onPanel={setPanel} layers={<>
                     <div className="cms-visual-pane-heading">
                         <h2 data-text="item-title">컴포넌트</h2>
                         <span data-text="meta">클릭 또는 레이어로 드래그</span>
@@ -1002,6 +1038,11 @@ export default function CmsVisualDesigner({
                         <span data-text="meta">{visibleLayers.length}개 표시 · {collapsed.size}개 접힘</span>
                     </div>
                     <SystemField label="레이어 검색" labelHidden value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="예: section, h2, 버튼" />
+                    {selection && !originalView ? <SystemButton variant="quiet" onClick={() => {
+                        setPanel("canvas");
+                        setMode("select");
+                        setReveal({ path, selector: selection.selector });
+                    }}>캔버스에서 보기</SystemButton> : null}
                     {selectedAddedId && siblingIds.length > 1 && !originalView ? (
                         <div className="cms-visual-layer-order" role="group" aria-label="선택한 레이어의 순서">
                             <SystemButton variant="quiet" disabled={siblingIndex <= 0}
@@ -1105,7 +1146,7 @@ export default function CmsVisualDesigner({
                             ))}
                         </div>
                     ) : null}
-                    <div className="cms-visual-stage" ref={stageRef}>
+                    <div className="cms-visual-stage" ref={stageRef} tabIndex={-1}>
                         <div className="cms-studio-artboard-shell" style={{ width: artboard.width * scale, height: artboard.height * scale }}>
                         <div className="cms-visual-viewport" style={{ width: artboard.width, height: artboard.height, transform: "scale(" + scale + ")" }}>
                             {frameBlocked ? <div className="cms-visual-frame-fallback" role="status">
