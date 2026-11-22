@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { readPublishedVisual } from "../../src/cms/studio-public-client.ts";
+import { emptyVisualDocument, upsertVisualPatch, visualDocumentChecksum } from "../../src/cms/visual-document.ts";
 
 const external = process.env.CMS_TEST_PGLITE_ENTRY;
 if (!external) throw new Error("Set CMS_TEST_PGLITE_ENTRY to the local PGlite dist/index.js path.");
@@ -12,8 +14,10 @@ const result = async (sql, params = []) => (await db.query(sql, params)).rows[0]
 const admin = "10000000-0000-4000-8000-000000000001";
 const guest = "10000000-0000-4000-8000-000000000002";
 const path = "/visit";
-const hash = "a".repeat(64);
-const document = JSON.stringify({ schemaVersion: 2, path, patches: [], additions: [] });
+const publishedDocument = upsertVisualPatch(emptyVisualDocument(path), "body > main:nth-of-type(1) > h1:nth-of-type(1)",
+    { text: "발행된 본문" });
+const hash = visualDocumentChecksum(publishedDocument);
+const document = JSON.stringify(publishedDocument);
 
 try {
     // Local Auth fixture only. / This does not emulate Supabase Auth HTTP or OAuth.
@@ -79,7 +83,9 @@ try {
     await db.exec("reset role");
     await db.query("insert into public.sejong_cms_visual_revisions (target_path, revision, published_revision, document, checksum) values ($1, 2, 2, $2, $3)", [path, document, hash]);
     await as(admin);
-    await db.query("update public.sejong_cms_visual_documents set status='draft', revision=3 where target_path=$1 and revision=2", [path]);
+    const laterDraft = upsertVisualPatch(publishedDocument, publishedDocument.patches[0].selector, { text: "공개하면 안 되는 새 초안" });
+    await db.query("update public.sejong_cms_visual_documents set status='draft', revision=3, document=$2, checksum=$3 where target_path=$1 and revision=2",
+        [path, JSON.stringify(laterDraft), visualDocumentChecksum(laterDraft)]);
     await assert.rejects(publish(3), error => error.code === "23505");
     assert.deepEqual(await result("select revision, status, published_revision from public.sejong_cms_visual_documents where target_path=$1", [path]),
         { revision: 3, status: "draft", published_revision: 1 });
@@ -105,6 +111,18 @@ try {
     assert.equal((await publicSnapshot("/api/cms")).snapshot, null);
     assert.equal((await publicSnapshot("/nothing-published")).snapshot, null);
     await assert.rejects(db.query("select * from public.sejong_cms_visual_documents"), error => error.code === "42501");
+    const delivered = await readPublishedVisual({
+        origin: "https://fixture.supabase.co",
+        key: "sb_publishable_public-fixture",
+        path, signal: new AbortController().signal,
+        fetcher: async (url, init) => {
+            assert.equal(url, "https://fixture.supabase.co/rest/v1/rpc/sejong_cms_read_public_visual");
+            return Response.json((await publicSnapshot(JSON.parse(init.body).p_path)).snapshot);
+        },
+    });
+    assert.equal(delivered?.publishedRevision, 1);
+    assert.deepEqual(delivered.document, publishedDocument);
+    console.log("PASS: browser fetch adapter verifies the real Postgres public projection (in-process HTTP fixture)");
     console.log("PASS: anonymous readers see only immutable public fields, not current drafts or audit attributes");
 
 } finally {
