@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StudioField } from "./cms-studio/StudioField";
 import { StudioWorkspace } from "./cms-studio/StudioWorkspace";
+import { readStudioFrame } from "../src/cms/studio-frame.ts";
 import { flattenStudioLayers } from "../src/cms/studio-layers.ts";
 import { useCatalog } from "../src/catalog/CatalogProvider";
 import { supabase } from "../src/lib/supabase.ts";
@@ -298,6 +299,8 @@ export default function CmsVisualDesigner({
     const [treeSyncedAt, setTreeSyncedAt] = useState("");
     const [loading, setLoading] = useState(true);
     const [frameReady, setFrameReady] = useState(false);
+    const [frameBlocked, setFrameBlocked] = useState(false);
+    const [frameEpoch, setFrameEpoch] = useState(0);
     const [mode, setMode] = useState<ToolMode>("select");
     const [viewport, setViewport] = useState<Viewport>("desktop");
     const [zoom, setZoom] = useState(100);
@@ -309,6 +312,7 @@ export default function CmsVisualDesigner({
     const [agentPrompt, setAgentPrompt] = useState("");
     const [snapshot, setSnapshot] = useState<CmsPageSnapshot | null>(null);
     const iframeRef = useRef<HTMLIFrameElement>(null);
+    const getFrameDocument = useCallback(() => readStudioFrame(iframeRef.current, window.location.origin, path), [path]);
     const stageRef = useRef<HTMLDivElement>(null);
     const originals = useRef<Map<HTMLElement, Original>>(new Map());
     const editingRef = useRef<Editing | null>(null);
@@ -333,7 +337,7 @@ export default function CmsVisualDesigner({
     }, []);
 
     const refreshOverlay = useCallback(() => {
-        const doc = iframeRef.current?.contentDocument;
+        const doc = getFrameDocument();
         if (!doc || !selection) {
             setOverlay(null);
             return;
@@ -351,13 +355,13 @@ export default function CmsVisualDesigner({
             height: Math.max(rect.height, 2),
             label: selection.tag + " · " + Math.round(rect.width) + "×" + Math.round(rect.height),
         });
-    }, [selection]);
+    }, [getFrameDocument, selection]);
 
     const selectBySelector = useCallback((selector: string) => {
-        const doc = iframeRef.current?.contentDocument;
+        const doc = getFrameDocument();
         if (!doc) return;
         setSelection(selectionSnapshot(doc, selector));
-    }, []);
+    }, [getFrameDocument]);
 
     // 1) 페이지 초안 불러오기 (Supabase sejong_cms_visual_documents)
     useEffect(() => {
@@ -365,6 +369,7 @@ export default function CmsVisualDesigner({
         originals.current = new Map();
         editingRef.current = null;
         setFrameReady(false);
+        setFrameBlocked(false);
         setSelection(null);
         setOverlay(null);
         setHistory(createVisualHistory(emptyVisualDocument(path)));
@@ -451,7 +456,7 @@ export default function CmsVisualDesigner({
 
     // 2) 캔버스 주입·선택·이동·인라인 편집·오버레이
     useEffect(() => {
-        const doc = iframeRef.current?.contentDocument;
+        const doc = getFrameDocument();
         if (!frameReady || !doc || !doc.body) return;
         let style = doc.getElementById("cms-visual-preview-style") as HTMLStyleElement | null;
         if (!style) {
@@ -471,7 +476,7 @@ export default function CmsVisualDesigner({
             el.removeAttribute("data-cms-visual-hover");
         });
         const selected = selection ? resolveElement(doc, selection.selector) : null;
-        if (selected) selected.setAttribute("data-cms-visual-selected", "true");
+        if (selected && mode !== "preview") selected.setAttribute("data-cms-visual-selected", "true");
         try {
             const captured = capturePageTree({ document: doc, path, viewport });
             setSnapshot(captured);
@@ -480,7 +485,14 @@ export default function CmsVisualDesigner({
         }
         refreshOverlay();
 
-        if (mode === "preview") return;
+        if (mode === "preview") {
+            setOverlay(null);
+            const escapePreview = (event: KeyboardEvent) => {
+                if (!event.isComposing && event.key === "Escape" && shortcutRef.current("cancel")) event.preventDefault();
+            };
+            doc.addEventListener("keydown", escapePreview, true);
+            return () => doc.removeEventListener("keydown", escapePreview, true);
+        }
         const pointerOver = (event: PointerEvent) => {
             const el = htmlTarget(event);
             if (!el || el === doc.body) return;
@@ -612,11 +624,11 @@ export default function CmsVisualDesigner({
             doc.removeEventListener("scroll", refreshOverlay, true);
             doc.defaultView?.removeEventListener("resize", refreshOverlay);
         };
-    }, [cancelDrag, frameReady, history.present, mode, mutate, path, refreshOverlay, selectBySelector, selection, viewport]);
+    }, [cancelDrag, frameReady, getFrameDocument, history.present, mode, mutate, path, refreshOverlay, selectBySelector, selection, viewport]);
 
     useEffect(() => {
-        refreshOverlay();
-    }, [refreshOverlay, zoom, viewport]);
+        if (mode !== "preview") refreshOverlay();
+    }, [mode, refreshOverlay, zoom, viewport]);
 
     // 2-b) React 하이드레이션 전에 iframe 로드가 이미 끝난 경우에도 캔버스를 연결합니다.
     // (이 경우 load 이벤트를 놓쳐 레이어·선택기능이 비어 보이는 문제를 막습니다.)
@@ -625,7 +637,7 @@ export default function CmsVisualDesigner({
         if (!frame) return;
         let cancelled = false;
         const mark = () => {
-            const doc = frame.contentDocument;
+            const doc = getFrameDocument();
             if (!cancelled && doc?.readyState === "complete" && doc.body) {
                 setFrameReady(true);
                 return true;
@@ -640,7 +652,7 @@ export default function CmsVisualDesigner({
             cancelled = true;
             window.clearInterval(timer);
         };
-    }, [path]);
+    }, [frameEpoch, getFrameDocument]);
 
     const setPatch = (change: Parameters<typeof upsertVisualPatch>[2]) => {
         if (!selection) return;
@@ -678,7 +690,7 @@ export default function CmsVisualDesigner({
     };
 
     const insertPreset = (preset: VisualPresetId, parentSelector?: string) => {
-        const frameDoc = iframeRef.current?.contentDocument;
+        const frameDoc = getFrameDocument();
         if (!frameDoc?.body) return;
         const target = parentSelector
             ? resolveElement(frameDoc, parentSelector)
@@ -884,7 +896,7 @@ export default function CmsVisualDesigner({
     }, []);
 
     const syncTree = async () => {
-        const frameDoc = iframeRef.current?.contentDocument;
+        const frameDoc = getFrameDocument();
         if (!supabase || !frameDoc || !userId) {
             setIsError(true);
             setStatus("캔버스와 DB 연결이 준비되지 않았습니다.");
@@ -1160,15 +1172,30 @@ export default function CmsVisualDesigner({
                     ) : null}
                     <div className="cms-visual-stage" ref={stageRef}>
                         <div className="cms-visual-viewport" style={{ width: stageWidth, transform: "scale(" + zoom / 100 + ")", transformOrigin: "top center" }}>
+                            {frameBlocked ? <div className="cms-visual-frame-fallback" role="status">
+                                <p data-text="body">다른 페이지로 이동해 이 아트보드의 편집을 멈췄습니다.</p>
+                                <SystemButton variant="secondary" onClick={() => {
+                                    setFrameReady(false);
+                                    setFrameBlocked(false);
+                                    setFrameEpoch(value => value + 1);
+                                }}>원래 아트보드 열기</SystemButton>
+                            </div> : null}
                             <iframe
+                                key={frameEpoch + ":" + path}
                                 ref={iframeRef}
+                                hidden={frameBlocked}
+                                sandbox="allow-scripts allow-same-origin"
                                 title="세종문화회관 실제 페이지 시각 편집"
                                 src={"/v5" + (path === "/" ? "/" : path + "/")}
                                 onLoad={() => {
+                                    cancelDrag();
                                     originals.current.clear();
                                     editingRef.current = null;
-                                    setFrameReady(true);
+                                    const documentMatches = Boolean(getFrameDocument());
+                                    setFrameReady(documentMatches);
+                                    setFrameBlocked(!documentMatches);
                                     setSelection(null);
+                                    if (!documentMatches) { setSnapshot(null); setOverlay(null); }
                                 }}
                             />
                             {overlay ? (
