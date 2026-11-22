@@ -39,7 +39,9 @@ try {
     await panels.getByRole("button", { name: "캔버스" }).click();
     await frame.getByText("세종 스튜디오 실험", { exact: true }).waitFor();
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
-    console.log("CMS studio: desktop edit, original comparison, undo/redo, viewport and mobile panel state passed");
+    await page.reload();
+    await frame.getByText("세종 스튜디오 실험", { exact: true }).waitFor();
+    console.log("CMS studio: desktop edit, original comparison, undo/redo, viewport, mobile panel state and restart recovery passed");
 } finally {
     await browser.close();
 }
