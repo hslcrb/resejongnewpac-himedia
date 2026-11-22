@@ -29,7 +29,7 @@ import {
     CMS_VISUAL_DOCUMENTS_TABLE,
 } from "../src/cms/cms-tables.ts";
 import { capturePageTree, visualSelectorFor } from "../src/cms/page-tree-capture.ts";
-import { moveStudioDrag, startStudioDrag, studioShortcut } from "../src/cms/studio-interactions.ts";
+import { moveStudioDrag, startStudioDrag, studioShortcut, studioTextChange } from "../src/cms/studio-interactions.ts";
 import type { StudioDrag, StudioShortcut } from "../src/cms/studio-interactions.ts";
 import type { CmsPageSnapshot } from "../src/cms/page-tree.ts";
 import {
@@ -270,6 +270,46 @@ export default function CmsVisualDesigner({
         return () => window.cancelAnimationFrame(request);
     }, [getFrameDocument, panel, path, refreshOverlay, reveal]);
 
+    const beginCanvasText = useCallback((element: HTMLElement): boolean => {
+        if (loading || originalView || mode === "preview" || editingRef.current || !EDITABLE_TAGS.has(element.tagName)
+            || element.children.length || element.hidden || !element.getClientRects().length) return false;
+        const doc = element.ownerDocument;
+        const selector = visualSelectorFor(element);
+        selectBySelector(selector);
+        editingRef.current = { element, selector, original: element.textContent || "" };
+        element.setAttribute("contenteditable", "plaintext-only");
+        element.setAttribute("data-cms-editing", "true");
+        doc.defaultView?.focus();
+        element.focus();
+        const range = doc.createRange();
+        range.selectNodeContents(element);
+        const nativeSelection = doc.defaultView?.getSelection();
+        nativeSelection?.removeAllRanges();
+        nativeSelection?.addRange(range);
+        setMode("text");
+        setStatus("캔버스에서 수정 중 · Enter 적용 · Esc 취소");
+        return true;
+    }, [loading, mode, originalView, selectBySelector]);
+
+    const finishCanvasText = useCallback((cancel = false) => {
+        const editing = editingRef.current;
+        if (!editing) return false;
+        editingRef.current = null;
+        const { element, original, selector } = editing;
+        const raw = element.childElementCount ? element.innerText : element.textContent || "";
+        const change = studioTextChange(original, raw, cancel);
+        element.removeAttribute("contenteditable");
+        element.removeAttribute("data-cms-editing");
+        // 렌더러가 수정값을 원본으로 기억하지 않도록 초안 적용 전에 복원한다.
+        // Restore the pre-edit DOM before the renderer snapshots its original.
+        element.textContent = original;
+        if (change !== null) {
+            mutate(doc => upsertVisualPatch(doc, selector, { text: change }));
+            setStatus("텍스트를 초안에 반영했습니다. 실행 취소할 수 있습니다.");
+        } else setStatus(cancel ? "텍스트 편집을 취소했습니다." : "텍스트 변경이 없습니다.");
+        return true;
+    }, [mutate]);
+
     // 서버 리비전과 출처가 같은 로컬 작업만 복구할 수 있습니다.
     // Reopen local edits only against the remote revision they were based on.
     useEffect(() => {
@@ -353,6 +393,7 @@ export default function CmsVisualDesigner({
         }
         try {
             applyVisualDraft(doc, originalView ? emptyVisualDocument(path) : history.present, originals.current);
+            setSelection(active => active ? selectionSnapshot(doc, active.selector) : null);
         } catch (error) {
             setIsError(true);
             setStatus("미리보기 적용 중 오류: " + String(error));
@@ -391,55 +432,29 @@ export default function CmsVisualDesigner({
             doc.querySelector("[data-cms-visual-hover]")?.removeAttribute("data-cms-visual-hover");
             el.setAttribute("data-cms-visual-hover", "true");
         };
-        const commitEditing = (restore = false) => {
-            const editing = editingRef.current;
-            if (!editing) return;
-            editingRef.current = null;
-            const element = editing.element;
-            element.removeAttribute("contenteditable");
-            element.removeAttribute("data-cms-editing");
-            const nextText = (element.textContent || "").replace(/\s+/g, " ").trim();
-            if (restore || !nextText || nextText === editing.original.trim()) {
-                element.textContent = editing.original;
-                return;
-            }
-            mutate((current) => upsertVisualPatch(current, editing.selector, { text: nextText }));
-        };
         const click = (event: MouseEvent) => {
             const el = htmlTarget(event);
             if (!el || el === doc.body) return;
             if (el.closest("[data-cms-editing]")) return;
             event.preventDefault();
             event.stopImmediatePropagation();
-            if (editingRef.current) commitEditing();
+            if (editingRef.current) finishCanvasText();
+            else if (mode === "text" && beginCanvasText(el)) return;
             selectBySelector(visualSelectorFor(el));
         };
         const doubleClick = (event: MouseEvent) => {
             const el = htmlTarget(event);
             if (!el || el === doc.body) return;
-            if (!EDITABLE_TAGS.has(el.tagName) || el.children.length > 0) return;
+            if (!beginCanvasText(el)) return;
             event.preventDefault();
             event.stopImmediatePropagation();
-            const selector = visualSelectorFor(el);
-            selectBySelector(selector);
-            el.setAttribute("contenteditable", "plaintext-only");
-            el.setAttribute("data-cms-editing", "true");
-            editingRef.current = { element: el, selector, original: el.textContent || "" };
-            el.focus();
-            const range = doc.createRange();
-            range.selectNodeContents(el);
-            const selectionRange = doc.defaultView?.getSelection();
-            selectionRange?.removeAllRanges();
-            selectionRange?.addRange(range);
-            setMode("text");
-            setStatus("텍스트를 직접 수정하고 Enter 또는 바깥을 클릭하면 초안에 반영됩니다. Esc는 취소입니다.");
         };
         const keyDown = (event: KeyboardEvent) => {
             if (event.isComposing || event.keyCode === 229) return;
             if (editingRef.current && (event.key === "Enter" || event.key === "Escape")) {
                 event.preventDefault();
                 event.stopPropagation();
-                commitEditing(event.key === "Escape");
+                finishCanvasText(event.key === "Escape");
                 return;
             }
             const target = htmlTarget(event);
@@ -451,7 +466,7 @@ export default function CmsVisualDesigner({
             if (!editing || event.target !== editing.element) return;
             const next = event.relatedTarget as Node | null;
             if (next && editing.element.contains(next)) return;
-            commitEditing();
+            finishCanvasText();
         };
         const pointerDown = (event: PointerEvent) => {
             if (mode !== "move" || event.button !== 0 || !event.isPrimary || dragRef.current) return;
@@ -517,7 +532,7 @@ export default function CmsVisualDesigner({
             doc.removeEventListener("scroll", refreshOverlay, true);
             doc.defaultView?.removeEventListener("resize", refreshOverlay);
         };
-    }, [cancelDrag, frameReady, frameVersion, getFrameDocument, history.present, mode, mutate, refreshOverlay, selectBySelector, selection]);
+    }, [beginCanvasText, cancelDrag, finishCanvasText, frameReady, frameVersion, getFrameDocument, history.present, mode, mutate, refreshOverlay, selectBySelector, selection]);
 
     useEffect(() => {
         if (mode !== "preview") refreshOverlay();
@@ -685,6 +700,10 @@ export default function CmsVisualDesigner({
                 if (!(action === "undo" ? history.past.length : history.future.length)) return false;
                 setHistory(action === "undo" ? undoVisualHistory : redoVisualHistory);
                 markDirty();
+            } else if (action === "edit-text") {
+                const doc = selection ? getFrameDocument() : null;
+                const target = doc && selection && resolveElement(doc, selection.selector);
+                return Boolean(target && beginCanvasText(target));
             } else if (action === "remove") {
                 if (!selection) return false;
                 deleteSelected();
@@ -1141,6 +1160,13 @@ export default function CmsVisualDesigner({
                     </div>
                     {selection ? (
                         <div className="cms-visual-breadcrumb" aria-label="선택 경로">
+                            {selection.isLeaf && !originalView && mode !== "preview" ? (
+                                <SystemButton variant="quiet" onClick={() => {
+                                    const doc = getFrameDocument();
+                                    const target = doc && resolveElement(doc, selection.selector);
+                                    if (target) beginCanvasText(target);
+                                }}>캔버스에서 텍스트 편집</SystemButton>
+                            ) : null}
                             {selection.breadcrumb.map((part, index) => (
                                 <span key={part + index} data-text="meta">{part}</span>
                             ))}
@@ -1191,7 +1217,7 @@ export default function CmsVisualDesigner({
                     </div>
                     <div className="cms-visual-help-row">
                         <p data-text="caption" className="cms-visual-help">
-                            선택 V · 이동 M · 텍스트 더블클릭 T · 미리보기 P · 취소 Esc
+                            선택 V · 이동 M · 텍스트 F2 또는 더블클릭 · 미리보기 P · 취소 Esc
                         </p>
                         <SystemButton variant="secondary" disabled={treeSyncing || !frameReady} onClick={() => void syncTree()}>
                             {treeSyncing ? "트리 저장 중…" : "트리 동기화"}
