@@ -20,7 +20,8 @@ import { moveStudioLayer, studioAddedId, studioSiblingIds } from "../src/cms/stu
 import { revealStudioScrollParents } from "../src/cms/studio-nested-reveal.ts";
 import { revealStudioAxis, studioStageTarget } from "../src/cms/studio-reveal.ts";
 import { flattenStudioLayers } from "../src/cms/studio-layers.ts";
-import { nudgeStudioLayers, setStudioLayersHidden, toggleStudioSelection } from "../src/cms/studio-batch.ts";
+import { alignStudioLayers, nudgeStudioLayers, setStudioLayersHidden, toggleStudioSelection } from "../src/cms/studio-batch.ts";
+import type { StudioAlignment } from "../src/cms/studio-batch.ts";
 import { captureStudioDrag, previewStudioDrag, restoreStudioDrag, studioMoveRoots } from "../src/cms/studio-group-drag.ts";
 import type { StudioDragLayer } from "../src/cms/studio-group-drag.ts";
 import { createSupabaseCmsStore, type CmsSupabaseLike } from "../src/cms/supabase-cms-adapter.ts";
@@ -745,6 +746,52 @@ export default function CmsVisualDesigner({
         commitLayerBatch(doc => nudgeStudioLayers(doc, targets, x, y), "선택 레이어를 함께 이동했습니다.");
     };
 
+    const alignSelection = (alignment: StudioAlignment) => {
+        if (loading || originalView || mode === "preview") return;
+        const frame = getFrameDocument();
+        const view = frame?.defaultView;
+        if (!frame || !view) return;
+        const byElement = new Map<HTMLElement, string>();
+        const fail = (message: string) => { setIsError(true); setStatus(message); };
+        for (const layer of selectedLayers) {
+            const element = resolveElement(frame, layer.selector);
+            if (!element || element === frame.body || byElement.has(element)) {
+                return fail("정렬할 레이어를 다시 선택해 주세요.");
+            }
+            byElement.set(element, layer.selector);
+        }
+        const first = byElement.keys().next().value;
+        if (!first) return;
+        const roots = studioMoveRoots(first, [...byElement.keys()]);
+        if (roots.length < 2) return fail("서로 포함되지 않는 레이어를 두 개 이상 선택하세요.");
+        const targets = [];
+        for (const element of roots) {
+            let translate = "";
+            for (let node: HTMLElement | null = element; node; node = node.parentElement) {
+                const style = view.getComputedStyle(node);
+                const zoom = style.getPropertyValue("zoom");
+                // 화면 좌표와 CSS 이동 단위가 다른 경우 잘못된 정렬을 저장하지 않습니다.
+                if ((zoom && zoom !== "normal" && zoom !== "1") || (node !== element &&
+                    ["transform", "rotate", "scale", "perspective"].some(key => {
+                        const value = style.getPropertyValue(key);
+                        return value && value !== "none";
+                    }))) return fail("상위 레이어에 확대나 변형이 있어 화면 좌표로 안전하게 정렬할 수 없습니다.");
+                if (node === element) {
+                    if (style.visibility !== "visible" || ["inline", "contents", "none"].includes(style.display)) {
+                        return fail("선택에 정렬할 수 없는 숨김 또는 인라인 요소가 있습니다.");
+                    }
+                    translate = style.getPropertyValue("translate").trim();
+                }
+            }
+            const { left, top, right, bottom } = element.getBoundingClientRect();
+            targets.push({ selector: byElement.get(element)!, translate, left, top, right, bottom });
+        }
+        const baseline = history.present;
+        // 좌표를 읽은 초안에만 적용합니다. / Never replay a geometry snapshot on a newer draft.
+        commitLayerBatch(doc => doc === baseline ? alignStudioLayers(doc, targets, alignment) : null,
+            "선택 레이어를 정렬했습니다.");
+    };
+
     const deleteSelected = () => {
         if (!selection) return;
         if (selection.selector.startsWith("[data-cms-added=")) {
@@ -1315,6 +1362,14 @@ export default function CmsVisualDesigner({
                                     <SystemButton variant="secondary" onClick={() => batchMove(8, 0)}>오른쪽</SystemButton>
                                     <SystemButton variant="secondary" onClick={() => batchMove(0, -8)}>위</SystemButton>
                                     <SystemButton variant="secondary" onClick={() => batchMove(0, 8)}>아래</SystemButton>
+                                </div>
+                                <div className="cms-visual-selection-actions" role="group" aria-label="다중 선택 레이어 정렬">
+                                    <SystemButton variant="secondary" onClick={() => alignSelection("left")}>왼쪽 맞춤</SystemButton>
+                                    <SystemButton variant="secondary" onClick={() => alignSelection("center-x")}>가로 가운데</SystemButton>
+                                    <SystemButton variant="secondary" onClick={() => alignSelection("right")}>오른쪽 맞춤</SystemButton>
+                                    <SystemButton variant="secondary" onClick={() => alignSelection("top")}>위쪽 맞춤</SystemButton>
+                                    <SystemButton variant="secondary" onClick={() => alignSelection("center-y")}>세로 가운데</SystemButton>
+                                    <SystemButton variant="secondary" onClick={() => alignSelection("bottom")}>아래쪽 맞춤</SystemButton>
                                 </div>
                                 <div className="cms-visual-selection-actions" role="group" aria-label="다중 선택 레이어 표시">
                                     <SystemButton variant="secondary" onClick={() => batchVisibility(true)}>모두 숨기기</SystemButton>

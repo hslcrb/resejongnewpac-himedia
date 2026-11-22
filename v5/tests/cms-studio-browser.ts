@@ -62,6 +62,15 @@ try {
     await page.getByRole("button", { name: "실행 취소" }).click();
     assert.deepEqual(await Promise.all([translate(first), translate(second)]), ["", ""]);
 
+    const top = (target: typeof first) => target.evaluate(el => el.getBoundingClientRect().top);
+    assert.ok(Math.abs(await top(first) - await top(second)) > 1);
+    const alignment = page.getByRole("group", { name: "다중 선택 레이어 정렬" });
+    await alignment.getByRole("button", { name: "위쪽 맞춤" }).click();
+    await page.getByText("선택 레이어를 정렬했습니다.", { exact: false }).waitFor();
+    assert.ok(Math.abs(await top(first) - await top(second)) < 0.1);
+    await page.getByRole("button", { name: "실행 취소" }).click();
+    assert.deepEqual(await Promise.all([translate(first), translate(second)]), ["", ""]);
+
     await page.getByLabel("기기 너비").selectOption("mobile");
     assert.equal(await frame.locator("body").evaluate(el => el.ownerDocument.defaultView?.innerWidth), 390);
     await page.getByLabel("캔버스 확대").selectOption("75");
