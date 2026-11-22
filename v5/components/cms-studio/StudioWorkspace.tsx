@@ -19,9 +19,9 @@ export function StudioWorkspace({ layers, canvas, inspector }: { layers: ReactNo
                     aria-controls={"cms-studio-" + item.id} onClick={() => setPanel(item.id)}>{item.label}</SystemFilterButton>)}
             </nav>
             <div className="cms-visual-workspace" data-panel={panel}>
-                <aside id="cms-studio-layers" className="cms-visual-left" aria-label="컴포넌트와 레이어">{layers}</aside>
-                <section id="cms-studio-canvas" className="cms-visual-center" aria-label="실제 사이트 편집 캔버스">{canvas}</section>
-                <aside id="cms-studio-inspector" className="cms-visual-right" aria-label="선택 요소 속성">{inspector}</aside>
+                <aside data-text="body" id="cms-studio-layers" className="cms-visual-left" aria-label="컴포넌트와 레이어">{layers}</aside>
+                <section data-text="body" id="cms-studio-canvas" className="cms-visual-center" aria-label="실제 사이트 편집 캔버스">{canvas}</section>
+                <aside data-text="body" id="cms-studio-inspector" className="cms-visual-right" aria-label="선택 요소 속성">{inspector}</aside>
             </div>
         </>
     );
