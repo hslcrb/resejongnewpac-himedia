@@ -257,6 +257,20 @@ export const COMPONENT_USAGE = {
             "app/design-rules/page.tsx#renderChapter"
         ]
     },
+    "cms-studio-field": {
+        "status": "product",
+        "productUses": [
+            "components/CmsVisualDesigner.tsx#CmsVisualDesigner"
+        ],
+        "guideUses": []
+    },
+    "cms-studio-workspace": {
+        "status": "product",
+        "productUses": [
+            "components/CmsVisualDesigner.tsx#CmsVisualDesigner"
+        ],
+        "guideUses": []
+    },
     "cms-visual-designer": {
         "status": "product",
         "productUses": [
@@ -368,7 +382,8 @@ export const COMPONENT_USAGE = {
             "components/Footer.tsx#Footer",
             "components/HomeBookingControls.tsx#BookingCalendar",
             "components/ServiceGoods.tsx#ServiceGoods",
-            "components/ServiceRequestForm.tsx#ServiceRequestForm"
+            "components/ServiceRequestForm.tsx#ServiceRequestForm",
+            "components/cms-studio/StudioField.tsx#StudioField"
         ],
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#ComponentCatalog",
@@ -390,7 +405,8 @@ export const COMPONENT_USAGE = {
             "components/AccountExperience.tsx#AccountExperience",
             "components/AccountExperience.tsx#bookingsPanel",
             "components/CmsVisualDesigner.tsx#CmsVisualDesigner",
-            "components/CompletedPage.tsx#CardsSection"
+            "components/CompletedPage.tsx#CardsSection",
+            "components/cms-studio/StudioWorkspace.tsx#StudioWorkspace"
         ],
         "guideUses": [
             "app/design-rules/_documentation/ComponentCatalog.tsx#renderExample"
@@ -820,8 +836,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 61,
-    "product": 61,
+    "total": 63,
+    "product": 63,
     "documentationOnly": 0,
     "unused": 0
 } as const;
