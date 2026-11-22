@@ -162,6 +162,7 @@ export const COMPONENT_USAGE = {
             "components/ServiceRequestForm.tsx#ServiceRequestForm",
             "components/SystemPrimitives.tsx#SystemFilterButton",
             "components/SystemPrimitives.tsx#SystemIconButton",
+            "components/cms-studio/StudioResizeHandle.tsx#StudioResizeHandle",
             "components/cms-studio/StudioToolbar.tsx#StudioToolbar"
         ],
         "guideUses": [
@@ -259,6 +260,13 @@ export const COMPONENT_USAGE = {
         ]
     },
     "cms-studio-field": {
+        "status": "product",
+        "productUses": [
+            "components/CmsVisualDesigner.tsx#CmsVisualDesigner"
+        ],
+        "guideUses": []
+    },
+    "cms-studio-resize-handle": {
         "status": "product",
         "productUses": [
             "components/CmsVisualDesigner.tsx#CmsVisualDesigner"
@@ -846,8 +854,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 64,
-    "product": 64,
+    "total": 65,
+    "product": 65,
     "documentationOnly": 0,
     "unused": 0
 } as const;
