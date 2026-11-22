@@ -1,0 +1,45 @@
+import assert from "node:assert/strict";
+import { chromium } from "playwright";
+
+const base = new URL(process.env.CMS_STUDIO_TEST_URL ?? "http://127.0.0.1:8176/");
+if (base.hostname !== "127.0.0.1" && base.hostname !== "localhost") throw new Error("Use the local static sandbox.");
+const browser = await chromium.launch({ executablePath: process.env.CMS_STUDIO_CHROMIUM || undefined });
+try {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+    const frame = page.frameLocator("iframe[title='세종문화회관 실제 페이지 시각 편집']");
+    const title = frame.locator("main h1").first();
+    await page.goto(new URL("/v5/admin/", base).href);
+    await title.waitFor();
+    await page.getByText("초안 · 1440×900", { exact: false }).waitFor();
+    assert.equal(await frame.locator("body").evaluate(el => el.ownerDocument.defaultView?.innerWidth), 1440);
+    assert.equal(await page.getByRole("button", { name: "DB 초안 저장" }).isDisabled(), true);
+    const before = await title.textContent();
+    await title.dblclick();
+    await title.fill("세종 스튜디오 실험");
+    await title.press("Enter");
+    await frame.getByText("세종 스튜디오 실험", { exact: true }).waitFor();
+    await page.getByRole("button", { name: "원본 비교" }).click();
+    await frame.getByText(before!.trim(), { exact: true }).first().waitFor();
+    await page.getByRole("button", { name: "원본 비교" }).click();
+    await frame.getByText("세종 스튜디오 실험", { exact: true }).waitFor();
+    await page.getByRole("button", { name: "실행 취소" }).click();
+    await frame.getByText(before!.trim(), { exact: true }).first().waitFor();
+    await page.getByRole("button", { name: "다시 실행" }).click();
+    await frame.getByText("세종 스튜디오 실험", { exact: true }).waitFor();
+    await page.getByLabel("기기 너비").selectOption("mobile");
+    assert.equal(await frame.locator("body").evaluate(el => el.ownerDocument.defaultView?.innerWidth), 390);
+    await page.getByLabel("캔버스 확대").selectOption("75");
+    assert.equal(await frame.locator("body").evaluate(el => el.ownerDocument.defaultView?.innerWidth), 390);
+    if (process.env.CMS_STUDIO_SCREENSHOT) await page.screenshot({ path: process.env.CMS_STUDIO_SCREENSHOT });
+    await page.setViewportSize({ width: 390, height: 844 });
+    const panels = page.getByRole("navigation", { name: "스튜디오 패널" });
+    await panels.getByRole("button", { name: "레이어" }).click();
+    await page.getByLabel("레이어 검색").fill("아무곳에도없는레이어");
+    await page.getByText("일치하는 레이어가 없습니다.").waitFor();
+    await panels.getByRole("button", { name: "캔버스" }).click();
+    await frame.getByText("세종 스튜디오 실험", { exact: true }).waitFor();
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    console.log("CMS studio: desktop edit, original comparison, undo/redo, viewport and mobile panel state passed");
+} finally {
+    await browser.close();
+}
