@@ -11,6 +11,7 @@ import { SmallNotificationModalHost } from "./SmallNotificationModal";
 import ReturnTop from "./ReturnTop";
 import ContextMenu from "./ContextMenu";
 import AiChatWidget from "./AiChatWidget";
+import PublicVisualPublication from "./PublicVisualPublication";
 import { trackScrollFragments } from "../src/lib/scroll-fragments";
 
 // [사이트와 문서의 탐색 영역 / Product and documentation navigation]
@@ -90,6 +91,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
             >
                 {children}
             </main>
+            <PublicVisualPublication pathname={pathname} scope={main} />
             <Footer />
             <ReturnTop />
             <AiChatWidget />

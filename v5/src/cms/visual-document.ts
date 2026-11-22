@@ -192,11 +192,16 @@ export interface VisualAddedElement {
     order?: number;
 }
 
+export const visualGroupMemberLimit = 50;
+const visualGroupLimit = 80;
+export type VisualLayerGroup = { id: string; selectors: string[] };
+
 export interface VisualDraftDocument {
     schemaVersion: 1 | 2;
     path: string;
     patches: VisualElementPatch[];
     additions: VisualAddedElement[];
+    groups?: VisualLayerGroup[];
     updatedAt?: string;
 }
 
@@ -401,7 +406,29 @@ export function sanitizeVisualDocument(input: unknown, expectedPath: string): Vi
         patches.push(patch);
     }
 
-    return { schemaVersion: VISUAL_SCHEMA_VERSION, path, patches, additions };
+    const groups: VisualLayerGroup[] = [];
+    const groupIds = new Set<string>();
+    const groupedSelectors = new Set<string>();
+    // 그룹은 편집기 메타데이터입니다. / A group never creates a rendering wrapper.
+    for (const item of (Array.isArray(raw.groups) ? raw.groups : []).slice(0, visualGroupLimit)) {
+        if (!item || typeof item !== "object") continue;
+        const { id, selectors } = item as Record<string, unknown>;
+        if (typeof id !== "string" || !SAFE_ID.test(id) || groupIds.has(id) || !Array.isArray(selectors) ||
+            selectors.length < 2 || selectors.length > visualGroupMemberLimit) continue;
+        const members: string[] = [];
+        for (const selector of selectors) {
+            if (!isSafeVisualSelector(selector) || selector === "body" || groupedSelectors.has(selector)) continue;
+            const owner = /^\[data-cms-added="([a-z0-9-]{6,64})"\]/.exec(selector);
+            if (owner && !additionsById.has(owner[1])) continue;
+            if (members.some(other => other === selector || other.startsWith(selector + " > ") || selector.startsWith(other + " > "))) continue;
+            members.push(selector);
+        }
+        if (members.length < 2) continue;
+        groups.push({ id, selectors: members });
+        groupIds.add(id);
+        for (const selector of members) groupedSelectors.add(selector);
+    }
+    return { schemaVersion: VISUAL_SCHEMA_VERSION, path, patches, additions, ...(groups.length ? { groups } : {}) };
 }
 
 function inferPreset(tag: VisualAddTag): VisualPresetId {
@@ -544,6 +571,12 @@ export function visualDocumentChecksum(doc: VisualDraftDocument): string {
         additions: [...doc.additions].sort((a, b) => a.id.localeCompare(b.id)),
     };
     return sha256Hex(JSON.stringify(stable));
+}
+
+// 발행 체크섬은 렌더링만 비교하고, 복구에는 그룹까지 비교합니다.
+export function visualDraftChecksum(doc: VisualDraftDocument): string {
+    const rendered = visualDocumentChecksum(doc);
+    return doc.groups?.length ? sha256Hex(JSON.stringify([rendered, doc.groups])) : rendered;
 }
 
 export function countVisualChanges(doc: VisualDraftDocument): { patches: number; additions: number; hidden: number } {
