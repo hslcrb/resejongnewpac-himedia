@@ -26,6 +26,13 @@ try {
     await frame.getByText(before!.trim(), { exact: true }).first().waitFor();
     await page.getByRole("button", { name: "다시 실행" }).click();
     await frame.getByText("세종 스튜디오 실험", { exact: true }).waitFor();
+    await title.click();
+    await page.getByRole("button", { name: "캔버스에서 텍스트 편집" }).click();
+    await title.fill("");
+    await title.press("Enter");
+    await title.filter({ hasText: /^$/ }).waitFor();
+    await page.getByRole("button", { name: "실행 취소" }).click();
+    await frame.getByText("세종 스튜디오 실험", { exact: true }).waitFor();
     await page.getByLabel("기기 너비").selectOption("mobile");
     assert.equal(await frame.locator("body").evaluate(el => el.ownerDocument.defaultView?.innerWidth), 390);
     await page.getByLabel("캔버스 확대").selectOption("75");
