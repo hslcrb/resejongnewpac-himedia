@@ -3,6 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StudioField } from "./cms-studio/StudioField";
 import { StudioWorkspace } from "./cms-studio/StudioWorkspace";
+import { StudioToolbar } from "./cms-studio/StudioToolbar";
+import type { StudioMode } from "./cms-studio/StudioToolbar";
+import { STUDIO_ARTBOARDS, studioArtboardScale } from "../src/cms/studio-artboard.ts";
+import type { StudioZoom } from "../src/cms/studio-artboard.ts";
 import { createStudioWrites } from "../src/cms/studio-writes.ts";
 import { readStudioFrame } from "../src/cms/studio-frame.ts";
 import { flattenStudioLayers } from "../src/cms/studio-layers.ts";
@@ -55,7 +59,6 @@ import {
     SystemNotice,
 } from "./SystemPrimitives";
 
-type ToolMode = "select" | "move" | "text" | "preview";
 type Viewport = "desktop" | "tablet" | "mobile";
 type SelectionInfo = {
     selector: string;
@@ -302,9 +305,11 @@ export default function CmsVisualDesigner({
     const [frameReady, setFrameReady] = useState(false);
     const [frameBlocked, setFrameBlocked] = useState(false);
     const [frameEpoch, setFrameEpoch] = useState(0);
-    const [mode, setMode] = useState<ToolMode>("select");
+    const [mode, setMode] = useState<StudioMode>("select");
     const [viewport, setViewport] = useState<Viewport>("desktop");
-    const [zoom, setZoom] = useState(100);
+    const [zoom, setZoom] = useState<StudioZoom>("fit");
+    const [stageWidth, setStageWidth] = useState(0);
+    const [originalView, setOriginalView] = useState(false);
     const [selection, setSelection] = useState<SelectionInfo | null>(null);
     const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
     const [filter, setFilter] = useState("");
@@ -315,6 +320,19 @@ export default function CmsVisualDesigner({
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const getFrameDocument = useCallback(() => readStudioFrame(iframeRef.current, window.location.origin, path), [path]);
     const stageRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const stage = stageRef.current;
+        if (!stage) return;
+        const measure = () => {
+            const style = getComputedStyle(stage);
+            const width = stage.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+            if (width > 0) setStageWidth(width);
+        };
+        measure();
+        const observer = new ResizeObserver(measure);
+        observer.observe(stage);
+        return () => observer.disconnect();
+    }, []);
     const originals = useRef<Map<HTMLElement, Original>>(new Map());
     const editingRef = useRef<Editing | null>(null);
     const dragRef = useRef<{ element: HTMLElement; selector: string; gesture: StudioDrag; value: string; priority: string } | null>(null);
@@ -470,7 +488,7 @@ export default function CmsVisualDesigner({
             doc.head.appendChild(style);
         }
         try {
-            applyVisualDraft(doc, history.present, originals.current);
+            applyVisualDraft(doc, originalView ? emptyVisualDocument(path) : history.present, originals.current);
         } catch (error) {
             setIsError(true);
             setStatus("미리보기 적용 중 오류: " + String(error));
@@ -628,7 +646,7 @@ export default function CmsVisualDesigner({
             doc.removeEventListener("scroll", refreshOverlay, true);
             doc.defaultView?.removeEventListener("resize", refreshOverlay);
         };
-    }, [cancelDrag, frameReady, getFrameDocument, history.present, mode, mutate, path, refreshOverlay, selectBySelector, selection, viewport]);
+    }, [cancelDrag, frameReady, getFrameDocument, history.present, mode, mutate, originalView, path, refreshOverlay, selectBySelector, selection, viewport]);
 
     useEffect(() => {
         if (mode !== "preview") refreshOverlay();
@@ -659,7 +677,7 @@ export default function CmsVisualDesigner({
     }, [frameEpoch, getFrameDocument]);
 
     const setPatch = (change: Parameters<typeof upsertVisualPatch>[2]) => {
-        if (!selection) return;
+        if (!selection || originalView) return;
         mutate((current) => upsertVisualPatch(current, selection.selector, change));
     };
 
@@ -691,11 +709,13 @@ export default function CmsVisualDesigner({
         if (dirty && !window.confirm("현재 페이지에 저장하지 않은 변경사항이 있습니다. 다른 페이지로 이동할까요?")) return;
         pathRef.current = next;
         setPath(next);
+        setOriginalView(false);
         setManualPath(next);
         setMode("select");
     };
 
     const insertPreset = (preset: VisualPresetId, parentSelector?: string) => {
+        if (originalView) return;
         const frameDoc = getFrameDocument();
         if (!frameDoc?.body) return;
         const target = parentSelector
@@ -746,7 +766,7 @@ export default function CmsVisualDesigner({
                 const hadDrag = cancelDrag();
                 if (hadDrag) refreshOverlay();
                 if (selection) setSelection(null);
-                if (mode === "preview") setMode("select");
+                if (mode === "preview") { setOriginalView(false); setMode("select"); }
                 return hadDrag || Boolean(selection) || mode === "preview";
             }
             if (loading || mode === "preview") return false;
@@ -969,7 +989,8 @@ export default function CmsVisualDesigner({
     }, [catalog.pages]);
 
     const visibleLayers = useMemo(() => flattenStudioLayers(snapshot?.nodes || [], collapsed, filter), [snapshot, collapsed, filter]);
-    const stageWidth = viewport === "desktop" ? "100%" : viewport === "tablet" ? "768px" : "390px";
+    const artboard = STUDIO_ARTBOARDS[viewport];
+    const scale = studioArtboardScale(artboard.width, stageWidth, zoom);
     const changes = countVisualChanges(history.present);
 
     const agentRequest = useMemo(() => {
@@ -1053,31 +1074,11 @@ export default function CmsVisualDesigner({
             {accessMessage ? (
                 <p className="cms-visual-access-note" data-text="caption" data-access={access}>{accessMessage}</p>
             ) : null}
-            <section className="cms-visual-navigation" aria-label="편집 위치 및 도구">
-                <SystemField label="페이지 목록" as="select" value={path} onChange={(e) => navigate(e.target.value)}>
-                    {routes.map((route) => <option key={route} value={route} data-text="body">{route}</option>)}
-                </SystemField>
-                <div className="cms-visual-route-input">
-                    <SystemField label="직접 경로" value={manualPath} onChange={(e) => setManualPath(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") navigate(manualPath); }} />
-                    <SystemButton variant="quiet" onClick={() => navigate(manualPath)}>이동</SystemButton>
-                </div>
-                <div className="cms-visual-tool-group" role="group" aria-label="캔버스 도구">
-                    <SystemFilterButton selected={mode === "select"} onClick={() => setMode("select")}>선택 V</SystemFilterButton>
-                    <SystemFilterButton selected={mode === "move"} onClick={() => setMode("move")}>이동 M</SystemFilterButton>
-                    <SystemFilterButton selected={mode === "text"} onClick={() => setMode("text")}>텍스트 더블클릭</SystemFilterButton>
-                    <SystemFilterButton selected={mode === "preview"} onClick={() => setMode("preview")}>사이트 작동 미리보기</SystemFilterButton>
-                </div>
-                <div className="cms-visual-tool-group" role="group" aria-label="화면 너비">
-                    <SystemFilterButton selected={viewport === "desktop"} onClick={() => setViewport("desktop")}>PC</SystemFilterButton>
-                    <SystemFilterButton selected={viewport === "tablet"} onClick={() => setViewport("tablet")}>태블릿</SystemFilterButton>
-                    <SystemFilterButton selected={viewport === "mobile"} onClick={() => setViewport("mobile")}>모바일</SystemFilterButton>
-                </div>
-                <div className="cms-visual-tool-group" role="group" aria-label="확대">
-                    <SystemFilterButton selected={zoom === 50} onClick={() => setZoom(50)}>50%</SystemFilterButton>
-                    <SystemFilterButton selected={zoom === 75} onClick={() => setZoom(75)}>75%</SystemFilterButton>
-                    <SystemFilterButton selected={zoom === 100} onClick={() => setZoom(100)}>100%</SystemFilterButton>
-                </div>
-            </section>
+            <StudioToolbar mode={mode} viewport={viewport} zoom={zoom} path={path} manualPath={manualPath}
+                original={originalView} routes={routes.includes(path) ? routes : [...routes, path]}
+                onMode={tool => { setOriginalView(false); setMode(tool); }}
+                onViewport={setViewport} onZoom={setZoom} onPathInput={setManualPath} onNavigate={navigate}
+                onOriginal={show => { setOriginalView(show); setMode(show ? "preview" : "select"); setSelection(null); }} />
             <div className="cms-visual-status" role={isError ? "alert" : "status"} data-error={isError} data-text="body">{status}</div>
             <StudioWorkspace layers={<>
                     <div className="cms-visual-pane-heading">
@@ -1092,7 +1093,8 @@ export default function CmsVisualDesigner({
                                 className="cms-visual-palette-item"
                                 data-text="body"
                                 data-system-part="palette-item"
-                                draggable
+                                draggable={!originalView}
+                                disabled={originalView}
                                 onDragStart={() => setDragPreset(preset.id)}
                                 onDragEnd={() => setDragPreset(null)}
                                 onClick={() => insertPreset(preset.id)}
@@ -1153,6 +1155,7 @@ export default function CmsVisualDesigner({
                                     data-selected={selection?.selector === layer.selector}
                                     data-added={layer.added}
                                     title={layer.selector}
+                                    disabled={originalView}
                                     onClick={() => { selectBySelector(layer.selector); setMode("select"); }}
                                 >
                                     <span className="cms-visual-layer-tag" data-text="meta">{layer.tag}</span>
@@ -1166,8 +1169,8 @@ export default function CmsVisualDesigner({
                         <span data-text="label">{"/v5" + (path === "/" ? "/" : path + "/")}</span>
                         <span data-text="meta">
                             {frameReady
-                                ? (viewport === "desktop" ? "반응형 · 100%" : stageWidth) +
-                                  " · " + zoom + "% · 수정 " + changes.patches + " · 삽입 " + changes.additions + " · 숨김 " + changes.hidden
+                                ? (originalView ? "원본 · " : "초안 · ") + artboard.width + "×" + artboard.height +
+                                  " · " + Math.round(scale * 100) + "% · 수정 " + changes.patches + " · 삽입 " + changes.additions + " · 숨김 " + changes.hidden
                                 : "실제 사이트 화면을 불러오는 중…"}
                         </span>
                     </div>
@@ -1179,7 +1182,8 @@ export default function CmsVisualDesigner({
                         </div>
                     ) : null}
                     <div className="cms-visual-stage" ref={stageRef}>
-                        <div className="cms-visual-viewport" style={{ width: stageWidth, transform: "scale(" + zoom / 100 + ")", transformOrigin: "top center" }}>
+                        <div className="cms-studio-artboard-shell" style={{ width: artboard.width * scale, height: artboard.height * scale }}>
+                        <div className="cms-visual-viewport" style={{ width: artboard.width, height: artboard.height, transform: "scale(" + scale + ")" }}>
                             {frameBlocked ? <div className="cms-visual-frame-fallback" role="status">
                                 <p data-text="body">다른 페이지로 이동해 이 아트보드의 편집을 멈췄습니다.</p>
                                 <SystemButton variant="secondary" onClick={() => {
@@ -1212,10 +1216,11 @@ export default function CmsVisualDesigner({
                                 </div>
                             ) : null}
                         </div>
+                        </div>
                     </div>
                     <div className="cms-visual-help-row">
                         <p data-text="caption" className="cms-visual-help">
-                            선택: 요소 클릭 · 이동: 드래그 · 텍스트: 더블클릭 후 바로 입력 · 팔레트: 클릭하거나 레이어로 드래그 · 우측 패널: 레이아웃·간격·글자·표면·속성.
+                            선택 V · 이동 M · 텍스트 더블클릭 T · 미리보기 P · 취소 Esc
                         </p>
                         <SystemButton variant="secondary" disabled={treeSyncing || !frameReady} onClick={() => void syncTree()}>
                             {treeSyncing ? "트리 저장 중…" : "트리 동기화"}
@@ -1348,6 +1353,8 @@ export default function CmsVisualDesigner({
                             <p data-text="caption">속성은 캔버스에 즉시 적용되지만, DB 초안 저장 전에는 다른 기기와 공유되지 않습니다.</p>
                         </div>
                     )}
+                    <details className="cms-studio-advanced">
+                        <summary data-text="action">작업 도구 · MCP · 백업</summary>
                     <section className="cms-visual-agent-dock" aria-label="코딩 에이전트 독">
                         <div className="cms-visual-pane-heading">
                             <h2 data-text="item-title">에이전트</h2>
@@ -1385,6 +1392,7 @@ export default function CmsVisualDesigner({
                             브라우저 초안 비우기
                         </SystemButton>
                     </div>
+                    </details>
             </>} />
         </div>
     );
