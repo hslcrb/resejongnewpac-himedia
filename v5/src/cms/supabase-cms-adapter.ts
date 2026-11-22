@@ -27,7 +27,7 @@ export {
     CMS_VISUAL_DOCUMENTS_TABLE,
     CMS_VISUAL_REVISIONS_TABLE,
 } from "./cms-tables.ts";
-import { CMS_CONTENT_TABLE, CMS_MEDIA_BUCKET, CMS_PAGE_SNAPSHOTS_TABLE, CMS_VISUAL_DOCUMENTS_TABLE, CMS_VISUAL_REVISIONS_TABLE } from "./cms-tables.ts";
+import { CMS_CONTENT_TABLE, CMS_MEDIA_BUCKET, CMS_PAGE_SNAPSHOTS_TABLE, CMS_PUBLISH_RPC, CMS_VISUAL_DOCUMENTS_TABLE, CMS_VISUAL_REVISIONS_TABLE } from "./cms-tables.ts";
 
 export interface CmsDbError {
     message: string;
@@ -231,92 +231,33 @@ export function createSupabaseCmsStore(client: CmsSupabaseLike): CmsStore {
         },
 
         async publishVisualDraft(input: CmsPublishInput): Promise<CmsStoreResult<CmsVisualRevisionRecord>> {
-            const timestamp = input.now || now();
-            if (client.rpc) {
-                const { data, error } = await client.rpc("sejong_cms_publish_visual_draft", {
-                    p_path: input.path,
-                    p_expected_revision: input.expectedRevision,
-                    p_note: (input.note || "").slice(0, 500),
-                    p_actor: input.actorId,
-                });
-                if (!error) {
-                    const row = asRow(data);
-                    const revision = row ? mapRevisionRow(row) : null;
-                    if (revision) return { ok: true, data: revision };
-                    return fail("unavailable", "발행 RPC가 발행 리비전을 반환하지 않았습니다.");
+            // 발행과 이력은 하나의 트랜잭션으로만 실행합니다. / Never fall back to independent table writes.
+            const missing = "원자적 CMS 발행 함수가 없습니다. 스키마 배포 상태를 확인하세요.";
+            if (!client.rpc) return fail("unavailable", missing);
+            const { data, error } = await client.rpc(CMS_PUBLISH_RPC, {
+                p_path: input.path,
+                p_expected_revision: input.expectedRevision,
+                p_note: (input.note || "").slice(0, 500),
+                // p_actor is deliberately omitted; Supabase derives it from auth.uid().
+            });
+            if (error) {
+                if (error.code === "42883" || error.code === "PGRST202") return fail("unavailable", missing);
+                if (error.code === "P0002") return fail("not_found", "발행할 초안이 없습니다.");
+                if (error.code === "40001") {
+                    const current = await this.getVisualDocument(input.path);
+                    return { ok: false, reason: "conflict", message: "다른 편집이 먼저 저장되어 이 초안은 발행하지 않았습니다.",
+                        currentRevision: isCmsFailure(current) ? undefined : current.data?.revision };
                 }
-                const missingFunction = error.code === "42883" || error.code === "PGRST202" || /could not find the function/i.test(error.message);
-                if (!missingFunction) {
-                    if (/conflict|revision/i.test(error.message)) {
-                        const current = await this.getVisualDocument(input.path);
-                        return {
-                            ok: false,
-                            reason: "conflict",
-                            message: error.message,
-                            currentRevision: !isCmsFailure(current) ? current.data?.revision || 0 : 0,
-                        };
-                    }
-                    return fail("unavailable", `Supabase 발행 실패: ${error.message}`);
-                }
+                return fail("unavailable", "Supabase 발행 요청을 확인하지 못했습니다. 이력을 확인한 뒤 재시도하세요.");
             }
-            // RPC가 없을 때의 2단계 폴백: 리비전 조건 업데이트 후 발행 이력을 기록합니다.
-            const current = await this.getVisualDocument(input.path);
-            if (isCmsFailure(current)) return fail("unavailable", current.message);
-            const record = current.data;
-            if (!record) return fail("not_found", "발행할 초안이 없습니다.");
-            if (record.revision !== input.expectedRevision) {
-                return {
-                    ok: false,
-                    reason: "conflict",
-                    message: `서버 리비전 r${record.revision}과 요청 r${input.expectedRevision}이 다릅니다.`,
-                    currentRevision: record.revision,
-                };
+            const row = asRow(data);
+            const result = row && asRow(row.document) ? mapRevisionRow(row) : null;
+            if (!result || result.path !== input.path || result.revision !== input.expectedRevision ||
+                !Number.isSafeInteger(result.publishedRevision) || result.publishedRevision < 1 ||
+                !/^[a-f0-9]{64}$/.test(String(row?.checksum ?? ""))) {
+                return fail("unavailable", "일치하는 발행 영수증을 받지 못했습니다. 이력을 확인한 뒤 재시도하세요.");
             }
-            const publishedRevision = record.publishedRevision + 1;
-            const updated = await client
-                .from(CMS_VISUAL_DOCUMENTS_TABLE)
-                .update({
-                    status: "published",
-                    published_revision: publishedRevision,
-                    published_at: timestamp,
-                })
-                .eq("target_path", input.path)
-                .eq("revision", input.expectedRevision)
-                .select("*")
-                .maybeSingle();
-            if (updated.error) return fail("unavailable", `Supabase 발행 표시 실패: ${updated.error.message}`);
-            if (!updated.data) {
-                return {
-                    ok: false,
-                    reason: "conflict",
-                    message: "발행 중 리비전이 변경되어 중단했습니다.",
-                    currentRevision: record.revision,
-                };
-            }
-            const revisionRow = {
-                target_path: input.path,
-                revision: record.revision,
-                published_revision: publishedRevision,
-                document: record.document,
-                checksum: record.checksum,
-                published_at: timestamp,
-                published_by: input.actorId,
-                note: (input.note || "").slice(0, 500),
-            };
-            const inserted = await client
-                .from(CMS_VISUAL_REVISIONS_TABLE)
-                .insert(revisionRow)
-                .select("*")
-                .maybeSingle();
-            if (inserted.error) {
-                return fail(
-                    "unavailable",
-                    `발행 문서는 표시되었으나 발행 이력 기록에 실패했습니다: ${inserted.error.message}`,
-                );
-            }
-            const revision = mapRevisionRow(asRow(inserted.data) || revisionRow);
-            if (!revision) return fail("unavailable", "발행 이력 행을 해석하지 못했습니다.");
-            return { ok: true, data: revision };
+            return { ok: true, data: result };
         },
 
         async listVisualRevisions(path, limit = 20) {
