@@ -6,26 +6,34 @@ export function createCatalogRepository(
     key: string,
     request: typeof fetch = fetch,
 ): CatalogRepository {
-    return {
-        async loadPublishedCatalog() {
-            if (!url || !key) throw new Error("공개 콘텐츠 DB 설정이 없습니다.");
-            const response = await request(
-                `${url.replace(/\/$/, "")}/rest/v1/rpc/sejong_catalog_snapshot`,
-                {
-                    method: "POST",
-                    headers: {
-                        apikey: key,
-                        Authorization: `Bearer ${key}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: "{}",
-                    cache: "no-store",
+    let pending: Promise<CatalogSnapshot> | undefined;
+
+    async function load(): Promise<CatalogSnapshot> {
+        if (!url || !key) throw new Error("공개 콘텐츠 DB 설정이 없습니다.");
+        const response = await request(
+            `${url.replace(/\/$/, "")}/rest/v1/rpc/sejong_catalog_snapshot`,
+            {
+                method: "POST",
+                headers: {
+                    apikey: key,
+                    Authorization: `Bearer ${key}`,
+                    "Content-Type": "application/json",
                 },
-            );
-            if (!response.ok) throw new Error(`콘텐츠를 불러오지 못했습니다 (${response.status}).`);
-            const data = await response.json();
-            assertCatalogSnapshot(data);
-            return data;
+                body: "{}",
+                cache: "no-store",
+            },
+        );
+        if (!response.ok) throw new Error(`콘텐츠를 불러오지 못했습니다 (${response.status}).`);
+        const data = await response.json();
+        assertCatalogSnapshot(data);
+        return data;
+    }
+    return {
+        loadPublishedCatalog() {
+            // 겹친 갱신만 합침 / Share in-flight work, not the settled result.
+            return (pending ??= load().finally(() => {
+                pending = undefined;
+            }));
         },
     };
 }
