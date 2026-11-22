@@ -33,6 +33,7 @@ try {
     await db.exec(members);
     await db.exec(await read("20261111_cms_visual_wysiwyg_mcp.sql"));
     if (!process.argv.includes("--baseline")) await db.exec(await read("20261123010000_cms_publish_session_and_retry.sql"));
+    if (!process.argv.includes("--no-public")) await db.exec(await read("20261123020000_cms_public_visual_snapshot.sql"));
     const email = allowedHandle + "@gmail.com";
     await db.query("insert into auth.users values ($1), ($2)", [admin, guest]);
     await db.query("insert into auth.identities values ($1, 'google', 'test-subject', $2::jsonb)",
@@ -95,6 +96,17 @@ try {
     await assert.rejects(publish(3), error => error.code === "23514");
     assert.equal((await result("select count(*)::integer as total from public.sejong_cms_visual_revisions where target_path=$1", [path])).total, 1);
     console.log("PASS: a failure after history insertion rolls back the new history row");
+    await db.exec("reset role; set role anon");
+    const publicSnapshot = path => result("select public.sejong_cms_read_public_visual($1) as snapshot", [path]);
+    const { snapshot } = await publicSnapshot(path);
+    assert.deepEqual(Object.keys(snapshot).sort(), ["checksum", "document", "path", "publishedRevision"]);
+    assert.equal(snapshot.publishedRevision, 1, "newer unpublished work must never appear publicly");
+    assert.equal((await publicSnapshot("/admin")).snapshot, null);
+    assert.equal((await publicSnapshot("/api/cms")).snapshot, null);
+    assert.equal((await publicSnapshot("/nothing-published")).snapshot, null);
+    await assert.rejects(db.query("select * from public.sejong_cms_visual_documents"), error => error.code === "42501");
+    console.log("PASS: anonymous readers see only immutable public fields, not current drafts or audit attributes");
+
 } finally {
     await db.close();
 }
