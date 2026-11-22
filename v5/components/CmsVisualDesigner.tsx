@@ -273,7 +273,7 @@ export default function CmsVisualDesigner({
                 } catch { failed = true; }
             }
             if (!live) return;
-            const local = localAt(base) ?? mostRecent();
+            const local = failed ? mostRecent() : localAt(base) ?? mostRecent();
             const result = failed && local ? { state: "recover", document: local.document } : chooseStudioDraft(remote, base, local);
             setHistory(createVisualHistory(result.document ?? emptyVisualDocument(path)));
             setRevision(failed && local ? local.revision ?? 0 : base);
@@ -579,6 +579,8 @@ export default function CmsVisualDesigner({
         if (next === path || writes.busy()) return;
         if (dirty && !window.confirm("현재 페이지에 저장하지 않은 변경사항이 있습니다. 다른 페이지로 이동할까요?")) return;
         pathRef.current = next;
+        setFrameReady(false);
+        setFrameBlocked(false);
         setPath(next);
         setOriginalView(false);
         setManualPath(next);
