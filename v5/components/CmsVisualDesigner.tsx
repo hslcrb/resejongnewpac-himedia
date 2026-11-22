@@ -21,6 +21,8 @@ import { revealStudioScrollParents } from "../src/cms/studio-nested-reveal.ts";
 import { revealStudioAxis, studioStageTarget } from "../src/cms/studio-reveal.ts";
 import { flattenStudioLayers } from "../src/cms/studio-layers.ts";
 import { nudgeStudioLayers, setStudioLayersHidden, toggleStudioSelection } from "../src/cms/studio-batch.ts";
+import { captureStudioDrag, previewStudioDrag, restoreStudioDrag, studioMoveRoots } from "../src/cms/studio-group-drag.ts";
+import type { StudioDragLayer } from "../src/cms/studio-group-drag.ts";
 import { createSupabaseCmsStore, type CmsSupabaseLike } from "../src/cms/supabase-cms-adapter.ts";
 import { isCmsFailure } from "../src/cms/cms-store.ts";
 import { useCatalog } from "../src/catalog/CatalogProvider";
@@ -31,8 +33,8 @@ import {
     CMS_VISUAL_DOCUMENTS_TABLE,
 } from "../src/cms/cms-tables.ts";
 import { capturePageTree, visualSelectorFor } from "../src/cms/page-tree-capture.ts";
-import { moveStudioDrag, startStudioDrag, studioShortcut, studioTextChange } from "../src/cms/studio-interactions.ts";
-import type { StudioDrag, StudioShortcut } from "../src/cms/studio-interactions.ts";
+import { studioShortcut, studioTextChange } from "../src/cms/studio-interactions.ts";
+import type { StudioShortcut } from "../src/cms/studio-interactions.ts";
 import type { CmsPageSnapshot } from "../src/cms/page-tree.ts";
 import {
     VISUAL_PRESETS,
@@ -195,18 +197,18 @@ export default function CmsVisualDesigner({
     const editingRef = useRef<Editing | null>(null);
     const resizing = useRef<{ element: HTMLElement; selector: string; width: string; height: string;
         widthPriority: string; heightPriority: string } | null>(null);
-    const dragRef = useRef<{ element: HTMLElement; selector: string; gesture: StudioDrag; value: string; priority: string } | null>(null);
+    const dragRef = useRef<{ capture: HTMLElement; pointerId: number; x: number; y: number;
+        layers: StudioDragLayer[]; draft: VisualDraftDocument } | null>(null);
     const [writes] = useState(createStudioWrites);
     const pathRef = useRef(path);
     const markDirty = useCallback(() => { writes.changed(); setDirty(true); }, [writes]);
     const shortcutRef = useRef<(action: StudioShortcut) => boolean>(() => false);
     const cancelDrag = useCallback((pointerId?: number) => {
         const drag = dragRef.current;
-        if (!drag || (pointerId != null && drag.gesture.pointerId !== pointerId)) return false;
+        if (!drag || (pointerId != null && drag.pointerId !== pointerId)) return false;
         dragRef.current = null;
-        if (drag.value) drag.element.style.setProperty("translate", drag.value, drag.priority);
-        else drag.element.style.removeProperty("translate");
-        if (drag.element.hasPointerCapture?.(drag.gesture.pointerId)) drag.element.releasePointerCapture(drag.gesture.pointerId);
+        restoreStudioDrag(drag.layers);
+        if (drag.capture.hasPointerCapture?.(drag.pointerId)) drag.capture.releasePointerCapture(drag.pointerId);
         return true;
     }, []);
     // 패널 선택이 갱신되어도 제스처는 이어지고, 도구나 페이지를 바꿀 때만 취소합니다.
@@ -401,6 +403,7 @@ export default function CmsVisualDesigner({
             doc.head.appendChild(style);
         }
         try {
+            cancelDrag();
             applyVisualDraft(doc, originalView ? emptyVisualDocument(path) : history.present, originals.current);
             setSelectedLayers(active => active.flatMap(layer => {
                 const updated = selectionSnapshot(doc, layer.selector);
@@ -410,7 +413,7 @@ export default function CmsVisualDesigner({
             setIsError(true);
             setStatus("미리보기 적용 중 오류: " + String(error));
         }
-    }, [frameReady, frameVersion, getFrameDocument, history.present, originalView, path]);
+    }, [cancelDrag, frameReady, frameVersion, getFrameDocument, history.present, originalView, path]);
 
     useEffect(() => {
         const doc = getFrameDocument();
@@ -483,39 +486,52 @@ export default function CmsVisualDesigner({
             finishCanvasText();
         };
         const pointerDown = (event: PointerEvent) => {
-            if (mode !== "move" || event.button !== 0 || !event.isPrimary || dragRef.current) return;
-            const el = htmlTarget(event);
-            if (!el || el === doc.body) return;
+            if (loading || mode !== "move" || event.button !== 0 || !event.isPrimary || dragRef.current) return;
+            const hit = htmlTarget(event);
+            if (!hit || hit === doc.body || !doc.defaultView) return;
             event.preventDefault();
-            const selector = visualSelectorFor(el);
-            const value = el.style.getPropertyValue("translate");
-            dragRef.current = {
-                element: el,
-                selector,
-                value,
-                priority: el.style.getPropertyPriority("translate"),
-                gesture: startStudioDrag(event.pointerId, { x: event.clientX, y: event.clientY }, value),
-            };
-            try { el.setPointerCapture?.(event.pointerId); } catch { /* Pointer already ended. */ }
-            selectBySelector(selector);
+            const view = doc.defaultView;
+            const selectedElements = new Map<HTMLElement, string>();
+            for (const selector of selectedSelectors) {
+                const element = resolveElement(doc, selector);
+                if (element) selectedElements.set(element, selector);
+            }
+            const targets = studioMoveRoots(hit, [...selectedElements.keys()]);
+            const layers = targets.map(element => captureStudioDrag(element, selectedElements.get(element) ?? visualSelectorFor(element),
+                view.getComputedStyle(element).getPropertyValue("translate").trim()));
+            if (!layers.length) return;
+            dragRef.current = { capture: hit, pointerId: event.pointerId, x: event.clientX, y: event.clientY, layers, draft: history.present };
+            try { hit.setPointerCapture?.(event.pointerId); } catch { /* Pointer already ended. */ }
+            if (targets.length === 1 && targets[0] === hit && !selectedElements.has(hit)) selectBySelector(layers[0].selector);
         };
         const pointerMove = (event: PointerEvent) => {
             const drag = dragRef.current;
-            if (!drag || drag.gesture.pointerId !== event.pointerId) return;
-            const value = moveStudioDrag(drag.gesture, event.pointerId, { x: event.clientX, y: event.clientY });
-            if (value) drag.element.style.setProperty("translate", value);
-            else if (drag.value) drag.element.style.setProperty("translate", drag.value, drag.priority);
-            else drag.element.style.removeProperty("translate");
+            if (!drag || drag.pointerId !== event.pointerId) return;
+            if (!previewStudioDrag(drag.layers, event.clientX - drag.x, event.clientY - drag.y)) restoreStudioDrag(drag.layers);
             refreshOverlay();
         };
         const pointerUp = (event: PointerEvent) => {
             const drag = dragRef.current;
-            if (!drag || drag.gesture.pointerId !== event.pointerId) return;
-            const value = moveStudioDrag(drag.gesture, event.pointerId, { x: event.clientX, y: event.clientY });
+            if (!drag || drag.pointerId !== event.pointerId) return;
+            const x = event.clientX - drag.x;
+            const y = event.clientY - drag.y;
             cancelDrag(event.pointerId);
-            if (value && value !== drag.value) {
-                mutate((current) => upsertVisualPatch(current, drag.selector, { style: { translate: value } }));
-            } else refreshOverlay();
+            if (Math.hypot(x, y) < 3 || drag.draft !== history.present || drag.layers.some(layer => !layer.element.isConnected)) {
+                refreshOverlay();
+                return;
+            }
+            const next = nudgeStudioLayers(drag.draft, drag.layers, x, y);
+            if (next) {
+                mutate(current => current === drag.draft ? next : current);
+                if (drag.layers.length > 1) {
+                    setIsError(false);
+                    setStatus("선택 레이어를 함께 이동했습니다. 한 번에 실행 취소할 수 있습니다.");
+                }
+            } else {
+                setIsError(true);
+                setStatus("선택 레이어를 이동할 수 없어 모두 그대로 두었습니다.");
+                refreshOverlay();
+            }
         };
         const pointerCancel = (event: PointerEvent) => {
             if (cancelDrag(event.pointerId)) refreshOverlay();
@@ -546,7 +562,7 @@ export default function CmsVisualDesigner({
             doc.removeEventListener("scroll", refreshOverlay, true);
             doc.defaultView?.removeEventListener("resize", refreshOverlay);
         };
-    }, [beginCanvasText, cancelDrag, finishCanvasText, frameReady, frameVersion, getFrameDocument, history.present, mode, multiSelectMode, mutate, refreshOverlay, selectBySelector, selectedSelectors]);
+    }, [beginCanvasText, cancelDrag, finishCanvasText, frameReady, frameVersion, getFrameDocument, history.present, loading, mode, multiSelectMode, mutate, refreshOverlay, selectBySelector, selectedSelectors]);
 
     useEffect(() => {
         if (mode !== "preview") refreshOverlay();
