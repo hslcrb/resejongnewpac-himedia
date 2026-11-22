@@ -2,6 +2,9 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { groupStudioLayers } from "../../src/cms/studio-batch.ts";
+import { readPublishedVisual } from "../../src/cms/studio-public-client.ts";
+import { emptyVisualDocument, upsertVisualPatch, visualDocumentChecksum } from "../../src/cms/visual-document.ts";
 
 const external = process.env.CMS_TEST_PGLITE_ENTRY;
 if (!external) throw new Error("Set CMS_TEST_PGLITE_ENTRY to the local PGlite dist/index.js path.");
@@ -12,8 +15,13 @@ const result = async (sql, params = []) => (await db.query(sql, params)).rows[0]
 const admin = "10000000-0000-4000-8000-000000000001";
 const guest = "10000000-0000-4000-8000-000000000002";
 const path = "/visit";
-const hash = "a".repeat(64);
-const document = JSON.stringify({ schemaVersion: 2, path, patches: [], additions: [] });
+const publishedDocument = upsertVisualPatch(emptyVisualDocument(path), "body > main:nth-of-type(1) > h1:nth-of-type(1)",
+    { text: "발행된 본문" });
+const hash = visualDocumentChecksum(publishedDocument);
+const grouped = groupStudioLayers(publishedDocument,
+    [publishedDocument.patches[0].selector, "body > main:nth-of-type(1) > p:nth-of-type(1)"], "test-layer-group");
+assert.ok(grouped);
+const document = JSON.stringify(grouped);
 
 try {
     // Local Auth fixture only. / This does not emulate Supabase Auth HTTP or OAuth.
@@ -32,6 +40,8 @@ try {
     assert.ok(allowedHandle, "fixture must follow the migration's explicit account policy");
     await db.exec(members);
     await db.exec(await read("20261111_cms_visual_wysiwyg_mcp.sql"));
+    if (!process.argv.includes("--baseline")) await db.exec(await read("20261123010000_cms_publish_session_and_retry.sql"));
+    if (!process.argv.includes("--no-public")) await db.exec(await read("20261123020000_cms_public_visual_snapshot.sql"));
     const email = allowedHandle + "@gmail.com";
     await db.query("insert into auth.users values ($1), ($2)", [admin, guest]);
     await db.query("insert into auth.identities values ($1, 'google', 'test-subject', $2::jsonb)",
@@ -59,23 +69,72 @@ try {
     assert.deepEqual(updated.rows, [{ revision: 2 }]);
     assert.deepEqual(stale.rows, []);
     await assert.rejects(publish(1), error => error.code === "40001");
+    await assert.rejects(result("select public.sejong_cms_publish_visual_draft($1, 2, 'test', $2::uuid)", [path, guest]), error => error.code === "42501");
     const { receipt } = await publish(2);
     assert.equal(receipt.published_revision, 1);
     assert.equal(receipt.published_by, admin);
+    const retried = await result("select public.sejong_cms_publish_visual_draft($1, 2, 'different note') as receipt", [path]);
+    assert.deepEqual(retried.receipt, receipt);
+    const count = await result("select count(*)::integer as total from public.sejong_cms_visual_revisions where target_path=$1", [path]);
+    assert.equal(count.total, 1);
+    console.log("PASS: audit actor cannot be overridden; retries return the first receipt without duplicating history");
     assert.deepEqual(await result("select revision, status, published_revision from public.sejong_cms_visual_documents where target_path=$1", [path]),
         { revision: 2, status: "published", published_revision: 1 });
     assert.deepEqual(await result("select revision, published_revision from public.sejong_cms_visual_revisions where target_path=$1", [path]),
         { revision: 2, published_revision: 1 });
+    const privateDraft = await result("select document from public.sejong_cms_visual_documents where target_path=$1", [path]);
+    const privateRevision = await result("select document from public.sejong_cms_visual_revisions where target_path=$1", [path]);
+    assert.deepEqual(privateDraft.document.groups, grouped.groups);
+    assert.deepEqual(privateRevision.document.groups, grouped.groups);
+    console.log("PASS: layer groups round-trip in authorised draft and revision storage");
     console.log("PASS: stale draft is rejected; valid publish creates one matching immutable revision");
 
     await db.exec("reset role");
     await db.query("insert into public.sejong_cms_visual_revisions (target_path, revision, published_revision, document, checksum) values ($1, 2, 2, $2, $3)", [path, document, hash]);
     await as(admin);
-    await db.query("update public.sejong_cms_visual_documents set status='draft', revision=3 where target_path=$1 and revision=2", [path]);
+    const laterDraft = upsertVisualPatch(publishedDocument, publishedDocument.patches[0].selector, { text: "공개하면 안 되는 새 초안" });
+    await db.query("update public.sejong_cms_visual_documents set status='draft', revision=3, document=$2, checksum=$3 where target_path=$1 and revision=2",
+        [path, JSON.stringify(laterDraft), visualDocumentChecksum(laterDraft)]);
     await assert.rejects(publish(3), error => error.code === "23505");
     assert.deepEqual(await result("select revision, status, published_revision from public.sejong_cms_visual_documents where target_path=$1", [path]),
         { revision: 3, status: "draft", published_revision: 1 });
     console.log("PASS: a history write failure rolls back the draft publication");
+    await db.exec(`
+        reset role;
+        delete from public.sejong_cms_visual_revisions where published_revision = 2;
+        create function public.test_reject_publication() returns trigger language plpgsql as
+            $$ begin raise exception 'fixture rejects publication' using errcode = '23514'; end $$;
+        create trigger test_reject_publication before update of status on public.sejong_cms_visual_documents
+            for each row when (new.status = 'published') execute function public.test_reject_publication();
+    `);
+    await as(admin);
+    await assert.rejects(publish(3), error => error.code === "23514");
+    assert.equal((await result("select count(*)::integer as total from public.sejong_cms_visual_revisions where target_path=$1", [path])).total, 1);
+    console.log("PASS: a failure after history insertion rolls back the new history row");
+    await db.exec("reset role; set role anon");
+    const publicSnapshot = path => result("select public.sejong_cms_read_public_visual($1) as snapshot", [path]);
+    const { snapshot } = await publicSnapshot(path);
+    assert.deepEqual(Object.keys(snapshot).sort(), ["checksum", "document", "path", "publishedRevision"]);
+    assert.equal(snapshot.document.groups, undefined);
+    assert.equal(snapshot.publishedRevision, 1, "newer unpublished work must never appear publicly");
+    assert.equal((await publicSnapshot("/admin")).snapshot, null);
+    assert.equal((await publicSnapshot("/api/cms")).snapshot, null);
+    assert.equal((await publicSnapshot("/nothing-published")).snapshot, null);
+    await assert.rejects(db.query("select * from public.sejong_cms_visual_documents"), error => error.code === "42501");
+    const delivered = await readPublishedVisual({
+        origin: "https://fixture.supabase.co",
+        key: "sb_publishable_public-fixture",
+        path, signal: new AbortController().signal,
+        fetcher: async (url, init) => {
+            assert.equal(url, "https://fixture.supabase.co/rest/v1/rpc/sejong_cms_read_public_visual");
+            return Response.json((await publicSnapshot(JSON.parse(init.body).p_path)).snapshot);
+        },
+    });
+    assert.equal(delivered?.publishedRevision, 1);
+    assert.deepEqual(delivered.document, publishedDocument);
+    console.log("PASS: browser fetch adapter verifies the real Postgres public projection (in-process HTTP fixture)");
+    console.log("PASS: anonymous readers see only immutable public fields, not current drafts or audit attributes");
+
 } finally {
     await db.close();
 }

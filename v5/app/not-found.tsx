@@ -6,7 +6,7 @@ import { SystemLink } from "../components/SystemPrimitives";
 // [오류 화면에도 같은 글자와 표면 규격 / The same text and surface contract on error pages]
 export default function NotFound() {
     return (
-        <div className="container page-layout">
+        <div className="container page-layout" data-cms-static-fallback="">
             <nav data-text="body" className="page-layout-breadcrumbs" aria-label="현재 위치">
                 <Link data-text="action" href="/">
                     홈

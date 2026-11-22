@@ -1,4 +1,4 @@
-import { sanitizeVisualDocument, visualDocumentChecksum } from "./visual-document.ts";
+import { sanitizeVisualDocument, visualDraftChecksum } from "./visual-document.ts";
 import type { VisualDraftDocument } from "./visual-document.ts";
 
 export type StudioRecovery = { document: VisualDraftDocument; revision: number | null };
@@ -9,7 +9,7 @@ type Decision = { state: "remote" | "recover" | "conflict"; document: VisualDraf
 // 오래된 복구본은 내보낼 수 있지만 자동으로 원격 초안 위에 쓰지 않는다.
 // A stale recovery can be downloaded, never silently applied over newer remote work.
 export function chooseStudioDraft(remote: VisualDraftDocument | null, revision: number, local: StudioRecovery | null): Decision {
-    if (!local || (remote && visualDocumentChecksum(remote) === visualDocumentChecksum(local.document))) {
+    if (!local || (remote && visualDraftChecksum(remote) === visualDraftChecksum(local.document))) {
         return { state: "remote", document: remote };
     }
     if (local.revision === revision || (local.revision === null && !remote && revision === 0)) {
