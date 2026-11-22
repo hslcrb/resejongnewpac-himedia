@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { StudioField } from "./cms-studio/StudioField";
+import { StudioWorkspace } from "./cms-studio/StudioWorkspace";
+import { flattenStudioLayers } from "../src/cms/studio-layers.ts";
 import { useCatalog } from "../src/catalog/CatalogProvider";
 import { supabase } from "../src/lib/supabase.ts";
 import {
@@ -12,7 +15,7 @@ import {
 import { capturePageTree, visualSelectorFor } from "../src/cms/page-tree-capture.ts";
 import { moveStudioDrag, startStudioDrag, studioShortcut } from "../src/cms/studio-interactions.ts";
 import type { StudioDrag, StudioShortcut } from "../src/cms/studio-interactions.ts";
-import type { CmsPageSnapshot, CmsPageTreeNode } from "../src/cms/page-tree.ts";
+import type { CmsPageSnapshot } from "../src/cms/page-tree.ts";
 import {
     VISUAL_PRESETS,
     VISUAL_STYLE_FIELDS,
@@ -65,7 +68,6 @@ type SelectionInfo = {
     computed: Record<string, string>;
     breadcrumb: string[];
 };
-type Layer = { selector: string; label: string; depth: number; tag: string; role: string; children: number; added: boolean };
 type Overlay = { left: number; top: number; width: number; height: number; label: string };
 type Original = {
     style: string | null;
@@ -244,24 +246,6 @@ function selectionSnapshot(doc: Document, selector: string): SelectionInfo | nul
     };
 }
 
-function flattenTree(nodes: readonly CmsPageTreeNode[], collapsed: Set<string>, depth = 0, out: Layer[] = []): Layer[] {
-    for (const node of nodes) {
-        out.push({
-            selector: node.selector,
-            label: node.label,
-            depth: Math.min(depth, 6),
-            tag: node.tag,
-            role: node.role,
-            children: node.children.length,
-            added: Boolean(node.added),
-        });
-        if (node.children.length && !collapsed.has(node.selector)) {
-            flattenTree(node.children, collapsed, depth + 1, out);
-        }
-    }
-    return out;
-}
-
 function downloadDraft(doc: VisualDraftDocument): void {
     const blob = new Blob([JSON.stringify(doc, null, 2)], { type: "application/json;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -318,7 +302,6 @@ export default function CmsVisualDesigner({
     const [viewport, setViewport] = useState<Viewport>("desktop");
     const [zoom, setZoom] = useState(100);
     const [selection, setSelection] = useState<SelectionInfo | null>(null);
-    const [layers, setLayers] = useState<Layer[]>([]);
     const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
     const [filter, setFilter] = useState("");
     const [dragPreset, setDragPreset] = useState<VisualPresetId | null>(null);
@@ -492,9 +475,8 @@ export default function CmsVisualDesigner({
         try {
             const captured = capturePageTree({ document: doc, path, viewport });
             setSnapshot(captured);
-            setLayers(flattenTree(captured.nodes, collapsed));
         } catch {
-            setLayers([]);
+            setSnapshot(null);
         }
         refreshOverlay();
 
@@ -630,7 +612,7 @@ export default function CmsVisualDesigner({
             doc.removeEventListener("scroll", refreshOverlay, true);
             doc.defaultView?.removeEventListener("resize", refreshOverlay);
         };
-    }, [cancelDrag, collapsed, frameReady, history.present, mode, mutate, path, refreshOverlay, selectBySelector, selection, viewport]);
+    }, [cancelDrag, frameReady, history.present, mode, mutate, path, refreshOverlay, selectBySelector, selection, viewport]);
 
     useEffect(() => {
         refreshOverlay();
@@ -663,6 +645,18 @@ export default function CmsVisualDesigner({
     const setPatch = (change: Parameters<typeof upsertVisualPatch>[2]) => {
         if (!selection) return;
         mutate((current) => upsertVisualPatch(current, selection.selector, change));
+    };
+
+    const commitStyle = (key: VisualStyleKey, raw: string): boolean => {
+        if (!selection) return false;
+        if (!raw.trim()) {
+            mutate(current => removeVisualStyle(current, selection.selector, key));
+            return true;
+        }
+        const safe = sanitizeVisualStyle(key, raw);
+        if (safe === null) return false;
+        setPatch({ style: { [key]: safe } });
+        return true;
     };
 
     const currentPatch = useMemo(
@@ -955,7 +949,7 @@ export default function CmsVisualDesigner({
         return [...set];
     }, [catalog.pages]);
 
-    const visibleLayers = layers.filter((layer) => !filter || layer.label.toLowerCase().includes(filter.toLowerCase()));
+    const visibleLayers = useMemo(() => flattenStudioLayers(snapshot?.nodes || [], collapsed, filter), [snapshot, collapsed, filter]);
     const stageWidth = viewport === "desktop" ? "100%" : viewport === "tablet" ? "768px" : "390px";
     const changes = countVisualChanges(history.present);
 
@@ -1008,7 +1002,7 @@ export default function CmsVisualDesigner({
             <header className="cms-visual-topbar">
                 <div className="cms-visual-brand">
                     <strong data-text="heading">세종문화회관 · 비주얼 스튜디오</strong>
-                    <span data-text="meta">실제 사이트를 그대로 보며 클릭·더블클릭으로 고치는 피그마형 편집 캔버스</span>
+                    <span data-text="meta">{path} · 시각 편집</span>
                 </div>
                 <div className="cms-visual-top-actions">
                     <SystemBadge tone={access === "admin" ? "info" : "neutral"} title={accessMessage}>
@@ -1065,18 +1059,16 @@ export default function CmsVisualDesigner({
                 </div>
             </section>
             <div className="cms-visual-status" role={isError ? "alert" : "status"} data-error={isError} data-text="body">{status}</div>
-            <div className="cms-visual-workspace">
-                <aside className="cms-visual-left" aria-label="페이지, 컴포넌트 팔레트, 레이어">
+            <StudioWorkspace layers={<>
                     <div className="cms-visual-pane-heading">
                         <h2 data-text="item-title">컴포넌트</h2>
                         <span data-text="meta">클릭 또는 레이어로 드래그</span>
                     </div>
-                    <div className="cms-visual-palette" role="list">
+                    <div className="cms-visual-palette" role="group" aria-label="추가 가능한 컴포넌트">
                         {VISUAL_PRESETS.map((preset) => (
                             <button
                                 key={preset.id}
                                 type="button"
-                                role="listitem"
                                 className="cms-visual-palette-item"
                                 data-text="body"
                                 data-system-part="palette-item"
@@ -1094,12 +1086,13 @@ export default function CmsVisualDesigner({
                     </div>
                     <div className="cms-visual-pane-heading">
                         <h2 data-text="item-title">레이어</h2>
-                        <span data-text="meta">{layers.length}개 · {collapsed.size}개 접힘</span>
+                        <span data-text="meta">{visibleLayers.length}개 표시 · {collapsed.size}개 접힘</span>
                     </div>
                     <SystemField label="레이어 검색" labelHidden value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="예: section, h2, 버튼" />
+                    {filter.trim() && !visibleLayers.length ? <p data-text="body">일치하는 레이어가 없습니다.</p> : null}
                     <div
                         className="cms-visual-layer-list"
-                        role="tree"
+                        role="group"
                         aria-label="DOM 레이어 트리"
                         data-drop-active={dragPreset ? "true" : "false"}
                         onDragOver={(e) => { if (dragPreset) e.preventDefault(); }}
@@ -1119,7 +1112,7 @@ export default function CmsVisualDesigner({
                                     data-text="action"
                                     data-system-part="layer-toggle"
                                     aria-label={collapsed.has(layer.selector) ? "펼치기" : "접기"}
-                                    disabled={!layer.children}
+                                    disabled={!layer.children || Boolean(filter.trim())}
                                     onClick={() => {
                                         setCollapsed((current) => {
                                             const next = new Set(current);
@@ -1136,6 +1129,7 @@ export default function CmsVisualDesigner({
                                     className="cms-visual-layer"
                                     data-layer-selector={layer.selector}
                                     data-system-part="layer-select"
+                                    aria-pressed={selection?.selector === layer.selector}
                                     data-selected={selection?.selector === layer.selector}
                                     data-added={layer.added}
                                     title={layer.selector}
@@ -1147,8 +1141,7 @@ export default function CmsVisualDesigner({
                             </div>
                         ))}
                     </div>
-                </aside>
-                <section className="cms-visual-center" aria-label="실제 사이트 편집 캔버스">
+            </>} canvas={<>
                     <div className="cms-visual-canvas-meta">
                         <span data-text="label">{"/v5" + (path === "/" ? "/" : path + "/")}</span>
                         <span data-text="meta">
@@ -1193,10 +1186,9 @@ export default function CmsVisualDesigner({
                             {treeSyncing ? "트리 저장 중…" : "트리 동기화"}
                         </SystemButton>
                     </div>
-                </section>
-                <aside className="cms-visual-right" aria-label="선택 요소 속성">
+            </>} inspector={<>
                     <div className="cms-visual-pane-heading">
-                        <h2 data-text="item-title">인스펙터</h2>
+                        <h2 data-text="item-title">속성</h2>
                         <span data-text="meta">{selection ? selection.tag.toUpperCase() : "선택 없음"}</span>
                     </div>
                     {!selection ? (
@@ -1204,7 +1196,7 @@ export default function CmsVisualDesigner({
                             페이지에서 요소를 선택하세요. 레이아웃·간격·글자·표면·속성을 피그마처럼 조정할 수 있습니다.
                         </SystemNotice>
                     ) : (
-                        <div className="cms-visual-inspector">
+                        <div className="cms-visual-inspector" key={selection.selector}>
                             <div className="cms-visual-selection">
                                 <strong data-text="label">{selection.tag.toUpperCase()}</strong>
                                 <p data-text="meta" title={selection.selector}>{selection.selector}</p>
@@ -1216,26 +1208,25 @@ export default function CmsVisualDesigner({
                                 </div>
                             </div>
 
-                            <section className="cms-visual-inspector-section">
-                                <h3 data-text="label">속성 · Attributes</h3>
+                            <section className="cms-visual-inspector-section" key={selection.selector}>
+                                <h3 data-text="label">속성</h3>
                                 {selection.isLeaf ? (
-                                    <SystemField as="textarea" rows={3} label="텍스트 내용"
-                                        value={currentPatch?.text ?? selection.text}
-                                        onChange={(e) => setPatch({ text: e.target.value })} />
+                                    <StudioField multiline label="텍스트 내용" value={currentPatch?.text ?? selection.text}
+                                        onCommit={(text) => { setPatch({ text }); return true; }} />
                                 ) : null}
                                 {selection.isImage ? (
                                     <>
-                                        <SystemField label="이미지 주소" value={currentPatch?.src ?? selection.src}
-                                            onChange={(e) => { if (isSafeVisualUrl(e.target.value)) setPatch({ src: e.target.value }); }}
-                                            hint="https:// 또는 사이트 내부 /v5/ 경로만 사용합니다." />
-                                        <SystemField label="대체 텍스트" value={currentPatch?.alt ?? selection.alt}
-                                            onChange={(e) => setPatch({ alt: e.target.value })} />
+                                        <StudioField label="이미지 주소" value={currentPatch?.src ?? selection.src}
+                                            hint="https:// 또는 사이트 내부 /v5/ 경로만 사용합니다."
+                                            onCommit={(src) => { if (!isSafeVisualUrl(src)) return false; setPatch({ src }); return true; }} />
+                                        <StudioField label="대체 텍스트" value={currentPatch?.alt ?? selection.alt}
+                                            onCommit={(alt) => { setPatch({ alt }); return true; }} />
                                     </>
                                 ) : null}
                                 {selection.isLink ? (
-                                    <SystemField label="링크 주소" value={currentPatch?.href ?? selection.href}
-                                        onChange={(e) => { if (isSafeVisualUrl(e.target.value)) setPatch({ href: e.target.value }); }}
-                                        hint="안전한 HTTPS 또는 사이트 경로만 허용합니다." />
+                                    <StudioField label="링크 주소" value={currentPatch?.href ?? selection.href}
+                                        hint="안전한 HTTPS 또는 사이트 경로만 허용합니다."
+                                        onCommit={(href) => { if (!isSafeVisualUrl(href)) return false; setPatch({ href }); return true; }} />
                                 ) : null}
                                 <SystemFilterButton selected={Boolean(currentPatch?.hidden)} onClick={() => setPatch({ hidden: !currentPatch?.hidden })}>
                                     {currentPatch?.hidden ? "숨김 상태 · 다시 표시" : "표시 상태 · 숨기기"}
@@ -1274,13 +1265,9 @@ export default function CmsVisualDesigner({
                                             if (key === "background-color" || key === "color" || key === "border-color") {
                                                 return (
                                                     <div key={key} className="cms-visual-field-block">
-                                                        <SystemField label={field.label} value={value}
+                                                        <StudioField label={field.label} value={value}
                                                             placeholder={selection.computed[key] || "기본값 유지"}
-                                                            onChange={(e) => {
-                                                                const safe = sanitizeVisualStyle(key, e.target.value);
-                                                                if (safe !== null) setPatch({ style: { [key]: safe } });
-                                                                else if (!e.target.value.trim()) mutate((current) => removeVisualStyle(current, selection.selector, key as VisualStyleKey));
-                                                            }} />
+                                                            onCommit={(raw) => commitStyle(key, raw)} />
                                                         <div className="cms-visual-swatches">
                                                             {COLOR_TOKENS.map((token) => (
                                                                 <button key={token.value} type="button" className="cms-visual-swatch" title={token.label}
@@ -1306,13 +1293,9 @@ export default function CmsVisualDesigner({
                                                 );
                                             }
                                             return (
-                                                <SystemField key={key} label={field.label} value={value}
+                                                <StudioField key={key} label={field.label} value={value}
                                                     placeholder={selection.computed[key] || "기본값 유지"}
-                                                    onChange={(e) => {
-                                                        const safe = sanitizeVisualStyle(key, e.target.value);
-                                                        if (safe !== null) setPatch({ style: { [key]: safe } });
-                                                        else if (!e.target.value.trim()) mutate((current) => removeVisualStyle(current, selection.selector, key as VisualStyleKey));
-                                                    }} />
+                                                    onCommit={(raw) => commitStyle(key, raw)} />
                                             );
                                         })}
                                         {group.id === "spacing" ? (
@@ -1367,8 +1350,7 @@ export default function CmsVisualDesigner({
                             브라우저 초안 비우기
                         </SystemButton>
                     </div>
-                </aside>
-            </div>
+            </>} />
         </div>
     );
 }
