@@ -7,6 +7,8 @@ import { StudioResizeHandle } from "./cms-studio/StudioResizeHandle";
 import type { StudioBox } from "../src/cms/studio-resize.ts";
 import { StudioToolbar } from "./cms-studio/StudioToolbar";
 import type { StudioMode } from "./cms-studio/StudioToolbar";
+import { applyVisualDraft, BODY_PREVIEW_STYLE, EDITABLE_TAGS, htmlTarget, resolveElement, selectionSnapshot } from "../src/cms/studio-canvas-dom.ts";
+import type { Original, SelectionInfo } from "../src/cms/studio-canvas-dom.ts";
 import { STUDIO_ARTBOARDS, studioArtboardScale } from "../src/cms/studio-artboard.ts";
 import type { StudioZoom } from "../src/cms/studio-artboard.ts";
 import { createStudioWrites } from "../src/cms/studio-writes.ts";
@@ -62,38 +64,8 @@ import {
 } from "./SystemPrimitives";
 
 type Viewport = "desktop" | "tablet" | "mobile";
-type SelectionInfo = {
-    selector: string;
-    tag: string;
-    text: string;
-    src: string;
-    alt: string;
-    href: string;
-    isLeaf: boolean;
-    isImage: boolean;
-    isLink: boolean;
-    computed: Record<string, string>;
-    breadcrumb: string[];
-};
 type Overlay = { left: number; top: number; width: number; height: number; label: string };
-type Original = {
-    style: string | null;
-    text: string | null;
-    src: string | null;
-    alt: string | null;
-    href: string | null;
-    hidden: boolean;
-};
 type Editing = { element: HTMLElement; selector: string; original: string };
-
-const EDITABLE_TAGS = new Set(["P", "H1", "H2", "H3", "H4", "SPAN", "STRONG", "EM", "SMALL", "LABEL", "BUTTON", "A", "LI", "FIGCAPTION", "TD", "TH", "TIME"]);
-const BODY_PREVIEW_STYLE = [
-    '[data-v5-entry-intro]{display:none!important}',
-    '[data-cms-visual-selected="true"]{outline:2px solid var(--accent-primary, #6b5b4a)!important;outline-offset:-2px!important}',
-    '[data-cms-visual-hover="true"]:not([data-cms-visual-selected]){outline:1px dashed var(--text-secondary, #6b5b4a)!important;outline-offset:-1px!important}',
-    '[data-cms-editing="true"]{outline:2px solid var(--text-primary, #211f1c)!important;cursor:text!important}',
-    '[data-cms-visual-target="true"]{outline:2px dashed var(--accent-primary, #6b5b4a)!important;outline-offset:-4px!important}',
-].join("");
 
 // 인스펙터 세그먼트 값: 자유 입력 대신 피그마처럼 선택지로 제공할 수 있는 키입니다.
 const STYLE_ENUMS: Record<string, readonly string[]> = {
@@ -113,145 +85,6 @@ const COLOR_TOKENS = [
     { label: "선", value: "var(--border-default)" },
 ];
 const SPACING_SCALE = ["4px", "8px", "12px", "16px", "24px", "32px", "48px", "64px"];
-
-function saveOriginal(map: Map<HTMLElement, Original>, el: HTMLElement): void {
-    if (map.has(el)) return;
-    map.set(el, {
-        style: el.getAttribute("style"),
-        text: el.children.length === 0 ? el.textContent : null,
-        src: el.getAttribute("src"),
-        alt: el.getAttribute("alt"),
-        href: el.getAttribute("href"),
-        hidden: el.hidden,
-    });
-}
-
-function restoreOriginals(map: Map<HTMLElement, Original>): void {
-    for (const [el, original] of map) {
-        if (!el.isConnected) continue;
-        if (original.style == null) el.removeAttribute("style");
-        else el.setAttribute("style", original.style);
-        if (original.text != null && el.children.length === 0) el.textContent = original.text;
-        for (const key of ["src", "alt", "href"] as const) {
-            if (original[key] == null) el.removeAttribute(key);
-            else el.setAttribute(key, original[key]!);
-        }
-        el.hidden = original.hidden;
-    }
-}
-
-function resolveElement(doc: Document, selector: string): HTMLElement | null {
-    try {
-        const element = doc.querySelector(selector);
-        return element && element.namespaceURI === "http://www.w3.org/1999/xhtml" ? (element as HTMLElement) : null;
-    } catch {
-        return null;
-    }
-}
-
-function htmlTarget(event: Event): HTMLElement | null {
-    let element = event.target as Element | null;
-    while (element && element.namespaceURI !== "http://www.w3.org/1999/xhtml") {
-        element = element.parentElement;
-    }
-    return element && element.nodeType === 1 ? (element as HTMLElement) : null;
-}
-
-function dataTextFor(tag: string): string {
-    if (tag === "h1" || tag === "h2" || tag === "h3") return "heading";
-    if (tag === "button" || tag === "a") return "action";
-    if (tag === "span" || tag === "li") return "item-title";
-    return "body";
-}
-
-// 삽입 요소(자식 포함)와 패치를 실제 캔버스 DOM에 반영합니다. 원본 React 코드는 건드리지 않습니다.
-function applyVisualDraft(doc: Document, draft: VisualDraftDocument, originals: Map<HTMLElement, Original>): void {
-    restoreOriginals(originals);
-    doc.querySelectorAll("[data-cms-added]").forEach((element) => element.remove());
-    for (const added of draft.additions) {
-        const parent = resolveElement(doc, added.parent);
-        if (!parent) continue;
-        const node = doc.createElement(added.tag);
-        node.setAttribute("data-cms-added", added.id);
-        node.setAttribute("data-cms-preset", added.preset);
-        node.setAttribute("data-text", dataTextFor(added.tag));
-        if (added.tag === "img") {
-            node.setAttribute("src", added.src || "/v5/assets/favicon.svg");
-            node.setAttribute("alt", added.alt || "새 이미지");
-        } else if (!added.children?.length) {
-            node.textContent = added.text;
-        }
-        if (added.tag === "a") node.setAttribute("href", added.href || "/v5/");
-        for (const [name, value] of Object.entries(added.style || {})) {
-            const safe = sanitizeVisualStyle(name, value);
-            if (safe != null) node.style.setProperty(name, safe);
-        }
-        if (added.children?.length) {
-            const tagCounts = new Map<string, number>();
-            for (const child of added.children) {
-                const childNode = doc.createElement(child.tag);
-                childNode.setAttribute("data-text", dataTextFor(child.tag));
-                if (child.tag === "a" && child.href) childNode.setAttribute("href", child.href);
-                if (child.tag === "img") {
-                    childNode.setAttribute("src", child.src || "/v5/assets/favicon.svg");
-                    childNode.setAttribute("alt", child.alt || "새 이미지");
-                } else childNode.textContent = child.text;
-                const count = (tagCounts.get(child.tag) || 0) + 1;
-                tagCounts.set(child.tag, count);
-                node.appendChild(childNode);
-            }
-        }
-        parent.appendChild(node);
-    }
-    for (const patch of draft.patches) {
-        const el = resolveElement(doc, patch.selector);
-        if (!el) continue;
-        if (!el.hasAttribute("data-cms-added")) saveOriginal(originals, el);
-        if (patch.text !== undefined && el.children.length === 0 && EDITABLE_TAGS.has(el.tagName)) el.textContent = patch.text;
-        if (patch.src && el.tagName === "IMG") el.setAttribute("src", patch.src);
-        if (patch.alt !== undefined && el.tagName === "IMG") el.setAttribute("alt", patch.alt);
-        if (patch.href && el.tagName === "A") el.setAttribute("href", patch.href);
-        if (patch.hidden !== undefined) el.hidden = patch.hidden;
-        for (const [name, value] of Object.entries(patch.style || {})) {
-            const safe = sanitizeVisualStyle(name, value);
-            if (safe != null) el.style.setProperty(name, safe);
-        }
-    }
-}
-
-function breadcrumbFor(el: Element): string[] {
-    const trail: string[] = [];
-    let current: Element | null = el;
-    while (current && current.localName !== "html") {
-        const text = (current.getAttribute("aria-label") || current.textContent || "").replace(/\s+/g, " ").trim().slice(0, 18);
-        trail.unshift(current.localName + (text ? " · " + text : ""));
-        current = current.parentElement;
-    }
-    return trail.slice(-6);
-}
-
-function selectionSnapshot(doc: Document, selector: string): SelectionInfo | null {
-    const el = resolveElement(doc, selector);
-    if (!el) return null;
-    const styles = doc.defaultView?.getComputedStyle(el);
-    const computed: Record<string, string> = {};
-    for (const field of VISUAL_STYLE_FIELDS) computed[field.key] = styles?.getPropertyValue(field.key).trim() || "";
-    const isImage = el.tagName === "IMG";
-    const isLink = el.tagName === "A";
-    return {
-        selector,
-        tag: el.tagName.toLowerCase(),
-        text: el.textContent || "",
-        src: isImage ? el.getAttribute("src") || "" : "",
-        alt: isImage ? el.getAttribute("alt") || "" : "",
-        href: isLink ? el.getAttribute("href") || "" : "",
-        isLeaf: el.children.length === 0 && EDITABLE_TAGS.has(el.tagName),
-        isImage,
-        isLink,
-        computed,
-        breadcrumb: breadcrumbFor(el),
-    };
-}
 
 function downloadDraft(doc: VisualDraftDocument): void {
     const blob = new Blob([JSON.stringify(doc, null, 2)], { type: "application/json;charset=utf-8" });
@@ -307,6 +140,7 @@ export default function CmsVisualDesigner({
     const [frameReady, setFrameReady] = useState(false);
     const [frameBlocked, setFrameBlocked] = useState(false);
     const [frameEpoch, setFrameEpoch] = useState(0);
+    const [frameVersion, setFrameVersion] = useState(0);
     const [mode, setMode] = useState<StudioMode>("select");
     const [viewport, setViewport] = useState<Viewport>("desktop");
     const [zoom, setZoom] = useState<StudioZoom>("fit");
@@ -480,13 +314,13 @@ export default function CmsVisualDesigner({
         autosaveVisualDraft(() => window.localStorage, path, history.present, dirty);
     }, [dirty, frameReady, history.present, path]);
 
-    // 2) 캔버스 주입·선택·이동·인라인 편집·오버레이
+    // 문서 반영과 레이어 수집은 선택·호버와 독립적으로 수행합니다.
+    // Apply a document and capture its layer tree independently of pointer selection.
     useEffect(() => {
         const doc = getFrameDocument();
-        if (!frameReady || !doc || !doc.body) return;
-        let style = doc.getElementById("cms-visual-preview-style") as HTMLStyleElement | null;
-        if (!style) {
-            style = doc.createElement("style");
+        if (!frameReady || !doc) return;
+        if (!doc.getElementById("cms-visual-preview-style")) {
+            const style = doc.createElement("style");
             style.id = "cms-visual-preview-style";
             style.textContent = BODY_PREVIEW_STYLE;
             doc.head.appendChild(style);
@@ -497,20 +331,26 @@ export default function CmsVisualDesigner({
             setIsError(true);
             setStatus("미리보기 적용 중 오류: " + String(error));
         }
+    }, [frameReady, frameVersion, getFrameDocument, history.present, originalView, path]);
+
+    useEffect(() => {
+        const doc = getFrameDocument();
+        if (!frameReady || !doc) return;
+        try { setSnapshot(capturePageTree({ document: doc, path, viewport })); }
+        catch { setSnapshot(null); }
+    }, [frameReady, frameVersion, getFrameDocument, history.present, originalView, path, viewport]);
+
+    // Tool listeners can be replaced without reapplying the document.
+    useEffect(() => {
+        const doc = getFrameDocument();
+        if (!frameReady || !doc) return;
         doc.querySelectorAll("[data-cms-visual-selected], [data-cms-visual-hover]").forEach((el) => {
             el.removeAttribute("data-cms-visual-selected");
             el.removeAttribute("data-cms-visual-hover");
         });
         const selected = selection ? resolveElement(doc, selection.selector) : null;
         if (selected && mode !== "preview") selected.setAttribute("data-cms-visual-selected", "true");
-        try {
-            const captured = capturePageTree({ document: doc, path, viewport });
-            setSnapshot(captured);
-        } catch {
-            setSnapshot(null);
-        }
         refreshOverlay();
-
         if (mode === "preview") {
             setOverlay(null);
             const escapePreview = (event: KeyboardEvent) => {
@@ -556,7 +396,7 @@ export default function CmsVisualDesigner({
             event.stopImmediatePropagation();
             const selector = visualSelectorFor(el);
             selectBySelector(selector);
-            el.setAttribute("contenteditable", "true");
+            el.setAttribute("contenteditable", "plaintext-only");
             el.setAttribute("data-cms-editing", "true");
             editingRef.current = { element: el, selector, original: el.textContent || "" };
             el.focus();
@@ -580,10 +420,11 @@ export default function CmsVisualDesigner({
             const action = studioShortcut(event, Boolean(target?.closest("input,textarea,select,[contenteditable]:not([contenteditable=false])")));
             if (action && shortcutRef.current(action)) event.preventDefault();
         };
-        const blur = (event: Event) => {
-            if (!editingRef.current) return;
-            const target = event.target as Element | null;
-            if (target && editingRef.current.element.contains(target)) return;
+        const blur = (event: FocusEvent) => {
+            const editing = editingRef.current;
+            if (!editing || event.target !== editing.element) return;
+            const next = event.relatedTarget as Node | null;
+            if (next && editing.element.contains(next)) return;
             commitEditing();
         };
         const pointerDown = (event: PointerEvent) => {
@@ -650,7 +491,7 @@ export default function CmsVisualDesigner({
             doc.removeEventListener("scroll", refreshOverlay, true);
             doc.defaultView?.removeEventListener("resize", refreshOverlay);
         };
-    }, [cancelDrag, frameReady, getFrameDocument, history.present, mode, mutate, originalView, path, refreshOverlay, selectBySelector, selection, viewport]);
+    }, [cancelDrag, frameReady, frameVersion, getFrameDocument, history.present, mode, mutate, refreshOverlay, selectBySelector, selection]);
 
     useEffect(() => {
         if (mode !== "preview") refreshOverlay();
@@ -1248,6 +1089,7 @@ export default function CmsVisualDesigner({
                                     editingRef.current = null;
                                     const documentMatches = Boolean(getFrameDocument());
                                     setFrameReady(documentMatches);
+                                    if (documentMatches) setFrameVersion(value => value + 1);
                                     setFrameBlocked(!documentMatches);
                                     setSelection(null);
                                     if (!documentMatches) { setSnapshot(null); setOverlay(null); }
