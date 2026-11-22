@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StudioField } from "./cms-studio/StudioField";
 import { StudioWorkspace } from "./cms-studio/StudioWorkspace";
+import { createStudioWrites } from "../src/cms/studio-writes.ts";
+import { readStudioFrame } from "../src/cms/studio-frame.ts";
 import { flattenStudioLayers } from "../src/cms/studio-layers.ts";
 import { useCatalog } from "../src/catalog/CatalogProvider";
 import { supabase } from "../src/lib/supabase.ts";
@@ -298,6 +300,8 @@ export default function CmsVisualDesigner({
     const [treeSyncedAt, setTreeSyncedAt] = useState("");
     const [loading, setLoading] = useState(true);
     const [frameReady, setFrameReady] = useState(false);
+    const [frameBlocked, setFrameBlocked] = useState(false);
+    const [frameEpoch, setFrameEpoch] = useState(0);
     const [mode, setMode] = useState<ToolMode>("select");
     const [viewport, setViewport] = useState<Viewport>("desktop");
     const [zoom, setZoom] = useState(100);
@@ -309,10 +313,14 @@ export default function CmsVisualDesigner({
     const [agentPrompt, setAgentPrompt] = useState("");
     const [snapshot, setSnapshot] = useState<CmsPageSnapshot | null>(null);
     const iframeRef = useRef<HTMLIFrameElement>(null);
+    const getFrameDocument = useCallback(() => readStudioFrame(iframeRef.current, window.location.origin, path), [path]);
     const stageRef = useRef<HTMLDivElement>(null);
     const originals = useRef<Map<HTMLElement, Original>>(new Map());
     const editingRef = useRef<Editing | null>(null);
     const dragRef = useRef<{ element: HTMLElement; selector: string; gesture: StudioDrag; value: string; priority: string } | null>(null);
+    const [writes] = useState(createStudioWrites);
+    const pathRef = useRef(path);
+    const markDirty = useCallback(() => { writes.changed(); setDirty(true); }, [writes]);
     const shortcutRef = useRef<(action: StudioShortcut) => boolean>(() => false);
     const cancelDrag = useCallback((pointerId?: number) => {
         const drag = dragRef.current;
@@ -329,11 +337,11 @@ export default function CmsVisualDesigner({
 
     const mutate = useCallback((updater: (doc: VisualDraftDocument) => VisualDraftDocument) => {
         setHistory((current) => pushVisualHistory(current, updater(current.present)));
-        setDirty(true);
-    }, []);
+        markDirty();
+    }, [markDirty]);
 
     const refreshOverlay = useCallback(() => {
-        const doc = iframeRef.current?.contentDocument;
+        const doc = getFrameDocument();
         if (!doc || !selection) {
             setOverlay(null);
             return;
@@ -351,13 +359,13 @@ export default function CmsVisualDesigner({
             height: Math.max(rect.height, 2),
             label: selection.tag + " · " + Math.round(rect.width) + "×" + Math.round(rect.height),
         });
-    }, [selection]);
+    }, [getFrameDocument, selection]);
 
     const selectBySelector = useCallback((selector: string) => {
-        const doc = iframeRef.current?.contentDocument;
+        const doc = getFrameDocument();
         if (!doc) return;
         setSelection(selectionSnapshot(doc, selector));
-    }, []);
+    }, [getFrameDocument]);
 
     // 1) 페이지 초안 불러오기 (Supabase sejong_cms_visual_documents)
     useEffect(() => {
@@ -365,6 +373,7 @@ export default function CmsVisualDesigner({
         originals.current = new Map();
         editingRef.current = null;
         setFrameReady(false);
+        setFrameBlocked(false);
         setSelection(null);
         setOverlay(null);
         setHistory(createVisualHistory(emptyVisualDocument(path)));
@@ -451,7 +460,7 @@ export default function CmsVisualDesigner({
 
     // 2) 캔버스 주입·선택·이동·인라인 편집·오버레이
     useEffect(() => {
-        const doc = iframeRef.current?.contentDocument;
+        const doc = getFrameDocument();
         if (!frameReady || !doc || !doc.body) return;
         let style = doc.getElementById("cms-visual-preview-style") as HTMLStyleElement | null;
         if (!style) {
@@ -471,7 +480,7 @@ export default function CmsVisualDesigner({
             el.removeAttribute("data-cms-visual-hover");
         });
         const selected = selection ? resolveElement(doc, selection.selector) : null;
-        if (selected) selected.setAttribute("data-cms-visual-selected", "true");
+        if (selected && mode !== "preview") selected.setAttribute("data-cms-visual-selected", "true");
         try {
             const captured = capturePageTree({ document: doc, path, viewport });
             setSnapshot(captured);
@@ -480,7 +489,14 @@ export default function CmsVisualDesigner({
         }
         refreshOverlay();
 
-        if (mode === "preview") return;
+        if (mode === "preview") {
+            setOverlay(null);
+            const escapePreview = (event: KeyboardEvent) => {
+                if (!event.isComposing && event.key === "Escape" && shortcutRef.current("cancel")) event.preventDefault();
+            };
+            doc.addEventListener("keydown", escapePreview, true);
+            return () => doc.removeEventListener("keydown", escapePreview, true);
+        }
         const pointerOver = (event: PointerEvent) => {
             const el = htmlTarget(event);
             if (!el || el === doc.body) return;
@@ -612,11 +628,11 @@ export default function CmsVisualDesigner({
             doc.removeEventListener("scroll", refreshOverlay, true);
             doc.defaultView?.removeEventListener("resize", refreshOverlay);
         };
-    }, [cancelDrag, frameReady, history.present, mode, mutate, path, refreshOverlay, selectBySelector, selection, viewport]);
+    }, [cancelDrag, frameReady, getFrameDocument, history.present, mode, mutate, path, refreshOverlay, selectBySelector, selection, viewport]);
 
     useEffect(() => {
-        refreshOverlay();
-    }, [refreshOverlay, zoom, viewport]);
+        if (mode !== "preview") refreshOverlay();
+    }, [mode, refreshOverlay, zoom, viewport]);
 
     // 2-b) React 하이드레이션 전에 iframe 로드가 이미 끝난 경우에도 캔버스를 연결합니다.
     // (이 경우 load 이벤트를 놓쳐 레이어·선택기능이 비어 보이는 문제를 막습니다.)
@@ -625,7 +641,7 @@ export default function CmsVisualDesigner({
         if (!frame) return;
         let cancelled = false;
         const mark = () => {
-            const doc = frame.contentDocument;
+            const doc = getFrameDocument();
             if (!cancelled && doc?.readyState === "complete" && doc.body) {
                 setFrameReady(true);
                 return true;
@@ -640,7 +656,7 @@ export default function CmsVisualDesigner({
             cancelled = true;
             window.clearInterval(timer);
         };
-    }, [path]);
+    }, [frameEpoch, getFrameDocument]);
 
     const setPatch = (change: Parameters<typeof upsertVisualPatch>[2]) => {
         if (!selection) return;
@@ -671,14 +687,16 @@ export default function CmsVisualDesigner({
             setIsError(true);
             return;
         }
+        if (next === path || writes.busy()) return;
         if (dirty && !window.confirm("현재 페이지에 저장하지 않은 변경사항이 있습니다. 다른 페이지로 이동할까요?")) return;
+        pathRef.current = next;
         setPath(next);
         setManualPath(next);
         setMode("select");
     };
 
     const insertPreset = (preset: VisualPresetId, parentSelector?: string) => {
-        const frameDoc = iframeRef.current?.contentDocument;
+        const frameDoc = getFrameDocument();
         if (!frameDoc?.body) return;
         const target = parentSelector
             ? resolveElement(frameDoc, parentSelector)
@@ -699,7 +717,7 @@ export default function CmsVisualDesigner({
             return;
         }
         setHistory((current) => pushVisualHistory(current, result.document));
-        setDirty(true);
+        markDirty();
         setIsError(false);
         setStatus(
             (VISUAL_PRESETS.find((item) => item.id === preset)?.label || preset) +
@@ -735,7 +753,7 @@ export default function CmsVisualDesigner({
             if (action === "undo" || action === "redo") {
                 if (!(action === "undo" ? history.past.length : history.future.length)) return false;
                 setHistory(action === "undo" ? undoVisualHistory : redoVisualHistory);
-                setDirty(true);
+                markDirty();
             } else if (action === "remove") {
                 if (!selection) return false;
                 deleteSelected();
@@ -743,7 +761,12 @@ export default function CmsVisualDesigner({
             return true;
         };
         const onKey = (event: KeyboardEvent) => {
-            if (event.defaultPrevented || event.keyCode === 229) return;
+            if (event.defaultPrevented || event.isComposing || event.keyCode === 229) return;
+            if ((event.metaKey || event.ctrlKey) && !event.altKey && event.key.toLowerCase() === "s" && access === "admin" && dirty) {
+                event.preventDefault();
+                void save();
+                return;
+            }
             const target = event.target instanceof Element ? event.target : null;
             const action = studioShortcut(event, Boolean(target?.closest("input,textarea,select,button,[contenteditable]:not([contenteditable=false])")));
             if (action && shortcutRef.current(action)) event.preventDefault();
@@ -762,7 +785,8 @@ export default function CmsVisualDesigner({
     };
 
     const save = async () => {
-        if (!supabase || loading || !userId) {
+        if (writes.busy()) return;
+        if (!supabase || loading || !userId || access !== "admin") {
             setIsError(false);
             setStatus(
                 userId
@@ -771,6 +795,8 @@ export default function CmsVisualDesigner({
             );
             return;
         }
+        const request = writes.begin();
+        if (!request) return;
         setIsSaving(true);
         try {
             if (!(await checkAdmin())) throw new Error("서버의 활성 CMS 관리자 검증에 실패했습니다. 다시 로그인하세요.");
@@ -804,19 +830,24 @@ export default function CmsVisualDesigner({
                 if (!data) throw new Error("동시 편집 충돌입니다. 서버 리비전이 바뀌었으므로 덮어쓰지 않았습니다. 새로고침 후 다시 시도하세요.");
                 setRevision(Number(data.revision));
             }
-            setDirty(false);
+            const unchanged = writes.isCurrent(request);
+            if (unchanged) setDirty(false);
             setIsError(false);
-            setStatus("Supabase DB에 비공개 시각 초안을 저장했습니다. 운영 사이트에는 아직 게시되지 않았습니다.");
+            setStatus(unchanged
+                ? "DB 초안을 저장했습니다. 운영 사이트에는 아직 게시되지 않았습니다."
+                : "DB에 이전 변경을 저장했습니다. 저장 도중 추가한 편집은 아직 저장되지 않았습니다.");
         } catch (error) {
             setIsError(true);
             setStatus("DB 저장 실패: " + (error instanceof Error ? error.message : String(error)));
         } finally {
+            writes.finish(request);
             setIsSaving(false);
         }
     };
 
     const publish = async () => {
-        if (!supabase || revision === 0) {
+        if (writes.busy()) return;
+        if (!supabase || access !== "admin" || revision === 0) {
             setIsError(false);
             setStatus(
                 revision === 0
@@ -833,6 +864,8 @@ export default function CmsVisualDesigner({
         const note = window.prompt("발행 메모(감사 기록)", path + " 시각 디자인 발행");
         if (note === null) return;
         if (!window.confirm("초안 r" + revision + "을 발행 리비전으로 확정할까요? 발행 이력에 불변 스냅샷이 남습니다.")) return;
+        const request = writes.begin();
+        if (!request) return;
         setIsPublishing(true);
         try {
             if (!(await checkAdmin())) throw new Error("서버의 활성 CMS 관리자 검증에 실패했습니다.");
@@ -860,31 +893,13 @@ export default function CmsVisualDesigner({
                         : ""),
             );
         } finally {
+            writes.finish(request);
             setIsPublishing(false);
         }
     };
 
-    // [단축키: 되돌리기·다시 실행·DB 저장 / Shortcuts: undo, redo, save]
-    useEffect(() => {
-        const onKey = (event: KeyboardEvent) => {
-            if (!(event.metaKey || event.ctrlKey)) return;
-            const key = event.key.toLowerCase();
-            if (key === "z") {
-                event.preventDefault();
-                if (event.shiftKey) setHistory(redoVisualHistory);
-                else setHistory(undoVisualHistory);
-                setDirty(true);
-            } else if (key === "s") {
-                event.preventDefault();
-                void save();
-            }
-        };
-        window.addEventListener("keydown", onKey);
-        return () => window.removeEventListener("keydown", onKey);
-    }, []);
-
     const syncTree = async () => {
-        const frameDoc = iframeRef.current?.contentDocument;
+        const frameDoc = getFrameDocument();
         if (!supabase || !frameDoc || !userId) {
             setIsError(true);
             setStatus("캔버스와 DB 연결이 준비되지 않았습니다.");
@@ -925,19 +940,23 @@ export default function CmsVisualDesigner({
     };
 
     const onImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
+        const input = event.currentTarget;
+        const file = input.files?.[0];
         if (!file) return;
         try {
             if (file.size > 500_000) throw new Error("초안 JSON 파일은 500KB 이하만 허용됩니다.");
-            const imported = sanitizeVisualDocument(JSON.parse(await file.text()), path);
+            const raw = await file.text();
+            if (pathRef.current !== path) return;
+            const imported = sanitizeVisualDocument(JSON.parse(raw), path);
             mutate(() => imported);
             setIsError(false);
             setStatus("JSON 초안을 현재 페이지 미리보기에 적용했습니다. DB 저장은 별도로 필요합니다.");
         } catch (error) {
             setIsError(true);
             setStatus("초안 가져오기 실패: " + String(error));
+        } finally {
+            input.value = "";
         }
-        event.target.value = "";
     };
 
     const routes = useMemo(() => {
@@ -982,6 +1001,7 @@ export default function CmsVisualDesigner({
     };
 
     const clearLocalDraft = () => {
+        if (writes.busy()) return;
         try {
             window.localStorage.removeItem(visualLocalDraftKey(path));
         } catch {
@@ -1019,13 +1039,13 @@ export default function CmsVisualDesigner({
                     {access === "admin" ? null : (
                         <SystemLink href="/login" variant="quiet">관리자 로그인</SystemLink>
                     )}
-                    <SystemButton variant="secondary" disabled={!history.past.length} onClick={() => { setHistory(undoVisualHistory); setDirty(true); }}>실행 취소</SystemButton>
-                    <SystemButton variant="secondary" disabled={!history.future.length} onClick={() => { setHistory(redoVisualHistory); setDirty(true); }}>다시 실행</SystemButton>
+                    <SystemButton variant="secondary" disabled={!history.past.length} onClick={() => { setHistory(undoVisualHistory); markDirty(); }}>실행 취소</SystemButton>
+                    <SystemButton variant="secondary" disabled={!history.future.length} onClick={() => { setHistory(redoVisualHistory); markDirty(); }}>다시 실행</SystemButton>
                     <SystemButton variant="secondary" onClick={() => downloadDraft(history.present)}>JSON 내보내기</SystemButton>
-                    <SystemButton variant="secondary" disabled={isPublishing || loading || revision === 0} onClick={() => void publish()}>
+                    <SystemButton variant="secondary" disabled={access !== "admin" || isSaving || isPublishing || loading || dirty || revision === 0} onClick={() => void publish()}>
                         {isPublishing ? "발행 중…" : "발행"}
                     </SystemButton>
-                    <SystemButton variant="primary" disabled={isSaving || loading || !dirty} onClick={() => void save()}>
+                    <SystemButton variant="primary" disabled={access !== "admin" || isSaving || isPublishing || loading || !dirty} onClick={() => void save()}>
                         {isSaving ? "DB 저장 중…" : "DB 초안 저장"}
                     </SystemButton>
                 </div>
@@ -1160,15 +1180,30 @@ export default function CmsVisualDesigner({
                     ) : null}
                     <div className="cms-visual-stage" ref={stageRef}>
                         <div className="cms-visual-viewport" style={{ width: stageWidth, transform: "scale(" + zoom / 100 + ")", transformOrigin: "top center" }}>
+                            {frameBlocked ? <div className="cms-visual-frame-fallback" role="status">
+                                <p data-text="body">다른 페이지로 이동해 이 아트보드의 편집을 멈췄습니다.</p>
+                                <SystemButton variant="secondary" onClick={() => {
+                                    setFrameReady(false);
+                                    setFrameBlocked(false);
+                                    setFrameEpoch(value => value + 1);
+                                }}>원래 아트보드 열기</SystemButton>
+                            </div> : null}
                             <iframe
+                                key={frameEpoch + ":" + path}
                                 ref={iframeRef}
+                                hidden={frameBlocked}
+                                sandbox="allow-scripts allow-same-origin"
                                 title="세종문화회관 실제 페이지 시각 편집"
                                 src={"/v5" + (path === "/" ? "/" : path + "/")}
                                 onLoad={() => {
+                                    cancelDrag();
                                     originals.current.clear();
                                     editingRef.current = null;
-                                    setFrameReady(true);
+                                    const documentMatches = Boolean(getFrameDocument());
+                                    setFrameReady(documentMatches);
+                                    setFrameBlocked(!documentMatches);
                                     setSelection(null);
+                                    if (!documentMatches) { setSnapshot(null); setOverlay(null); }
                                 }}
                             />
                             {overlay ? (

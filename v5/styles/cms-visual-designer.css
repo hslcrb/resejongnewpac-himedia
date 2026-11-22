@@ -474,3 +474,6 @@
 @media (max-width: 480px) {
     .cms-visual-style-fields { grid-template-columns: minmax(0, 1fr); }
 }
+
+.cms-visual-viewport iframe[hidden] { display: none; }
+.cms-visual-frame-fallback { padding: var(--space-4); }
