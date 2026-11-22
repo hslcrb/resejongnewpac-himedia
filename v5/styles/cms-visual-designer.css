@@ -511,3 +511,5 @@
     touch-action: none;
     cursor: nwse-resize;
 }
+
+.cms-visual-layer-order { display: flex; flex-wrap: wrap; gap: 4px; }
