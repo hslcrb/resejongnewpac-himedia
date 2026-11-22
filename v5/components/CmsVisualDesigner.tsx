@@ -11,6 +11,8 @@ import { applyVisualDraft, BODY_PREVIEW_STYLE, EDITABLE_TAGS, htmlTarget, resolv
 import type { Original, SelectionInfo } from "../src/cms/studio-canvas-dom.ts";
 import { STUDIO_ARTBOARDS, studioArtboardScale } from "../src/cms/studio-artboard.ts";
 import type { StudioZoom } from "../src/cms/studio-artboard.ts";
+import { chooseStudioDraft, clearStudioDraft, readStudioDraft, writeStudioDraft } from "../src/cms/studio-recovery.ts";
+import type { StudioRecovery } from "../src/cms/studio-recovery.ts";
 import { createStudioWrites } from "../src/cms/studio-writes.ts";
 import { readStudioFrame } from "../src/cms/studio-frame.ts";
 import { flattenStudioLayers } from "../src/cms/studio-layers.ts";
@@ -31,7 +33,6 @@ import {
     VISUAL_STYLE_FIELDS,
     VISUAL_STYLE_GROUPS,
     addVisualElement,
-    autosaveVisualDraft,
     visualLocalDraftKey,
     countVisualChanges,
     createVisualHistory,
@@ -137,6 +138,13 @@ export default function CmsVisualDesigner({
     const [treeSyncing, setTreeSyncing] = useState(false);
     const [treeSyncedAt, setTreeSyncedAt] = useState("");
     const [loading, setLoading] = useState(true);
+    const [loadedKey, setLoadedKey] = useState("");
+    const [remoteReady, setRemoteReady] = useState(false);
+    const [recoveryConflict, setRecoveryConflict] = useState<VisualDraftDocument | null>(null);
+    const [storageWarning, setStorageWarning] = useState(false);
+    const [reloadDraft, setReloadDraft] = useState(0);
+    const recoveryScope = access === "admin" && userId ? "admin:" + userId : "sandbox";
+    const recoveryKey = recoveryScope + ":" + path;
     const [frameReady, setFrameReady] = useState(false);
     const [frameBlocked, setFrameBlocked] = useState(false);
     const [frameEpoch, setFrameEpoch] = useState(0);
@@ -192,9 +200,10 @@ export default function CmsVisualDesigner({
     useEffect(() => () => { cancelDrag(); }, [cancelDrag, mode, path]);
 
     const mutate = useCallback((updater: (doc: VisualDraftDocument) => VisualDraftDocument) => {
+        if (loading) return;
         setHistory((current) => pushVisualHistory(current, updater(current.present)));
         markDirty();
-    }, [markDirty]);
+    }, [loading, markDirty]);
 
     const refreshOverlay = useCallback(() => {
         const doc = getFrameDocument();
@@ -223,96 +232,75 @@ export default function CmsVisualDesigner({
         setSelection(selectionSnapshot(doc, selector));
     }, [getFrameDocument]);
 
-    // 1) 페이지 초안 불러오기 (Supabase sejong_cms_visual_documents)
+    // 서버 리비전과 출처가 같은 로컬 작업만 복구할 수 있습니다.
+    // Reopen local edits only against the remote revision they were based on.
     useEffect(() => {
         let live = true;
-        originals.current = new Map();
-        editingRef.current = null;
-        setFrameReady(false);
-        setFrameBlocked(false);
-        setSelection(null);
-        setOverlay(null);
-        setHistory(createVisualHistory(emptyVisualDocument(path)));
+        setLoading(true);
+        setRemoteReady(false);
+        setLoadedKey("");
+        setRecoveryConflict(null);
+        setStorageWarning(false);
         setRevision(0);
         setPublishedRevision(0);
         setDirty(false);
+        setSelection(null);
         setTreeSyncedAt("");
-        setLoading(true);
-        const stored = readLocalDraft(path);
+        if (access === "checking") return;
+        const localAt = (base?: number): StudioRecovery | null => {
+            try { return readStudioDraft(window.localStorage, recoveryScope, path, base); }
+            catch { return null; }
+        };
+        const legacy = readLocalDraft(path);
+        const mostRecent = () => localAt() ?? (legacy ? { document: legacy, revision: null } : null);
         const load = async () => {
-            if (!supabase) {
-                if (live) {
-                    setLoading(false);
-                    if (stored) {
-                        setHistory(createVisualHistory(stored));
-                        setIsError(false);
-                        setStatus(path + "의 브라우저 로컬 초안을 열었습니다. DB 저장은 관리자 로그인 후 가능합니다.");
-                    } else {
-                        setIsError(false);
-                        setStatus("DB 연결 설정이 없어 로컬 모드로 동작합니다. 편집·미리보기는 그대로 가능합니다.");
-                    }
-                }
-                return;
-            }
-            const { data, error } = await supabase
-                .from(CMS_VISUAL_DOCUMENTS_TABLE)
-                .select("document, revision, published_revision")
-                .eq("target_path", path)
-                .maybeSingle();
-            if (!live) return;
-            setLoading(false);
-            if (error) {
-                // [마이그레이션 전 상태도 작업을 막지 않음 / A missing table does not block the canvas]
-                const notReady = /schema cache|does not exist|PGRST205|42P01/i.test(error.message);
-                if (notReady) {
-                    setIsError(false);
-                    if (stored) {
-                        setHistory(createVisualHistory(stored));
-                        setStatus(path + "의 브라우저 로컬 초안을 열었습니다. DB 초안 테이블은 아직 준비되지 않았습니다.");
-                    } else {
-                        setStatus(
-                            "DB 초안 테이블이 아직 준비되지 않아 브라우저 로컬 모드로 작업합니다. 편집 내용은 이 브라우저에 보관됩니다.",
-                        );
-                    }
-                    return;
-                }
-                setIsError(true);
-                setStatus("시각 초안 조회 실패: " + error.message);
-                return;
-            }
-            if (data) {
+            let remote: VisualDraftDocument | null = null;
+            let base = 0;
+            let published = 0;
+            let dbReady = false;
+            let failed = false;
+            if (supabase && access === "admin") {
                 try {
-                    setHistory(createVisualHistory(sanitizeVisualDocument(data.document, path)));
-                    setRevision(Number(data.revision) || 0);
-                    setPublishedRevision(Number(data.published_revision) || 0);
-                    setIsError(false);
-                    setStatus(
-                        path + "의 DB 초안 r" + data.revision + "을(를) 불러왔습니다. 발행 r" + (data.published_revision || 0) + ".",
-                    );
-                } catch (err) {
-                    setIsError(true);
-                    setStatus("저장된 문서 정화 오류: " + String(err));
-                }
-            } else if (stored) {
-                setHistory(createVisualHistory(stored));
-                setIsError(false);
-                setStatus(path + "의 브라우저 로컬 초안을 열었습니다. DB에는 아직 저장되지 않은 초안입니다.");
-            } else {
-                setIsError(false);
-                setStatus(path + "에는 아직 시각 초안이 없습니다. 캔버스에서 바로 편집을 시작하세요.");
+                    const { data, error } = await supabase.from(CMS_VISUAL_DOCUMENTS_TABLE)
+                        .select("document, revision, published_revision").eq("target_path", path).maybeSingle();
+                    if (error) throw error;
+                    if (data) {
+                        remote = sanitizeVisualDocument(data.document, path);
+                        base = Number(data.revision) || 0;
+                        published = Number(data.published_revision) || 0;
+                    }
+                    dbReady = true;
+                } catch { failed = true; }
             }
+            if (!live) return;
+            const local = failed ? mostRecent() : localAt(base) ?? mostRecent();
+            const result = failed && local ? { state: "recover", document: local.document } : chooseStudioDraft(remote, base, local);
+            setHistory(createVisualHistory(result.document ?? emptyVisualDocument(path)));
+            setRevision(failed && local ? local.revision ?? 0 : base);
+            setPublishedRevision(published);
+            setDirty(result.state === "recover");
+            setRecoveryConflict(result.state === "conflict" ? local?.document ?? null : null);
+            setRemoteReady(dbReady);
+            setLoadedKey(recoveryKey);
+            setIsError(failed);
+            setStatus(failed
+                ? "DB 초안을 확인하지 못했습니다. 로컬 편집만 가능하며 원격 쓰기는 중지합니다."
+                : result.state === "conflict"
+                  ? "브라우저 작업본과 DB 리비전이 다릅니다. 덮어쓰지 않았으며 브라우저 사본을 내보낼 수 있습니다."
+                  : result.state === "recover" ? "이 브라우저에서 마지막으로 작업한 초안을 복구했습니다."
+                  : dbReady ? "DB 초안 r" + base + " · 발행 r" + published
+                  : "브라우저 로컬 편집. DB 저장과 발행은 관리자 연결이 필요합니다.");
+            setLoading(false);
         };
         void load();
-        return () => {
-            live = false;
-        };
-    }, [path]);
+        return () => { live = false; };
+    }, [access, path, recoveryKey, recoveryScope, reloadDraft]);
 
-    // 1-b) 브라우저 로컬 초안 자동 보관 / Keep an offline browser copy of the draft
     useEffect(() => {
-        if (!frameReady) return;
-        autosaveVisualDraft(() => window.localStorage, path, history.present, dirty);
-    }, [dirty, frameReady, history.present, path]);
+        if (!dirty || loading || loadedKey !== recoveryKey || history.present.path !== path) return;
+        try { setStorageWarning(!writeStudioDraft(window.localStorage, recoveryScope, path, revision, history.present)); }
+        catch { setStorageWarning(true); }
+    }, [dirty, history.present, loadedKey, loading, path, recoveryKey, recoveryScope, revision]);
 
     // 문서 반영과 레이어 수집은 선택·호버와 독립적으로 수행합니다.
     // Apply a document and capture its layer tree independently of pointer selection.
@@ -591,6 +579,8 @@ export default function CmsVisualDesigner({
         if (next === path || writes.busy()) return;
         if (dirty && !window.confirm("현재 페이지에 저장하지 않은 변경사항이 있습니다. 다른 페이지로 이동할까요?")) return;
         pathRef.current = next;
+        setFrameReady(false);
+        setFrameBlocked(false);
         setPath(next);
         setOriginalView(false);
         setManualPath(next);
@@ -689,7 +679,7 @@ export default function CmsVisualDesigner({
 
     const save = async () => {
         if (writes.busy()) return;
-        if (!supabase || loading || !userId || access !== "admin") {
+        if (!supabase || loading || !userId || access !== "admin" || !remoteReady) {
             setIsError(false);
             setStatus(
                 userId
@@ -734,7 +724,10 @@ export default function CmsVisualDesigner({
                 setRevision(Number(data.revision));
             }
             const unchanged = writes.isCurrent(request);
-            if (unchanged) setDirty(false);
+            if (unchanged) {
+                try { clearStudioDraft(window.localStorage, recoveryScope, path, revision); } catch { /* DB save already succeeded. */ }
+                setDirty(false);
+            }
             setIsError(false);
             setStatus(unchanged
                 ? "DB 초안을 저장했습니다. 운영 사이트에는 아직 게시되지 않았습니다."
@@ -750,7 +743,7 @@ export default function CmsVisualDesigner({
 
     const publish = async () => {
         if (writes.busy()) return;
-        if (!supabase || access !== "admin" || revision === 0) {
+        if (!supabase || access !== "admin" || !remoteReady || revision === 0) {
             setIsError(false);
             setStatus(
                 revision === 0
@@ -905,17 +898,15 @@ export default function CmsVisualDesigner({
     };
 
     const clearLocalDraft = () => {
-        if (writes.busy()) return;
+        if (writes.busy() || loading) return;
         try {
-            window.localStorage.removeItem(visualLocalDraftKey(path));
+            clearStudioDraft(window.localStorage, recoveryScope, path, revision);
+            if (recoveryScope === "sandbox") window.localStorage.removeItem(visualLocalDraftKey(path));
         } catch {
             /* 저장 공간을 쓸 수 없어도 편집은 계속됩니다. */
         }
-        setHistory(createVisualHistory(emptyVisualDocument(path)));
-        setSelection(null);
         setDirty(false);
-        setIsError(false);
-        setStatus(path + "의 브라우저 로컬 초안을 비우고 원본 페이지 상태로 되돌렸습니다.");
+        setReloadDraft(value => value + 1);
     };
     const selectionIsContainer = Boolean(
         selection && ["main", "section", "article", "div", "ul", "form", "header", "footer", "figure"].includes(selection.tag),
@@ -946,10 +937,10 @@ export default function CmsVisualDesigner({
                     <SystemButton variant="secondary" disabled={!history.past.length} onClick={() => { setHistory(undoVisualHistory); markDirty(); }}>실행 취소</SystemButton>
                     <SystemButton variant="secondary" disabled={!history.future.length} onClick={() => { setHistory(redoVisualHistory); markDirty(); }}>다시 실행</SystemButton>
                     <SystemButton variant="secondary" onClick={() => downloadDraft(history.present)}>JSON 내보내기</SystemButton>
-                    <SystemButton variant="secondary" disabled={access !== "admin" || isSaving || isPublishing || loading || dirty || revision === 0} onClick={() => void publish()}>
+                    <SystemButton variant="secondary" disabled={access !== "admin" || !remoteReady || isSaving || isPublishing || loading || dirty || revision === 0} onClick={() => void publish()}>
                         {isPublishing ? "발행 중…" : "발행"}
                     </SystemButton>
-                    <SystemButton variant="primary" disabled={access !== "admin" || isSaving || isPublishing || loading || !dirty} onClick={() => void save()}>
+                    <SystemButton variant="primary" disabled={access !== "admin" || !remoteReady || isSaving || isPublishing || loading || !dirty} onClick={() => void save()}>
                         {isSaving ? "DB 저장 중…" : "DB 초안 저장"}
                     </SystemButton>
                 </div>
@@ -962,7 +953,11 @@ export default function CmsVisualDesigner({
                 onMode={tool => { setOriginalView(false); setMode(tool); }}
                 onViewport={setViewport} onZoom={setZoom} onPathInput={setManualPath} onNavigate={navigate}
                 onOriginal={show => { setOriginalView(show); setMode(show ? "preview" : "select"); setSelection(null); }} />
-            <div className="cms-visual-status" role={isError ? "alert" : "status"} data-error={isError} data-text="body">{status}</div>
+            <div className="cms-visual-status" role={isError || storageWarning ? "alert" : "status"}
+                data-error={isError || storageWarning} data-text="body">
+                {storageWarning ? "브라우저 저장 공간에 작업본을 백업하지 못했습니다. JSON으로 내보내세요." : status}
+                {recoveryConflict ? <SystemButton variant="quiet" onClick={() => downloadDraft(recoveryConflict)}>이전 브라우저 초안 내보내기</SystemButton> : null}
+            </div>
             <StudioWorkspace layers={<>
                     <div className="cms-visual-pane-heading">
                         <h2 data-text="item-title">컴포넌트</h2>
