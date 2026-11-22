@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { groupStudioLayers } from "../../src/cms/studio-batch.ts";
 import { readPublishedVisual } from "../../src/cms/studio-public-client.ts";
 import { emptyVisualDocument, upsertVisualPatch, visualDocumentChecksum } from "../../src/cms/visual-document.ts";
 
@@ -17,7 +18,10 @@ const path = "/visit";
 const publishedDocument = upsertVisualPatch(emptyVisualDocument(path), "body > main:nth-of-type(1) > h1:nth-of-type(1)",
     { text: "발행된 본문" });
 const hash = visualDocumentChecksum(publishedDocument);
-const document = JSON.stringify(publishedDocument);
+const grouped = groupStudioLayers(publishedDocument,
+    [publishedDocument.patches[0].selector, "body > main:nth-of-type(1) > p:nth-of-type(1)"], "test-layer-group");
+assert.ok(grouped);
+const document = JSON.stringify(grouped);
 
 try {
     // Local Auth fixture only. / This does not emulate Supabase Auth HTTP or OAuth.
@@ -78,6 +82,11 @@ try {
         { revision: 2, status: "published", published_revision: 1 });
     assert.deepEqual(await result("select revision, published_revision from public.sejong_cms_visual_revisions where target_path=$1", [path]),
         { revision: 2, published_revision: 1 });
+    const privateDraft = await result("select document from public.sejong_cms_visual_documents where target_path=$1", [path]);
+    const privateRevision = await result("select document from public.sejong_cms_visual_revisions where target_path=$1", [path]);
+    assert.deepEqual(privateDraft.document.groups, grouped.groups);
+    assert.deepEqual(privateRevision.document.groups, grouped.groups);
+    console.log("PASS: layer groups round-trip in authorised draft and revision storage");
     console.log("PASS: stale draft is rejected; valid publish creates one matching immutable revision");
 
     await db.exec("reset role");
@@ -106,6 +115,7 @@ try {
     const publicSnapshot = path => result("select public.sejong_cms_read_public_visual($1) as snapshot", [path]);
     const { snapshot } = await publicSnapshot(path);
     assert.deepEqual(Object.keys(snapshot).sort(), ["checksum", "document", "path", "publishedRevision"]);
+    assert.equal(snapshot.document.groups, undefined);
     assert.equal(snapshot.publishedRevision, 1, "newer unpublished work must never appear publicly");
     assert.equal((await publicSnapshot("/admin")).snapshot, null);
     assert.equal((await publicSnapshot("/api/cms")).snapshot, null);
