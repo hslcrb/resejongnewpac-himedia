@@ -45,12 +45,20 @@ function saveOriginal(map: Map<HTMLElement, Original>, el: HTMLElement): void {
     });
 }
 
+function setLeafText(element: HTMLElement, text: string) {
+    // React가 가진 텍스트 노드 참조를 보존합니다. / Preserve React's existing text node when possible.
+    const node = element.firstChild;
+    if (node?.nodeType === 3 && node === element.lastChild) {
+        if (node.nodeValue !== text) node.nodeValue = text;
+    } else if (element.textContent !== text) element.textContent = text;
+}
+
 function restoreOriginals(map: Map<HTMLElement, Original>): void {
     for (const [el, original] of map) {
         if (!el.isConnected) continue;
         if (original.style == null) el.removeAttribute("style");
         else el.setAttribute("style", original.style);
-        if (original.text != null && el.children.length === 0) el.textContent = original.text;
+        if (original.text != null && el.children.length === 0) setLeafText(el, original.text);
         for (const key of ["src", "alt", "href"] as const) {
             if (original[key] == null) el.removeAttribute(key);
             else el.setAttribute(key, original[key]!);
@@ -84,14 +92,23 @@ function dataTextFor(tag: string): string {
 }
 
 // 삽입 요소(자식 포함)와 패치를 실제 캔버스 DOM에 반영합니다. 원본 React 코드는 건드리지 않습니다.
-export function applyVisualDraft(doc: Document, draft: VisualDraftDocument, originals: Map<HTMLElement, Original>): void {
+export function clearVisualDraft(scope: Document | HTMLElement, originals: Map<HTMLElement, Original>): void {
     restoreOriginals(originals);
     originals.clear();
-    doc.querySelectorAll("[data-cms-added]").forEach((element) => element.remove());
+    scope.querySelectorAll("[data-cms-added]").forEach((element) => element.remove());
+}
+
+export function applyVisualDraft(doc: Document, draft: VisualDraftDocument, originals: Map<HTMLElement, Original>, scope?: HTMLElement): void {
+    clearVisualDraft(scope ?? doc, originals);
+    const resolveTarget = (selector: string, allowRoot = false) => {
+        const element = resolveElement(doc, selector);
+        if (scope && element && (!scope.contains(element) || (!allowRoot && element === scope))) return null;
+        return element;
+    };
     const inserted = new Map<string, HTMLElement>();
     const orderedParents = new Set<string>();
     for (const added of draft.additions) {
-        const parent = resolveElement(doc, added.parent);
+        const parent = resolveTarget(added.parent, true);
         if (!parent) continue;
         const node = doc.createElement(added.tag);
         node.setAttribute("data-cms-added", added.id);
@@ -127,7 +144,7 @@ export function applyVisualDraft(doc: Document, draft: VisualDraftDocument, orig
     // DOM을 먼저 구축해 자식 삽입과 위치 지정 패치의 대상이 바뀌지 않게 한다.
     // Build the DOM first, then move only this draft's own inserted sibling nodes.
     for (const selector of orderedParents) {
-        const parent = resolveElement(doc, selector);
+        const parent = resolveTarget(selector, true);
         if (!parent) continue;
         for (const id of studioSiblingIds(draft, selector)) {
             const node = inserted.get(id);
@@ -135,10 +152,10 @@ export function applyVisualDraft(doc: Document, draft: VisualDraftDocument, orig
         }
     }
     for (const patch of draft.patches) {
-        const el = resolveElement(doc, patch.selector);
+        const el = resolveTarget(patch.selector);
         if (!el) continue;
         if (!el.hasAttribute("data-cms-added")) saveOriginal(originals, el);
-        if (patch.text !== undefined && el.children.length === 0 && EDITABLE_TAGS.has(el.tagName)) el.textContent = patch.text;
+        if (patch.text !== undefined && el.children.length === 0 && EDITABLE_TAGS.has(el.tagName)) setLeafText(el, patch.text);
         if (patch.src && el.tagName === "IMG") el.setAttribute("src", patch.src);
         if (patch.alt !== undefined && el.tagName === "IMG") el.setAttribute("alt", patch.alt);
         if (patch.href && el.tagName === "A") el.setAttribute("href", patch.href);
