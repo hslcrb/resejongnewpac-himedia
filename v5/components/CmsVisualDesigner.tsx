@@ -20,6 +20,7 @@ import { moveStudioLayer, studioAddedId, studioSiblingIds } from "../src/cms/stu
 import { revealStudioScrollParents } from "../src/cms/studio-nested-reveal.ts";
 import { revealStudioAxis, studioStageTarget } from "../src/cms/studio-reveal.ts";
 import { flattenStudioLayers } from "../src/cms/studio-layers.ts";
+import { nudgeStudioLayers, setStudioLayersHidden, toggleStudioSelection } from "../src/cms/studio-batch.ts";
 import { createSupabaseCmsStore, type CmsSupabaseLike } from "../src/cms/supabase-cms-adapter.ts";
 import { isCmsFailure } from "../src/cms/cms-store.ts";
 import { useCatalog } from "../src/catalog/CatalogProvider";
@@ -161,7 +162,12 @@ export default function CmsVisualDesigner({
     const [zoom, setZoom] = useState<StudioZoom>("fit");
     const [stageWidth, setStageWidth] = useState(0);
     const [originalView, setOriginalView] = useState(false);
-    const [selection, setSelection] = useState<SelectionInfo | null>(null);
+    const [selectedLayers, setSelectedLayers] = useState<SelectionInfo[]>([]);
+    const [multiSelectMode, setMultiSelectMode] = useState(false);
+    const selection = selectedLayers.at(-1) ?? null;
+    const multiSelection = selectedLayers.length > 1;
+    const selectedSelectors = useMemo(() => new Set(selectedLayers.map(layer => layer.selector)), [selectedLayers]);
+    const clearSelection = useCallback(() => { setSelectedLayers([]); setMultiSelectMode(false); }, []);
     const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
     const [filter, setFilter] = useState("");
     const [dragLayer, setDragLayer] = useState<string | null>(null);
@@ -234,10 +240,12 @@ export default function CmsVisualDesigner({
         });
     }, [getFrameDocument, selection]);
 
-    const selectBySelector = useCallback((selector: string) => {
+    const selectBySelector = useCallback((selector: string, extend = false) => {
         const doc = getFrameDocument();
         if (!doc) return;
-        setSelection(selectionSnapshot(doc, selector));
+        const next = selectionSnapshot(doc, selector);
+        if (next) setSelectedLayers(current => toggleStudioSelection(current, next, extend, item => item.selector));
+        else if (!extend) setSelectedLayers([]);
     }, [getFrameDocument]);
 
     useEffect(() => {
@@ -323,7 +331,7 @@ export default function CmsVisualDesigner({
         setRevision(0);
         setPublishedRevision(0);
         setDirty(false);
-        setSelection(null);
+        clearSelection();
         setTreeSyncedAt("");
         if (access === "checking") return;
         const localAt = (base?: number): StudioRecovery | null => {
@@ -373,7 +381,7 @@ export default function CmsVisualDesigner({
         };
         void load();
         return () => { live = false; };
-    }, [access, path, recoveryKey, recoveryScope, reloadDraft]);
+    }, [access, clearSelection, path, recoveryKey, recoveryScope, reloadDraft]);
 
     useEffect(() => {
         if (!dirty || loading || loadedKey !== recoveryKey || history.present.path !== path) return;
@@ -394,7 +402,10 @@ export default function CmsVisualDesigner({
         }
         try {
             applyVisualDraft(doc, originalView ? emptyVisualDocument(path) : history.present, originals.current);
-            setSelection(active => active ? selectionSnapshot(doc, active.selector) : null);
+            setSelectedLayers(active => active.flatMap(layer => {
+                const updated = selectionSnapshot(doc, layer.selector);
+                return updated ? [updated] : [];
+            }));
         } catch (error) {
             setIsError(true);
             setStatus("미리보기 적용 중 오류: " + String(error));
@@ -416,8 +427,9 @@ export default function CmsVisualDesigner({
             el.removeAttribute("data-cms-visual-selected");
             el.removeAttribute("data-cms-visual-hover");
         });
-        const selected = selection ? resolveElement(doc, selection.selector) : null;
-        if (selected && mode !== "preview") selected.setAttribute("data-cms-visual-selected", "true");
+        if (mode !== "preview") {
+            for (const selector of selectedSelectors) resolveElement(doc, selector)?.setAttribute("data-cms-visual-selected", "true");
+        }
         refreshOverlay();
         if (mode === "preview") {
             setOverlay(null);
@@ -441,7 +453,8 @@ export default function CmsVisualDesigner({
             event.stopImmediatePropagation();
             if (editingRef.current) finishCanvasText();
             else if (mode === "text" && beginCanvasText(el)) return;
-            selectBySelector(visualSelectorFor(el));
+            if (mode !== "move") selectBySelector(visualSelectorFor(el), mode === "select" &&
+                (multiSelectMode || event.shiftKey || event.ctrlKey || event.metaKey));
         };
         const doubleClick = (event: MouseEvent) => {
             const el = htmlTarget(event);
@@ -533,7 +546,7 @@ export default function CmsVisualDesigner({
             doc.removeEventListener("scroll", refreshOverlay, true);
             doc.defaultView?.removeEventListener("resize", refreshOverlay);
         };
-    }, [beginCanvasText, cancelDrag, finishCanvasText, frameReady, frameVersion, getFrameDocument, history.present, mode, mutate, refreshOverlay, selectBySelector, selection]);
+    }, [beginCanvasText, cancelDrag, finishCanvasText, frameReady, frameVersion, getFrameDocument, history.present, mode, multiSelectMode, mutate, refreshOverlay, selectBySelector, selectedSelectors]);
 
     useEffect(() => {
         if (mode !== "preview") refreshOverlay();
@@ -672,7 +685,48 @@ export default function CmsVisualDesigner({
                 (parent.getAttribute("aria-label") || parent.tagName.toLowerCase()) +
                 " 안에 삽입했습니다. 우측 인스펙터에서 세부 값을 조정하세요.",
         );
-        setSelection(null);
+        clearSelection();
+    };
+
+    const commitLayerBatch = (make: (doc: VisualDraftDocument) => VisualDraftDocument | null, message: string) => {
+        if (loading || originalView) return;
+        const next = make(history.present);
+        if (!next) {
+            setIsError(true);
+            setStatus("변경할 값이 없거나 일부 레이어에 적용할 수 없어 모두 그대로 두었습니다.");
+            return;
+        }
+        mutate(doc => doc === history.present ? next : make(doc) ?? doc);
+        setIsError(false);
+        setStatus(message + " 한 번에 실행 취소할 수 있습니다.");
+    };
+
+    const batchVisibility = (hidden: boolean) => {
+        const selectors = selectedLayers.map(layer => layer.selector);
+        commitLayerBatch(doc => setStudioLayersHidden(doc, selectors, hidden),
+            hidden ? "선택 레이어를 숨겼습니다." : "선택 레이어를 다시 표시했습니다.");
+    };
+
+    const batchMove = (x: number, y: number) => {
+        const frame = getFrameDocument();
+        if (!frame) return;
+        const selected = selectedLayers.map(layer => resolveElement(frame, layer.selector));
+        if (selected.some(el => !el)) {
+            setIsError(true);
+            setStatus("일부 레이어가 보이지 않습니다. 다시 선택해 주세요.");
+            return;
+        }
+        const elements = new Set(selected);
+        const targets = selectedLayers.map((layer, index) => {
+            const el = selected[index]!;
+            let coveredByAncestor = false;
+            for (let parent = el.parentElement; parent; parent = parent.parentElement) {
+                if (elements.has(parent)) { coveredByAncestor = true; break; }
+            }
+            const translate = frame.defaultView?.getComputedStyle(el).getPropertyValue("translate").trim() || "";
+            return { selector: layer.selector, translate, coveredByAncestor };
+        });
+        commitLayerBatch(doc => nudgeStudioLayers(doc, targets, x, y), "선택 레이어를 함께 이동했습니다.");
     };
 
     const deleteSelected = () => {
@@ -684,7 +738,7 @@ export default function CmsVisualDesigner({
             mutate((doc) => upsertVisualPatch(doc, selection.selector, { hidden: !currentPatch?.hidden }));
             setStatus(currentPatch?.hidden ? "원본 요소를 다시 표시합니다." : "원본 요소를 숨김 처리했습니다(React 코드는 그대로).");
         }
-        setSelection(null);
+        clearSelection();
     };
 
     useEffect(() => {
@@ -692,9 +746,9 @@ export default function CmsVisualDesigner({
             if (action === "cancel") {
                 const hadDrag = cancelDrag();
                 if (hadDrag) refreshOverlay();
-                if (selection) setSelection(null);
+                if (selection || multiSelectMode) clearSelection();
                 if (mode === "preview") { setOriginalView(false); setMode("select"); }
-                return hadDrag || Boolean(selection) || mode === "preview";
+                return hadDrag || Boolean(selection) || multiSelectMode || mode === "preview";
             }
             if (loading || mode === "preview") return false;
             if (action === "undo" || action === "redo") {
@@ -702,12 +756,14 @@ export default function CmsVisualDesigner({
                 setHistory(action === "undo" ? undoVisualHistory : redoVisualHistory);
                 markDirty();
             } else if (action === "edit-text") {
+                if (multiSelection) return false;
                 const doc = selection ? getFrameDocument() : null;
                 const target = doc && selection && resolveElement(doc, selection.selector);
                 return Boolean(target && beginCanvasText(target));
             } else if (action === "remove") {
                 if (!selection) return false;
-                deleteSelected();
+                if (multiSelection) batchVisibility(true);
+                else deleteSelected();
             } else setMode(action);
             return true;
         };
@@ -1018,7 +1074,7 @@ export default function CmsVisualDesigner({
                 original={originalView} routes={routes.includes(path) ? routes : [...routes, path]}
                 onMode={tool => { setOriginalView(false); setMode(tool); }}
                 onViewport={setViewport} onZoom={setZoom} onPathInput={setManualPath} onNavigate={navigate}
-                onOriginal={show => { setOriginalView(show); setMode(show ? "preview" : "select"); setSelection(null); }} />
+                onOriginal={show => { setOriginalView(show); setMode(show ? "preview" : "select"); clearSelection(); }} />
             <div className="cms-visual-status" role={isError || storageWarning ? "alert" : "status"}
                 data-error={isError || storageWarning} data-text="body">
                 {storageWarning ? "브라우저 저장 공간에 작업본을 백업하지 못했습니다. JSON으로 내보내세요." : status}
@@ -1055,12 +1111,16 @@ export default function CmsVisualDesigner({
                         <span data-text="meta">{visibleLayers.length}개 표시 · {collapsed.size}개 접힘</span>
                     </div>
                     <SystemField label="레이어 검색" labelHidden value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="예: section, h2, 버튼" />
-                    {selection && !originalView ? <SystemButton variant="quiet" onClick={() => {
+                    <SystemFilterButton selected={multiSelectMode} disabled={originalView} onClick={() => {
+                        setMultiSelectMode(!multiSelectMode);
+                        setMode("select");
+                    }}>다중 선택</SystemFilterButton>
+                    {selection && !multiSelection && !originalView ? <SystemButton variant="quiet" onClick={() => {
                         setPanel("canvas");
                         setMode("select");
                         setReveal({ path, selector: selection.selector });
                     }}>캔버스에서 보기</SystemButton> : null}
-                    {selectedAddedId && siblingIds.length > 1 && !originalView ? (
+                    {selectedAddedId && siblingIds.length > 1 && !multiSelection && !originalView ? (
                         <div className="cms-visual-layer-order" role="group" aria-label="선택한 레이어의 순서">
                             <SystemButton variant="quiet" disabled={siblingIndex <= 0}
                                 onClick={() => reorderLayer(selectedAddedId, siblingIds[siblingIndex - 1])}>위로</SystemButton>
@@ -1108,8 +1168,8 @@ export default function CmsVisualDesigner({
                                     className="cms-visual-layer"
                                     data-layer-selector={layer.selector}
                                     data-system-part="layer-select"
-                                    aria-pressed={selection?.selector === layer.selector}
-                                    data-selected={selection?.selector === layer.selector}
+                                    aria-pressed={selectedSelectors.has(layer.selector)}
+                                    data-selected={selectedSelectors.has(layer.selector)}
                                     data-added={layer.added}
                                     title={layer.selector}
                                     disabled={originalView}
@@ -1138,7 +1198,10 @@ export default function CmsVisualDesigner({
                                         setDragLayer(null);
                                     }}
                                     onDragEnd={() => setDragLayer(null)}
-                                    onClick={() => { selectBySelector(layer.selector); setMode("select"); }}
+                                    onClick={(event) => {
+                                        selectBySelector(layer.selector, multiSelectMode || event.shiftKey || event.ctrlKey || event.metaKey);
+                                        setMode("select");
+                                    }}
                                 >
                                     <span className="cms-visual-layer-tag" data-text="meta">{layer.tag}</span>
                                     <span className="cms-visual-layer-label" data-text="body">{layer.label}</span>
@@ -1197,14 +1260,14 @@ export default function CmsVisualDesigner({
                                     setFrameReady(documentMatches);
                                     if (documentMatches) setFrameVersion(value => value + 1);
                                     setFrameBlocked(!documentMatches);
-                                    setSelection(null);
+                                    clearSelection();
                                     if (!documentMatches) { setSnapshot(null); setOverlay(null); }
                                 }}
                             />
                             {overlay ? (
                                 <div className="cms-visual-measure" style={{ left: overlay.left, top: overlay.top, width: overlay.width, height: overlay.height }}>
                                     <span className="cms-visual-measure-label" data-text="meta" aria-hidden="true">{overlay.label}</span>
-                                    {mode === "select" && selection && selection.tag !== "body"
+                                    {mode === "select" && selection && !multiSelection && selection.tag !== "body"
                                         && !["none", "contents", "inline"].includes(selection.computed.display) ?
                                         <StudioResizeHandle key={selection.selector} scale={scale} start={startResize}
                                             preview={previewResize} end={finishResize} /> : null}
@@ -1215,7 +1278,7 @@ export default function CmsVisualDesigner({
                     </div>
                     <div className="cms-visual-help-row">
                         <p data-text="caption" className="cms-visual-help">
-                            선택 V · 이동 M · 텍스트 F2 또는 더블클릭 · 미리보기 P · 취소 Esc
+                            선택 V · 다중 선택 Shift+클릭 · 이동 M · 텍스트 F2 · 미리보기 P · 취소 Esc
                         </p>
                         <SystemButton variant="secondary" disabled={treeSyncing || !frameReady} onClick={() => void syncTree()}>
                             {treeSyncing ? "트리 저장 중…" : "트리 동기화"}
@@ -1224,9 +1287,26 @@ export default function CmsVisualDesigner({
             </>} inspector={<>
                     <div className="cms-visual-pane-heading">
                         <h2 data-text="item-title">속성</h2>
-                        <span data-text="meta">{selection ? selection.tag.toUpperCase() : "선택 없음"}</span>
+                        <span data-text="meta">{multiSelection ? selectedLayers.length + "개 선택" : selection ? selection.tag.toUpperCase() : "선택 없음"}</span>
                     </div>
-                    {!selection ? (
+                    {multiSelection ? (
+                        <div className="cms-visual-inspector">
+                            <section className="cms-visual-inspector-section">
+                                <h3 data-text="label">선택한 레이어 함께 편집</h3>
+                                <p data-text="body">문서 좌표에서 8px씩 이동합니다. 부모와 자식이 함께 선택된 경우 자식은 두 번 이동하지 않습니다.</p>
+                                <div className="cms-visual-selection-actions" role="group" aria-label="다중 선택 레이어 이동">
+                                    <SystemButton variant="secondary" onClick={() => batchMove(-8, 0)}>왼쪽</SystemButton>
+                                    <SystemButton variant="secondary" onClick={() => batchMove(8, 0)}>오른쪽</SystemButton>
+                                    <SystemButton variant="secondary" onClick={() => batchMove(0, -8)}>위</SystemButton>
+                                    <SystemButton variant="secondary" onClick={() => batchMove(0, 8)}>아래</SystemButton>
+                                </div>
+                                <div className="cms-visual-selection-actions" role="group" aria-label="다중 선택 레이어 표시">
+                                    <SystemButton variant="secondary" onClick={() => batchVisibility(true)}>모두 숨기기</SystemButton>
+                                    <SystemButton variant="secondary" onClick={() => batchVisibility(false)}>모두 표시</SystemButton>
+                                </div>
+                            </section>
+                        </div>
+                    ) : !selection ? (
                         <SystemNotice variant="flow">
                             페이지에서 요소를 선택하세요. 레이아웃·간격·글자·표면·속성을 피그마처럼 조정할 수 있습니다.
                         </SystemNotice>
