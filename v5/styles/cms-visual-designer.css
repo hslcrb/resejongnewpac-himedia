@@ -156,7 +156,7 @@
 .cms-visual-stage {
     display: flex;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: safe center;
     overflow: auto;
     min-height: 0;
     flex: 1 1 auto;
