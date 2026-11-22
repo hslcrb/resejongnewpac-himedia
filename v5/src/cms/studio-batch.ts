@@ -1,7 +1,7 @@
-import { isSafeVisualSelector, sanitizeVisualDocument, sanitizeVisualStyle } from "./visual-document.ts";
+import { isSafeVisualSelector, sanitizeVisualDocument, sanitizeVisualStyle, visualGroupMemberLimit } from "./visual-document.ts";
 import type { VisualDraftDocument, VisualElementPatch } from "./visual-document.ts";
 
-export const studioSelectionLimit = 50;
+export const studioSelectionLimit = visualGroupMemberLimit;
 
 export function toggleStudioSelection<T>(
     current: readonly T[], target: T, extend: boolean, key: (item: T) => string = item => String(item),
@@ -92,4 +92,17 @@ export function alignStudioLayers(doc: VisualDraftDocument, targets: readonly St
         edits.push({ selector: target.selector, style: { translate } });
     }
     return applyBatch(doc, edits);
+}
+
+export function groupStudioLayers(doc: VisualDraftDocument, selectors: readonly string[], id: string) {
+    if (doc.groups?.some(group => group.id === id)) return null;
+    const next = sanitizeVisualDocument({ ...doc, groups: [...(doc.groups ?? []), { id, selectors }] }, doc.path);
+    const created = next.groups?.find(group => group.id === id);
+    // 일부만 그룹에 넣지 않습니다. / Group creation is all-or-nothing.
+    return created && selectors.length === created.selectors.length ? next : null;
+}
+
+export function ungroupStudioLayers(doc: VisualDraftDocument, id: string) {
+    if (!doc.groups?.some(group => group.id === id)) return null;
+    return sanitizeVisualDocument({ ...doc, groups: doc.groups.filter(group => group.id !== id) }, doc.path);
 }
