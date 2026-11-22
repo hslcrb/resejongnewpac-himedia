@@ -33,6 +33,56 @@ try {
     await title.filter({ hasText: /^$/ }).waitFor();
     await page.getByRole("button", { name: "실행 취소" }).click();
     await frame.getByText("세종 스튜디오 실험", { exact: true }).waitFor();
+    // 두 실제 DOM 문단을 다중 선택하고 포인터 1회로 이동·원복합니다.
+    const palette = page.getByRole("group", { name: "추가 가능한 컴포넌트" });
+    const text = palette.getByRole("button", { name: /^텍스트(?:\s|$)/ });
+    await text.click();
+    await text.click();
+    const elements = frame.locator('[data-cms-preset="text"]');
+    const first = elements.nth(0);
+    const second = elements.nth(1);
+    await first.click();
+    await second.click({ modifiers: ["Shift"] });
+    await page.getByText("2개 선택", { exact: true }).waitFor();
+    await page.getByRole("group", { name: "캔버스 도구" }).getByRole("button", { name: "이동", exact: true }).click();
+    await first.scrollIntoViewIfNeeded();
+    const box = await first.boundingBox();
+    assert.ok(box);
+    const scale = await page.locator("iframe").evaluate(el => el.getBoundingClientRect().width / (el as HTMLIFrameElement).offsetWidth);
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 + 24 * scale, box.y + box.height / 2, { steps: 8 });
+    await page.mouse.up();
+    await page.getByText("선택 레이어를 함께 이동했습니다.", { exact: false }).waitFor();
+    const translate = (target: typeof first) => target.evaluate(el => (el as HTMLElement).style.getPropertyValue("translate"));
+    const moved = await translate(first);
+    assert.match(moved, /^\d+(?:\.\d+)?px 0px$/);
+    assert.ok(Math.abs(parseFloat(moved) - 24) <= 2);
+    assert.equal(await translate(second), moved);
+    await page.getByRole("button", { name: "실행 취소" }).click();
+    assert.deepEqual(await Promise.all([translate(first), translate(second)]), ["", ""]);
+
+    const top = (target: typeof first) => target.evaluate(el => el.getBoundingClientRect().top);
+    assert.ok(Math.abs(await top(first) - await top(second)) > 1);
+    const alignment = page.getByRole("group", { name: "다중 선택 레이어 정렬" });
+    await alignment.getByRole("button", { name: "위쪽 맞춤" }).click();
+    await page.getByText("선택 레이어를 정렬했습니다.", { exact: false }).waitFor();
+    assert.ok(Math.abs(await top(first) - await top(second)) < 0.1);
+    await page.getByRole("button", { name: "실행 취소" }).click();
+    assert.deepEqual(await Promise.all([translate(first), translate(second)]), ["", ""]);
+
+    await page.getByRole("button", { name: "그룹 만들기", exact: true }).click();
+    const stored = page.getByRole("region", { name: "저장된 레이어 그룹" });
+    await stored.getByRole("button", { name: "그룹 1 · 2개 선택" }).waitFor();
+    await page.reload();
+    await title.waitFor();
+    await stored.getByRole("button", { name: "그룹 1 · 2개 선택" }).click();
+    await page.getByText("2개 선택", { exact: true }).waitFor();
+    await stored.getByRole("button", { name: "그룹 해제" }).click();
+    await stored.waitFor({ state: "hidden" });
+    await page.getByRole("button", { name: "실행 취소" }).click();
+    await stored.waitFor();
+
     await page.getByLabel("기기 너비").selectOption("mobile");
     assert.equal(await frame.locator("body").evaluate(el => el.ownerDocument.defaultView?.innerWidth), 390);
     await page.getByLabel("캔버스 확대").selectOption("75");
@@ -48,7 +98,7 @@ try {
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     await page.reload();
     await frame.getByText("세종 스튜디오 실험", { exact: true }).waitFor();
-    console.log("CMS studio: desktop edit, original comparison, undo/redo, viewport, mobile panel state and restart recovery passed");
+    console.log("CMS studio: desktop edit, original comparison, undo/redo, native group pointer drag, viewport, mobile panel state and restart recovery passed");
 } finally {
     await browser.close();
 }
