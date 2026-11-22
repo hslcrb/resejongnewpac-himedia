@@ -71,6 +71,18 @@ try {
     await page.getByRole("button", { name: "실행 취소" }).click();
     assert.deepEqual(await Promise.all([translate(first), translate(second)]), ["", ""]);
 
+    await page.getByRole("button", { name: "그룹 만들기", exact: true }).click();
+    const stored = page.getByRole("region", { name: "저장된 레이어 그룹" });
+    await stored.getByRole("button", { name: "그룹 1 · 2개 선택" }).waitFor();
+    await page.reload();
+    await title.waitFor();
+    await stored.getByRole("button", { name: "그룹 1 · 2개 선택" }).click();
+    await page.getByText("2개 선택", { exact: true }).waitFor();
+    await stored.getByRole("button", { name: "그룹 해제" }).click();
+    await stored.waitFor({ state: "hidden" });
+    await page.getByRole("button", { name: "실행 취소" }).click();
+    await stored.waitFor();
+
     await page.getByLabel("기기 너비").selectOption("mobile");
     assert.equal(await frame.locator("body").evaluate(el => el.ownerDocument.defaultView?.innerWidth), 390);
     await page.getByLabel("캔버스 확대").selectOption("75");

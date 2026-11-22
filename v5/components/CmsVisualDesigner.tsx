@@ -20,7 +20,7 @@ import { moveStudioLayer, studioAddedId, studioSiblingIds } from "../src/cms/stu
 import { revealStudioScrollParents } from "../src/cms/studio-nested-reveal.ts";
 import { revealStudioAxis, studioStageTarget } from "../src/cms/studio-reveal.ts";
 import { flattenStudioLayers } from "../src/cms/studio-layers.ts";
-import { alignStudioLayers, nudgeStudioLayers, setStudioLayersHidden, toggleStudioSelection } from "../src/cms/studio-batch.ts";
+import { alignStudioLayers, groupStudioLayers, nudgeStudioLayers, setStudioLayersHidden, toggleStudioSelection, ungroupStudioLayers } from "../src/cms/studio-batch.ts";
 import type { StudioAlignment } from "../src/cms/studio-batch.ts";
 import { captureStudioDrag, previewStudioDrag, restoreStudioDrag, studioMoveRoots } from "../src/cms/studio-group-drag.ts";
 import type { StudioDragLayer } from "../src/cms/studio-group-drag.ts";
@@ -47,6 +47,7 @@ import {
     createVisualHistory,
     emptyVisualDocument,
     isSafeVisualUrl,
+    newVisualNodeId,
     normalizeVisualPath,
     pushVisualHistory,
     redoVisualHistory,
@@ -61,6 +62,7 @@ import {
 import type {
     VisualDraftDocument,
     VisualHistory,
+    VisualLayerGroup,
     VisualPresetId,
     VisualStyleKey,
 } from "../src/cms/visual-document.ts";
@@ -792,6 +794,37 @@ export default function CmsVisualDesigner({
             "선택 레이어를 정렬했습니다.");
     };
 
+    const groupSelection = () => {
+        const frame = getFrameDocument();
+        if (!frame) return;
+        const elements = selectedLayers.map(layer => resolveElement(frame, layer.selector));
+        if (elements.some(element => !element) || new Set(elements).size !== elements.length ||
+            elements.some(element => element === frame.body || elements.some(other => other !== element && other?.contains(element)))) {
+            setIsError(true);
+            setStatus("서로 포함되지 않는 레이어를 골라 주세요. 중복 선택이나 누락된 레이어는 묶지 않습니다.");
+            return;
+        }
+        const selectors = selectedLayers.map(layer => layer.selector);
+        const id = newVisualNodeId("group");
+        commitLayerBatch(doc => groupStudioLayers(doc, selectors, id), "선택 레이어를 초안 그룹으로 묶었습니다.");
+    };
+
+    const selectGroup = (group: VisualLayerGroup) => {
+        const frame = getFrameDocument();
+        if (!frame || loading || originalView) return;
+        const layers = group.selectors.map(selector => selectionSnapshot(frame, selector)).filter((layer): layer is SelectionInfo => Boolean(layer));
+        if (layers.length !== group.selectors.length) {
+            setIsError(true);
+            setStatus("이 화면에서 그룹 레이어를 모두 찾을 수 없습니다. 원래 아트보드나 페이지 구성을 확인하세요.");
+            return;
+        }
+        setMode("select");
+        setSelectedLayers(layers);
+        setMultiSelectMode(false);
+        setIsError(false);
+        setStatus("초안 그룹의 레이어 " + layers.length + "개를 선택했습니다.");
+    };
+
     const deleteSelected = () => {
         if (!selection) return;
         if (selection.selector.startsWith("[data-cms-added=")) {
@@ -1178,6 +1211,19 @@ export default function CmsVisualDesigner({
                         setMultiSelectMode(!multiSelectMode);
                         setMode("select");
                     }}>다중 선택</SystemFilterButton>
+                    {history.present.groups?.length ? (
+                        <section className="cms-visual-inspector-section" aria-label="저장된 레이어 그룹">
+                            <h3 data-text="label">초안 그룹</h3>
+                            {history.present.groups.map((group, index) => (
+                                <div className="cms-visual-selection-actions" key={group.id} role="group" aria-label={"그룹 " + (index + 1)}>
+                                    <SystemButton variant="secondary" disabled={loading || originalView}
+                                        onClick={() => selectGroup(group)}>{"그룹 " + (index + 1) + " · " + group.selectors.length + "개 선택"}</SystemButton>
+                                    <SystemButton variant="quiet" disabled={loading || originalView || mode === "preview"}
+                                        onClick={() => commitLayerBatch(doc => ungroupStudioLayers(doc, group.id), "초안 그룹만 해제했습니다.")}>그룹 해제</SystemButton>
+                                </div>
+                            ))}
+                        </section>
+                    ) : null}
                     {selection && !multiSelection && !originalView ? <SystemButton variant="quiet" onClick={() => {
                         setPanel("canvas");
                         setMode("select");
@@ -1357,6 +1403,8 @@ export default function CmsVisualDesigner({
                             <section className="cms-visual-inspector-section">
                                 <h3 data-text="label">선택한 레이어 함께 편집</h3>
                                 <p data-text="body">문서 좌표에서 8px씩 이동합니다. 부모와 자식이 함께 선택된 경우 자식은 두 번 이동하지 않습니다.</p>
+                                <SystemButton variant="secondary" disabled={loading || originalView || mode === "preview"}
+                                    onClick={groupSelection}>그룹 만들기</SystemButton>
                                 <div className="cms-visual-selection-actions" role="group" aria-label="다중 선택 레이어 이동">
                                     <SystemButton variant="secondary" onClick={() => batchMove(-8, 0)}>왼쪽</SystemButton>
                                     <SystemButton variant="secondary" onClick={() => batchMove(8, 0)}>오른쪽</SystemButton>
