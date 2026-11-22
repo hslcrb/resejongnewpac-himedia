@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StudioField } from "./cms-studio/StudioField";
 import { StudioWorkspace } from "./cms-studio/StudioWorkspace";
+import { StudioResizeHandle } from "./cms-studio/StudioResizeHandle";
+import type { StudioBox } from "../src/cms/studio-resize.ts";
 import { StudioToolbar } from "./cms-studio/StudioToolbar";
 import type { StudioMode } from "./cms-studio/StudioToolbar";
 import { STUDIO_ARTBOARDS, studioArtboardScale } from "../src/cms/studio-artboard.ts";
@@ -335,6 +337,8 @@ export default function CmsVisualDesigner({
     }, []);
     const originals = useRef<Map<HTMLElement, Original>>(new Map());
     const editingRef = useRef<Editing | null>(null);
+    const resizing = useRef<{ element: HTMLElement; selector: string; width: string; height: string;
+        widthPriority: string; heightPriority: string } | null>(null);
     const dragRef = useRef<{ element: HTMLElement; selector: string; gesture: StudioDrag; value: string; priority: string } | null>(null);
     const [writes] = useState(createStudioWrites);
     const pathRef = useRef(path);
@@ -691,6 +695,44 @@ export default function CmsVisualDesigner({
         if (safe === null) return false;
         setPatch({ style: { [key]: safe } });
         return true;
+    };
+
+    const startResize = (): StudioBox | null => {
+        const doc = getFrameDocument();
+        if (!selection || !doc || resizing.current) return null;
+        const element = resolveElement(doc, selection.selector);
+        if (!element || element === doc.body) return null;
+        const computed = doc.defaultView?.getComputedStyle(element);
+        if (!computed || ["none", "contents", "inline"].includes(computed.display)) return null;
+        const width = parseFloat(computed.width);
+        const height = parseFloat(computed.height);
+        if (!Number.isFinite(width) || !Number.isFinite(height) || width < 1 || height < 1) return null;
+        resizing.current = { element, selector: selection.selector,
+            width: element.style.getPropertyValue("width"), height: element.style.getPropertyValue("height"),
+            widthPriority: element.style.getPropertyPriority("width"), heightPriority: element.style.getPropertyPriority("height") };
+        return { width, height };
+    };
+
+    const previewResize = ({ width, height }: StudioBox) => {
+        const active = resizing.current;
+        if (!active) return;
+        active.element.style.setProperty("width", width + "px");
+        active.element.style.setProperty("height", height + "px");
+        refreshOverlay();
+    };
+
+    const finishResize = (box: StudioBox | null) => {
+        const active = resizing.current;
+        if (!active) return;
+        resizing.current = null;
+        const style = active.element.style;
+        if (active.width) style.setProperty("width", active.width, active.widthPriority);
+        else style.removeProperty("width");
+        if (active.height) style.setProperty("height", active.height, active.heightPriority);
+        else style.removeProperty("height");
+        if (box && active.selector === selection?.selector) {
+            mutate(doc => upsertVisualPatch(doc, active.selector, { style: { width: box.width + "px", height: box.height + "px" } }));
+        } else refreshOverlay();
     };
 
     const currentPatch = useMemo(
@@ -1201,6 +1243,7 @@ export default function CmsVisualDesigner({
                                 src={"/v5" + (path === "/" ? "/" : path + "/")}
                                 onLoad={() => {
                                     cancelDrag();
+                                    finishResize(null);
                                     originals.current.clear();
                                     editingRef.current = null;
                                     const documentMatches = Boolean(getFrameDocument());
@@ -1211,8 +1254,12 @@ export default function CmsVisualDesigner({
                                 }}
                             />
                             {overlay ? (
-                                <div className="cms-visual-measure" style={{ left: overlay.left, top: overlay.top, width: overlay.width, height: overlay.height }} aria-hidden="true">
-                                    <span className="cms-visual-measure-label" data-text="meta">{overlay.label}</span>
+                                <div className="cms-visual-measure" style={{ left: overlay.left, top: overlay.top, width: overlay.width, height: overlay.height }}>
+                                    <span className="cms-visual-measure-label" data-text="meta" aria-hidden="true">{overlay.label}</span>
+                                    {mode === "select" && selection && selection.tag !== "body"
+                                        && !["none", "contents", "inline"].includes(selection.computed.display) ?
+                                        <StudioResizeHandle key={selection.selector} scale={scale} start={startResize}
+                                            preview={previewResize} end={finishResize} /> : null}
                                 </div>
                             ) : null}
                         </div>
