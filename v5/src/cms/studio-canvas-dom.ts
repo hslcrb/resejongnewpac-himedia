@@ -1,4 +1,5 @@
 import { sanitizeVisualStyle, VISUAL_STYLE_FIELDS } from "./visual-document.ts";
+import { studioSiblingIds } from "./studio-layer-order.ts";
 import type { VisualDraftDocument } from "./visual-document.ts";
 
 // 실제 페이지의 시각 패치 어댑터. / Adapt versioned drafts to the trusted preview DOM only.
@@ -87,6 +88,8 @@ export function applyVisualDraft(doc: Document, draft: VisualDraftDocument, orig
     restoreOriginals(originals);
     originals.clear();
     doc.querySelectorAll("[data-cms-added]").forEach((element) => element.remove());
+    const inserted = new Map<string, HTMLElement>();
+    const orderedParents = new Set<string>();
     for (const added of draft.additions) {
         const parent = resolveElement(doc, added.parent);
         if (!parent) continue;
@@ -118,6 +121,18 @@ export function applyVisualDraft(doc: Document, draft: VisualDraftDocument, orig
             }
         }
         parent.appendChild(node);
+        inserted.set(added.id, node);
+        if (added.order !== undefined) orderedParents.add(added.parent);
+    }
+    // DOM을 먼저 구축해 자식 삽입과 위치 지정 패치의 대상이 바뀌지 않게 한다.
+    // Build the DOM first, then move only this draft's own inserted sibling nodes.
+    for (const selector of orderedParents) {
+        const parent = resolveElement(doc, selector);
+        if (!parent) continue;
+        for (const id of studioSiblingIds(draft, selector)) {
+            const node = inserted.get(id);
+            if (node?.parentElement === parent) parent.appendChild(node);
+        }
     }
     for (const patch of draft.patches) {
         const el = resolveElement(doc, patch.selector);

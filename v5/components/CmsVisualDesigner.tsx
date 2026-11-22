@@ -15,6 +15,7 @@ import { chooseStudioDraft, clearStudioDraft, readStudioDraft, writeStudioDraft 
 import type { StudioRecovery } from "../src/cms/studio-recovery.ts";
 import { createStudioWrites } from "../src/cms/studio-writes.ts";
 import { readStudioFrame } from "../src/cms/studio-frame.ts";
+import { moveStudioLayer, studioAddedId, studioSiblingIds } from "../src/cms/studio-layer-order.ts";
 import { flattenStudioLayers } from "../src/cms/studio-layers.ts";
 import { useCatalog } from "../src/catalog/CatalogProvider";
 import { supabase } from "../src/lib/supabase.ts";
@@ -157,6 +158,7 @@ export default function CmsVisualDesigner({
     const [selection, setSelection] = useState<SelectionInfo | null>(null);
     const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
     const [filter, setFilter] = useState("");
+    const [dragLayer, setDragLayer] = useState<string | null>(null);
     const [dragPreset, setDragPreset] = useState<VisualPresetId | null>(null);
     const [overlay, setOverlay] = useState<Overlay | null>(null);
     const [agentPrompt, setAgentPrompt] = useState("");
@@ -908,6 +910,17 @@ export default function CmsVisualDesigner({
         setDirty(false);
         setReloadDraft(value => value + 1);
     };
+    const draggingAddition = history.present.additions.find(item => item.id === dragLayer);
+    const selectedAddedId = studioAddedId(selection?.selector ?? "");
+    const selectedAddition = history.present.additions.find(item => item.id === selectedAddedId);
+    const siblingIds = selectedAddition ? studioSiblingIds(history.present, selectedAddition.parent) : [];
+    const siblingIndex = selectedAddedId ? siblingIds.indexOf(selectedAddedId) : -1;
+    const reorderLayer = (source: string, target: string) => {
+        if (originalView || loading || moveStudioLayer(history.present, source, target) === history.present) return;
+        mutate(doc => moveStudioLayer(doc, source, target));
+        setIsError(false);
+        setStatus("레이어 순서를 바꿨습니다. 실행 취소할 수 있습니다.");
+    };
     const selectionIsContainer = Boolean(
         selection && ["main", "section", "article", "div", "ul", "form", "header", "footer", "figure"].includes(selection.tag),
     );
@@ -989,6 +1002,14 @@ export default function CmsVisualDesigner({
                         <span data-text="meta">{visibleLayers.length}개 표시 · {collapsed.size}개 접힘</span>
                     </div>
                     <SystemField label="레이어 검색" labelHidden value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="예: section, h2, 버튼" />
+                    {selectedAddedId && siblingIds.length > 1 && !originalView ? (
+                        <div className="cms-visual-layer-order" role="group" aria-label="선택한 레이어의 순서">
+                            <SystemButton variant="quiet" disabled={siblingIndex <= 0}
+                                onClick={() => reorderLayer(selectedAddedId, siblingIds[siblingIndex - 1])}>위로</SystemButton>
+                            <SystemButton variant="quiet" disabled={siblingIndex >= siblingIds.length - 1}
+                                onClick={() => reorderLayer(selectedAddedId, siblingIds[siblingIndex + 1])}>아래로</SystemButton>
+                        </div>
+                    ) : null}
                     {filter.trim() && !visibleLayers.length ? <p data-text="body">일치하는 레이어가 없습니다.</p> : null}
                     <div
                         className="cms-visual-layer-list"
@@ -1004,8 +1025,8 @@ export default function CmsVisualDesigner({
                             setDragPreset(null);
                         }}
                     >
-                        {visibleLayers.map((layer, index) => (
-                            <div key={layer.selector + "-" + index} className="cms-visual-layer-row" style={{ paddingLeft: 6 + layer.depth * 12 }}>
+                        {visibleLayers.map((layer) => (
+                            <div key={layer.selector} className="cms-visual-layer-row" style={{ paddingLeft: 6 + layer.depth * 12 }}>
                                 <button
                                     type="button"
                                     className="cms-visual-layer-toggle"
@@ -1034,6 +1055,31 @@ export default function CmsVisualDesigner({
                                     data-added={layer.added}
                                     title={layer.selector}
                                     disabled={originalView}
+                                    draggable={!originalView && studioAddedId(layer.selector) !== null}
+                                    onDragStart={(event) => {
+                                        const id = studioAddedId(layer.selector);
+                                        if (!id) return;
+                                        event.dataTransfer.setData("application/x-sejong-studio-layer", id);
+                                        event.dataTransfer.effectAllowed = "move";
+                                        setDragLayer(id);
+                                    }}
+                                    onDragOver={(event) => {
+                                        const targetId = studioAddedId(layer.selector);
+                                        if (draggingAddition && targetId && targetId !== dragLayer && history.present.additions.some(item =>
+                                            item.id === targetId && item.parent === draggingAddition.parent)) {
+                                            event.preventDefault();
+                                            event.dataTransfer.dropEffect = "move";
+                                        }
+                                    }}
+                                    onDrop={(event) => {
+                                        if (!dragLayer) return;
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        const targetId = studioAddedId(layer.selector);
+                                        if (targetId) reorderLayer(dragLayer, targetId);
+                                        setDragLayer(null);
+                                    }}
+                                    onDragEnd={() => setDragLayer(null)}
                                     onClick={() => { selectBySelector(layer.selector); setMode("select"); }}
                                 >
                                     <span className="cms-visual-layer-tag" data-text="meta">{layer.tag}</span>

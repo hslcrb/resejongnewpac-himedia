@@ -189,6 +189,7 @@ export interface VisualAddedElement {
     href?: string;
     style?: VisualStyleMap;
     children?: VisualAddedChild[];
+    order?: number;
 }
 
 export interface VisualDraftDocument {
@@ -368,6 +369,7 @@ export function sanitizeVisualDocument(input: unknown, expectedPath: string): Vi
             tag: tag as VisualAddTag,
             text: plain(a.text, 2000),
         };
+        if (typeof a.order === "number" && Number.isInteger(a.order) && a.order >= 0 && a.order < MAX_ADDITIONS) clean.order = a.order;
         if (isSafeVisualUrl(a.src)) clean.src = a.src;
         if (a.alt != null) clean.alt = plain(a.alt, 500);
         if (isSafeVisualUrl(a.href)) clean.href = a.href;
