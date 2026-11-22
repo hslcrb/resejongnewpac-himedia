@@ -90,6 +90,15 @@ const definitions: readonly ComponentDefinition[] = [
         purpose: "문서 경로, 작업 도구, 기기 아트보드, 배율과 원본 보기의 공통 조작",
     },
     {
+        id: "cms-studio-resize-handle",
+        name: "StudioResizeHandle",
+        source: "components/cms-studio/StudioResizeHandle.tsx",
+        exportName: "StudioResizeHandle",
+        kind: "structure",
+        guide: "components/registry",
+        purpose: "캔버스 선택 요소의 직접 크기 조절과 키보드 대안",
+    },
+    {
         id: "page-heading",
         name: "PageHeading",
         source: "components/PageHeading.tsx",
