@@ -595,7 +595,7 @@ test("A16: 캔버스는 8종 컴포넌트·더블클릭 인라인 편집·반응
     }
 
     // 세션이 없어도 캔버스가 막히지 않고, 초안은 브라우저에 보관된다.
-    assert.match(componentSource, /autosaveVisualDraft\(\(\) => window\.localStorage, path, history\.present, dirty\)/);
+    assert.match(componentSource, /writeStudioDraft\(window\.localStorage, recoveryScope, path, revision, history\.present\)/);
     assert.ok(documentSource.includes("sejong-cms-visual-draft:"));
     assert.ok(componentSource.includes("readLocalDraft"));
     assert.ok(!componentSource.includes("status !== \"allowed\""));
