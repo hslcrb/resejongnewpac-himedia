@@ -17,6 +17,7 @@ import type { StudioRecovery } from "../src/cms/studio-recovery.ts";
 import { createStudioWrites } from "../src/cms/studio-writes.ts";
 import { readStudioFrame } from "../src/cms/studio-frame.ts";
 import { moveStudioLayer, studioAddedId, studioSiblingIds } from "../src/cms/studio-layer-order.ts";
+import { revealStudioScrollParents } from "../src/cms/studio-nested-reveal.ts";
 import { revealStudioAxis, studioStageTarget } from "../src/cms/studio-reveal.ts";
 import { flattenStudioLayers } from "../src/cms/studio-layers.ts";
 import { useCatalog } from "../src/catalog/CatalogProvider";
@@ -251,6 +252,7 @@ export default function CmsVisualDesigner({
                 setStatus("현재 아트보드에서 이 레이어를 표시할 수 없습니다.");
                 return;
             }
+            revealStudioScrollParents(target, view, doc.scrollingElement);
             const before = target.getBoundingClientRect();
             const innerX = revealStudioAxis(before.left, before.width, view.innerWidth);
             const innerY = revealStudioAxis(before.top, before.height, view.innerHeight);
