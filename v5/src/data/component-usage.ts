@@ -711,6 +711,15 @@ export const COMPONENT_USAGE = {
         ],
         "guideUses": []
     },
+    "public-visual-publication": {
+        "status": "product",
+        "productUses": [
+            "components/SiteShell.tsx#SiteShell"
+        ],
+        "guideUses": [
+            "components/SiteShell.tsx#SiteShell"
+        ]
+    },
     "quick-menu": {
         "status": "product",
         "productUses": [
@@ -854,8 +863,8 @@ export const COMPONENT_USAGE = {
 } as const;
 
 export const COMPONENT_COUNTS = {
-    "total": 65,
-    "product": 65,
+    "total": 66,
+    "product": 66,
     "documentationOnly": 0,
     "unused": 0
 } as const;
