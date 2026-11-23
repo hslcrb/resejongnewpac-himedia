@@ -33,8 +33,18 @@ try {
     await title.filter({ hasText: /^$/ }).waitFor();
     await page.getByRole("button", { name: "실행 취소" }).click();
     await frame.getByText("세종 스튜디오 실험", { exact: true }).waitFor();
-    // 두 실제 DOM 문단을 다중 선택하고 포인터 1회로 이동·원복합니다.
     const palette = page.getByRole("group", { name: "추가 가능한 컴포넌트" });
+    await palette.getByRole("button", { name: /^카드(?:\s|$)/ }).click();
+    const card = frame.locator('[data-cms-preset="card"]').first();
+    const description = card.locator("p");
+    await description.dblclick();
+    await description.fill("카드 본문 편집 확인");
+    await description.press("Enter");
+    await card.getByText("카드 본문 편집 확인", { exact: true }).waitFor();
+    await card.getByText("카드 제목", { exact: true }).waitFor();
+    await page.reload();
+    await card.getByText("카드 본문 편집 확인", { exact: true }).waitFor();
+    // 두 실제 DOM 문단을 다중 선택하고 포인터 1회로 이동·원복합니다.
     const text = palette.getByRole("button", { name: /^텍스트(?:\s|$)/ });
     await text.click();
     await text.click();

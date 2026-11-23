@@ -17,7 +17,7 @@ const MAX_TEXT = 160;
 export function visualSelectorFor(element: Element): string {
     const added = element.closest("[data-cms-added]")?.getAttribute("data-cms-added");
     if (added) {
-        let selector = '[data-cms-added="' + added + '"]';
+        const segments: string[] = [];
         let node: Element = element;
         while (node && node.getAttribute("data-cms-added") !== added) {
             const parent: Element | null = node.parentElement;
@@ -26,13 +26,14 @@ export function visualSelectorFor(element: Element): string {
             let index = 1;
             let sibling: Element | null = node.previousElementSibling;
             while (sibling) {
-                if (sibling.localName === tag) index += 1;
+                // nth-child는 태그와 무관하게 센다. / The index includes siblings of every tag.
+                index += 1;
                 sibling = sibling.previousElementSibling;
             }
-            selector += " > " + tag + ":nth-child(" + index + ")";
+            segments.push(tag + ":nth-child(" + index + ")");
             node = parent;
         }
-        return selector;
+        return ['[data-cms-added="' + added + '"]', ...segments.reverse()].join(" > ");
     }
     const segments: string[] = [];
     let current: Element | null = element;
