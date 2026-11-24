@@ -55,8 +55,8 @@ export function assertPrOnlyOperation(options: {
     if (!options.decision.isAdmin || options.decision.statusCode !== 200) {
         throw new PrOnlyViolationError(
             options.decision.statusCode === 423
-                ? "록로그인(Lock-Login) 보안 잠금 상태에서는 변경 묶음이나 PR을 제출할 수 없습니다."
-                : "검증된 Google admin 관리자 세션에서만 PR 변경 묶음을 생성할 수 있습니다.",
+                ? "로그인(Lock-Login) 보안 잠금 상태에서는 변경 묶음이나 PR을 제출할 수 없습니다."
+                : "검증된 Google 관리자 관리자 세션에서만 PR 변경 묶음을 생성할 수 있습니다.",
         );
     }
     if (

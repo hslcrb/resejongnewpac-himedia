@@ -143,4 +143,4 @@ export function navigate(path: string): void {
     }
 }
 
-export { icon } from "../../assets/icons/material-symbols.js";
+export { icon } from "../../public/assets/icons/material-symbols.js";

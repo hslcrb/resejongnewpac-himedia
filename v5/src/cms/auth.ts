@@ -10,7 +10,7 @@ import {
 } from "./contracts.ts";
 
 // [관리자 인증 후 이동 선택지 / Post-login destination choices for verified admin]
-// 사용자의 원문 요구("사용자 페이지와 록로그인 페이지로 갈지")와 CMS 워크스페이스를 모두 보존합니다.
+// 사용자의 원문 요구("사용자 페이지와 로그인 페이지로 갈지")와 CMS 워크스페이스를 모두 보존합니다.
 export const CMS_ADMIN_DESTINATIONS: readonly CmsDestinationOption[] = Object.freeze([
     {
         id: "visitor_account",
@@ -28,10 +28,10 @@ export const CMS_ADMIN_DESTINATIONS: readonly CmsDestinationOption[] = Object.fr
     },
     {
         id: "lock_login_gate",
-        label: "록로그인(Lock-Login) 보안 페이지로 이동",
+        label: "로그인(Lock-Login) 보안 페이지로 이동",
         href: "/admin?panel=lock-login",
-        description: "Google admin 관리자 세션 잠금·권한 검증·연동 상태를 관리합니다.",
-        badge: "록로그인 보안",
+        description: "Google 관리자 관리자 세션 잠금·권한 검증·연동 상태를 관리합니다.",
+        badge: "로그인 보안",
     },
 ]);
 
@@ -58,7 +58,7 @@ function parseVerifiedGoogleEmail(email: string): { localPart: string; domain: s
 }
 
 // [Google provider identity와 서버 멤버십을 결합한 관리자 검증 / Admin verification binding Google provider identity and server membership]
-// 표시 이름, 이메일 접두사(admin.fake@example.com), user_metadata, URL 쿼리나 localStorage 플래그는 절대 관리자 근거로 인정하지 않습니다.
+// 표시 이름, 이메일 접두사(admin.fake@...), user_metadata, URL 쿼리나 localStorage 플래그는 절대 관리자 근거로 인정하지 않습니다.
 export function verifyAdminIdentity(input: CmsIdentityVerificationInput | null | undefined): CmsIdentityDecision {
     const denied = (
         statusCode: 401 | 403 | 423,
@@ -169,7 +169,7 @@ export function verifyAdminIdentity(input: CmsIdentityVerificationInput | null |
             role: input.membership?.role || "super_admin",
             capabilities: [],
             destinations: CMS_ADMIN_DESTINATIONS,
-            message: "록로그인(Lock-Login) 보안 잠금이 활성화되어 있습니다. 잠금 해제 후 편집·PR 도구를 사용할 수 있습니다.",
+            message: "로그인(Lock-Login) 보안 잠금이 활성화되어 있습니다. 잠금 해제 후 편집·PR 도구를 사용할 수 있습니다.",
         };
     }
 
@@ -189,7 +189,7 @@ export function verifyAdminIdentity(input: CmsIdentityVerificationInput | null |
         role,
         capabilities,
         destinations: CMS_ADMIN_DESTINATIONS,
-        message: "Google admin 관리자 계정이 확인되었습니다. 이동할 페이지를 선택하세요.",
+        message: "Google 관리자 관리자 계정이 확인되었습니다. 이동할 페이지를 선택하세요.",
     };
 }
 

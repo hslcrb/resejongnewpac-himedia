@@ -11,9 +11,9 @@ import { renderHomeBooking, bindHomeBooking } from "./home-booking.ts";
 import { discoverPrograms, seoulToday } from "./home-domain.ts";
 
 const features = [
-    { id: "dance", theme: "dance", label: "2026 세종시즌 · 서울시무용단", title: "일상을 깨우는,<br>예술의 순간.", name: "서울시무용단 〈일무〉", date: "2026.10.20 - 10.25", venue: "세종대극장", image: "hero-dance.png", alt: "금빛 무대에서 춤추는 무용수의 리뉴얼 콘셉트 이미지" },
-    { id: "carmen", theme: "opera", label: "2026 세종시즌 · 서울시오페라단", title: "가장 뜨거운<br>자유의 노래.", name: "서울시오페라단 〈카르멘〉", date: "2026.10.15 - 10.18", venue: "세종대극장", image: "poster-carmen.svg", alt: "오페라 카르멘 콘셉트 포스터" },
-    { id: "light", theme: "light", label: "전시 · 빛과 공간", title: "낯선 빛이 여는<br>새로운 감각.", name: "빛이 머무는 자리", date: "2026.10.01 - 11.15", venue: "세종미술관", image: "poster-light.svg", alt: "빛이 머무는 자리 전시 콘셉트 포스터" }
+    { id: "dance", theme: "dance", label: "2026 세종시즌 · 서울시무용단", title: "일상을 깨우는,<br>예술의 순간.", name: "서울시무용단 〈일무〉", date: "2026.10.20 ~ 10.25", venue: "세종대극장", image: "hero-dance.png", alt: "금빛 무대에서 춤추는 무용수의 리뉴얼 콘셉트 이미지" },
+    { id: "carmen", theme: "opera", label: "2026 세종시즌 · 서울시오페라단", title: "가장 뜨거운<br>자유의 노래.", name: "서울시오페라단 〈카르멘〉", date: "2026.10.15 ~ 10.18", venue: "세종대극장", image: "poster-carmen.svg", alt: "오페라 카르멘 콘셉트 포스터" },
+    { id: "light", theme: "light", label: "전시 · 빛과 공간", title: "낯선 빛이 여는<br>새로운 감각.", name: "빛이 머무는 자리", date: "2026.10.01 ~ 11.15", venue: "세종미술관", image: "poster-light.svg", alt: "빛이 머무는 자리 전시 콘셉트 포스터" }
 ];
 
 // [방문 안내와 대응 이미지 / Visitor links and matching images]

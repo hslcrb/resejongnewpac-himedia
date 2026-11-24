@@ -2,10 +2,13 @@
 node_modules/
 .DS_Store
 __pycache__/
-.cloudflare-output/
 
-# New static exports and mirrored route output are not source files.
-# Already tracked snapshots remain tracked; do not delete or untrack them.
+# 환경 변수는 저장소에 두지 않는다.
+.env
+.env.local
+.env.*.local
+
+# 빌드 산출물: out/과 그 미러(index.html, 라우트별 index.html)는 생성물이므로 추적하지 않는다.
 /.next/
 /out/
 /_next/
@@ -18,6 +21,9 @@ __pycache__/
 /*/index.txt
 /*/**/index.html
 /*/**/index.txt
-# Preserve authored HTML and historical snapshots.
+# 저작한 HTML은 예외로 추적한다.
 !/public/**/index.html
-!/v2/**/index.html
+
+# 빌드가 만들어 내는 미러 디렉터리
+/assets/
+/docs/

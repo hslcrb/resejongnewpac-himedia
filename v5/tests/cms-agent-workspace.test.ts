@@ -82,7 +82,7 @@ const VALID_ADMIN_IDENTITY: CmsIdentityVerificationInput = {
     },
 };
 
-test("A01-A04: Google admin admin verification allows verified Google identity and exposes 3 destinations while blocking spoofing, non-Google, unverified, revoked, and locked sessions", () => {
+test("A01-A04: Google 관리자 admin verification allows verified Google identity and exposes 3 destinations while blocking spoofing, non-Google, unverified, revoked, and locked sessions", () => {
     const verified = verifyAdminIdentity(VALID_ADMIN_IDENTITY);
     assert.equal(verified.isAuthenticated, true);
     assert.equal(verified.isAdmin, true);
@@ -549,7 +549,7 @@ test("A15: /admin 진입 즉시 피그마형 3단 캔버스가 열리고 관제�
     }
 
     // 화면을 가로막던 관제탑·모의 HTTP 401 게이트·지표 블록은 제거한다.
-    for (const removed of ["관제탑", "HTTP 401", "cms-kpi-grid", "cms-control-tower-shell", "록로그인"]) {
+    for (const removed of ["관제탑", "HTTP 401", "cms-kpi-grid", "cms-control-tower-shell", "로그인"]) {
         assert.ok(!adminSource.includes(removed), `admin/page.tsx must not contain "${removed}"`);
     }
     assert.ok(!componentSource.includes("관제탑"));

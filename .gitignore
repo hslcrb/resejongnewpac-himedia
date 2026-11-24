@@ -1,18 +1,4 @@
-.local-reports/
-node_modules/
-work/documentation-renderer/
 .DS_Store
-__pycache__/
-
-v5/.next/
-v5/out/
-
-
-# Local Environment Variables
-.env
-.env.local
-.env.*.local
-v5/.env.local
-!*.env.example
-!.env.example
-
+Thumbs.db
+node_modules/
+.local-reports/

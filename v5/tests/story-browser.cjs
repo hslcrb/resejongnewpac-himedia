@@ -7,7 +7,7 @@ const path = require("node:path");
 // 사용자 브라우저 프로필과 외부 레퍼런스에 접근하지 않고 localhost의 통합 제품을 검사합니다.
 // Test the integrated localhost product without user profiles or external reference browsing.
 const base = process.env.SEJONG_TEST_URL || "http://127.0.0.1:8764/v4/index.html";
-const output = path.resolve(__dirname, "../../.local-reports/analysis-v4/story-verification");
+const output = path.resolve(__dirname, "../../.local-reports/story-verification");
 const report = { target: base, checks: [], errors: [], screenshots: [] };
 fs.mkdirSync(output, { recursive: true });
 

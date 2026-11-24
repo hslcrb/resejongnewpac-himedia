@@ -82,7 +82,7 @@ export const SCOPED_REPO_INDEX: readonly ScopedRepoFile[] = Object.freeze([
     },
     {
         path: "v5/app/login/page.tsx",
-        role: "Google admin 관리자 검증 및 사용자/CMS·록로그인 이동 선택 게이트",
+        role: "Google 관리자 관리자 검증 및 사용자/CMS·로그인 이동 선택 게이트",
         excerpt:
             'export default function LoginGatePage() {\n    return <AdminLoginGate mode="login" />;\n}',
         domain: "frontend",

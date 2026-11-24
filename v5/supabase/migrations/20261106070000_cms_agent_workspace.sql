@@ -132,7 +132,7 @@ revoke all on public.sejong_cms_memberships, public.sejong_cms_drafts, public.se
     public.sejong_cms_change_sets, public.sejong_cms_agent_threads, public.sejong_cms_agent_runs,
     public.sejong_cms_audit_outbox from public, anon, authenticated;
 
--- [검증된 Google admin 관리자 세션 판정 / Verified Google admin admin session check]
+-- [검증된 Google 관리자 관리자 세션 판정 / Verified Google 관리자 admin session check]
 create or replace function public.sejong_cms_is_active_admin(p_user_id uuid default auth.uid())
 returns boolean language plpgsql stable security definer set search_path = '' as $$
 declare

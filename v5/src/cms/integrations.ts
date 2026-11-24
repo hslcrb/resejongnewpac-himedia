@@ -41,8 +41,8 @@ export async function saveCmsDraftToSupabase(input: {
     if (!input.decision.isAdmin || input.decision.statusCode !== 200) {
         throw new Error(
             input.decision.statusCode === 423
-                ? "록로그인(Lock-Login) 잠금 상태에서는 초안을 저장할 수 없습니다."
-                : "검증된 Google admin 관리자 세션이 필요합니다.",
+                ? "로그인(Lock-Login) 잠금 상태에서는 초안을 저장할 수 없습니다."
+                : "검증된 Google 관리자 관리자 세션이 필요합니다.",
         );
     }
 
@@ -429,7 +429,7 @@ export async function probeCmsIntegrations(options: {
         detail:
             options.decision.isAdmin && options.decision.statusCode === 200
                 ? "메시지 기반 코드·콘텐츠 패치 생성, 정적 계약 검사, PR 번들링 준비 완료"
-                : "관리자 인증 또는 록로그인 잠금 해제 후 코딩 실행기가 활성화됩니다.",
+                : "관리자 인증 또는 로그인 잠금 해제 후 코딩 실행기가 활성화됩니다.",
     });
 
     return { probes, latestMainSha };
@@ -496,7 +496,7 @@ export function buildControlTowerSnapshot(input: {
                 "cms-media 자산 스토리지 및 EXIF/SHA-256 무결성",
             ],
             telemetry: isLocked
-                ? "HTTP 423 록로그인 잠금 중 - 쓰기 세션 일시 차단"
+                ? "HTTP 423 로그인 잠금 중 - 쓰기 세션 일시 차단"
                 : `신원 HTTP ${input.decision.statusCode} (${input.decision.reasonCode}) · 권한 ${input.decision.capabilities.length}종`,
             controlActionLabel: "Supabase 세션·RPC 동기화",
         },

@@ -191,7 +191,7 @@ export default function CmsLoginGatePage() {
                         <h1 data-text="title">Google 관리자 인증 · 목적지 선택 대시보드</h1>
                         <p data-text="body">
                             검증된 Google {CMS_ADMIN_HANDLE} 신원과 서버 멤버십 바인딩을 대조하고,
-                            사용자 페이지(/account), 관리자 CMS 워크스페이스(/admin), 록로그인 보안
+                            사용자 페이지(/account), 관리자 CMS 워크스페이스(/admin), 로그인 보안
                             게이트(/admin?panel=lock-login) 중 목적지를 선택합니다.
                         </p>
                     </div>

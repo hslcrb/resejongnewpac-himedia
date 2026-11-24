@@ -67,7 +67,7 @@ function deny(identity: CmsIdentityDecision | null | undefined, capability: stri
         return {
             status: 423,
             headers: headers(),
-            body: { error: identity.message || "록로그인 잠금 상태입니다.", code: "SESSION_LOCKED" },
+            body: { error: identity.message || "로그인 잠금 상태입니다.", code: "SESSION_LOCKED" },
         };
     }
     if (!identity.capabilities.includes(capability as CmsIdentityDecision["capabilities"][number])) {
