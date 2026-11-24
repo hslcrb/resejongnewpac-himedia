@@ -8,9 +8,9 @@ function ordered(value: unknown): unknown {
     return value;
 }
 
-/** 공개 내용의 날짜 범위 표기를 통일한다. (예: 2026.10.20 - 10.25 -> 2026.10.20 ~ 10.25) */
+/** 공개 내용의 날짜 범위 표기를 통일한다. (예: 2026.10.20 U+2014 10.25 -> 2026.10.20 ~ 10.25) */
 function normalizedText(value: unknown): unknown {
-    if (typeof value === 'string') return value.replace(/\s*-\s*/g, ' ~ ').replace(/ ~ $/, ' ~');
+    if (typeof value === 'string') return value.replace(/\s*\u2014\s*/g, ' ~ ').replace(/ ~ $/, ' ~');
     if (Array.isArray(value)) return value.map(normalizedText);
     if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, normalizedText(item)]));
     return value;
