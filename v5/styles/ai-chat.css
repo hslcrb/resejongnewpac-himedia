@@ -1,0 +1,10 @@
+/* [상담도 공통 표면과 버튼의 베리언트를 사용 / Shared surface and control variants] */
+.sejong-ai-widget { position: fixed; right: 22px; bottom: 22px; z-index: 80; font-family: inherit; }
+.sejong-ai-trigger { position: relative; display: grid; place-items: center; }
+.sejong-ai-trigger-tip { pointer-events: none; position: absolute; right: 64px; top: 50%; transform: translateY(-50%); opacity: 0; white-space: nowrap; padding: var(--space-2) var(--space-3); border-radius: var(--radius-control); background: var(--surface-inverse); color: var(--text-inverse); transition: opacity var(--duration-feedback); }
+.sejong-ai-trigger:hover .sejong-ai-trigger-tip, .sejong-ai-trigger:focus-visible .sejong-ai-trigger-tip { opacity: 1; }
+.sejong-ai-panel { position: absolute; bottom: 68px; right: 0; width: min(370px, calc(100vw - 32px)); overflow: hidden; }
+.sejong-ai-panel-head { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3) var(--space-4); color: var(--text-inverse); background: var(--surface-inverse); }
+.sejong-ai-loading { min-height: 150px; padding: var(--space-6); }
+@media (max-width: 600px) { .sejong-ai-widget { right: 12px; bottom: 12px; } .sejong-ai-panel { bottom: 65px; } }
+@media (prefers-reduced-motion: reduce) { .sejong-ai-trigger-tip { transition: none; } }

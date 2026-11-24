@@ -1,0 +1,29 @@
+.local-reports/
+node_modules/
+.DS_Store
+__pycache__/
+
+# 환경 변수는 저장소에 두지 않는다.
+.env
+.env.local
+.env.*.local
+
+# 빌드 산출물: out/과 그 미러(index.html, 라우트별 index.html)는 생성물이므로 추적하지 않는다.
+/.next/
+/out/
+/_next/
+/index.html
+/index.txt
+/404.html
+/readable-assets.json
+*.tsbuildinfo
+/*/index.html
+/*/index.txt
+/*/**/index.html
+/*/**/index.txt
+# 저작한 HTML은 예외로 추적한다.
+!/public/**/index.html
+
+# 빌드가 만들어 내는 미러 디렉터리
+/assets/
+/docs/

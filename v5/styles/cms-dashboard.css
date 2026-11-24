@@ -1,0 +1,592 @@
+/* [실제 CMS · 위지위그 · 대화형 코딩 · PR 전용 대시보드 레이아웃 / Multi-pane CMS & Coding Agent Dashboard Layout] */
+
+.cms-dashboard-page {
+    background: var(--background-page);
+    color: var(--text-primary);
+    padding-top: var(--space-5);
+    padding-bottom: var(--space-24);
+}
+
+.cms-dashboard-shell {
+    max-width: var(--container);
+    margin-inline: auto;
+    padding-inline: var(--page-gutter);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+.cms-topbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.cms-topbar-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    min-width: 0;
+    flex: 1 1 32rem;
+}
+
+.cms-topbar-title-group h1 {
+    margin: 0;
+    font-size: max(var(--text-min), var(--text-heading));
+    font-weight: var(--weight-heading);
+    line-height: var(--leading-heading);
+    letter-spacing: var(--tracking-heading);
+}
+
+.cms-topbar-title-group p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+.cms-topbar-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.cms-topbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.cms-toolbar-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.cms-toolbar-between {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+}
+
+/* [4열 핵심 지표 스트립 / 4-column KPI metric strip] */
+.cms-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+}
+
+.cms-kpi-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+.cms-kpi-card p,
+.cms-kpi-card h3,
+.cms-kpi-card h4 {
+    margin: 0;
+}
+
+.cms-kpi-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+}
+
+.cms-kpi-value {
+    margin: 0;
+    font-size: max(var(--text-min), var(--text-item-title));
+    font-weight: var(--weight-heading);
+    line-height: var(--leading-heading);
+    word-break: keep-all;
+}
+
+/* [5대 계층 통합 관제탑 그리드: 수퍼베이스 · 디비 · 클플 · 프론트 · 백엔드 / 5-Domain Control Tower Strip] */
+.cms-control-tower-shell {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.cms-control-tower-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: var(--space-3);
+}
+
+.cms-control-tower-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-2);
+    min-width: 0;
+}
+
+.cms-control-tower-card h3,
+.cms-control-tower-card h4,
+.cms-control-tower-card p {
+    margin: 0;
+}
+
+.cms-control-tower-resources {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding-block: var(--space-2);
+    border-top: 1px solid var(--border-default);
+    border-bottom: 1px solid var(--border-default);
+}
+
+/* [첨부 도면 기반 AI 에이전트 편집공간 스튜디오 프레임 / Wireframe-matched AI Agent Editing Studio] */
+.cms-agent-studio-frame {
+    border-radius: var(--radius-panel);
+    padding: var(--space-4);
+    background-color: var(--surface-subtle);
+    background-image: radial-gradient(
+        var(--color-line-control) 1.25px,
+        var(--color-transparent) 1.25px
+    );
+    background-size: 20px 20px;
+    box-shadow: inset 0 0 0 1px var(--border-default);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.cms-agent-studio-board {
+    display: grid;
+    grid-template-columns: 310px minmax(0, 1fr) 400px;
+    align-items: stretch;
+    gap: var(--space-4);
+    min-height: 48rem;
+}
+
+/* 좌측: 프로젝트 파일 보기 · 파일창들 / Left pane: Project File Explorer & Open File Windows */
+.cms-studio-files-pane {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-width: 0;
+    height: 100%;
+}
+
+.cms-studio-file-tree {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: 20rem;
+    overflow-y: auto;
+    padding-right: var(--space-1);
+}
+
+.cms-studio-file-tree > .ds-button {
+    width: 100%;
+    justify-content: space-between;
+    text-align: left;
+}
+
+.cms-studio-file-windows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border-default);
+}
+
+.cms-studio-file-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+/* 중앙: 위지위그 라이브 화면 / Center pane: Interactive WYSIWYG Live Screen Canvas */
+.cms-studio-wysiwyg-pane {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+    height: 100%;
+}
+
+.cms-studio-wysiwyg-stage {
+    flex: 1 1 auto;
+    border-radius: var(--radius-panel);
+    padding: var(--space-5);
+    background-color: var(--background-page);
+    background-image: radial-gradient(
+        var(--color-line-gentle) 1.25px,
+        var(--color-transparent) 1.25px
+    );
+    background-size: 18px 18px;
+    box-shadow: inset 0 0 0 1px var(--border-default);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.cms-studio-viewport-container {
+    width: 100%;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.cms-studio-viewport-container[data-viewport="tablet"] {
+    max-width: 48rem;
+}
+
+.cms-studio-viewport-container[data-viewport="mobile"] {
+    max-width: 26rem;
+}
+
+.cms-studio-live-block {
+    cursor: pointer;
+    transition: transform 140ms ease;
+}
+
+.cms-studio-live-block[data-selected="true"] {
+    background-color: var(--color-yellow-subtle);
+}
+
+/* 우측: 상단 에이전트 채팅 공간 + 하단 속성과 레이어 등 패널 수직 2분할 / Right column vertical split */
+.cms-studio-right-rail {
+    display: grid;
+    grid-template-rows: minmax(24rem, 1fr) minmax(22rem, 1fr);
+    gap: var(--space-4);
+    min-width: 0;
+    height: 100%;
+}
+
+.cms-studio-chat-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-3);
+    min-width: 0;
+}
+
+.cms-studio-chat-messages {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: 16rem;
+    overflow-y: auto;
+    padding-right: var(--space-1);
+}
+
+/* 도면 우측 상단 하단의 캡슐형 채팅 입력창 / Wireframe rounded pill chat input bar */
+.cms-studio-chat-pill-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-radius: 999px;
+    background: var(--background-page);
+    box-shadow: inset 0 0 0 1px var(--color-line-control);
+}
+
+.cms-studio-chat-pill-input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.cms-studio-inspector-panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-width: 0;
+}
+
+.cms-studio-layer-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: 15rem;
+    overflow-y: auto;
+    padding-right: var(--space-1);
+}
+
+.cms-studio-layer-list > .ds-button {
+    width: 100%;
+    justify-content: space-between;
+    text-align: left;
+}
+
+/* [3열 스튜디오 워크벤치: 좌측 트리 · 중앙 분할 편집기 · 우측 에이전트/PR 독 / 3-column studio workbench] */
+.cms-workbench {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr) 380px;
+    align-items: start;
+    gap: var(--space-5);
+}
+
+.cms-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    position: sticky;
+    top: var(--space-6);
+    min-width: 0;
+}
+
+.cms-nav-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.cms-nav-stack > .ds-button {
+    width: 100%;
+    justify-content: flex-start;
+    text-align: left;
+}
+
+.cms-page-tree-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: 24rem;
+    overflow-y: auto;
+    padding-right: var(--space-1);
+}
+
+.cms-page-tree-list > .ds-button {
+    width: 100%;
+    justify-content: space-between;
+    text-align: left;
+}
+
+.cms-main-stage {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+}
+
+/* [중앙 2열 분할: 좌측 블록 편집기 · 우측 실시간 렌더러/Diff 인스펙터 / 2-column split editor and live preview] */
+.cms-split-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    align-items: start;
+    gap: var(--space-4);
+}
+
+.cms-editor-column,
+.cms-preview-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    min-width: 0;
+}
+
+.cms-preview-column {
+    position: sticky;
+    top: var(--space-6);
+}
+
+.cms-inspector-dock {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    position: sticky;
+    top: var(--space-6);
+    min-width: 0;
+}
+
+.cms-card-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+}
+
+.cms-card-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+}
+
+.cms-block-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.cms-block-stack h2,
+.cms-block-stack h3,
+.cms-block-stack h4,
+.cms-block-stack h5,
+.cms-block-stack p {
+    margin: 0;
+}
+
+.cms-block-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--border-default);
+}
+
+.cms-block-header h2,
+.cms-block-header h3,
+.cms-block-header h4,
+.cms-block-header p {
+    margin: 0;
+}
+
+.cms-subitem-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    padding-top: var(--space-2);
+}
+
+.cms-subitem-row-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+    padding-top: var(--space-2);
+}
+
+.cms-code-scroll {
+    margin: 0;
+    max-height: 18rem;
+    overflow: auto;
+    padding: var(--space-3);
+    border-radius: var(--radius-control);
+    background: var(--surface-subtle);
+    font-size: max(var(--text-min), var(--text-sm));
+    font-family: var(--font-mono);
+    line-height: var(--leading-body);
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.cms-audit-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: 20rem;
+    overflow-y: auto;
+}
+
+.cms-probe-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.cms-probe-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-control);
+    background: var(--surface-subtle);
+}
+
+@media (max-width: 1440px) {
+    .cms-control-tower-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .cms-agent-studio-board {
+        grid-template-columns: 280px minmax(0, 1fr) 350px;
+    }
+
+    .cms-workbench {
+        grid-template-columns: 250px minmax(0, 1fr);
+    }
+
+    .cms-inspector-dock {
+        grid-column: 1 / -1;
+        position: static;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-4);
+    }
+}
+
+@media (max-width: 1120px) {
+    .cms-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cms-control-tower-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .cms-agent-studio-board,
+    .cms-studio-right-rail,
+    .cms-workbench,
+    .cms-split-workspace,
+    .cms-card-grid-3,
+    .cms-subitem-row-3 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cms-sidebar,
+    .cms-preview-column,
+    .cms-inspector-dock {
+        position: static;
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 680px) {
+    .cms-kpi-grid,
+    .cms-control-tower-grid,
+    .cms-card-grid-2,
+    .cms-subitem-row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cms-dashboard-shell {
+        padding-inline: var(--space-4);
+    }
+}
+
+
+/* Direct-on-canvas CMS editor. Reuses shared color and typography tokens. */
+.cms-inline-document {
+    width: 100%;
+    min-width: 0;
+    background: var(--color-paper);
+    color: var(--color-black);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px var(--color-line-gentle);
+}
+.cms-inline-cover { padding: clamp(24px, 4vw, 64px); background: var(--color-gray-050); }
+.cms-inline-cover h2 { margin: 0 0 16px; font-size: max(var(--text-min), clamp(28px, 3vw, 44px)); line-height: 1.25; }
+.cms-inline-cover p { margin: 0; font-size: max(var(--text-min), 18px); line-height: 1.8; }
+.cms-inline-section { padding: clamp(24px, 3vw, 48px); box-shadow: inset 0 1px 0 var(--color-line-subtle); }
+.cms-inline-section h3 { margin: 0 0 24px; font-size: max(var(--text-min), clamp(22px, 2.4vw, 32px)); }
+.cms-inline-section p { font-size: max(var(--text-min), 17px); line-height: 1.8; }
+.cms-inline-fact { display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; }
+.cms-inline-fact strong { min-width: 110px; }
+.cms-inline-faq { margin: 14px 0; padding: 20px; border-radius: 16px; box-shadow: inset 0 0 0 1px var(--color-line-control); }
+.cms-inline-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.cms-inline-actions [data-cms-inline] { padding: 12px 20px; border-radius: 12px; background: var(--color-state-hover); }
+.cms-inline-document figure { margin: 0; }
+.cms-inline-document figure img { display: block; width: 100%; max-height: 480px; object-fit: cover; border-radius: 16px; }
+.cms-inline-document figcaption { margin-top: 12px; }
+.cms-inline-document [data-cms-inline] { cursor: text; min-width: 1ch; outline: 2px solid var(--color-transparent); outline-offset: -2px; border-radius: 5px; transition: background-color .15s, outline-color .15s; white-space: pre-wrap; overflow-wrap: anywhere; }
+.cms-inline-document [data-cms-inline]:hover { background: var(--color-state-hover); outline-color: var(--color-line-control); }
+.cms-inline-document [data-cms-inline]:focus-visible,
+.cms-inline-document [data-cms-inline][data-editing="true"] { background: var(--color-state-pressed); outline-color: var(--color-focus); }

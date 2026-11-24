@@ -1,0 +1,98 @@
+/* [이전 배치를 보존하는 목적별 탐색 / Destination groups preserving the previous layout]
+   아이콘·텍스트·화살표를 한 묶음으로 유지하고 오른쪽 화살표만 16px 들여놓습니다.
+   Keep one linked group and inset the right-aligned arrow by just 16px. */
+.home-pathways {
+    container: home-pathways / inline-size;
+    padding-block: 2.25rem;
+    border-block-end: 1px solid var(--border-default);
+}
+
+.home-pathway-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-8);
+}
+
+.home-pathway-link {
+    display: flex;
+    align-items: center;
+    min-inline-size: 0;
+    min-block-size: 4.5rem;
+    padding-inline-end: var(--space-4);
+    border-radius: var(--radius-control);
+    color: var(--color-detail-202220);
+    text-decoration: none;
+    transition: background-color var(--duration-feedback) var(--ease-standard);
+}
+
+.home-pathway-content {
+    display: flex;
+    align-items: center;
+    gap: 1.125rem;
+    inline-size: 100%;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+}
+
+.home-pathway-copy {
+    display: grid;
+    gap: 0.3125rem;
+    flex: 1 1 0%;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    word-break: keep-all;
+}
+
+.home-pathway-symbol,
+.home-pathway-arrow {
+    flex: none;
+}
+
+.home-pathway-copy > .home-pathway-description {
+    color: var(--color-detail-63655e);
+    line-height: 1.6;
+}
+
+.home-pathway-copy > strong {
+    font-weight: 650;
+}
+
+/* [동작을 알리는 공통 상태 / Shared interaction feedback] */
+@media (hover: hover) {
+    .home-pathway-link:hover:not(:active) {
+        background: var(--state-hover);
+    }
+    .home-pathway-link:hover strong {
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+    }
+}
+
+.home-pathway-link:active {
+    background: var(--state-pressed);
+}
+
+.home-pathway-link:focus-visible {
+    outline: var(--focus-width) solid var(--border-focus);
+    outline-offset: calc(-1 * var(--focus-width));
+}
+
+/* [실제 공간에 맞는 재배치 / Reflow by available space, including text enlargement] */
+@media (max-width: 1100px) {
+    .home-pathway-list {
+        gap: var(--space-5);
+    }
+}
+
+@container home-pathways (max-width: 60rem) {
+    .home-pathway-list {
+        grid-template-columns: 1fr;
+        gap: var(--space-2);
+    }
+}
+
+@container home-pathways (max-width: 28rem) {
+    .home-pathway-content {
+        gap: var(--space-3);
+    }
+}
