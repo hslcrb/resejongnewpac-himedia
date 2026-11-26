@@ -961,3 +961,12 @@
         font-size: max(var(--text-min), 18px);
     }
 }
+
+/* [소식 목록 행 정렬 / News list rows]
+   .news-editorial-list a는 styles/refinements.css에서 그리드 열만 지정되어 있고
+   display 선언이 없어 앵커 기본값(inline)으로 남습니다. 행이 한 줄로 서도록
+   그리드 컨테이너임을 되살립니다. */
+.news-editorial-list a {
+    display: grid;
+    align-items: center;
+}
