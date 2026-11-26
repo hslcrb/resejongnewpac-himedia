@@ -1,2 +1,2 @@
-# Keep LMS journal byte counts stable across Windows and Unix checkouts.
-docs/dailyletters(since20261023fri)/*.md text eol=lf
+# Generated static exports are not committed.
+/out/** -text -whitespace
