@@ -731,3 +731,233 @@
         gap: 30px 16px;
     }
 }
+/* [홈 오시는 길·기관 소개 복원 / Restore home visit and identity blocks]
+   홈 마크업이 쓰는 .home-visit-layout, .visit-editorial, .identity-* 규칙이
+   styles/home.css에서 사라져 사진이 원본 크기로 번지고 기관 소개 띠가 흰 배경으로
+   풀렸습니다. 원본 v5 styles/home.css의 해당 블록만 값 변경 없이 되살립니다.
+   Only blocks the current home markup needs are restored; the values are unchanged
+   from the original stylesheet. */
+
+#plan-your-visit {
+    padding-block: 104px;
+}
+
+.visit-editorial h2:where(:not([data-text])) {
+    margin: 0;
+    font-size: max(var(--text-min), clamp(32px, 3.4vw, 48px));
+    font-weight: 720;
+    line-height: 1.28;
+}
+
+.calendar-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-detail-535a64);
+    font-size: max(var(--text-min), var(--text-sm));
+}
+
+.selection-empty {
+    grid-column: 1 / -1;
+    padding-block: 48px;
+}
+
+.home-visit-layout {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    align-items: center;
+    gap: clamp(48px, 7vw, 112px);
+}
+
+.visit-photograph {
+    margin: 0;
+}
+
+.visit-photograph img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 4.3;
+    object-fit: cover;
+    object-position: 44% center;
+    border-radius: var(--radius-media);
+}
+
+.visit-editorial h2 {
+    font-size: max(var(--text-min), clamp(32px, 3.1vw, 44px));
+}
+
+.visit-description {
+    color: var(--muted);
+    font-size: max(var(--text-min), var(--text-body));
+    margin: 24px 0 32px;
+}
+
+.visit-link-list a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-block: 19px;
+    border-bottom: 1px solid var(--line);
+}
+
+.visit-link-list strong {
+    display: block;
+    font-size: max(var(--text-min), var(--text-item-title));
+    font-weight: var(--weight-title);
+}
+
+.visit-link-list small {
+    display: block;
+    color: var(--muted);
+    font-size: max(var(--text-min), var(--text-body));
+    margin-top: 3px;
+}
+
+.home-identity {
+    padding-block: 100px;
+    background: var(--color-detail-0c0c0c);
+    color: var(--color-white);
+}
+
+.identity-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 80px;
+}
+
+.home-identity h2 {
+    font-size: max(var(--text-min), clamp(44px, 4.5vw, 66px));
+    font-weight: 600;
+    line-height: 1.22;
+    margin: 0 0 26px;
+}
+
+.identity-description {
+    color: var(--color-detail-b6b6b6);
+    font-size: max(var(--text-min), 16px);
+    margin: 0 0 28px;
+}
+
+.identity-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 28px;
+    min-height: 48px;
+    font-size: max(var(--text-min), var(--text-sm));
+    font-weight: 550;
+}
+
+.identity-composition {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.identity-channel i {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--sky);
+    border-radius: 50%;
+}
+
+.channel-earth i {
+    background: var(--earth);
+    border-radius: 0;
+}
+
+.channel-human i {
+    background: var(--human);
+    border-radius: 0;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.identity-channel > span {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 28px;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-detail-464646);
+    font-size: max(var(--text-min), 20px);
+}
+
+.identity-channel > span > span {
+    font-size: max(var(--text-min), var(--text-sm));
+    color: var(--color-detail-b6b6b6);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .visit-link-list a:hover strong {
+        text-decoration: underline;
+        text-underline-offset: 5px;
+    }
+}
+
+@media (max-width: 1100px) {
+    .home-visit-layout {
+        gap: 48px;
+    }
+
+    .identity-layout {
+        gap: 40px;
+    }
+}
+
+@media (max-width: 800px) {
+    #plan-your-visit {
+        padding-block: 64px;
+    }
+
+    .home-visit-layout {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .visit-photograph img {
+        aspect-ratio: 1.6;
+    }
+
+    .visit-editorial {
+        max-width: none;
+    }
+
+    .identity-layout {
+        grid-template-columns: 1fr;
+        gap: 56px;
+    }
+
+    .identity-composition {
+        max-width: 540px;
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .calendar-link {
+        font-size: max(var(--text-min), var(--text-sm));
+    }
+
+    .visit-editorial h2 {
+        font-size: max(var(--text-min), 32px);
+    }
+
+    .home-identity {
+        padding-block: 64px;
+    }
+
+    .home-identity h2 {
+        font-size: max(var(--text-min), 44px);
+    }
+
+    .identity-composition {
+        gap: 14px;
+    }
+
+    .identity-channel > span {
+        margin-top: 20px;
+        font-size: max(var(--text-min), 18px);
+    }
+}
