@@ -1,4 +1,12 @@
-.DS_Store
-Thumbs.db
-node_modules/
 .local-reports/
+node_modules/
+.DS_Store
+__pycache__/
+.env
+.env.local
+.env.*.local
+/.next/
+/out/
+*.tsbuildinfo
+
+/docs/component-color-usage.json
